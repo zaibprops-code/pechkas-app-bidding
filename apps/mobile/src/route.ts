@@ -12,5 +12,6 @@ export function routeFor(account: Account | null, next?: string) {
   if (!account?.role) return router.replace({ pathname: '/welcome', params: { next: next ?? '' } });
   if (account.role === 'pro') return router.replace(account.pro ? '/pro' : '/pro/apply');
   if (next === 'join') return router.replace('/pro/apply');
+  if (next === 'post') return router.replace('/post');
   return router.replace('/');
 }

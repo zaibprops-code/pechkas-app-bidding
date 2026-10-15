@@ -94,9 +94,12 @@ export function nothing(what, result) {
   ok(what, honest, honest ? '' : `empty, but only because: ${result.error}`);
 }
 
-/** Passes only when the database refused outright with a permission error. */
+/**
+ * Passes only when the database refused outright: no permission at all, or a
+ * row the security rules would not let in. Any other error is a broken test.
+ */
 export function denied(what, result) {
-  const isDenied = Boolean(result.error) && /permission denied/i.test(result.error);
+  const isDenied = Boolean(result.error) && /permission denied|violates row-level security policy/i.test(result.error);
   ok(what, isDenied, isDenied ? '' : result.error ? `refused, but for another reason: ${result.error}` : 'it was allowed');
 }
 

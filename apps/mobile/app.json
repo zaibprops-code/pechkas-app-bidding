@@ -21,7 +21,10 @@
         "monochromeImage": "./assets/adaptive-icon-monochrome.png",
         "backgroundColor": "#0b5148"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "blockedPermissions": [
+        "android.permission.ACCESS_BACKGROUND_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +39,30 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 140,
           "backgroundColor": "#0b5148"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Pechkas uses your photos so you can show a technician what is broken.",
+          "cameraPermission": "Pechkas uses the camera so you can show a technician what is broken.",
+          "microphonePermission": "Pechkas records sound with your video so a technician can hear the fault."
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Pechkas records your voice note so you can say what is broken, in Urdu or English.",
+          "enableBackgroundPlayback": false,
+          "enableBackgroundRecording": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Pechkas adds your exact location to a job so the technician finds your house.",
+          "isAndroidBackgroundLocationEnabled": false,
+          "isIosBackgroundLocationEnabled": false
         }
       ]
     ],

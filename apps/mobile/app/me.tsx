@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { showMobile } from '@pechkas/shared';
 import { Body, Button, Notice, Screen, Title } from '../src/components/ui';
 import { useAccount } from '../src/account';
-import { ask } from '../src/supabase';
+import { ask, supabase } from '../src/supabase';
 import { colour, font, radius } from '../src/theme';
 
 /**
@@ -33,6 +33,21 @@ export default function Me() {
   async function remove() {
     setBusy(true);
     setNotice(null);
+    // Voice notes, videos and photos of somebody's home go with the account.
+    // The database cannot delete stored files itself, so the phone does it
+    // first, from the customer's own folder, which only they may empty.
+    if (supabase && session) {
+      const folder = session.user.id;
+      const { data: files } = await supabase.storage.from('job-media').list(folder, { limit: 1000 });
+      if (files?.length) {
+        const { error } = await supabase.storage.from('job-media').remove(files.map((f) => `${folder}/${f.name}`));
+        if (error) {
+          setBusy(false);
+          setNotice('Your photos and recordings could not be deleted. Check your signal and try again.');
+          return;
+        }
+      }
+    }
     const r = await ask('delete_my_account');
     if (!r.ok) {
       setBusy(false);
@@ -64,7 +79,7 @@ export default function Me() {
         ) : (
           <View style={[s.danger, dark && s.dangerDark]}>
             <Text style={[s.dangerText, dark && { color: colour.paper }]}>
-              This deletes your account and everything in it: your name, your number, {account?.role === 'pro' ? 'your application, ' : ''}all of it. It cannot be undone.
+              This deletes your account and everything in it: your name, your number, {account?.role === 'pro' ? 'your application, ' : ''}{account?.role === 'customer' ? 'your jobs, voice notes, videos and photos, ' : ''}all of it. It cannot be undone.
             </Text>
             <Button kind="danger" label="Yes, delete it" onPress={remove} busy={busy} />
             <Button kind="outline" dark={dark} label="No, keep it" onPress={() => setConfirming(false)} />

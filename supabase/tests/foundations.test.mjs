@@ -18,14 +18,19 @@ await setup(`INSERT INTO auth.users (id) VALUES ($1)`, [SOMEBODY]);
 heading('Running the migrations a second time');
 
 {
+  const count = async () => (await setup(`SELECT
+    (SELECT count(*) FROM public.settings)::int AS s,
+    (SELECT count(*) FROM public.applied_migrations)::int AS m`)).rows[0];
+  const before = await count();
   let error = null;
   try {
     await migrate();
   } catch (e) {
     error = e;
   }
-  const { rows } = await setup(`SELECT count(*)::int AS n FROM public.settings`);
-  ok('does no harm, because the owner runs them by hand and may run one twice', !error && rows[0].n === 5);
+  const after = await count();
+  ok('does no harm, because the owner runs them by hand and may run one twice',
+    !error && before.s === after.s && before.m === after.m && after.m === migrationFiles.length);
 }
 
 // =============================================================================

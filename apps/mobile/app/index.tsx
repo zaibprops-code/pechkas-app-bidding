@@ -10,20 +10,21 @@ import { colour, font, radius, TAP } from '../src/theme';
 /**
  * The customer's home screen — board 1 of the "Pechkas App Look" canvas.
  *
- * Posting a job arrives in phase 2; until then those buttons lead to an
- * honest "being built" screen rather than doing nothing, because a button
- * that does nothing tells the customer the app is broken. A technician who
- * opens the app is taken to his own, dark side.
+ * Every way in leads to posting a job: say it, show it, or pick a trade.
+ * Chats and choosing an area are still an honest "being built" screen. A
+ * technician who opens the app is taken to his own, dark side.
  */
 
-const TRADES: { label: string; icon: IconName }[] = [
-  { label: 'AC', icon: 'ac' },
-  { label: 'Electrician', icon: 'bolt' },
-  { label: 'Plumber', icon: 'drop' },
-  { label: 'CCTV', icon: 'cctv' },
-  { label: 'Wi-Fi', icon: 'wifi' },
-  { label: 'UPS', icon: 'ups' },
+const TRADES: { label: string; slug: string; icon: IconName }[] = [
+  { label: 'AC', slug: 'ac', icon: 'ac' },
+  { label: 'Electrician', slug: 'electrician', icon: 'bolt' },
+  { label: 'Plumber', slug: 'plumber', icon: 'drop' },
+  { label: 'CCTV', slug: 'cctv', icon: 'cctv' },
+  { label: 'Wi-Fi', slug: 'wifi', icon: 'wifi' },
+  { label: 'UPS', slug: 'ups', icon: 'ups' },
 ];
+
+const postFor = (params: { trade?: string; start?: string }) => router.push({ pathname: '/post', params });
 
 const soon = () => router.push('/soon');
 
@@ -55,8 +56,8 @@ export default function Home() {
           </Text>
 
           <View style={styles.startRow}>
-            <StartCard icon="mic" title="Say it" sub="A voice note. Urdu is fine." />
-            <StartCard icon="video" title="Show it" sub="A short video of the fault." />
+            <StartCard icon="mic" title="Say it" sub="A voice note. Urdu is fine." onPress={() => postFor({ start: 'voice' })} />
+            <StartCard icon="video" title="Show it" sub="A short video of the fault." onPress={() => postFor({ start: 'video' })} />
           </View>
         </View>
 
@@ -65,14 +66,14 @@ export default function Home() {
             <Text style={styles.h2} accessibilityRole="header">
               Or pick a trade
             </Text>
-            <Press onPress={soon} accessibilityRole="link" hitSlop={10}>
+            <Press onPress={() => postFor({})} accessibilityRole="link" hitSlop={10}>
               <Text style={styles.link}>See all</Text>
             </Press>
           </View>
 
           <View style={styles.grid}>
             {TRADES.map((t) => (
-              <Press key={t.label} style={styles.trade} onPress={soon} accessibilityRole="button" accessibilityLabel={t.label}>
+              <Press key={t.label} style={styles.trade} onPress={() => postFor({ trade: t.slug })} accessibilityRole="button" accessibilityLabel={t.label}>
                 <Icon name={t.icon} size={26} />
                 <Text style={styles.tradeText}>{t.label}</Text>
               </Press>
@@ -94,7 +95,7 @@ export default function Home() {
 
       <View style={[styles.nav, { paddingBottom: Math.max(insets.bottom, 10) }]} accessibilityRole="tablist">
         <NavItem icon="home" label="Home" active />
-        <NavItem icon="jobs" label="My jobs" />
+        <NavItem icon="jobs" label="My jobs" to="/jobs" />
         <NavItem icon="chat" label="Chats" />
         <NavItem icon="me" label="Me" to="/me" />
       </View>
@@ -102,9 +103,9 @@ export default function Home() {
   );
 }
 
-function StartCard({ icon, title, sub }: { icon: IconName; title: string; sub: string }) {
+function StartCard({ icon, title, sub, onPress }: { icon: IconName; title: string; sub: string; onPress: () => void }) {
   return (
-    <Press style={styles.start} onPress={soon} accessibilityRole="button" accessibilityLabel={`${title}. ${sub}`}>
+    <Press style={styles.start} onPress={onPress} accessibilityRole="button" accessibilityLabel={`${title}. ${sub}`}>
       <View style={styles.startIcon}>
         <Icon name={icon} size={20} color={colour.ink} strokeWidth={2} />
       </View>
@@ -123,7 +124,7 @@ function PromiseLine({ icon, text }: { icon: IconName; text: string }) {
   );
 }
 
-function NavItem({ icon, label, active = false, to }: { icon: IconName; label: string; active?: boolean; to?: '/me' }) {
+function NavItem({ icon, label, active = false, to }: { icon: IconName; label: string; active?: boolean; to?: '/me' | '/jobs' }) {
   return (
     <Press
       style={styles.navItem}

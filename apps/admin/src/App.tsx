@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { showMobile } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
+import { Jobs } from './Jobs.tsx';
 
 /**
  * The owner's admin panel. Phase 1: sign in, and decide on technicians.
@@ -142,9 +143,37 @@ function SignIn() {
 }
 
 function Office({ name }: { name: string }) {
+  const [section, setSection] = useState<'jobs' | 'technicians'>('jobs');
+  const [trades, setTrades] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    supabase?.rpc('app_lists').then(({ data }) => {
+      const list = (data as { trades?: { slug: string; name: string }[] } | null)?.trades ?? [];
+      setTrades(Object.fromEntries(list.map((t) => [t.slug, t.name])));
+    });
+  }, []);
+
+  return (
+    <main className="shell">
+      <div className="topbar">
+        <Logo />
+        <div className="who">
+          <span>{name}</span>
+          <button className="secondary small" onClick={() => supabase?.auth.signOut()}>Sign out</button>
+        </div>
+      </div>
+      <nav className="sections" aria-label="Sections">
+        <button className={section === 'jobs' ? 'section on' : 'section'} aria-pressed={section === 'jobs'} onClick={() => setSection('jobs')}>Jobs</button>
+        <button className={section === 'technicians' ? 'section on' : 'section'} aria-pressed={section === 'technicians'} onClick={() => setSection('technicians')}>Technicians</button>
+      </nav>
+      {section === 'jobs' ? <Jobs trades={trades} /> : <Technicians trades={trades} />}
+    </main>
+  );
+}
+
+function Technicians({ trades }: { trades: Record<string, string> }) {
   const [tab, setTab] = useState<(typeof TABS)[number]['status']>('applied');
   const [rows, setRows] = useState<Application[] | null>(null);
-  const [trades, setTrades] = useState<Record<string, string>>({});
   const [problem, setProblem] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -164,22 +193,8 @@ function Office({ name }: { name: string }) {
     load();
   }, [load]);
 
-  useEffect(() => {
-    supabase?.rpc('app_lists').then(({ data }) => {
-      const list = (data as { trades?: { slug: string; name: string }[] } | null)?.trades ?? [];
-      setTrades(Object.fromEntries(list.map((t) => [t.slug, t.name])));
-    });
-  }, []);
-
   return (
-    <main className="shell">
-      <div className="topbar">
-        <Logo />
-        <div className="who">
-          <span>{name}</span>
-          <button className="secondary small" onClick={() => supabase?.auth.signOut()}>Sign out</button>
-        </div>
-      </div>
+    <>
       <h1>Technicians</h1>
       <nav className="tabs" aria-label="Applications">
         {TABS.map((t) => (
@@ -194,7 +209,7 @@ function Office({ name }: { name: string }) {
       <div className="list">
         {rows?.map((a) => <Card key={a.id} a={a} trades={trades} onChange={load} />)}
       </div>
-    </main>
+    </>
   );
 }
 

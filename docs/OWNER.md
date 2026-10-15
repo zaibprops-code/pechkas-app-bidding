@@ -7,18 +7,20 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
-**Phase 1 — sign-in and technicians.** People sign in with their mobile
-number and a code. A technician applies (no CNIC is ever asked for); you see
-his application in the admin panel, record that you checked his identity,
-watched a trial job and explained the rules, and approve him. His phone then
-says he is approved. Posting jobs is still "Being built".
+**Phase 2 — customers post jobs.** A customer picks the trade and the job
+(with the Pechkas website price beside it), shows what is wrong with a voice
+note, a short video or photos, gives the address and a landmark, says when,
+answers "electricity on?", "who brings parts?" and "anything for the gate?",
+and offers a price. You see every job in the admin panel under **Jobs**, with
+their number, full address, a Google Maps link and the recordings, and you
+arrange somebody by phone. Technicians bidding on jobs is phase 3.
 
 | Phase | What | State |
 | --- | --- | --- |
 | 0 | Foundations: the app opens, the database is locked down | Done |
-| 1 | Sign-in, technician applications, you approve them | **Built — needs the setup below, then your test** |
-| 2 | Customers post jobs with voice notes, video and a price | |
-| 3 | Bidding: technicians accept or counter, customer chooses | |
+| 1 | Sign-in, technician applications, you approve them | Done |
+| 2 | Customers post jobs with voice notes, video, photos and a price | **Built — run the migration, rebuild, test** |
+| 3 | Bidding: technicians accept or counter, customer chooses | Next |
 | 4 | Doing the job: on the way, gate code, price changes | |
 | 5 | Money and trust: commission, ratings, Help, guarantee | |
 | 6 | Play Store and App Store | |
@@ -35,9 +37,17 @@ not a new app.
 | Offer stays open | 10 minutes |
 | Untaken job comes to you after | 15 minutes |
 | Guarantee | 30 days |
+| **Lowest offer a customer can make** | **Rs 1,000** — your published inspection fee. **Confirm or change.** |
+| Open jobs one customer may have | 5 |
+| Jobs one customer may post in a day | 10 |
+| **Sectors taking jobs** | **F-11, E-11, G-13** — the same as the website. **Confirm or change.** |
 | App identifier | `net.pechkas.app` — permanent |
 
 **Still open:**
+- **The lowest offer (Rs 1,000) and the live sectors** above.
+- **Price guidance.** Within 20% of the website price the app says "Fair";
+  below that "Low"; above "Generous". Say if you want different words or
+  limits.
 - **The Roman Urdu on the technician screens.** Read every line on your phone
   and send corrections. The words are all in `apps/mobile/src/words.ts`.
 - **Who sends the real sign-in codes** (an SMS company, or WhatsApp). Until
@@ -170,6 +180,27 @@ them to Claude.
 
 ---
 
+## Trying phase 2
+
+1. **Supabase → SQL Editor:** run `20261017000000_posting_a_job.sql`. It
+   should say **Success**. Check **Storage** in the left menu: there is now a
+   bucket called **job-media**, marked private.
+2. **Expo:** start a new **preview** build from GitHub (same settings as
+   always) and install it. The app now asks for the **microphone**, **camera**
+   and **location** the first time each is used — allow them.
+3. **On the phone:** tap **AC** on the home screen → sign in → choose a job,
+   record a short voice note, add a photo, fill in F-11, a street and house,
+   choose **Tomorrow · Morning**, and press **Post job**.
+4. **My jobs** should show it as **Waiting for a technician**.
+5. **Admin panel → Jobs:** it is there with the customer's number, the
+   address, a Google Maps link if they added their location, the voice note to
+   play and the photo to open.
+6. Cancel it from the phone and check it moves to **Cancelled** in the panel.
+7. Try something wrong on purpose: G-7 is not offered (Pechkas is not there
+   yet), and an offer below Rs 1,000 cannot be made.
+
+---
+
 ## Run a database change (a "migration")
 
 Each change is a file in `supabase/migrations/`, run **once**, **in order**,
@@ -190,6 +221,7 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | --- | --- | --- |
 | `20261015000000_foundations.sql` | Locks the database so the public key reaches nothing; stores your settings | First |
 | `20261016000000_accounts_and_technicians.sql` | Accounts, technician applications, checks, approvals, the office list | Second |
+| `20261017000000_posting_a_job.sql` | Jobs, the website prices, the private bucket for voice notes, videos and photos | Third — **run it for phase 2** |
 
 ---
 
@@ -203,6 +235,7 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | Your admin login | Supabase → Authentication → Users (your email); the office list is the `staff` table |
 | The admin panel | Vercel → pechkas-app-bidding (Root Directory `apps/admin`) |
 | Words on the technician screens | `apps/mobile/src/words.ts` |
+| Customers' voice notes, videos and photos | Supabase → Storage → `job-media` (private; opened from the admin panel) |
 | The approved design | https://claude.ai/artifact/42Sb6DBfcN9pP1kLnvBqBr |
 | The full plan | `APP_BUILD_PROMPT.md` in `zaibprops-code/Pechkas` |
 | Android keystore backup | Your private storage. **Never** GitHub, never a chat. |

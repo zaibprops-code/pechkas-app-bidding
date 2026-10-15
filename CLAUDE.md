@@ -102,6 +102,29 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   too; Vite even drops the code that would use them. Set them in Expo and
   Vercel, then rebuild.
 
+### Jobs (phase 2)
+- **Price guidance is the website's prices, never ours.** `job_types` is
+  seeded from `src/data/services.js` in the website repository; a job the
+  website does not price says "Price after a look" rather than a number.
+  The lowest offer is the `min_offer_paisa` setting (Rs 1,000, the website's
+  inspection fee). If the website's prices change, a migration updates
+  `job_types`.
+- **Only `live` sectors take jobs.** Nobody is promised a visit where Pechkas
+  has nobody.
+- **Files live in the private `job-media` bucket under `<user id>/…`.** The
+  storage policies let a person write and read only their own folder and the
+  office read all of it — no policy for `anon`, ever. `post_job()` checks every
+  path is in the caller's folder and really uploaded. Phase 3 opens a job's
+  files to the chosen technician through a function, not a policy.
+- The database cannot delete stored files. Deleting an account empties the
+  customer's folder **from the phone first**, then deletes the account.
+- The post form is saved on the phone as it is typed (`post/draft.ts`), and
+  an uploaded file keeps its `path`, so a post that fails on bad signal
+  neither loses the voice note nor uploads it twice.
+- Permissions: microphone, camera, photos and location **while using**.
+  Background location and background audio are switched off in `app.json`;
+  Google Play asks questions about both.
+
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only
   `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be in the

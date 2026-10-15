@@ -65,3 +65,42 @@ GRANT EXECUTE ON FUNCTION auth.uid(), auth.role() TO anon, authenticated, servic
 
 -- Supabase grants these by default on the public schema.
 GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+
+-- Supabase Storage, as far as the migrations touch it: buckets, the object
+-- rows its upload API writes, and the helper policies use to read a path.
+-- Uploading here is an INSERT into storage.objects, which is exactly what the
+-- policies are checked against on the real thing.
+CREATE SCHEMA IF NOT EXISTS storage;
+
+CREATE TABLE IF NOT EXISTS storage.buckets (
+  id                 text PRIMARY KEY,
+  name               text NOT NULL,
+  public             boolean DEFAULT false,
+  file_size_limit    bigint,
+  allowed_mime_types text[]
+);
+
+CREATE TABLE IF NOT EXISTS storage.objects (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  bucket_id  text REFERENCES storage.buckets(id),
+  name       text NOT NULL,
+  owner_id   text,
+  metadata   jsonb,
+  created_at timestamptz DEFAULT now(),
+  UNIQUE (bucket_id, name)
+);
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+/** The folders of a path: 'a/b/c.jpg' → {a,b}. The same as Supabase's. */
+CREATE OR REPLACE FUNCTION storage.foldername(name text)
+RETURNS text[]
+LANGUAGE sql
+IMMUTABLE
+AS $$
+  SELECT (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1];
+$$;
+
+GRANT USAGE ON SCHEMA storage TO anon, authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON storage.objects TO anon, authenticated, service_role;
+GRANT SELECT ON storage.buckets TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION storage.foldername(text) TO anon, authenticated, service_role;

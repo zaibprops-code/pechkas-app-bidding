@@ -10,6 +10,7 @@ export type IconName =
   | 'pin'
   | 'chevronDown'
   | 'arrowRight'
+  | 'arrowLeft'
   | 'mic'
   | 'video'
   | 'ac'
@@ -45,6 +46,7 @@ export function Icon({ name, size = 24, color = colour.green, strokeWidth = 1.8,
       )}
       {name === 'chevronDown' && <Path {...s} d="M6 9l6 6 6-6" />}
       {name === 'arrowRight' && <Path {...s} d="M5 12h14M13 6l6 6-6 6" />}
+      {name === 'arrowLeft' && <Path {...s} d="M19 12H5M11 6l-6 6 6 6" />}
       {name === 'mic' && (
         <>
           <Rect {...s} x={9} y={2} width={6} height={12} rx={3} />

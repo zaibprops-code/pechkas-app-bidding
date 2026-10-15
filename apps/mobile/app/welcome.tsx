@@ -38,7 +38,7 @@ export default function Welcome() {
     await refresh();
     setBusy(false);
     if (router.canDismiss()) router.dismissAll();
-    router.replace(r.role === 'pro' ? '/pro/apply' : '/');
+    router.replace(r.role === 'pro' ? '/pro/apply' : next === 'post' ? '/post' : '/');
   }
 
   return (

@@ -78,3 +78,15 @@ button:focus-visible, .call:focus-visible, input:focus-visible, select:focus-vis
 
 .decide { display: grid; gap: 10px; }
 .buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.sections { display: flex; gap: 8px; margin-top: 24px; border-bottom: 1px solid var(--rule); }
+.section { background: transparent; border-radius: 12px 12px 0 0; border-color: transparent; font-weight: 700; }
+.section.on { background: var(--ink); color: var(--paper); }
+
+.price { display: grid; justify-items: end; gap: 2px; }
+.price strong { font-size: 24px; }
+.extras { margin: 0; padding-left: 18px; color: var(--ink-soft); }
+.media { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+.media audio { width: 280px; max-width: 100%; }
+.media video { width: 280px; max-width: 100%; border-radius: 12px; background: var(--ink); }
+.media img { width: 140px; height: 140px; object-fit: cover; border-radius: 12px; display: block; }
