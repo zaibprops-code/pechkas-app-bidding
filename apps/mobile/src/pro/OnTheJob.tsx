@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Image, Linking, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
-import { rupees, showMobile, technicianKeeps } from '@pechkas/shared';
+import { commission, rupees, showMobile, technicianKeeps } from '@pechkas/shared';
 import { Button } from '../components/ui';
 import { Press } from '../components/Press';
+import { Stars } from '../components/Stars';
 import { OFFICE_PHONE } from '../office';
 import { RemoteMedia, useSignedUrls, type StoredMedia } from '../post/RemoteMedia';
 import { takePhoto, upload } from '../post/media';
@@ -48,7 +49,19 @@ export type ActiveJob = {
   visit_fee_paisa: number;
   photos: { stage: 'before' | 'after' | 'change'; path: string }[];
 };
-export type FinishedJob = { id: string; ref: string; trade: string; title: string; sector: string; status: 'done' | 'stopped'; collect_paisa: number; customer_first_name: string };
+export type FinishedJob = {
+  id: string;
+  ref: string;
+  trade: string;
+  title: string;
+  sector: string;
+  status: 'done' | 'stopped';
+  collect_paisa: number;
+  customer_first_name: string;
+  parts_paisa?: number | null;
+  my_rating?: number | null;
+  can_rate?: boolean;
+};
 
 type Props = { j: ActiveJob; w: ProWords; trade: string; when: string; userId: string; commissionBps: number | null; onChanged: () => void };
 
@@ -60,6 +73,15 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
   const [msgField, setMsgField] = useState<string | null>(null);
   const [code, setCode] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
+  // What of the price was parts. The receipt photo is asked for only once
+  // there is a figure; commission is shown on what is left.
+  const [parts, setParts] = useState('');
+  const [receipt, setReceipt] = useState<string[]>([]);
+  const [reporting, setReporting] = useState(false);
+  const [reportText, setReportText] = useState('');
+  const [reported, setReported] = useState(false);
+  const partsPaisa = Number(parts || '0') * 100;
+  const labour = Math.max(j.agreed_paisa - partsPaisa, 0);
   const [changing, setChanging] = useState(false);
 
   const map =
@@ -86,7 +108,25 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
   const reset = () => {
     setPhotos([]);
     setCode('');
+    setParts('');
+    setReceipt([]);
   };
+
+  async function sendReport() {
+    setBusy(true);
+    setMsg(null);
+    setMsgField(null);
+    const r = await ask('report', { p_job: j.id, p_kind: 'problem', p_text: reportText });
+    setBusy(false);
+    if (!r.ok) {
+      setMsg(proError(w, r.field, r.why));
+      setMsgField('report');
+      return;
+    }
+    setReported(true);
+    setReporting(false);
+    setReportText('');
+  }
 
   return (
     <View style={[s.card, s.chosen]}>
@@ -123,7 +163,8 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Text style={s.moneyLabel}>{w.youKeep}</Text>
-          <Text style={s.keep}>{rupees(j.keeps_paisa)}</Text>
+          {/* Follows the parts as he types them: the fee is on his labour only. */}
+          <Text style={s.keep}>{rupees(commissionBps !== null ? j.agreed_paisa - commission(labour, commissionBps) : j.keeps_paisa)}</Text>
         </View>
       </View>
       <RemoteMedia items={j.media} voiceLabel={w.playVoice} videoLabel={w.watchVideo} />
@@ -138,6 +179,31 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
         </View>
       </View>
       {j.stage === 'chosen' || j.stage === 'on_way' ? <Button kind="outline" label={w.openMap} onPress={() => Linking.openURL(map)} /> : null}
+      <View style={s.row}>
+        <View style={{ flex: 1 }}>
+          <Button kind="outline" label={w.reportProblem} onPress={() => setReporting(!reporting)} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button kind="danger" label={w.emergency} onPress={() => router.push({ pathname: '/emergency/[job]', params: { job: j.id } })} />
+        </View>
+      </View>
+      {reporting ? (
+        <View style={s.step}>
+          <TextInput
+            value={reportText}
+            onChangeText={setReportText}
+            maxLength={500}
+            multiline
+            placeholder={w.reportPlaceholder}
+            placeholderTextColor={colour.steel}
+            accessibilityLabel={w.reportPlaceholder}
+            style={[s.input, { minHeight: 72, paddingTop: 12 }]}
+          />
+          {msg && msgField === 'report' ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
+          <Button kind="green" label={w.reportSend} busy={busy} onPress={sendReport} />
+        </View>
+      ) : null}
+      {reported ? <Text style={s.note}>{w.reportSent}</Text> : null}
 
       <View style={s.rule} />
 
@@ -208,12 +274,36 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
         <View style={s.step}>
           <Photos label={w.afterPhoto} paths={photos} setPaths={setPhotos} userId={userId} w={w} onProblem={(m) => { setMsg(m); setMsgField(m ? 'photos' : null); }} />
           {msg && msgField === 'photos' ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
-          <Button kind="yellow" label={w.finish} busy={busy} onPress={() => run('finish_work', { p_job: j.id, p_photos: photos }, reset)} />
+          <Text style={s.label}>{w.partsLabel}</Text>
+          <TextInput
+            value={parts}
+            onChangeText={(t) => setParts(t.replace(/[^0-9]/g, '').slice(0, 7))}
+            keyboardType="number-pad"
+            placeholder="0"
+            placeholderTextColor={colour.steel}
+            accessibilityLabel={w.partsLabel}
+            style={s.input}
+          />
+          {msg && msgField === 'parts' ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
+          {partsPaisa > 0 ? (
+            <Photos label={w.receiptPhoto} paths={receipt} setPaths={setReceipt} userId={userId} w={w} max={1} onProblem={(m) => { setMsg(m); setMsgField(m ? 'receipt' : null); }} />
+          ) : null}
+          {msg && msgField === 'receipt' ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
+          <Text style={s.note}>{w.partsNote}</Text>
+          {commissionBps !== null ? (
+            <Text style={s.feeLine}>{fill(w.feeKeep, { fee: rupees(commission(labour, commissionBps)), keep: rupees(j.agreed_paisa - commission(labour, commissionBps)) })}</Text>
+          ) : null}
+          <Button
+            kind="yellow"
+            label={w.finish}
+            busy={busy}
+            onPress={() => run('finish_work', { p_job: j.id, p_photos: photos, p_parts_paisa: partsPaisa, p_receipt: partsPaisa > 0 ? (receipt[0] ?? null) : null }, reset)}
+          />
           <Text style={s.note}>{fill(w.finishNote, { price: rupees(j.agreed_paisa) })}</Text>
         </View>
       ) : null}
 
-      {msg && !j.code_locked && msgField !== 'code' && msgField !== 'photos' ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
+      {msg && !j.code_locked && !['code', 'photos', 'parts', 'receipt', 'report'].includes(msgField ?? '') ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
     </View>
   );
 }
@@ -310,7 +400,7 @@ function ChangeForm({ j, w, userId, commissionBps, onDone, onBack }: { j: Active
 }
 
 /** The last day's finished jobs: what to collect, and no address. */
-export function Finished({ items, w, tradeName }: { items: FinishedJob[]; w: ProWords; tradeName: (slug: string) => string }) {
+export function Finished({ items, w, tradeName, onChanged }: { items: FinishedJob[]; w: ProWords; tradeName: (slug: string) => string; onChanged: () => void }) {
   if (!items.length) return null;
   return (
     <View style={{ gap: 8 }}>
@@ -327,14 +417,54 @@ export function Finished({ items, w, tradeName }: { items: FinishedJob[]; w: Pro
             </Text>
           </View>
           <Text style={s.doneMoney}>{fill(w.collect, { price: rupees(f.collect_paisa) })}</Text>
+          {f.can_rate ? <RateCustomer f={f} w={w} onDone={onChanged} /> : null}
+          {f.my_rating ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, width: '100%' }}>
+              <Text style={s.doneSub}>{w.rated}</Text>
+              <Stars value={f.my_rating} size={14} dark />
+            </View>
+          ) : null}
         </View>
       ))}
     </View>
   );
 }
 
+/** He rates the customer: only Pechkas sees it, and the screen says so. */
+function RateCustomer({ f, w, onDone }: { f: FinishedJob; w: ProWords; onDone: () => void }) {
+  const [stars, setStars] = useState(0);
+  const [words, setWords] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  async function send() {
+    if (!stars) return setMsg(w.errStars);
+    setBusy(true);
+    const r = await ask('rate_job', { p_job: f.id, p_stars: stars, p_words: words });
+    setBusy(false);
+    if (!r.ok) return setMsg(proError(w, r.field, r.why));
+    onDone();
+  }
+
+  return (
+    <View style={{ width: '100%', gap: 6 }}>
+      <Text style={s.doneSub}>{fill(w.rateCustomer, { name: f.customer_first_name })}</Text>
+      <Stars value={stars} onPick={setStars} size={26} dark label={fill(w.rateCustomer, { name: f.customer_first_name })} />
+      {stars ? (
+        <>
+          <TextInput value={words} onChangeText={setWords} maxLength={300} placeholder={w.rateWords} placeholderTextColor={colour.steel} accessibilityLabel={w.rateWords} style={s.input} />
+          <Text style={s.doneSub}>{w.rateNote}</Text>
+          <Button kind="yellow" dark label={w.rateSend} busy={busy} onPress={send} />
+        </>
+      ) : null}
+      {msg ? <Text style={[s.error, { color: '#ffb4a3' }]}>{msg}</Text> : null}
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
   card: { gap: 10, padding: 14, borderRadius: 22 },
+  feeLine: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green },
   chosen: { backgroundColor: colour.paper },
   cardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill, backgroundColor: colour.ink },
@@ -376,7 +506,7 @@ const s = StyleSheet.create({
   form: { padding: 12, borderRadius: radius.card, backgroundColor: colour.paper2 },
   formTitle: { fontFamily: font.display, fontSize: 18, color: colour.ink },
   section: { fontFamily: font.bodySemi, fontSize: 14, color: '#b9c2c9', marginTop: 4 },
-  done: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.card, backgroundColor: '#22282d' },
+  done: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.card, backgroundColor: '#22282d' },
   doneTitle: { fontFamily: font.bodySemi, fontSize: 14, color: colour.paper },
   doneSub: { fontFamily: font.body, fontSize: 13, color: '#b9c2c9' },
   doneMoney: { fontFamily: font.display, fontSize: 15, color: colour.yellow },

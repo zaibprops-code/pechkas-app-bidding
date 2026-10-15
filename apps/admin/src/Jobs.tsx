@@ -289,6 +289,8 @@ type Detail = {
   messages: { at: string; from: 'customer' | 'pro' | 'gone'; body: string }[];
   photos: { stage: 'before' | 'after' | 'change'; path: string }[];
   changes: { from_paisa: number; price_paisa: number; reason: string; status: string; at: string }[];
+  money?: { collect_paisa: number | null; parts_paisa: number | null; commission_paisa: number | null };
+  ratings?: { side: 'customer' | 'pro'; stars: number; words: string | null; at: string }[];
 };
 
 const WHAT: Record<string, string> = {
@@ -308,6 +310,11 @@ const WHAT: Record<string, string> = {
   stopped: 'Stopped at the door',
   cancelled: 'Cancelled',
   problem: 'Problem reported',
+  guarantee: 'Guarantee claimed',
+  emergency: 'EMERGENCY button pressed',
+  emergency_mistake: 'Said the emergency was a mistake',
+  problem_closed: 'Problem closed',
+  rated: 'Rated',
 };
 const WHO: Record<string, string> = { customer: 'customer', pro: 'technician', office: 'office', system: 'system' };
 const time = (t: string) => new Date(t).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
@@ -345,6 +352,26 @@ function History({ job }: { job: string }) {
           <h3>The technician's photos</h3>
           <MediaList items={d.photos.map((p) => ({ kind: 'photo', path: p.path, seconds: null }))} />
           <p className="muted">In order: {d.photos.map((p) => p.stage).join(', ')}.</p>
+        </>
+      ) : null}
+      {d.money?.collect_paisa ? (
+        <p>
+          <strong>Money:</strong> collected {rupees(d.money.collect_paisa)}
+          {d.money.parts_paisa ? ` · parts ${rupees(d.money.parts_paisa)}` : ''}
+          {d.money.commission_paisa !== null ? ` · Pechkas commission ${rupees(d.money.commission_paisa)}` : ' · no commission (visit fee)'}
+        </p>
+      ) : null}
+      {d.ratings?.length ? (
+        <>
+          <h3>Ratings</h3>
+          <ul className="events">
+            {d.ratings.map((r, i) => (
+              <li key={i}>
+                {r.side === 'customer' ? 'The customer gave the technician' : 'The technician gave the customer'} {r.stars} of 5
+                {r.words ? ` · “${r.words}”` : ''}
+              </li>
+            ))}
+          </ul>
         </>
       ) : null}
       <h3>Chat</h3>

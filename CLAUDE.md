@@ -253,6 +253,47 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - The office number in the app is `src/office.ts`, copied from the
   website's `site.js` — never invent one.
 
+### Money and trust (phase 5)
+- **Commission is 10% of the LABOUR**: `agreed_paisa − parts_paisa`, through
+  `commission_on()`, rounded down, the same as `commission()` in
+  `packages/shared`. Parts need a receipt photo (`job_photos.stage =
+  'receipt'`). `parts_paisa` and `commission_paisa` are fixed on the job
+  when it is done. A visit fee (`stopped`) carries no commission.
+- **The ledger is double-entry and written once.** `ledger_txns` +
+  `ledger_entries`; every transaction's lines sum to zero (checked by
+  `post_txn()` and by a deferred constraint trigger); UPDATE, DELETE and
+  TRUNCATE raise for everyone, the database owner included. No foreign keys:
+  the record outlives deleted accounts, so it copies the job ref and the
+  technician's name. Every transaction has an `idempotency_key`
+  (`commission:<job>`, `settle:<form key>`, `reverse:<txn>`). A mistake is a
+  **reversal**, never an edit.
+- **No balance is stored.** `pro_owed()` sums his `pro_owes` lines. Accounts:
+  `pro_owes`, `commission`, `reserve` (`reserve_bps` of each commission),
+  `received`.
+- Commission is posted by the `job_done_commission` trigger the moment a
+  job becomes `done`, whoever marked it.
+- **Credit limit**: `make_offer()` refuses (`field: 'owed'`) while
+  `pro_owed() > credit_limit_paisa`. He is told once, when he crosses it.
+- **Payments are recorded by the office only** (`admin_settle()`), with a
+  method, a reference and the form's own key; more than he owes is refused
+  as a typing mistake; concurrent payments for one man are serialised with
+  an advisory lock. `pay_to` is whatever the office typed, shown exactly;
+  empty means "ask the office" — never an invented account.
+- **Ratings**: one each way per job, within `rating_days`. Hidden until both
+  have rated or 48 hours pass (`rating_revealed()`). `pro_rating()` returns
+  `avg` NULL — shown as "New" — until `rating_min_count`. A technician's
+  rating of a customer is seen by the office only. `jobs_done` is a real
+  count.
+- **Problems** (`problems` table): `report()` for a problem (either side,
+  during the job or a day after) or a guarantee claim (customer, done,
+  within `guarantee_days`); one open per person, job and kind. Closing needs
+  a note.
+- **The emergency button** alerts the office FIRST (`emergency()`), then the
+  phone sends where it is (`emergency_where()`), never the other way round.
+  A second press within a minute is the same emergency. The numbers are in
+  `apps/mobile/src/emergency.ts`, confirmed by the owner — never change one
+  from memory.
+
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only
   `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be in the

@@ -7,6 +7,40 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Phase 5 — money and trust.**
+
+- **Parts and commission.** At **Kaam mukammal** the technician says what he
+  spent on parts and photographs the shop receipt. Pechkas' fee is 10% of the
+  rest — his labour — rounded down. The customer sees the split and the
+  receipt.
+- **The books.** Every rupee a technician owes and pays is written in a
+  ledger that nobody can edit, not even you; a mistake is undone with
+  **Undo**, which writes the opposite and keeps both. 20% of each commission
+  is set aside as the **guarantee reserve**. A visit fee carries no
+  commission: it is only petrol.
+- **The credit limit.** Over **Rs 3,000** owed, a technician cannot send new
+  offers. His phone tells him once, and his screen says how much and where
+  to pay.
+- **Paying.** He sends the money by JazzCash, Easypaisa, bank or cash, and
+  you record it in **Admin → Money → Record a payment** with the
+  transaction ID. His phone is told. You type, once, where technicians
+  should send money; until you do, the app tells them to ask the office.
+- **His account.** The technician taps **Pechkas ka baqaya** for **Mera
+  hisaab**: what he owes, this month's jobs, parts and fees, his stars, what
+  customers said, and every line.
+- **Ratings.** Both rate each other, 1 to 5 stars. Neither sees the other's
+  until both have rated or two days pass. Customers see a technician's
+  stars only after **3 ratings** — "New" before that — and how many jobs he
+  has really done. A technician's rating of a customer is seen only by you.
+- **Problems.** Either side can **report a problem** during a job or for a
+  day after; the customer can **claim the 30-day guarantee**. Both go to
+  **Admin → Problems**, and to your phone.
+- **The emergency button**, on every job that is on, for both sides. Pressing
+  it tells your phone at once, then sends where the phone is if it can. The
+  screen shows **Police 15, Rescue 1122, Fire brigade 16, Edhi 115** and
+  your office number. "Pressed by mistake" tells you that too. Nothing is
+  closed in Problems without a note of what was done.
+
 **Phase 4 — doing the job.** Once a customer has chosen a technician, the
 job goes step by step, and every step is written down for you:
 
@@ -67,8 +101,8 @@ is buzzed, and the screens still update by themselves while open.
 | 2 | Customers post jobs with voice notes, video, photos and a price | Done |
 | 3 | Bidding: technicians accept or counter, customer chooses | Done |
 | 3b | Notifications: a new job buzzes the technician, a new offer buzzes the customer, a waiting job buzzes you | Done |
-| 4 | Doing the job: on the way, start code, photos, new price at the door, visit fee, chat, done | **Built — run the migration, rebuild, test** |
-| 5 | Money and trust: commission, ratings, Help, guarantee | |
+| 4 | Doing the job: on the way, start code, photos, new price at the door, visit fee, chat, done | Done |
+| 5 | Money and trust: parts, commission, ledger, credit limit, payments, ratings, problems, guarantee, emergency | **Built — run the migration, rebuild, test** |
 | 6 | Play Store and App Store | |
 
 ## The settings you chose
@@ -88,11 +122,20 @@ not a new app.
 | Open jobs one customer may have | 5 |
 | Jobs one customer may post in a day | 10 |
 | **Sectors taking jobs** | **F-11, E-11, G-13** — the same as the website. **Confirm or change.** |
+| **Commission** | **10% of the labour** — the price minus parts with a receipt — rounded down. None on a visit fee. |
+| **Guarantee reserve** | **20% of each commission**, set aside for redoing failed work |
+| **Stars shown after** | **3 ratings**; "New" before that. Ratings may be given for 14 days. |
+| **Emergency numbers** | Police 15, Rescue 1122, Fire brigade 16, Edhi 115 — confirmed by you |
 | **Visit fee** | **Rs 300 to Rs 1,000**, the petrol for his trip — your decision. Until Google Maps is connected the trip cannot be measured, so it is **Rs 300**, your rule for "no distance". |
 | Wrong start codes before it locks | 5 |
 | App identifier | `net.pechkas.app` — permanent |
 
 **Still open:**
+- **Where technicians pay.** Type it in **Admin → Money → Where
+  technicians pay** (for example your JazzCash number and account name).
+  Until then they are told to ask the office.
+- **No commission on a visit fee.** That was taken as the default — it is
+  petrol, not work. Say if you want commission on it.
 - **The visit fee needs Google Maps** to measure each trip. When you are
   ready, Claude will tell you how to make a Google Maps key (it needs a
   billing card on Google Cloud, with a free monthly allowance), and then
@@ -463,6 +506,40 @@ phones. Use one customer phone and one approved technician phone.
 
 ---
 
+## Trying phase 5
+
+**Supabase → SQL Editor:** run `20261022000000_money_and_trust.sql`. It should
+say **Success**. Then a new **preview** build on both phones.
+
+1. **Admin panel → Money → Where technicians pay:** type your JazzCash (or
+   bank) details as technicians should see them, and **Save**.
+2. Run a job as in phase 4 up to **Kaam shuru karein**.
+3. **Customer:** press **Emergency**. Your phone buzzes **EMERGENCY on
+   PK-…** at once. The screen shows the four numbers. Press **Pressed by
+   mistake** — your phone is told that too.
+4. **Technician:** take the after photo, type **1500** in **Parts par
+   kharcha**, photograph a receipt, and see the fee change to 10% of the
+   rest. Press **Kaam mukammal**.
+5. **Customer:** the card says what was parts and what was his work, with
+   the receipt photo. Give him stars and a line.
+6. **Technician:** under **Pichle 24 ghante**, rate the customer. Then tap
+   **Pechkas ka baqaya** at the top: **Mera hisaab** shows what he owes,
+   the month, and — now both have rated — her stars and words.
+7. **Admin → Problems:** the emergency is there, with both numbers and the
+   address. Write what you did and **Close it**.
+8. **Admin → Money:** **Record a payment** for him — amount, **JazzCash**,
+   a transaction ID — and save. His phone says **Pechkas ko … mil gaye**.
+   **Account, line by line** shows the fee and the payment. Try **Undo** on
+   the payment with a reason: it is struck through, not deleted, and he owes
+   it again.
+9. **The credit limit:** jobs worth about Rs 31,000 of labour take a
+   technician past Rs 3,000. His phone says so, his work screen turns red,
+   and **Qubool** is refused until you record a payment.
+10. **Guarantee:** a day after a job is done, the customer's card shows
+    **It has failed again (guarantee)**. A claim lands in Problems.
+
+---
+
 ## Run a database change (a "migration")
 
 Each change is a file in `supabase/migrations/`, run **once**, **in order**,
@@ -489,7 +566,8 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | `20261018000000_bidding.sql` | Going online, offers, the customer choosing, the address reaching only the chosen technician | Fourth |
 | `20261019000000_notifications.sql` | Phones' notification addresses, and the database telling people when something happens | Fifth — **run it for phase 3b** |
 | `20261020000000_who_else_hears.sql` | The notification words in one table; telling a technician who was not chosen; your alert for jobs with no offers | Sixth |
-| `20261021000000_doing_the_job.sql` | On my way, arrived, the start code, photos, a new price at the door, the visit fee, chat, done, "something is wrong", each job's history | Seventh — **run it for phase 4** |
+| `20261021000000_doing_the_job.sql` | On my way, arrived, the start code, photos, a new price at the door, the visit fee, chat, done, "something is wrong", each job's history | Seventh |
+| `20261022000000_money_and_trust.sql` | Parts, commission, the ledger, the credit limit, payments, ratings, problems, guarantee claims, the emergency button | Eighth — **run it for phase 5** |
 
 ---
 
@@ -505,6 +583,9 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | Words on the technician screens | `apps/mobile/src/words.ts` |
 | Every Roman Urdu line, beside its English | `docs/ROMAN_URDU.md` (written by `npm run words`) |
 | Words in the notifications | the `push_words` table, set in `supabase/migrations/20261020000000_who_else_hears.sql` and `…21000000_doing_the_job.sql` |
+| Who owes what, and payments | Admin panel → **Money** (the ledger is the tables `ledger_txns` and `ledger_entries`; they refuse any edit) |
+| Problems, claims, emergencies | Admin panel → **Problems** |
+| The emergency numbers | `apps/mobile/src/emergency.ts` — change only on your say-so |
 | The office phone number the app shows | `apps/mobile/src/office.ts` — the same as the website's; change both together |
 | Notifications: Firebase | console.firebase.google.com → Pechkas (`net.pechkas.app`) |
 | Notifications: what was sent | Supabase → Table Editor → `push_log` |

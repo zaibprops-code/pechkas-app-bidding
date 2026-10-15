@@ -38,6 +38,10 @@ Sent by the database, so these live in `push_words`
 | `stopped.body` | {customer} ne nayi price nahi maani. Sirf visit fee {fee} lein. | {customer} declined the new price. Collect only the visit fee, {fee}. |
 | `message.title` | Naya message: {from} | New message from {from} |
 | `message.body` | {ref} ke baare mein. Parhne ke liye app kholein. | About {ref}. Open the app to read it. |
+| `settled.title` | Pechkas ko {amount} mil gaye | Pechkas received {amount} |
+| `settled.body` | Ab aap ka baqaya {owed} hai. Shukriya. | You now owe {owed}. Thank you. |
+| `over_limit.title` | Pechkas ka baqaya: {owed} | You owe Pechkas {owed} |
+| `over_limit.body` | Nayi offer bhejne se pehle baqaya ada karein. Tareeqa app mein hai. | Pay it before you can send new offers. How to pay is in the app. |
 
 ## The technician's screens
 
@@ -165,6 +169,59 @@ From `apps/mobile/src/words.ts`.
 | `sendMessage` | Bhejein | Send |
 | `chatClosed` | Yeh chat band ho gayi. | This chat is closed. |
 | `chatNote` | Pechkas office yeh chat parh sakta hai. | The Pechkas office can read this chat. |
+| `partsLabel` | Parts par kharcha (Rs), agar kiya | Spent on parts (Rs), if any |
+| `partsNote` | Dukaan ki raseed ki photo lein. Pechkas fee sirf aap ki mehnat par hai, parts par nahi. | Take a photo of the shop receipt. The Pechkas fee is only on your work, not on parts. |
+| `receiptPhoto` | Dukaan ki raseed | Shop receipt |
+| `feeKeep` | Pechkas fee {fee} · aap ke {keep} | Pechkas fee {fee} · you keep {keep} |
+| `errParts` | Parts ki raqam poore rupay mein, aur poori price se kam. | Parts in whole rupees, and less than the whole price. |
+| `errReceipt` | Parts ke liye dukaan ki raseed ki photo lein. | Take a photo of the shop receipt for the parts. |
+| `owe` | Pechkas ka baqaya | You owe Pechkas |
+| `moneyTitle` | Mera hisaab | My account |
+| `blockedTitle` | Nayi offer band hai | New offers are stopped |
+| `blockedText` | Aap ka baqaya {owed} hai, aur had {limit} hai. Ada karne ke baad offer bhej sakte hain. | You owe {owed}, and the limit is {limit}. Pay it and you can send offers again. |
+| `howToPay` | Kaise ada karein | How to pay |
+| `payAsk` | Pechkas office se poochein ke kahan bhejna hai. | Ask the Pechkas office where to send it. |
+| `payNote` | Bhejne ke baad office ko transaction ID bata dein. Woh yahan darj karenge. | After sending, tell the office the transaction ID. They record it here. |
+| `thisMonth` | Is mahine | This month |
+| `jobsDone` | {n} kaam mukammal | {n} jobs done |
+| `collected` | Customers se liye | Collected from customers |
+| `partsSpent` | Parts | Parts |
+| `feeTotal` | Pechkas fee | Pechkas fee |
+| `myRating` | Meri rating | My rating |
+| `ratingNew` | Customers ko abhi "New" dikhta hai. Kuch aur rating ke baad sitare dikhenge. | Customers see "New" until you have a few more ratings. |
+| `ratingFrom` | {n} rating se | from {n} ratings |
+| `comments` | Customers ne kaha | What customers said |
+| `lines` | Hisaab ki tafseel | Account lines |
+| `lineCommission` | Fee · {ref} | Fee · {ref} |
+| `lineSettlement` | Ada kiya · {method} | Paid · {method} |
+| `lineReversal` | Durusti | Correction |
+| `nothingYet` | Abhi kuch nahi. | Nothing yet. |
+| `rateCustomer` | {name} ko rate karein | Rate {name} |
+| `rateNote` | Aap ki rating customer ko nahi dikhti. Sirf Pechkas dekhta hai. | The customer does not see your rating. Only Pechkas does. |
+| `rateWords` | Kuch kehna hai? (zaroori nahi) | Anything to say? (optional) |
+| `rateSend` | Rating bhejein | Send rating |
+| `rated` | Aap ne rate kar diya | You rated |
+| `emergency` | Emergency | Emergency |
+| `reportProblem` | Masla batayein | Report a problem |
+| `reportPlaceholder` | Kya masla hai? | What is wrong? |
+| `reportSend` | Office ko bhejein | Send to the office |
+| `reportSent` | Office ko bata diya. Woh aap ko call karenge. | The office has been told. They will call you. |
+| `errOwed` | Pechkas ka baqaya had se zyada hai. Pehle ada karein. | You owe Pechkas more than the limit. Pay it first. |
+| `errProblem` | Thora sa likh kar batayein kya masla hai. | Write a few words about what is wrong. |
+| `errStars` | Sitare chunein. | Choose the stars. |
+| `errWords` | Chhota likhein, number ya CNIC nahi. | Keep it short, no phone or CNIC numbers. |
+| `emTitle` | Emergency | Emergency |
+| `emSending` | Pechkas ko bata rahe hain… | Telling Pechkas… |
+| `emSent` | Pechkas ko bata diya gaya hai. Office aap ko call karega. | Pechkas has been told. The office will call you. |
+| `emNotSent` | Pechkas ko nahi bataya ja saka. Neeche diye number par khud call karein. | Pechkas could not be told. Call the numbers below yourself. |
+| `emCallFirst` | Jaan ka khatra ho to pehle yeh number milayein: | If anyone is in danger, call these first: |
+| `emPolice` | Police | Police |
+| `emRescue` | Rescue | Rescue |
+| `emFire` | Aag (fire brigade) | Fire brigade |
+| `emEdhi` | Edhi ambulance | Edhi ambulance |
+| `emOffice` | Pechkas office | Pechkas office |
+| `emMistake` | Ghalti se daba | Pressed by mistake |
+| `emMistakeDone` | Office ko bata diya ke ghalti thi. | The office has been told it was a mistake. |
 | `notifyAsk` | Naya kaam phone par | New jobs on your phone |
 | `notifyAskText` | App band ho tab bhi, naya kaam aate hi phone bajega. | Your phone rings the moment a new job arrives, even with the app closed. |
 | `notifyTurnOn` | Notification on karein | Turn on notifications |
@@ -175,4 +232,4 @@ From `apps/mobile/src/words.ts`.
 ## English only
 
 Customers and the office read English, so these have no Roman Urdu:
-`offer.title`, `offer.same`, `offer.counter`, `offer.eta`, `office_assigned.title`, `office_assigned.body`, `office_cancelled.title`, `office_cancelled.body`, `needs_you.title`, `needs_you.body`, `on_way.title`, `on_way.body`, `arrived.title`, `arrived.body`, `change.title`, `change.body`, `done.title`, `done.body`, `code_locked.title`, `code_locked.body`, `problem.title`, `problem.body`.
+`offer.title`, `offer.same`, `offer.counter`, `offer.eta`, `office_assigned.title`, `office_assigned.body`, `office_cancelled.title`, `office_cancelled.body`, `needs_you.title`, `needs_you.body`, `on_way.title`, `on_way.body`, `arrived.title`, `arrived.body`, `change.title`, `change.body`, `done.title`, `done.body`, `code_locked.title`, `code_locked.body`, `problem.title`, `problem.body`, `emergency.title`, `emergency.body`, `emergency_mistake.title`, `emergency_mistake.body`, `guarantee.title`, `guarantee.body`, `pro_problem.title`, `pro_problem.body`.

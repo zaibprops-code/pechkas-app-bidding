@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { rupees, showMobile } from '@pechkas/shared';
 import { Button, Loading, Notice, NotifyCard } from '../src/components/ui';
 import { Icon } from '../src/components/Icon';
+import { Stars } from '../src/components/Stars';
 import { Press } from '../src/components/Press';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
@@ -44,6 +45,9 @@ type Offer = {
   eta_minutes: number | null;
   note: string | null;
   expires_at: string;
+  /** NULL until he has enough ratings: then the screen says "New", never a made-up number. */
+  rating?: number | null;
+  jobs_done?: number;
 };
 
 const EVERY = 10000;
@@ -275,6 +279,17 @@ function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChosen: () 
                   <Text style={s.offerName}>{o.pro_first_name}</Text>
                   <Icon name="shield" size={15} strokeWidth={2.2} />
                 </View>
+                <View style={s.rating}>
+                  {o.rating !== null && o.rating !== undefined ? (
+                    <>
+                      <Stars value={Math.round(Number(o.rating))} size={14} />
+                      <Text style={s.ratingText}>{Number(o.rating).toFixed(1)}</Text>
+                    </>
+                  ) : (
+                    <Text style={s.newPro}>New</Text>
+                  )}
+                  {o.jobs_done !== undefined ? <Text style={s.offerMeta}>· {o.jobs_done} {o.jobs_done === 1 ? 'job' : 'jobs'} done</Text> : null}
+                </View>
                 <Text style={s.offerMeta}>
                   Met by Pechkas · {o.years} {o.years === 1 ? 'year' : 'years'} in the trade
                 </Text>
@@ -332,6 +347,9 @@ const s = StyleSheet.create({
   avatarText: { fontFamily: font.display, fontSize: 18, color: colour.yellow },
   offerName: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
   offerMeta: { fontFamily: font.body, fontSize: 12, color: colour.steel },
+  rating: { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
+  ratingText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
+  newPro: { fontFamily: font.bodySemi, fontSize: 12, color: colour.greenDark, backgroundColor: colour.greenSoft, paddingHorizontal: 6, paddingVertical: 1, borderRadius: 6, overflow: 'hidden' },
   offerPrice: { fontFamily: font.display, fontSize: 20, color: colour.ink },
   offerTag: { fontFamily: font.bodySemi, fontSize: 11 },
   chosen: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.greenSoft },

@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { rupees, showMobile } from '@pechkas/shared';
 import { Button, Notice } from '../components/ui';
 import { Press } from '../components/Press';
+import { Stars } from '../components/Stars';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { useSignedUrls } from '../post/RemoteMedia';
 import { ask } from '../supabase';
@@ -39,6 +40,11 @@ export type JobNow = {
   photos: Photo[];
   can_report: boolean;
   problem_at: string | null;
+  parts_paisa?: number | null;
+  my_rating?: number | null;
+  can_rate?: boolean;
+  guarantee_until?: string | null;
+  claim_open?: boolean;
 };
 
 const WHERE: Record<Stage, (name: string) => string> = {
@@ -54,6 +60,20 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
   const [declining, setDeclining] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [reporting, setReporting] = useState(false);
+  const [reportText, setReportText] = useState('');
+  const [reported, setReported] = useState(false);
+
+  async function sendReport() {
+    setBusy(true);
+    setMsg(null);
+    const r = await ask('report', { p_job: job.id, p_kind: 'problem', p_text: reportText });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    setReported(true);
+    setReporting(false);
+    setReportText('');
+  }
   const family = encodeURIComponent(
     `Pechkas is sending ${pro.first_name} for job ${job.ref} (${job.title}) at ${job.house}, ${job.street}, ${job.sector}.${pro.phone ? ` His number: ${showMobile(pro.phone)}.` : ''}`,
   );
@@ -148,6 +168,22 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
       {job.stage === 'chosen' || job.stage === 'on_way' ? (
         <Button kind="outline" label="Send his name to family on WhatsApp" onPress={() => Linking.openURL(`https://wa.me/?text=${family}`)} />
       ) : null}
+      <View style={s.row}>
+        <View style={{ flex: 1 }}>
+          <Button kind="outline" label="Report a problem" onPress={() => setReporting(!reporting)} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button kind="danger" label="Emergency" onPress={() => router.push({ pathname: '/emergency/[job]', params: { job: job.id } })} />
+        </View>
+      </View>
+      {reporting ? (
+        <View style={{ gap: 8 }}>
+          <Text style={s.line}>Tell us what is wrong. The Pechkas office reads it and calls you.</Text>
+          <TextInput value={reportText} onChangeText={setReportText} maxLength={500} multiline accessibilityLabel="What is wrong" style={s.input} />
+          <Button kind="green" label="Send to Pechkas" busy={busy} onPress={sendReport} />
+        </View>
+      ) : null}
+      {reported ? <Text style={s.line}>The Pechkas office has been told. They will call you.</Text> : null}
     </View>
   );
 }
@@ -155,12 +191,37 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
 /** The end of a job: what to pay, the photos, and a way to say something is wrong. */
 export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }) {
   const photos = job.photos.filter((p) => p.stage !== 'change');
+  const [stars, setStars] = useState(0);
+  const [words, setWords] = useState('');
+  const [claiming, setClaiming] = useState(false);
+  const [claimText, setClaimText] = useState('');
+  const guarantee = job.status === 'done' && job.guarantee_until && new Date(job.guarantee_until) > new Date() ? new Date(job.guarantee_until) : null;
   const urls = useSignedUrls(photos.map((p) => ({ kind: 'photo', path: p.path, seconds: null })));
   const [writing, setWriting] = useState(false);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const name = job.pro?.first_name ?? 'the technician';
+
+  async function rate() {
+    if (!stars) return setMsg('Choose from one to five stars.');
+    setBusy(true);
+    setMsg(null);
+    const r = await ask('rate_job', { p_job: job.id, p_stars: stars, p_words: words });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    onChanged();
+  }
+
+  async function claim() {
+    setBusy(true);
+    setMsg(null);
+    const r = await ask('report', { p_job: job.id, p_kind: 'guarantee', p_text: claimText });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    setClaiming(false);
+    onChanged();
+  }
 
   async function report() {
     setBusy(true);
@@ -178,12 +239,17 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
         {job.status === 'done' ? `Done. Pay ${name} ${rupees(job.collect_paisa)} in cash.` : `Stopped. Pay ${name} the visit fee, ${rupees(job.collect_paisa)}.`}
       </Text>
       {job.status === 'stopped' ? <Text style={s.line}>You declined the new price, so the job stopped there.</Text> : null}
-      {(['before', 'after'] as const).map((stage) => {
+      {job.parts_paisa ? (
+        <Text style={s.line}>
+          Of that, {rupees(job.parts_paisa)} was parts he bought, with the shop receipt below, and {rupees((job.collect_paisa ?? 0) - job.parts_paisa)} his work.
+        </Text>
+      ) : null}
+      {(['before', 'after', 'receipt'] as const).map((stage) => {
         const list = photos.filter((p) => p.stage === stage);
         if (!list.length) return null;
         return (
           <View key={stage} style={{ gap: 6 }}>
-            <Text style={s.small}>{stage === 'before' ? 'Before' : 'After'}</Text>
+            <Text style={s.small}>{stage === 'before' ? 'Before' : stage === 'after' ? 'After' : 'Shop receipt'}</Text>
             <View style={s.photos}>
               {list.map((p) =>
                 urls[p.path] ? (
@@ -198,6 +264,41 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
           </View>
         );
       })}
+      {job.can_rate ? (
+        <View style={s.rate}>
+          <Text style={s.small}>Rate {name}</Text>
+          <Stars value={stars} onPick={setStars} label={`Rate ${name}`} />
+          {stars ? (
+            <>
+              <TextInput value={words} onChangeText={setWords} maxLength={300} placeholder="Anything to say? (optional)" placeholderTextColor={colour.steel} accessibilityLabel="Anything to say" style={[s.input, { minHeight: 52 }]} />
+              <Text style={s.small}>{name} sees it once he has rated you too, or after two days.</Text>
+              <Button kind="green" label="Send rating" busy={busy} onPress={rate} />
+            </>
+          ) : null}
+        </View>
+      ) : null}
+      {job.my_rating ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Text style={s.small}>You rated {name}</Text>
+          <Stars value={job.my_rating} size={16} />
+        </View>
+      ) : null}
+      {job.claim_open ? <Text style={s.line}>Your guarantee claim is with the Pechkas office. They will call you.</Text> : null}
+      {/* In the first day "Something is wrong" covers it; after that, the guarantee. */}
+      {guarantee && !job.claim_open && !claiming && !job.can_report ? (
+        <View style={{ gap: 4 }}>
+          <Button kind="outline" label="It has failed again (guarantee)" onPress={() => setClaiming(true)} />
+          <Text style={s.small}>Pechkas guarantees this work until {guarantee.toLocaleDateString('en-PK', { day: 'numeric', month: 'long' })}.</Text>
+        </View>
+      ) : null}
+      {guarantee && claiming ? (
+        <View style={{ gap: 8 }}>
+          <Text style={s.line}>What has gone wrong? Pechkas reads it, calls you, and arranges the repair.</Text>
+          <TextInput value={claimText} onChangeText={setClaimText} maxLength={500} multiline accessibilityLabel="What has gone wrong" style={s.input} />
+          <Button kind="green" label="Claim the guarantee" busy={busy} onPress={claim} />
+          <Button kind="outline" label="Go back" onPress={() => setClaiming(false)} />
+        </View>
+      ) : null}
       {job.problem_at ? <Text style={s.line}>You told us something is wrong. The Pechkas office will call you.</Text> : null}
       {job.can_report && !writing ? <Button kind="outline" label="Something is wrong" onPress={() => setWriting(true)} /> : null}
       {job.can_report && writing ? (
@@ -235,5 +336,6 @@ const s = StyleSheet.create({
   endTitle: { fontFamily: font.display, fontSize: 18, lineHeight: 23, color: colour.greenDark },
   photos: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   photo: { width: 72, height: 72, borderRadius: 12 },
+  rate: { gap: 6, padding: 10, borderRadius: radius.card, backgroundColor: colour.white },
   input: { minHeight: 80, borderRadius: 14, padding: 12, backgroundColor: colour.white, color: colour.ink, fontFamily: font.bodyMedium, fontSize: 15, borderWidth: 1.5, borderColor: colour.rule },
 });

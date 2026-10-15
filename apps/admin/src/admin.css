@@ -104,3 +104,15 @@ button:focus-visible, .call:focus-visible, input:focus-visible, select:focus-vis
 .chat li { padding: 8px 12px; border-radius: 12px; background: var(--paper, #faf6ef); max-width: 80%; }
 .chat li.pro { justify-self: end; background: #fff3d1; }
 .chat li p { margin: 2px 0 0; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 16px 0; }
+.tile { display: grid; gap: 4px; padding: 14px 16px; border-radius: 16px; background: #fff; border: 1px solid var(--rule); }
+.tile strong { font-size: 22px; }
+.ledger { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ledger th, .ledger td { text-align: left; padding: 6px 8px; border-top: 1px solid var(--rule); vertical-align: top; }
+.ledger .num { text-align: right; white-space: nowrap; }
+.ledger tr.struck td { text-decoration: line-through; color: var(--steel); }
+.kind { margin: 0; font-weight: 700; color: var(--steel); text-transform: uppercase; font-size: 12px; letter-spacing: 0.04em; }
+.kind.emergency { color: var(--brick); font-size: 14px; }
+.card.urgent { border: 2px solid var(--brick); }
+.alerts + .list { margin-top: 16px; }

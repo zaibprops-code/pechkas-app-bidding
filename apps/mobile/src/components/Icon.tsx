@@ -24,7 +24,9 @@ export type IconName =
   | 'home'
   | 'jobs'
   | 'chat'
-  | 'me';
+  | 'me'
+  | 'star'
+  | 'alert';
 
 type Props = {
   name: IconName;
@@ -100,6 +102,14 @@ export function Icon({ name, size = 24, color = colour.green, strokeWidth = 1.8,
         </>
       )}
       {name === 'chat' && <Path {...s} d="M4 5h16v11H9l-5 4z" />}
+      {name === 'star' && (
+        <Path
+          {...s}
+          fill={filled ? color : 'none'}
+          d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"
+        />
+      )}
+      {name === 'alert' && <Path {...s} d="M12 3L2 20h20zM12 10v4M12 17v.5" />}
       {name === 'me' && (
         <>
           <Circle {...s} cx={12} cy={8} r={4} />

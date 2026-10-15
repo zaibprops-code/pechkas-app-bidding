@@ -44,7 +44,17 @@ type FeedJob = {
   media: StoredMedia[];
   my_offer: Offer | null;
 };
-type Feed = { approved: boolean; online: boolean; commission_bps: number; min_offer_paisa: number; max_counter_bps: number; jobs: FeedJob[] };
+type Feed = {
+  approved: boolean;
+  online: boolean;
+  commission_bps: number;
+  min_offer_paisa: number;
+  max_counter_bps: number;
+  owed_paisa?: number;
+  credit_limit_paisa?: number;
+  blocked?: boolean;
+  jobs: FeedJob[];
+};
 
 const EVERY = 15000;
 const ETAS = [15, 30, 45, 60, 90];
@@ -134,6 +144,19 @@ export function Work({ firstName }: { firstName: string }) {
 
         <Notice dark text={problem} />
 
+        {/* What he owes Pechkas, always one tap from the details. */}
+        {feed?.approved && feed.owed_paisa !== undefined ? (
+          <Press onPress={() => router.push('/pro/money')} accessibilityRole="button" style={[s.owed, feed.blocked && s.owedBlocked]}>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.owedLabel, feed.blocked && { color: colour.white }]}>{feed.blocked ? w.blockedTitle : w.owe}</Text>
+              {feed.blocked ? (
+                <Text style={s.owedText}>{fill(w.blockedText, { owed: rupees(feed.owed_paisa), limit: rupees(feed.credit_limit_paisa ?? 0) })}</Text>
+              ) : null}
+            </View>
+            <Text style={[s.owedAmount, feed.blocked && { color: colour.white }]}>{rupees(feed.owed_paisa)}</Text>
+          </Press>
+        ) : null}
+
         {online && notify === 'ask' ? <NotifyCard dark title={w.notifyAsk} text={w.notifyAskText} action={w.notifyTurnOn} onPress={askNotify} /> : null}
         {online && notify === 'off' ? <NotifyCard dark title={w.notifyOff} text={w.notifyOffText} action={w.openSettings} onPress={() => Linking.openSettings()} /> : null}
 
@@ -165,7 +188,7 @@ export function Work({ firstName }: { firstName: string }) {
           </View>
         ) : null}
 
-        <Finished items={finished} w={w} tradeName={tradeName} />
+        <Finished items={finished} w={w} tradeName={tradeName} onChanged={load} />
 
         <Button dark kind="outline" label={w.account} onPress={() => router.push('/me')} />
       </ScrollView>
@@ -340,6 +363,11 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
 }
 
 const s = StyleSheet.create({
+  owed: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, padding: 14, borderRadius: radius.big, backgroundColor: '#22282d' },
+  owedBlocked: { backgroundColor: colour.brick },
+  owedLabel: { fontFamily: font.bodySemi, fontSize: 14, color: '#b9c2c9' },
+  owedText: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.white, marginTop: 2 },
+  owedAmount: { fontFamily: font.display, fontSize: 20, color: colour.yellow },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   brandText: { fontFamily: font.display, fontSize: 18, color: colour.paper },

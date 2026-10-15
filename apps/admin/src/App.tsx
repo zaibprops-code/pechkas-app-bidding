@@ -4,6 +4,8 @@ import { showMobile } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
 import { Alerts } from './Alerts.tsx';
 import { Jobs } from './Jobs.tsx';
+import { Money } from './Money.tsx';
+import { Problems } from './Problems.tsx';
 
 /**
  * The owner's admin panel. Phase 1: sign in, and decide on technicians.
@@ -144,7 +146,7 @@ function SignIn() {
 }
 
 function Office({ name }: { name: string }) {
-  const [section, setSection] = useState<'jobs' | 'technicians'>('jobs');
+  const [section, setSection] = useState<'jobs' | 'problems' | 'money' | 'technicians'>('jobs');
   const [trades, setTrades] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -165,6 +167,8 @@ function Office({ name }: { name: string }) {
       </div>
       <nav className="sections" aria-label="Sections">
         <button className={section === 'jobs' ? 'section on' : 'section'} aria-pressed={section === 'jobs'} onClick={() => setSection('jobs')}>Jobs</button>
+        <button className={section === 'problems' ? 'section on' : 'section'} aria-pressed={section === 'problems'} onClick={() => setSection('problems')}>Problems</button>
+        <button className={section === 'money' ? 'section on' : 'section'} aria-pressed={section === 'money'} onClick={() => setSection('money')}>Money</button>
         <button className={section === 'technicians' ? 'section on' : 'section'} aria-pressed={section === 'technicians'} onClick={() => setSection('technicians')}>Technicians</button>
       </nav>
       {section === 'jobs' ? (
@@ -172,6 +176,10 @@ function Office({ name }: { name: string }) {
           <Alerts />
           <Jobs trades={trades} />
         </>
+      ) : section === 'problems' ? (
+        <Problems />
+      ) : section === 'money' ? (
+        <Money />
       ) : (
         <Technicians trades={trades} />
       )}
