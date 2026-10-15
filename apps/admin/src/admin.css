@@ -90,3 +90,4 @@ button:focus-visible, .call:focus-visible, input:focus-visible, select:focus-vis
 .media audio { width: 280px; max-width: 100%; }
 .media video { width: 280px; max-width: 100%; border-radius: 12px; background: var(--ink); }
 .media img { width: 140px; height: 140px; object-fit: cover; border-radius: 12px; display: block; }
+.assign { background: var(--paper-2); border-radius: 14px; padding: 12px 14px; }

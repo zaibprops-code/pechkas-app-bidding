@@ -157,7 +157,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 16,
   },
-  buttonText: { fontFamily: font.display, fontSize: 17 },
+  buttonText: { fontFamily: font.display, fontSize: 17, textAlign: 'center' },
   label: { fontFamily: font.bodySemi, fontSize: 14 },
   input: { minHeight: 52, borderRadius: 14, paddingHorizontal: 14, fontFamily: font.bodyMedium, fontSize: 17 },
   hint: { fontFamily: font.body, fontSize: 12, lineHeight: 17 },

@@ -114,8 +114,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - **Files live in the private `job-media` bucket under `<user id>/…`.** The
   storage policies let a person write and read only their own folder and the
   office read all of it — no policy for `anon`, ever. `post_job()` checks every
-  path is in the caller's folder and really uploaded. Phase 3 opens a job's
-  files to the chosen technician through a function, not a policy.
+  path is in the caller's folder and really uploaded. Phase 3 lets a
+  technician read a job's files only through `pro_may_see_file()`, which asks
+  the same `pro_may_see()` as the feed.
 - The database cannot delete stored files. Deleting an account empties the
   customer's folder **from the phone first**, then deletes the account.
 - The post form is saved on the phone as it is typed (`post/draft.ts`), and
@@ -124,6 +125,35 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - Permissions: microphone, camera, photos and location **while using**.
   Background location and background audio are switched off in `app.json`;
   Google Play asks questions about both.
+
+### Bidding (phase 3)
+- **One rule for what a technician may see: `pro_may_see(job)`.** The feed,
+  the storage policy for voice notes and photos, and `make_offer()` all ask
+  it, so they cannot drift. Approved, the job's trade and sector are his,
+  and the job is open — or he is the one chosen for it. Being online only
+  decides whether `pro_feed()` lists jobs; it is not a permission.
+- **Before he is chosen he gets the sector and the customer's first name,
+  never the street, house, landmark, location or phone.** `pro_feed()` names
+  every field it returns; `bidding.test.mjs` checks the address and phone
+  are not in it. After he is chosen, `pro_my_jobs()` gives him those, only
+  while the job is `assigned`.
+- **Choosing locks the job row (`FOR UPDATE`), checks it is still `open`,
+  then the offer, then assigns, in one transaction.** Two customers' taps or
+  a choice racing a cancel can never give one job two technicians. There is
+  a test that breaks if the status check is removed.
+- An offer is whole rupees, at least `min_offer_paisa`, at most
+  `max_counter_bps` of the customer's price, lives `offer_minutes`, and must
+  say how soon for an "as soon as possible" job. Its note refuses phone
+  numbers and CNICs: contact details pass only once he is chosen.
+- One offer per technician per job (unique), changed in place. The customer
+  sees first name, years in the trade and whether it is the customer's own price or his —
+  never his surname or number until he is chosen.
+- **No notifications yet.** Screens poll while focused (`jobs.tsx` 10 s,
+  `Work.tsx` 15 s, admin 30 s) and stop when left. `useFocusEffect` callbacks
+  keyed on a context function need that function to be stable: `refresh` in
+  `account.tsx` is a `useCallback` because the unstable one looped forever.
+- `online` stays on until he switches it off; the office sees it and
+  `last_seen_at` in `admin_pros()`.
 
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only

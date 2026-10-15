@@ -7,20 +7,29 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
-**Phase 2 — customers post jobs.** A customer picks the trade and the job
-(with the Pechkas website price beside it), shows what is wrong with a voice
-note, a short video or photos, gives the address and a landmark, says when,
-answers "electricity on?", "who brings parts?" and "anything for the gate?",
-and offers a price. You see every job in the admin panel under **Jobs**, with
-their number, full address, a Google Maps link and the recordings, and you
-arrange somebody by phone. Technicians bidding on jobs is phase 3.
+**Phase 3 — bidding.** A customer posts a job and names a price (phase 2).
+Approved technicians who switch themselves **Online** see new jobs in their
+own trades and sectors — the sector, the customer's first name, the voice
+note and photos, never the street, house or phone number. Each one either
+**accepts** the customer's price or **sends his own**, with how soon he can
+come and one optional line. The customer sees every offer with the
+technician's first name and years in the trade and **chooses one**. Only then
+does that technician get the address and the number, and the customer gets
+his. You see it all in the admin panel, and a job nobody has offered on for
+15 minutes appears under **Needs you**, where you can ring round and place it
+by hand.
+
+Nothing arrives as a notification yet: the screens ask again every 10–15
+seconds while they are open. Notifications need a Firebase account and come
+next (phase 3b).
 
 | Phase | What | State |
 | --- | --- | --- |
 | 0 | Foundations: the app opens, the database is locked down | Done |
 | 1 | Sign-in, technician applications, you approve them | Done |
-| 2 | Customers post jobs with voice notes, video, photos and a price | **Built — run the migration, rebuild, test** |
-| 3 | Bidding: technicians accept or counter, customer chooses | Next |
+| 2 | Customers post jobs with voice notes, video, photos and a price | Done |
+| 3 | Bidding: technicians accept or counter, customer chooses | **Built — run the migration, rebuild, test** |
+| 3b | Notifications: a new job buzzes the technician, a new offer buzzes the customer | Next — needs a Firebase account |
 | 4 | Doing the job: on the way, gate code, price changes | |
 | 5 | Money and trust: commission, ratings, Help, guarantee | |
 | 6 | Play Store and App Store | |
@@ -38,13 +47,21 @@ not a new app.
 | Untaken job comes to you after | 15 minutes |
 | Guarantee | 30 days |
 | **Lowest offer a customer can make** | **Rs 1,000** — your published inspection fee. **Confirm or change.** |
+| **Highest counter-offer** | **2× the customer's price** (Rs 2,000 job → at most Rs 4,000). **Confirm or change.** |
 | Open jobs one customer may have | 5 |
 | Jobs one customer may post in a day | 10 |
 | **Sectors taking jobs** | **F-11, E-11, G-13** — the same as the website. **Confirm or change.** |
 | App identifier | `net.pechkas.app` — permanent |
 
 **Still open:**
-- **The lowest offer (Rs 1,000) and the live sectors** above.
+- **The lowest offer (Rs 1,000), the highest counter (2×) and the live
+  sectors** above.
+- **Online stays on until he switches it off.** A technician who forgets
+  will still see jobs and can still offer — nobody is sent anywhere without
+  the customer choosing him, so the harm is small. Say if you want it to
+  switch off by itself after some hours.
+- **A technician who was not chosen** simply sees the job disappear from his
+  list. Say if you want him told "the customer chose someone else".
 - **Price guidance.** Within 20% of the website price the app says "Fair";
   below that "Low"; above "Generous". Say if you want different words or
   limits.
@@ -201,10 +218,51 @@ them to Claude.
 
 ---
 
+## Trying phase 3
+
+You need **two phones** (or one phone and a friend's): one is the customer,
+one is an approved technician. Each needs its own test number in Supabase
+(**Authentication → Phone → Test phone numbers**, see step C above).
+
+1. **Supabase → SQL Editor:** run `20261018000000_bidding.sql`. It should say
+   **Success**.
+2. **Expo:** start a new **preview** build from GitHub (same settings as
+   always) and install it on **both** phones.
+3. **The technician phone:** sign in with a number you have **approved** in
+   the admin panel. His application must include **AC** and **F-11** (or
+   use the trade and sector he did choose in steps 4 and 5). You land on the
+   dark work screen. Tap **Offline** — it turns yellow and says **Online**.
+4. **The customer phone:** sign in with the other number, tap **AC**, choose
+   **Gas top-up**, sector **F-11**, any street and house, **As soon as
+   possible**, and press **Post job**.
+5. **The technician phone:** within 15 seconds the job appears, showing the
+   sector and the customer's first name but **no address**. Press **+** twice
+   to ask Rs 200 more, choose **30 min**, and send it.
+6. **The customer phone:** within 10 seconds **My jobs** shows the offer with
+   "His price" under it. Press **Choose …** and then **Yes**.
+7. **The technician phone:** the job moves to **Mere kaam** with the full
+   address, the customer's number, **Call karein** and **Naqsha kholein**
+   (the map).
+8. **The customer phone:** shows the technician's name, **Call**, and **Send
+   his name to family on WhatsApp**.
+9. **Admin panel → Jobs → Technician chosen:** the job is there with both
+   numbers. Try **Cancel this job** with a reason: the job leaves the
+   technician's phone and the customer's shows it cancelled, with your reason.
+10. Post one more job and switch the technician **Offline**: after 15 minutes
+    with no offer it shows under **Needs you** in the admin panel, where you
+    can choose a technician and press **Place it by hand**.
+
+Try something wrong on purpose: an offer more than double the customer's
+price is refused, and a technician who is not approved never sees a job.
+
+---
+
 ## Run a database change (a "migration")
 
 Each change is a file in `supabase/migrations/`, run **once**, **in order**,
-oldest first. Running one twice does no harm.
+oldest first. Running one twice does no harm — but if you ever re-run an
+older file, run every later file again after it, in order, so the newest
+version of everything is the one left in place.
 
 1. Open **supabase.com** → project **pechkas-app-bidding** → **SQL Editor**
    → **New query**.
@@ -221,7 +279,8 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | --- | --- | --- |
 | `20261015000000_foundations.sql` | Locks the database so the public key reaches nothing; stores your settings | First |
 | `20261016000000_accounts_and_technicians.sql` | Accounts, technician applications, checks, approvals, the office list | Second |
-| `20261017000000_posting_a_job.sql` | Jobs, the website prices, the private bucket for voice notes, videos and photos | Third — **run it for phase 2** |
+| `20261017000000_posting_a_job.sql` | Jobs, the website prices, the private bucket for voice notes, videos and photos | Third |
+| `20261018000000_bidding.sql` | Going online, offers, the customer choosing, the address reaching only the chosen technician | Fourth — **run it for phase 3** |
 
 ---
 

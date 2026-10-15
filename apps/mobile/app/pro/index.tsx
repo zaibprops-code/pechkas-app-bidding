@@ -11,11 +11,12 @@ import { useAccount } from '../../src/account';
 import { supabase } from '../../src/supabase';
 import { useProWords } from '../../src/words';
 import { colour, font, radius } from '../../src/theme';
+import { Work } from '../../src/pro/Work';
 
 /**
- * The technician's home. In phase 1 it shows where his application stands;
- * jobs arrive here from phase 3. Dark, so it never looks like the customer
- * side of the same phone.
+ * The technician's home. Approved: his work — online, new jobs, the jobs he
+ * was chosen for (src/pro/Work.tsx). Otherwise: where his application
+ * stands. Dark, so it never looks like the customer side of the same phone.
  */
 export default function ProHome() {
   const { ready, session, account, refresh } = useAccount();
@@ -43,9 +44,10 @@ export default function ProHome() {
   if (!account?.pro) return <Redirect href="/pro/apply" />;
 
   const pro = account.pro;
+  if (pro.status === 'approved') return <Work firstName={pro.full_name.split(' ')[0]} />;
+
   const state = {
     applied: { title: w.appliedTitle, text: w.appliedText, tone: colour.yellow },
-    approved: { title: w.approvedTitle, text: w.approvedText, tone: colour.yellow },
     rejected: { title: w.rejectedTitle, text: w.rejectedText, tone: '#ffb4a3' },
     suspended: { title: w.suspendedTitle, text: w.suspendedText, tone: '#ffb4a3' },
   }[pro.status];
@@ -72,7 +74,7 @@ export default function ProHome() {
 
         <View style={s.card}>
           <View style={[s.badge, { backgroundColor: state.tone }]}>
-            <Icon name={pro.status === 'approved' ? 'shield' : pro.status === 'applied' ? 'jobs' : 'lock'} size={22} color={colour.ink} strokeWidth={2.2} />
+            <Icon name={pro.status === 'applied' ? 'jobs' : 'lock'} size={22} color={colour.ink} strokeWidth={2.2} />
           </View>
           <Text style={s.title} accessibilityRole="header">{state.title}</Text>
           <Text style={s.text}>{state.text}</Text>

@@ -30,7 +30,13 @@ type Job = {
   power: 'on' | 'off' | null;
   parts: 'pro_buys' | 'customer_has' | null;
   gate_note: string | null;
-  status: 'open' | 'cancelled';
+  status: 'open' | 'assigned' | 'cancelled';
+  live_offers: number;
+  needs_you: boolean;
+  agreed_paisa: number | null;
+  assigned_by: 'customer' | 'office' | null;
+  pro_name: string | null;
+  pro_phone: string | null;
   cancelled_by: 'customer' | 'office' | null;
   cancel_reason: string | null;
   created_at: string;
@@ -39,41 +45,57 @@ type Job = {
   media: MediaItem[];
 };
 
+type Pro = { id: string; full_name: string; phone: string | null; trades: string[]; sectors: string[]; online: boolean };
+
+// "Needs you" is the open list, narrowed to jobs nobody has offered on in
+// time: the database marks them, this only filters.
 const TABS = [
-  { status: 'open', label: 'Open' },
-  { status: 'cancelled', label: 'Cancelled' },
+  { key: 'needs', status: 'open', label: 'Needs you' },
+  { key: 'open', status: 'open', label: 'Open' },
+  { key: 'assigned', status: 'assigned', label: 'Technician chosen' },
+  { key: 'cancelled', status: 'cancelled', label: 'Cancelled' },
 ] as const;
 
 const WHEN = { now: 'As soon as possible', today: 'Today', tomorrow: 'Tomorrow' } as const;
 
 export function Jobs({ trades }: { trades: Record<string, string> }) {
-  const [tab, setTab] = useState<(typeof TABS)[number]['status']>('open');
+  const [tab, setTab] = useState<(typeof TABS)[number]['key']>('needs');
   const [rows, setRows] = useState<Job[] | null>(null);
+  const [pros, setPros] = useState<Pro[]>([]);
   const [problem, setProblem] = useState<string | null>(null);
+  const current = TABS.find((t) => t.key === tab)!;
 
   const load = useCallback(async () => {
     if (!supabase) return;
     setProblem(null);
-    const { data, error } = await supabase.rpc('admin_jobs', { p_status: tab });
+    const { data, error } = await supabase.rpc('admin_jobs', { p_status: current.status });
     if (error) {
       setProblem(`Could not load: ${error.message}`);
       setRows([]);
       return;
     }
-    setRows((data as Job[]) ?? []);
-  }, [tab]);
+    const all = (data as Job[]) ?? [];
+    setRows(tab === 'needs' ? all.filter((j) => j.needs_you) : all);
+  }, [tab, current.status]);
 
   useEffect(() => {
     setRows(null);
     load();
+    // Every 30 seconds, so a job going quiet shows up without a click.
+    const t = setInterval(load, 30000);
+    return () => clearInterval(t);
   }, [load]);
+
+  useEffect(() => {
+    supabase?.rpc('admin_pros').then(({ data }) => setPros((data as Pro[]) ?? []));
+  }, []);
 
   return (
     <>
       <h1>Jobs</h1>
       <nav className="tabs" aria-label="Jobs">
         {TABS.map((t) => (
-          <button key={t.status} className={t.status === tab ? 'tab on' : 'tab'} aria-pressed={t.status === tab} onClick={() => setTab(t.status)}>
+          <button key={t.key} className={t.key === tab ? 'tab on' : 'tab'} aria-pressed={t.key === tab} onClick={() => setTab(t.key)}>
             {t.label}
           </button>
         ))}
@@ -81,18 +103,35 @@ export function Jobs({ trades }: { trades: Record<string, string> }) {
       </nav>
       {problem ? <p className="error" role="alert">{problem}</p> : null}
       {rows === null ? <p className="lead">Loading…</p> : null}
-      {rows?.length === 0 ? <p className="lead">No jobs here.</p> : null}
+      {rows?.length === 0 ? <p className="lead">{tab === 'needs' ? 'Nothing waiting on you. Every open job has offers, or is still new.' : 'No jobs here.'}</p> : null}
       <div className="list">
-        {rows?.map((j) => <JobCard key={j.id} j={j} trade={trades[j.trade] ?? j.trade} onChange={load} />)}
+        {rows?.map((j) => <JobCard key={j.id} j={j} trade={trades[j.trade] ?? j.trade} pros={pros} onChange={load} />)}
       </div>
     </>
   );
 }
 
-function JobCard({ j, trade, onChange }: { j: Job; trade: string; onChange: () => void }) {
+function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pro[]; onChange: () => void }) {
   const [reason, setReason] = useState('');
+  // Technicians who do this trade in this sector come first in the list.
+  const fits = (p: Pro) => p.trades.includes(j.trade) && p.sectors.includes(j.sector);
+  const sorted = [...pros].sort((a, b) => Number(fits(b)) - Number(fits(a)) || a.full_name.localeCompare(b.full_name));
+  const [proId, setProId] = useState('');
+  const [price, setPrice] = useState(String(j.offered_paisa / 100));
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  async function assign() {
+    const rupeesWhole = Number(price.replace(/[, ]/g, ''));
+    if (!proId) return setMsg('Choose who you rang.');
+    if (!Number.isInteger(rupeesWhole)) return setMsg('Write the price in whole rupees.');
+    setBusy(true);
+    const r = await ask('admin_assign', { p_job: j.id, p_pro: proId, p_price_paisa: rupeesWhole * 100 });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    setMsg(null);
+    onChange();
+  }
 
   async function cancel() {
     setBusy(true);
@@ -143,6 +182,49 @@ function JobCard({ j, trade, onChange }: { j: Job; trade: string; onChange: () =
         {j.customer_phone ? <a className="call" href={`tel:+${j.customer_phone.replace(/^\+/, '')}`}>Call {showMobile(j.customer_phone)}</a> : null}
       </div>
       {j.media.length ? <MediaList items={j.media} /> : null}
+      {j.status === 'open' ? (
+        <p className={j.needs_you ? 'reason' : 'muted'}>
+          {j.live_offers > 0
+            ? `${j.live_offers} live ${j.live_offers === 1 ? 'offer' : 'offers'} — the customer is choosing.`
+            : j.needs_you
+              ? 'Nobody has offered on this. Ring a technician and place it below.'
+              : 'No offers yet.'}
+        </p>
+      ) : null}
+      {j.status === 'assigned' ? (
+        <div className="card-head">
+          <p>
+            <strong>Technician:</strong> {j.pro_name} · agreed {j.agreed_paisa ? rupees(j.agreed_paisa) : 'no price yet'} ·{' '}
+            {j.assigned_by === 'office' ? 'placed by the office' : 'chosen by the customer'}
+          </p>
+          {j.pro_phone ? <a className="call" href={`tel:+${j.pro_phone.replace(/^\+/, '')}`}>Call {showMobile(j.pro_phone)}</a> : null}
+        </div>
+      ) : null}
+      {j.status === 'open' ? (
+        <section className="assign">
+          <h3>Place it by hand</h3>
+          <div className="row">
+            <label className="grow">
+              Technician you rang
+              <select value={proId} onChange={(e) => setProId(e.target.value)}>
+                <option value="">Choose…</option>
+                {sorted.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.full_name}
+                    {fits(p) ? ' — does this, works here' : ''}
+                    {p.online ? ' — online' : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Price agreed (Rs)
+              <input inputMode="numeric" value={price} onChange={(e) => setPrice(e.target.value)} />
+            </label>
+            <button disabled={busy} onClick={assign}>Place job</button>
+          </div>
+        </section>
+      ) : null}
       {j.status === 'cancelled' ? (
         <p className="reason">
           <strong>{j.cancelled_by === 'office' ? 'Cancelled by the office' : 'Cancelled by the customer'}</strong>

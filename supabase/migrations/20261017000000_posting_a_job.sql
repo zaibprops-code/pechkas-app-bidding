@@ -498,8 +498,12 @@ $$;
 
 -- --- What the office may ask --------------------------------------------------------------
 
+-- Dropped first so that running this file again after a later one has
+-- changed the list's shape still works (the later file then puts it back).
+DROP FUNCTION IF EXISTS public.admin_jobs(text);
+
 /** Every job, with the customer's number and full address, for the office only. */
-CREATE OR REPLACE FUNCTION public.admin_jobs(p_status text DEFAULT NULL)
+CREATE FUNCTION public.admin_jobs(p_status text DEFAULT NULL)
 RETURNS TABLE (
   id uuid, ref text, trade text, title text, description text, offered_paisa bigint,
   list_paisa bigint, when_kind text, when_part text,

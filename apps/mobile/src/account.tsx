@@ -65,19 +65,35 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     };
   }, [load]);
 
+  // Always the CURRENT session, read fresh. Using the one this screen last
+  // saw meant that right after signing in it refreshed with the old, empty
+  // one, forgot who you were, and sent a returning technician to "Why are
+  // you here?" as if he were new.
+  //
+  // And it must be the SAME function every time. Screens call it when they
+  // come into view, keyed on it; when it was rebuilt each time the account
+  // arrived, every load started the next one and the technician's phone
+  // asked the server for his account as fast as it could, forever.
+  const refresh = useCallback(async () => {
+    if (!supabase) return;
+    const { data } = await supabase.auth.getSession();
+    setSession(data.session);
+    await load(data.session);
+  }, [load]);
+
   const value = useMemo<State>(
     () => ({
       ready,
       connected: Boolean(supabase),
       session,
       account,
-      refresh: () => load(session),
+      refresh,
       signOut: async () => {
         await supabase?.auth.signOut();
         setAccount(null);
       },
     }),
-    [ready, session, account, load],
+    [ready, session, account, refresh],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
