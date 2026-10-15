@@ -11,7 +11,39 @@
     "backgroundColor": "#faf6ef",
     "ios": {
       "bundleIdentifier": "net.pechkas.app",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "privacyManifests": {
+        "NSPrivacyTracking": false,
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "CA92.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "C617.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategorySystemBootTime",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "35F9.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryDiskSpace",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "E174.1"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "package": "net.pechkas.app",
@@ -51,15 +83,15 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Pechkas uses your photos so you can show a technician what is broken.",
+          "photosPermission": "Pechkas lets you choose a photo to show a technician what is broken. It only sees the photos you pick.",
           "cameraPermission": "Pechkas uses the camera so you can show a technician what is broken.",
-          "microphonePermission": "Pechkas records sound with your video so a technician can hear the fault."
+          "microphonePermission": "Pechkas records your voice note, and the sound with a video, so a technician can hear what is wrong."
         }
       ],
       [
         "expo-audio",
         {
-          "microphonePermission": "Pechkas records your voice note so you can say what is broken, in Urdu or English.",
+          "microphonePermission": "Pechkas records your voice note, and the sound with a video, so a technician can hear what is wrong.",
           "enableBackgroundPlayback": false,
           "enableBackgroundRecording": false
         }
@@ -67,9 +99,12 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Pechkas adds your exact location to a job so the technician finds your house.",
+          "locationWhenInUsePermission": "Pechkas uses your location only while the app is open: to pin your house to a job if you choose, and to tell Pechkas where you are if you press the emergency button.",
           "isAndroidBackgroundLocationEnabled": false,
-          "isIosBackgroundLocationEnabled": false
+          "isIosBackgroundLocationEnabled": false,
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false,
+          "motionUsagePermission": false
         }
       ],
       [

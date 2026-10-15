@@ -7,6 +7,23 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Phase 6b — the App Store (iPhone).** The same app, built for iPhone on
+Expo's servers — no Mac needed. Ready for you, with the steps under
+**"Putting the app on the App Store"** below:
+
+- the iPhone settings Apple checks: every permission says exactly why it
+  is needed, permissions the app never uses are removed, the encryption
+  question is answered in the app, and Apple's privacy manifest is
+  included;
+- iPhone screenshots at the size Apple requires, the App Store text, the
+  App Privacy answers, the age-rating answers and the review notes, in
+  `docs/store/app-store.md`;
+- the privacy policy now says Apple carries notifications on iPhones.
+
+You chose: an **individual** Apple account (the App Store shows your name as
+the seller), a **friend with an iPhone** tests it on TestFlight first, and
+**Pakistan only**.
+
 **Phase 6 — Google Play.** Everything the store asks for is ready, and the
 steps are under **"Putting the app on Google Play"** below:
 
@@ -124,7 +141,7 @@ is buzzed, and the screens still update by themselves while open.
 | 4 | Doing the job: on the way, start code, photos, new price at the door, visit fee, chat, done | Done |
 | 5 | Money and trust: parts, commission, ledger, credit limit, payments, ratings, problems, guarantee, emergency | Done |
 | 6 | Google Play: listing, policy pages, forms, closed test → public | **Ready — your steps below** |
-| 6b | App Store (iPhone) | After Android is public; needs an Apple Developer account |
+| 6b | App Store (iPhone): settings, screenshots, App Privacy, age rating, TestFlight → review | **Ready — your steps below** |
 
 ## The settings you chose
 
@@ -665,6 +682,119 @@ build in Expo, then a new release with its `.aab`.
 
 ---
 
+## Putting the app on the App Store
+
+No migration. Apple needs one thing Expo's website cannot do for you: a
+first build started from **your computer**, where you sign in to Apple
+yourself so Expo can make the iPhone certificates. Windows is fine. Your
+Apple password and codes go into that window only — never into a chat.
+
+### A. The Apple Developer account
+
+1. Make sure your Apple ID has **two-factor authentication** on
+   (appleid.apple.com → Sign-In and Security).
+2. Go to **developer.apple.com/programs/enroll**, sign in, and enrol as an
+   **Individual**. Pay the yearly fee (about US$99).
+3. Apple checks who you are. If it asks you to use the **Apple Developer**
+   app on an iPhone, borrow your tester's for that step. Wait for the email
+   saying the membership is active. It can take a day or two.
+
+### B. Your computer, once
+
+1. Install **Node.js** — the **LTS** version from **nodejs.org** — and
+   **Git** from **git-scm.com**, with the default choices.
+2. Open **Command Prompt** and type, one line at a time:
+
+   ```
+   git clone https://github.com/zaibprops-code/pechkas-app-bidding.git
+   cd pechkas-app-bidding
+   npm install
+   cd apps\mobile
+   npx eas-cli@latest login
+   ```
+
+   Git opens a browser to sign in to GitHub; Expo asks for your Expo
+   (fixminds) login.
+
+### C. The first iPhone build
+
+In the same window:
+
+```
+npx eas-cli@latest build --platform ios --profile production
+```
+
+It asks questions. Answer:
+
+| It asks | Answer |
+| --- | --- |
+| Do you want to log in to your Apple account? | **Yes**, then your Apple ID, password and the six-digit code on your Apple device |
+| Generate a new Apple Distribution Certificate? | **Yes** |
+| Generate a new Apple Provisioning Profile? | **Yes** |
+| Would you like to set up Push Notifications? / Generate a new Apple Push Notifications service key? | **Yes** |
+
+Expo keeps all of it. The build then runs on Expo's servers (20–40
+minutes); the window can be closed, and **expo.dev → Builds** shows it.
+
+### D. The app in App Store Connect
+
+1. **appstoreconnect.apple.com → Apps → +  → New App.**
+2. Platform **iOS**, name `Pechkas: Home Repairs`, primary language
+   **English (U.S.)**, bundle ID **net.pechkas.app** (it is in the list
+   after step C), SKU `pechkas-ios`, **Full Access**. **Create.**
+
+### E. Send the build to TestFlight
+
+Back in Command Prompt, in `pechkas-app-bidding\apps\mobile`:
+
+```
+npx eas-cli@latest submit --platform ios --latest
+```
+
+Sign in to Apple when asked, and say **Yes** when it offers to make an
+**App Store Connect API Key** — Expo then sends future builds without your
+password. Apple takes 10–30 minutes to process the build; it then appears
+under **TestFlight**.
+
+### F. Your friend tests it
+
+1. **App Store Connect → TestFlight → External Testing → +**, a group called
+   `Friends`, add the build, and add your friend's email.
+2. Fill in **Test Information** (what to test: "Post a job, choose a
+   technician, chat, look at the emergency screen without calling") and
+   **Submit for Review**. Apple's beta review is usually a day.
+3. Your friend installs **TestFlight** from the App Store and opens your
+   invitation email. Until Twilio sends real codes, add a test number for
+   them in Supabase, like your own.
+4. Ask them to try: signing in; posting a job with a **voice note**, a
+   **photo from the gallery** and one **from the camera**; adding the
+   **map pin**; allowing **notifications**; **choosing** a technician (you,
+   on your Android); the **chat**; the **emergency** screen (press **Pressed
+   by mistake**, do not call); **rating**; and **Delete my account** last.
+   Anything odd: a screenshot to you, and you send it to Claude.
+
+### G. Submit for review
+
+1. **App Store Connect → Pechkas → the 1.0 version page.** Fill everything
+   from `docs/store/app-store.md`: screenshots from
+   `docs/store/screenshots-iphone/`, text, URLs, copyright, App Review
+   Information (the same reviewer numbers as Google's). Also **App
+   Privacy**, **Age Rating** and **Pricing and Availability** — Pakistan
+   only.
+2. Under **Build**, choose the build your friend tested.
+3. **Add for Review → Submit.** Apple usually answers in one to three days.
+   If it rejects the app, copy Apple's whole message to Claude.
+
+### H. Every update after this
+
+**expo.dev → Builds → Build from GitHub**, as for Android, but
+**Platform: iOS**, profile `production`, Environment **Production**, and
+**EAS Submit on**. It reaches TestFlight on its own; then in App Store
+Connect make a new version, choose the build and submit. If anything asks
+for Apple credentials it does not have, do step C again from your computer.
+
+---
+
 ## Run a database change (a "migration")
 
 Each change is a file in `supabase/migrations/`, run **once**, **in order**,
@@ -715,6 +845,8 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | Notifications: Firebase | console.firebase.google.com → Pechkas (`net.pechkas.app`) |
 | Notifications: what was sent | Supabase → Table Editor → `push_log` |
 | Customers' voice notes, videos and photos | Supabase → Storage → `job-media` (private; opened from the admin panel) |
+| App Store text, iPhone screenshots, App Privacy and age-rating answers | `docs/store/app-store.md`, `docs/store/screenshots-iphone/` |
+| Apple account, TestFlight, App Store page | developer.apple.com and appstoreconnect.apple.com (your Apple ID) |
 | Store text, graphics, screenshots, form answers | `docs/store/` (graphics made by `node scripts/make-store.mjs`) |
 | The app's privacy policy and delete-account page | pechkas.net/app/privacy and /app/delete-account — `src/pages/app/` in the website repository |
 | The approved design | https://claude.ai/artifact/42Sb6DBfcN9pP1kLnvBqBr |

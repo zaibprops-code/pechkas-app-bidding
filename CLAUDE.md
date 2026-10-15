@@ -315,6 +315,26 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - Reviewer sign-in uses Supabase test numbers, typed only into Supabase and
   Play Console, never into this repository.
 
+### iPhone (phase 6b)
+- **Every iOS permission string says exactly why**, and unused ones are
+  removed: `expo-location` is given `false` for the always-on location and
+  motion strings, which otherwise ship with a vague default Apple rejects.
+  The microphone string is set the same in `expo-audio` and
+  `expo-image-picker`, because whichever plugin runs last wins. Check with
+  `npx expo prebuild --platform ios --no-install` and read
+  `ios/Pechkas/Info.plist` (then delete `ios/` and restore `package.json`).
+- `ios.config.usesNonExemptEncryption: false` (HTTPS only), and
+  `ios.privacyManifests` declares the required-reason APIs React Native
+  uses. A new native library may need its own entry.
+- The gallery uses the iOS photo picker, which needs no photo-library
+  permission; only the camera is asked for.
+- The first iOS build is started by the owner from his own computer, where
+  he signs in to Apple; Expo keeps the certificates, the profile, the push
+  key and the App Store Connect API key. Apple credentials are never typed
+  into this repository or a chat.
+- Sold in Pakistan only. App Store answers live in `docs/store/app-store.md`
+  and must agree with the Play answers and pechkas.net/app/privacy.
+
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only
   `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be in the
