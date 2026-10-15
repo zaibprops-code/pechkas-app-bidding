@@ -19,17 +19,28 @@ his. You see it all in the admin panel, and a job nobody has offered on for
 15 minutes appears under **Needs you**, where you can ring round and place it
 by hand.
 
-Nothing arrives as a notification yet: the screens ask again every 10–15
-seconds while they are open. Notifications need a Firebase account and come
-next (phase 3b).
+**Phase 3b — notifications.** The phone now buzzes, even with the app
+closed: a technician who is **Online** when a job he could take is posted;
+a customer when an offer arrives; a technician when he is chosen, or when a
+job he was going to is cancelled; and a customer when you place or cancel
+their job from the admin panel. The database sends them, through Expo's
+free push service and Google's Firebase. A notification says the trade, the
+sector, a first name, a price and the job number — **never** an address, a
+landmark, a gate note or a phone number, because it shows on a lock screen.
+The app asks for permission when a technician goes online and when a
+customer has a job waiting, not when it first opens.
+
+It needs a free Firebase account, set up once — **"Setting up
+notifications (once)"** below. Until then everything still works; nobody
+is buzzed, and the screens still update by themselves while open.
 
 | Phase | What | State |
 | --- | --- | --- |
 | 0 | Foundations: the app opens, the database is locked down | Done |
 | 1 | Sign-in, technician applications, you approve them | Done |
 | 2 | Customers post jobs with voice notes, video, photos and a price | Done |
-| 3 | Bidding: technicians accept or counter, customer chooses | **Built — run the migration, rebuild, test** |
-| 3b | Notifications: a new job buzzes the technician, a new offer buzzes the customer | Next — needs a Firebase account |
+| 3 | Bidding: technicians accept or counter, customer chooses | Done |
+| 3b | Notifications: a new job buzzes the technician, a new offer buzzes the customer | **Built — set up Firebase, run the migration, rebuild, test** |
 | 4 | Doing the job: on the way, gate code, price changes | |
 | 5 | Money and trust: commission, ratings, Help, guarantee | |
 | 6 | Play Store and App Store | |
@@ -61,7 +72,15 @@ not a new app.
   the customer choosing him, so the harm is small. Say if you want it to
   switch off by itself after some hours.
 - **A technician who was not chosen** simply sees the job disappear from his
-  list. Say if you want him told "the customer chose someone else".
+  list, and is **not** sent a notification about it. Say if you want him
+  told "the customer chose someone else".
+- **The Roman Urdu in the notifications.** They are written in
+  `supabase/migrations/20261019000000_notifications.sql` (the database
+  sends them, so the words live there), e.g. "Naya kaam: AC · F-11",
+  "Aap chun liye gaye", "Mat jayein … ab nahi hai". Read them too.
+- **Nobody notifies you.** A job nobody has offered on still waits for you
+  under **Needs you** in the admin panel; the panel is not an app and cannot
+  buzz. Say if you want an SMS or WhatsApp to yourself for that, later.
 - **Price guidance.** Within 20% of the website price the app says "Fair";
   below that "Low"; above "Generous". Say if you want different words or
   limits.
@@ -257,6 +276,105 @@ price is refused, and a technician who is not approved never sees a job.
 
 ---
 
+## Setting up notifications (once)
+
+Android notifications go through Google's **Firebase**. It is free. You make
+one Firebase project and give Expo two files from it. **Neither file ever
+goes into a chat or onto GitHub** — only into Expo, as below.
+
+### A. Make the Firebase project
+
+1. Go to **console.firebase.google.com** and sign in with the Google account
+   you want to own it.
+2. **Create a project** (it may say **Get started with a Firebase
+   project**). Name: `Pechkas`. When it asks about **Google Analytics**,
+   turn it **off**. Press **Create project**, then **Continue**.
+3. On the project's front page press the **Android** icon (or **Add app** →
+   **Android**).
+4. **Android package name:** `net.pechkas.app` — exactly that. App
+   nickname: `Pechkas`. Leave **SHA-1** empty. Press **Register app**.
+5. Press **Download google-services.json** and keep the file. Then press
+   **Next**, **Next**, **Continue to console** — Expo does the rest of those
+   steps for you.
+
+### B. Give Expo the `google-services.json` file
+
+1. **expo.dev** → **Pechkas App** → **Environment variables** → **Add
+   variable** (or **Create**).
+2. **Name:** `GOOGLE_SERVICES_JSON` — exactly that.
+3. **Type:** **File**, and choose the `google-services.json` you downloaded.
+4. **Environments:** tick **Preview** and **Production**.
+5. **Visibility:** **Secret**. Save.
+
+### C. Give Expo Firebase's sending key
+
+This one **is** a secret: it lets whoever has it send notifications as you.
+
+1. Firebase console → the **gear** next to **Project Overview** → **Project
+   settings** → the **Service accounts** tab.
+2. Press **Generate new private key** → **Generate key**. A `.json` file
+   downloads.
+3. **expo.dev** → **Pechkas App** → **Credentials** → **Android** →
+   `net.pechkas.app`.
+4. Find **FCM V1 service account key** (under **Service credentials**) →
+   **Add a service account key** → upload that `.json` file → **Save**.
+5. Keep the file in your private storage with the keystore backup, or delete
+   it — Expo has it now, and you can always generate another.
+
+While you are in **Project settings**, open the **Cloud Messaging** tab: it
+should say **Firebase Cloud Messaging API (V1)** is **Enabled**. If it says
+disabled, press the three dots beside it and enable it.
+
+### D. Run the database change
+
+**Supabase → SQL Editor:** run `20261019000000_notifications.sql`. It should
+say **Success**. If instead it says something about **pg_net** or
+**extension**: Supabase → **Database** → **Extensions** → search `pg_net` →
+switch it on → then run the file again.
+
+### E. Build and install
+
+Start a new **preview** build from GitHub (same settings as always) and
+install it on both phones. The build must be **after** step B, or it will
+not know about Firebase.
+
+---
+
+## Trying phase 3b
+
+Two phones again: one customer, one approved technician.
+
+1. **Technician phone:** open the app and tap **Offline** to go **Online**.
+   Android asks to allow notifications — **Allow**.
+2. **Customer phone:** post a job in his trade and sector. On **My jobs** a
+   green card says **Know when offers arrive** — press **Turn on
+   notifications** → **Allow**.
+3. **Lock the technician's phone.** On the customer phone, post a second
+   job. Within a few seconds the technician's phone should buzz: **Naya
+   kaam: AC · F-11** (or the trade and sector you used). Tap it: the app
+   opens on his work screen, with the job on it.
+4. **Lock the customer's phone.** On the technician phone, send an offer.
+   The customer's phone buzzes: **New offer on PK-…**. Tap it.
+5. Choose the technician. His phone buzzes: **Aap chun liye gaye**.
+6. Cancel the job from the customer phone. His phone buzzes: **Kaam
+   cancel … Mat jayein**.
+7. **Admin panel → Jobs → Open → Place it by hand:** a technician who has
+   not allowed notifications says **no notifications, ring him** beside his
+   name.
+8. Read every notification's words and tell Claude what to change.
+
+**If nothing arrives:**
+- Supabase → **Table Editor** → `push_log` shows every notification the
+  database tried to send, newest last. `phones` = 0 means that person's
+  phone never said yes, or the build was made before step B. The `problem`
+  column says why.
+- If `push_log` looks fine, Supabase → **SQL Editor** → run
+  `select status_code, content from net._http_response order by created desc limit 5;`
+  — that is Expo's answer. **InvalidCredentials** means step C is missing.
+  Copy those words to Claude — never the key itself.
+
+---
+
 ## Run a database change (a "migration")
 
 Each change is a file in `supabase/migrations/`, run **once**, **in order**,
@@ -280,7 +398,8 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | `20261015000000_foundations.sql` | Locks the database so the public key reaches nothing; stores your settings | First |
 | `20261016000000_accounts_and_technicians.sql` | Accounts, technician applications, checks, approvals, the office list | Second |
 | `20261017000000_posting_a_job.sql` | Jobs, the website prices, the private bucket for voice notes, videos and photos | Third |
-| `20261018000000_bidding.sql` | Going online, offers, the customer choosing, the address reaching only the chosen technician | Fourth — **run it for phase 3** |
+| `20261018000000_bidding.sql` | Going online, offers, the customer choosing, the address reaching only the chosen technician | Fourth |
+| `20261019000000_notifications.sql` | Phones' notification addresses, and the database telling people when something happens | Fifth — **run it for phase 3b** |
 
 ---
 
@@ -294,6 +413,9 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | Your admin login | Supabase → Authentication → Users (your email); the office list is the `staff` table |
 | The admin panel | Vercel → pechkas-app-bidding (Root Directory `apps/admin`) |
 | Words on the technician screens | `apps/mobile/src/words.ts` |
+| Words in the notifications | `supabase/migrations/20261019000000_notifications.sql` |
+| Notifications: Firebase | console.firebase.google.com → Pechkas (`net.pechkas.app`) |
+| Notifications: what was sent | Supabase → Table Editor → `push_log` |
 | Customers' voice notes, videos and photos | Supabase → Storage → `job-media` (private; opened from the admin panel) |
 | The approved design | https://claude.ai/artifact/42Sb6DBfcN9pP1kLnvBqBr |
 | The full plan | `APP_BUILD_PROMPT.md` in `zaibprops-code/Pechkas` |

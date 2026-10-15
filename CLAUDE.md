@@ -148,12 +148,52 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - One offer per technician per job (unique), changed in place. The customer
   sees first name, years in the trade and whether it is the customer's own price or his —
   never his surname or number until he is chosen.
-- **No notifications yet.** Screens poll while focused (`jobs.tsx` 10 s,
-  `Work.tsx` 15 s, admin 30 s) and stop when left. `useFocusEffect` callbacks
+- Screens still poll while focused (`jobs.tsx` 10 s, `Work.tsx` 15 s, admin
+  30 s) and stop when left; notifications are for when the app is closed. `useFocusEffect` callbacks
   keyed on a context function need that function to be stable: `refresh` in
   `account.tsx` is a `useCallback` because the unstable one looped forever.
 - `online` stays on until he switches it off; the office sees it and
   `last_seen_at` in `admin_pros()`.
+
+### Notifications (phase 3b)
+- **The database sends them, not the apps.** Triggers on `jobs` and
+  `offers` call `send_push()`, which queues a request to Expo's push service
+  with Supabase's `pg_net`. An app that has to remember to send one is an
+  app that one day forgets, and a raise-free trigger catches every path —
+  the customer, the office, a future function.
+- **What a notification may say:** trade, sector, first name, price, job
+  number. **Never** a street, house, landmark, location, gate note, phone
+  number, surname, or anything the office typed (the office's cancel reason
+  stays in the app). It crosses Expo's and Google's servers and sits on a
+  lock screen. `notifications.test.mjs` reads every message the tests
+  provoke and fails on any of those.
+- **A notification that cannot go never undoes anything.** `send_push()`
+  catches every error and writes it to `push_log` instead. A test makes the
+  push service fail and checks the job still posts.
+- Who is told: `pro_may_see_as(job, pro)` — the same rule as the feed —
+  and `online`. A price nudge on a live offer does not buzz the customer
+  again; a new or renewed offer does. Not-chosen technicians are not told
+  (an open decision in `docs/OWNER.md`).
+- Words: the server writes them, so they live in the migration, Roman Urdu
+  by the token's `lang` for technicians, English for customers. Keep them
+  identical in meaning to `words.ts`; the owner reads both.
+- `push_tokens` is keyed by token, so a phone signed in as somebody else
+  moves to them. `signOut()` calls `forget()` **before** signing out, while
+  the database still knows who is asking. Five phones per person at most.
+- The phone asks permission only on a deliberate act — going online, or a
+  customer with a job waiting — never on launch. `useNotify()` re-registers
+  whenever a screen that wants notifications opens or the app returns to
+  the front, so a changed token heals itself.
+- A tapped notification may only open `/pro` or `/jobs` (`PLACES` in
+  `src/notifications.ts`). Its `data.url` came over the network.
+- `google-services.json` is not in the repository: the owner uploads it to
+  Expo as the file variable `GOOGLE_SERVICES_JSON`, read by
+  `apps/mobile/app.config.js`. The FCM V1 key lives only in Expo's
+  credentials. Without either, the app builds and works and nobody is
+  buzzed; `admin_pros()` shows who cannot be reached.
+- `supabase/local/bootstrap.sql` stands in for `pg_net` with a function of
+  the real signature that records each request in `net.sent`, and fails on
+  demand through `net.fail`.
 
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only

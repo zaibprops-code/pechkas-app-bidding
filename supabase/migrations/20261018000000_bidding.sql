@@ -616,8 +616,13 @@ BEGIN
 END;
 $$;
 
+-- A later migration adds a column to this list, and Postgres cannot change
+-- what a function returns in place: without this, running this file again
+-- after that one would stop here.
+DROP FUNCTION IF EXISTS public.admin_pros();
+
 /** Approved technicians, for the office to choose from when placing a job. */
-CREATE OR REPLACE FUNCTION public.admin_pros()
+CREATE FUNCTION public.admin_pros()
 RETURNS TABLE (id uuid, full_name text, phone text, trades text[], sectors text[], online boolean, last_seen_at timestamptz)
 LANGUAGE sql
 STABLE

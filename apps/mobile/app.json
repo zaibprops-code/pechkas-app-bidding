@@ -64,6 +64,14 @@
           "isAndroidBackgroundLocationEnabled": false,
           "isIosBackgroundLocationEnabled": false
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#0b5148",
+          "defaultChannel": "jobs"
+        }
       ]
     ],
     "extra": {

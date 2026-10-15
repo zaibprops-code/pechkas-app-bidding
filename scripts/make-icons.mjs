@@ -57,6 +57,11 @@ await draw('icon.png', markSvg({ box: 1024, size: 620, background: GREEN }));
 await draw('adaptive-icon-foreground.png', markSvg({ box: 1024, size: 560 }));
 await draw('adaptive-icon-monochrome.png', markSvg({ box: 1024, size: 560, mono: '#ffffff' }));
 
+// Android's notification icon: the status bar draws it in one colour from
+// its shape alone, so it is the mono mark, white on nothing, 24dp at the
+// largest screen density (96px) with Google's 2dp of air around it.
+await draw('notification-icon.png', markSvg({ box: 96, size: 80, mono: '#ffffff' }));
+
 // Shown on green while the app starts.
 await draw('splash-icon.png', markSvg({ box: 512, size: 400 }));
 

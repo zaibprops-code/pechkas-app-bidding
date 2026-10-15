@@ -4,11 +4,12 @@ import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-rou
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { rupees, showMobile } from '@pechkas/shared';
-import { Button, Loading, Notice } from '../src/components/ui';
+import { Button, Loading, Notice, NotifyCard } from '../src/components/ui';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
+import { useNotify } from '../src/notifications';
 import { ask, supabase } from '../src/supabase';
 import { colour, font, radius } from '../src/theme';
 
@@ -53,6 +54,7 @@ export default function Jobs() {
   const { posted } = useLocalSearchParams<{ posted?: string }>();
   const { ready, session, account } = useAccount();
   const lists = useLists();
+  const { notify, ask: askNotify } = useNotify('en');
   const insets = useSafeAreaInsets();
   const [jobs, setJobs] = useState<Job[] | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
@@ -114,6 +116,24 @@ export default function Jobs() {
         ) : null}
 
         <Notice text={problem} />
+
+        {/* Only while something is waiting on offers: that is when being told helps. */}
+        {jobs?.some((j) => j.status === 'open') && notify === 'ask' ? (
+          <NotifyCard
+            title="Know when offers arrive"
+            text="Your phone tells you the moment a technician sends an offer, so you do not have to keep this screen open."
+            action="Turn on notifications"
+            onPress={askNotify}
+          />
+        ) : null}
+        {jobs?.some((j) => j.status === 'open') && notify === 'off' ? (
+          <NotifyCard
+            title="Notifications are off"
+            text="You will only see offers when you open this screen. To be told straight away, turn on Pechkas notifications in your phone's settings."
+            action="Open settings"
+            onPress={() => Linking.openSettings()}
+          />
+        ) : null}
         {jobs === null && !problem ? <Text style={s.muted}>Loading…</Text> : null}
         {jobs?.length === 0 ? (
           <View style={{ gap: 12 }}>

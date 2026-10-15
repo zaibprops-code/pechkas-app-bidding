@@ -6,9 +6,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { rupees, showMobile, technicianKeeps } from '@pechkas/shared';
 import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
-import { Button, Notice } from '../components/ui';
+import { Button, Notice, NotifyCard } from '../components/ui';
 import { RemoteMedia, type StoredMedia } from '../post/RemoteMedia';
 import { useLists } from '../lists';
+import { useNotify } from '../notifications';
 import { ask, supabase } from '../supabase';
 import { fill, useProWords, type ProWords } from '../words';
 import { colour, font, radius } from '../theme';
@@ -58,7 +59,8 @@ const EVERY = 15000;
 const ETAS = [15, 30, 45, 60, 90];
 
 export function Work({ firstName }: { firstName: string }) {
-  const { w, toggle } = useProWords();
+  const { w, lang, toggle } = useProWords();
+  const { notify, ask: askNotify } = useNotify(lang);
   const lists = useLists();
   const insets = useSafeAreaInsets();
   const [feed, setFeed] = useState<Feed | null>(null);
@@ -89,6 +91,9 @@ export function Work({ firstName }: { firstName: string }) {
   );
 
   async function setOnline(next: boolean) {
+    // Going online is when being told obviously helps, so that is when the
+    // phone asks. He goes online whatever he answers.
+    if (next && notify === 'ask') await askNotify();
     setSwitching(true);
     await ask('pro_set_online', { p_online: next });
     await load();
@@ -134,6 +139,9 @@ export function Work({ firstName }: { firstName: string }) {
         </Press>
 
         <Notice dark text={problem} />
+
+        {online && notify === 'ask' ? <NotifyCard dark title={w.notifyAsk} text={w.notifyAskText} action={w.notifyTurnOn} onPress={askNotify} /> : null}
+        {online && notify === 'off' ? <NotifyCard dark title={w.notifyOff} text={w.notifyOffText} action={w.openSettings} onPress={() => Linking.openSettings()} /> : null}
 
         {mine.length ? (
           <View style={{ gap: 10 }}>

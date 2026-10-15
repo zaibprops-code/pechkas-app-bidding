@@ -11,6 +11,7 @@ import { IBMPlexSans_500Medium } from '@expo-google-fonts/ibm-plex-sans/500Mediu
 import { IBMPlexSans_600SemiBold } from '@expo-google-fonts/ibm-plex-sans/600SemiBold';
 import { IBMPlexMono_600SemiBold } from '@expo-google-fonts/ibm-plex-mono/600SemiBold';
 import { AccountProvider } from '../src/account';
+import { useNotificationTaps } from '../src/notifications';
 import { colour } from '../src/theme';
 
 // Keep the green splash up until the fonts are ready, so the first screen
@@ -41,6 +42,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <AccountProvider>
         <StatusBar style="light" />
+        <NotificationTaps />
         <Stack
           screenOptions={{
             headerShown: false,
@@ -50,4 +52,10 @@ export default function RootLayout() {
       </AccountProvider>
     </SafeAreaProvider>
   );
+}
+
+/** Rendered beside the Stack, so a tapped notification only navigates once there is somewhere to go. */
+function NotificationTaps() {
+  useNotificationTaps();
+  return null;
 }

@@ -45,7 +45,7 @@ type Job = {
   media: MediaItem[];
 };
 
-type Pro = { id: string; full_name: string; phone: string | null; trades: string[]; sectors: string[]; online: boolean };
+type Pro = { id: string; full_name: string; phone: string | null; trades: string[]; sectors: string[]; online: boolean; notifications: boolean };
 
 // "Needs you" is the open list, narrowed to jobs nobody has offered on in
 // time: the database marks them, this only filters.
@@ -213,6 +213,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
                     {p.full_name}
                     {fits(p) ? ' — does this, works here' : ''}
                     {p.online ? ' — online' : ''}
+                    {p.notifications ? '' : ' — no notifications, ring him'}
                   </option>
                 ))}
               </select>

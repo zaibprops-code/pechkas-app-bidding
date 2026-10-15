@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
+import { forget } from './notifications';
 import { supabase } from './supabase';
 
 export type ProStatus = 'applied' | 'approved' | 'rejected' | 'suspended';
@@ -89,6 +90,9 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       account,
       refresh,
       signOut: async () => {
+        // First, while the database still knows who is asking: otherwise
+        // whoever picks this phone up next is told about this person's jobs.
+        await forget();
         await supabase?.auth.signOut();
         setAccount(null);
       },

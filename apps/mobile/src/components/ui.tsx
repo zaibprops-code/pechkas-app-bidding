@@ -138,6 +138,20 @@ export function Notice({ text, dark = false }: { text?: string | null } & Tone) 
   );
 }
 
+/**
+ * "Turn notifications on": one sentence of why, and one button. Shown only
+ * where being told actually matters, and gone once the answer is yes.
+ */
+export function NotifyCard({ title, text, action, onPress, dark = false }: { title: string; text: string; action: string; onPress: () => void } & Tone) {
+  return (
+    <View style={[s.notify, { backgroundColor: dark ? '#22282d' : colour.greenSoft }]}>
+      <Text style={[s.notifyTitle, { color: dark ? colour.yellow : colour.greenDark }]}>{title}</Text>
+      <Text style={[s.body, { color: dark ? colour.paper : colour.inkSoft }]}>{text}</Text>
+      <Button kind={dark ? 'yellow' : 'green'} dark={dark} label={action} onPress={onPress} />
+    </View>
+  );
+}
+
 export function Loading({ dark = false }: Tone) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: dark ? colour.ink : colour.paper }}>
@@ -148,6 +162,8 @@ export function Loading({ dark = false }: Tone) {
 
 const s = StyleSheet.create({
   title: { fontFamily: font.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.7 },
+  notify: { gap: 10, padding: 16, borderRadius: radius.big },
+  notifyTitle: { fontFamily: font.display, fontSize: 18 },
   body: { fontFamily: font.body, fontSize: 15, lineHeight: 22 },
   button: {
     minHeight: 56,

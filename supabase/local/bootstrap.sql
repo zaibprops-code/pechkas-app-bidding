@@ -104,3 +104,38 @@ GRANT USAGE ON SCHEMA storage TO anon, authenticated, service_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON storage.objects TO anon, authenticated, service_role;
 GRANT SELECT ON storage.buckets TO anon, authenticated, service_role;
 GRANT EXECUTE ON FUNCTION storage.foldername(text) TO anon, authenticated, service_role;
+
+-- Supabase's pg_net, as far as the migrations use it: one function with the
+-- real one's exact signature. Instead of sending anything it writes the
+-- request down, so the tests can read every notification that would have
+-- left — who it went to and every word of it. `net.fail` makes it throw, to
+-- prove a notification that cannot go never stops the job.
+CREATE SCHEMA IF NOT EXISTS net;
+CREATE TABLE IF NOT EXISTS net.sent (
+  id      bigserial PRIMARY KEY,
+  url     text,
+  body    jsonb,
+  headers jsonb
+);
+CREATE TABLE IF NOT EXISTS net.fail (on_purpose boolean);
+
+CREATE OR REPLACE FUNCTION net.http_post(
+  url text,
+  body jsonb DEFAULT '{}'::jsonb,
+  params jsonb DEFAULT '{}'::jsonb,
+  headers jsonb DEFAULT '{"Content-Type": "application/json"}'::jsonb,
+  timeout_milliseconds integer DEFAULT 5000
+)
+RETURNS bigint
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_id bigint;
+BEGIN
+  IF EXISTS (SELECT 1 FROM net.fail) THEN
+    RAISE EXCEPTION 'the push service could not be reached (on purpose)';
+  END IF;
+  INSERT INTO net.sent (url, body, headers) VALUES (url, body, headers) RETURNING id INTO v_id;
+  RETURN v_id;
+END;
+$$;

@@ -90,6 +90,12 @@ const PRO = {
     errEta: 'Batayein kitni der mein pohanch sakte hain.',
     errNote: 'Note mein apna number ya CNIC na likhein.',
     gone: 'Yeh kaam ab khula nahi.',
+    notifyAsk: 'Naya kaam phone par',
+    notifyAskText: 'App band ho tab bhi, naya kaam aate hi phone bajega.',
+    notifyTurnOn: 'Notification on karein',
+    notifyOff: 'Notification band hain',
+    notifyOffText: 'App band ho to naya kaam aap tak nahi pohanchega. Phone ki settings mein Pechkas ke notification on karein.',
+    openSettings: 'Settings kholein',
   },
   en: {
     switchTo: 'Roman Urdu',
@@ -169,6 +175,12 @@ const PRO = {
     errEta: 'Say how soon you can get there.',
     errNote: 'Do not write your number or a CNIC in the note.',
     gone: 'This job is no longer open.',
+    notifyAsk: 'New jobs on your phone',
+    notifyAskText: 'Your phone rings the moment a new job arrives, even with the app closed.',
+    notifyTurnOn: 'Turn on notifications',
+    notifyOff: 'Notifications are off',
+    notifyOffText: "New jobs cannot reach you while the app is closed. Turn on Pechkas notifications in your phone's settings.",
+    openSettings: 'Open settings',
   },
 } as const;
 
