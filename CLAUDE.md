@@ -210,6 +210,49 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `useNotify(null)` waits: a technician's language must be read from the
   phone before his token is saved, or it is saved in the wrong one.
 
+### Doing the job (phase 4)
+- **Status and step are separate.** `status` is open → assigned → done |
+  stopped | cancelled; while `assigned`, `stage` is chosen → on_way →
+  arrived → working. The `job_steps` BEFORE trigger gives every newly
+  assigned job its first step and a start code, and clears the step when it
+  leaves `assigned`, whichever function moved it.
+- **Every step starts from `my_assigned_job()`** (his, assigned, approved,
+  row locked) and names the step the screen was showing; a repeated tap
+  finds the job moved and changes nothing. Forward only.
+- **The start code is the customer's.** It is never in `pro_my_jobs()`, a
+  notification or the history. A wrong code is counted and **refused, not
+  raised**, so the count survives; `code_tries` wrong locks it and
+  `tell_office()` alerts the owner's phone. Only `admin_unlock_code()`
+  clears it.
+- **Photos are required to start and to finish**, must be the asker's own
+  uploads, really in storage, and never reused (`own_uploads()`). The
+  customer reads her job's photos through `customer_may_see_file()` in the
+  storage policy.
+- **A new price is a request.** `ask_change()` needs a reason and a photo;
+  only the customer's `decide_change()` changes `agreed_paisa`. Declined,
+  the job is `stopped` and `collect_paisa` is `visit_fee()`. One pending at
+  a time, and none may be pending to finish.
+- **`visit_fee()` is the one place the fee is worked out**, and today
+  returns `visit_fee_min_paisa` because there is no measured distance. The
+  owner's rule (petrol for the trip, Google Maps distance, Rs 300 to
+  Rs 1,000) goes in there when Google Maps is connected. Never guess a
+  distance, a mileage or a petrol price.
+- `collect_paisa` is fixed when the job ends, so a later settings change
+  cannot rewrite what somebody paid. The customer's card shows it.
+- A customer may cancel until he arrives; after that it is Decline or the
+  office (`cancel_job()` refuses; an open decision in `docs/OWNER.md`).
+- **Chat** is text only, between the customer and the chosen technician,
+  readable for a day after the job, written while it is on. The office
+  reads it in `admin_job_detail()` and the screen says so. A message's words
+  never go in a notification — only that one came, at most once a minute.
+- **`job_events` is the record**: `on_job_logged` writes posting, every
+  status and step, the functions add codes, prices and problems, each with
+  who did it. Nobody can write or read it directly.
+- `push_words.who` says who reads each message; the database refuses a
+  technician's message without Roman Urdu (`push_words_urdu`).
+- The office number in the app is `src/office.ts`, copied from the
+  website's `site.js` — never invent one.
+
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only
   `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be in the

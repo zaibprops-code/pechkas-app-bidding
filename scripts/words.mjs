@@ -27,14 +27,14 @@ const PRO = new Function(`return ${source.slice(start + 'const PRO = '.length, e
 // --- The notifications -------------------------------------------------------
 const { db, migrate } = await import(join(ROOT, 'supabase', 'tests', 'harness.mjs'));
 await migrate();
-const { rows: pushes } = await db.query(`SELECT key, ur, en FROM public.push_words ORDER BY sort`);
+const { rows: pushes } = await db.query(`SELECT key, ur, en, who FROM public.push_words ORDER BY sort`);
 
 const cell = (t) => String(t ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
 const table = (rows) => ['| | Roman Urdu | English |', '| --- | --- | --- |', ...rows.map(([k, ur, en]) => `| \`${k}\` | ${cell(ur)} | ${cell(en)} |`)].join('\n');
 
 const screens = Object.keys(PRO.ur).map((k) => [k, PRO.ur[k], PRO.en[k]]);
-const technician = pushes.filter((r) => r.ur !== null).map((r) => [r.key, r.ur, r.en]);
-const englishOnly = pushes.filter((r) => r.ur === null);
+const technician = pushes.filter((r) => r.who === 'technician' || r.who === 'both').map((r) => [r.key, r.ur, r.en]);
+const englishOnly = pushes.filter((r) => r.who === 'customer' || r.who === 'office');
 
 const text = `# Every Roman Urdu line
 

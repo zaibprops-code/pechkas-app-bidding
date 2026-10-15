@@ -8,6 +8,8 @@ import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
 import { Button, Notice, NotifyCard } from '../components/ui';
 import { RemoteMedia, type StoredMedia } from '../post/RemoteMedia';
+import { Chosen, Finished, type ActiveJob, type FinishedJob } from './OnTheJob';
+import { useAccount } from '../account';
 import { useLists } from '../lists';
 import { useNotify } from '../notifications';
 import { ask, supabase } from '../supabase';
@@ -43,17 +45,6 @@ type FeedJob = {
   my_offer: Offer | null;
 };
 type Feed = { approved: boolean; online: boolean; commission_bps: number; min_offer_paisa: number; max_counter_bps: number; jobs: FeedJob[] };
-type MyJob = FeedJob & {
-  agreed_paisa: number;
-  keeps_paisa: number;
-  street: string;
-  house: string;
-  landmark: string | null;
-  lat: number | null;
-  lng: number | null;
-  gate_note: string | null;
-  customer_phone: string | null;
-};
 
 const EVERY = 15000;
 const ETAS = [15, 30, 45, 60, 90];
@@ -64,20 +55,23 @@ export function Work({ firstName }: { firstName: string }) {
   const lists = useLists();
   const insets = useSafeAreaInsets();
   const [feed, setFeed] = useState<Feed | null>(null);
-  const [mine, setMine] = useState<MyJob[]>([]);
+  const [mine, setMine] = useState<ActiveJob[]>([]);
+  const [finished, setFinished] = useState<FinishedJob[]>([]);
+  const { session } = useAccount();
   const [problem, setProblem] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
 
   const load = useCallback(async () => {
     if (!supabase) return;
-    const [f, m] = await Promise.all([supabase.rpc('pro_feed'), supabase.rpc('pro_my_jobs')]);
+    const [f, m, d] = await Promise.all([supabase.rpc('pro_feed'), supabase.rpc('pro_my_jobs'), supabase.rpc('pro_finished')]);
     if (f.error || m.error) {
       setProblem('No connection. Pull down to try again.');
       return;
     }
     setProblem(null);
     setFeed(f.data as Feed);
-    setMine((m.data as MyJob[]) ?? []);
+    setMine((m.data as ActiveJob[]) ?? []);
+    setFinished((d.data as FinishedJob[]) ?? []);
   }, []);
 
   // While he is looking at this screen, ask again every 15 seconds. Stops the
@@ -147,7 +141,16 @@ export function Work({ firstName }: { firstName: string }) {
           <View style={{ gap: 10 }}>
             <Text style={s.section}>{w.myJobs}</Text>
             {mine.map((j) => (
-              <Chosen key={j.id} j={j} w={w} trade={tradeName(j.trade)} />
+              <Chosen
+                key={j.id}
+                j={j}
+                w={w}
+                trade={tradeName(j.trade)}
+                when={whenText(j, w)}
+                userId={session?.user.id ?? ''}
+                commissionBps={feed?.commission_bps ?? null}
+                onChanged={load}
+              />
             ))}
           </View>
         ) : null}
@@ -161,6 +164,8 @@ export function Work({ firstName }: { firstName: string }) {
             ))}
           </View>
         ) : null}
+
+        <Finished items={finished} w={w} tradeName={tradeName} />
 
         <Button dark kind="outline" label={w.account} onPress={() => router.push('/me')} />
       </ScrollView>
@@ -330,61 +335,6 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
         </View>
       )}
       <Notice dark text={msg} />
-    </View>
-  );
-}
-
-function Chosen({ j, w, trade }: { j: MyJob; w: ProWords; trade: string }) {
-  const map = j.lat !== null && j.lng !== null ? `https://www.google.com/maps/search/?api=1&query=${j.lat},${j.lng}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${j.house} ${j.street} ${j.sector} Islamabad`)}`;
-  return (
-    <View style={[s.card, s.chosen]}>
-      <View style={s.cardTop}>
-        <View style={[s.badge, { backgroundColor: colour.ink }]}>
-          <Text style={[s.badgeText, { color: colour.yellow }]}>
-            {trade} · {j.ref}
-          </Text>
-        </View>
-        <Text style={[s.when, { color: colour.ink }]}>{whenText(j, w)}</Text>
-      </View>
-      <Text style={[s.title, { color: colour.ink }]}>{j.title}</Text>
-      <Text style={s.addr}>
-        {j.house}, {j.street}, {j.sector}
-      </Text>
-      {j.landmark ? (
-        <Text style={s.addrSub}>
-          {w.landmark}: {j.landmark}
-        </Text>
-      ) : null}
-      {j.gate_note ? (
-        <Text style={s.addrSub}>
-          {w.gate}: {j.gate_note}
-        </Text>
-      ) : null}
-      <Text style={s.addrSub}>
-        {j.customer_first_name}
-        {j.customer_phone ? ` · ${showMobile(j.customer_phone)}` : ''}
-      </Text>
-      <View style={s.money}>
-        <View>
-          <Text style={[s.moneyLabel, { color: colour.steel }]}>{w.agreed}</Text>
-          <Text style={[s.moneyBig, { color: colour.ink }]}>{rupees(j.agreed_paisa)}</Text>
-        </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text style={[s.moneyLabel, { color: colour.steel }]}>{w.youKeep}</Text>
-          <Text style={[s.keep, { color: colour.green }]}>{rupees(j.keeps_paisa)}</Text>
-        </View>
-      </View>
-      <RemoteMedia items={j.media} voiceLabel={w.playVoice} videoLabel={w.watchVideo} />
-      <View style={s.row}>
-        {j.customer_phone ? (
-          <View style={{ flex: 1 }}>
-            <Button kind="green" label={w.callCustomer} onPress={() => Linking.openURL(`tel:+${j.customer_phone!.replace(/^\+/, '')}`)} />
-          </View>
-        ) : null}
-        <View style={{ flex: 1 }}>
-          <Button kind="outline" label={w.openMap} onPress={() => Linking.openURL(map)} />
-        </View>
-      </View>
     </View>
   );
 }

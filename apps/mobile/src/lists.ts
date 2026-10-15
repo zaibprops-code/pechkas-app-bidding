@@ -9,6 +9,9 @@ export type Lists = {
   live_sectors: string[];
   job_types: { id: number; trade: string; name: string; list_paisa: number | null }[];
   min_offer_paisa: number;
+  /** Absent until the phase 4 migration is run; the post screen then says nothing about it. */
+  visit_fee_min_paisa?: number;
+  visit_fee_max_paisa?: number;
 };
 
 const KEY = 'pechkas.lists';

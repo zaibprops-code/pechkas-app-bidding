@@ -36,55 +36,58 @@ CREATE TABLE IF NOT EXISTS public.push_words (
   sort smallint NOT NULL
 );
 ALTER TABLE public.push_words ENABLE ROW LEVEL SECURITY;
+-- Who reads each message: 'technician', 'customer', 'office' or 'both'. The
+-- next migration makes Roman Urdu compulsory for a technician's.
+ALTER TABLE public.push_words ADD COLUMN IF NOT EXISTS who text;
 
-INSERT INTO public.push_words (key, sort, ur, en) VALUES
+INSERT INTO public.push_words (key, sort, ur, en, who) VALUES
   -- To a technician who is online, when a job he could take is posted.
-  ('new_job.title',     10, 'Naya kaam: {trade} · {sector}', 'New job: {trade} · {sector}'),
-  ('new_job.body',      11, '{customer} · {price} · {when}. Offer bhejne ke liye kholein.', '{customer} · {price} · {when}. Open it to send your offer.'),
-  ('when.now',          12, 'Abhi', 'As soon as possible'),
-  ('when.today',        13, 'Aaj', 'Today'),
-  ('when.tomorrow',     14, 'Kal', 'Tomorrow'),
-  ('part.morning',      15, 'subah', 'morning'),
-  ('part.afternoon',    16, 'dopahar', 'afternoon'),
-  ('part.evening',      17, 'shaam', 'evening'),
+  ('new_job.title',     10, 'Naya kaam: {trade} · {sector}', 'New job: {trade} · {sector}', 'technician'),
+  ('new_job.body',      11, '{customer} · {price} · {when}. Offer bhejne ke liye kholein.', '{customer} · {price} · {when}. Open it to send your offer.', 'technician'),
+  ('when.now',          12, 'Abhi', 'As soon as possible', 'technician'),
+  ('when.today',        13, 'Aaj', 'Today', 'technician'),
+  ('when.tomorrow',     14, 'Kal', 'Tomorrow', 'technician'),
+  ('part.morning',      15, 'subah', 'morning', 'technician'),
+  ('part.afternoon',    16, 'dopahar', 'afternoon', 'technician'),
+  ('part.evening',      17, 'shaam', 'evening', 'technician'),
 
   -- To the customer, when an offer arrives.
-  ('offer.title',       20, NULL, 'New offer on {ref}: {price}'),
-  ('offer.same',        21, NULL, '{pro} took your price{eta}. Open the app to choose.'),
-  ('offer.counter',     22, NULL, '{pro} asks {price}{eta}. Open the app to choose.'),
-  ('offer.eta',         23, NULL, ' and can be there in {minutes} minutes'),
+  ('offer.title',       20, NULL, 'New offer on {ref}: {price}', 'customer'),
+  ('offer.same',        21, NULL, '{pro} took your price{eta}. Open the app to choose.', 'customer'),
+  ('offer.counter',     22, NULL, '{pro} asks {price}{eta}. Open the app to choose.', 'customer'),
+  ('offer.eta',         23, NULL, ' and can be there in {minutes} minutes', 'customer'),
 
   -- To the technician the customer chose.
-  ('chosen.title',      30, 'Aap chun liye gaye: {ref}', 'You were chosen: {ref}'),
-  ('chosen.body',       31, '{customer} ne {price} par aap ko chuna. Pata aur number app mein hain.', '{customer} chose you at {price}. The address and number are in the app.'),
+  ('chosen.title',      30, 'Aap chun liye gaye: {ref}', 'You were chosen: {ref}', 'technician'),
+  ('chosen.body',       31, '{customer} ne {price} par aap ko chuna. Pata aur number app mein hain.', '{customer} chose you at {price}. The address and number are in the app.', 'technician'),
 
   -- To a technician whose offer was live, when somebody else was chosen.
-  ('not_chosen.title',  40, 'Customer ne kisi aur ko chuna: {ref}', 'The customer chose someone else: {ref}'),
-  ('not_chosen.body',   41, 'Is dafa nahi. Offer bhejne ka shukriya, naye kaam aate rahenge.', 'Not this time. Thank you for your offer; more jobs will come.'),
+  ('not_chosen.title',  40, 'Customer ne kisi aur ko chuna: {ref}', 'The customer chose someone else: {ref}', 'technician'),
+  ('not_chosen.body',   41, 'Is dafa nahi. Offer bhejne ka shukriya, naye kaam aate rahenge.', 'Not this time. Thank you for your offer; more jobs will come.', 'technician'),
 
   -- To a technician whose offer was live, when the job was called off.
-  ('offer_closed.title', 50, 'Kaam cancel: {ref}', 'Job cancelled: {ref}'),
-  ('offer_closed.body',  51, 'Yeh kaam cancel ho gaya. Aap ki offer band ho gayi.', 'This job was cancelled. Your offer is closed.'),
+  ('offer_closed.title', 50, 'Kaam cancel: {ref}', 'Job cancelled: {ref}', 'technician'),
+  ('offer_closed.body',  51, 'Yeh kaam cancel ho gaya. Aap ki offer band ho gayi.', 'This job was cancelled. Your offer is closed.', 'technician'),
 
   -- To the technician who was going, when the job was called off.
-  ('cancelled.title',   60, 'Kaam cancel: {ref}', 'Job cancelled: {ref}'),
-  ('cancelled.body',    61, 'Mat jayein. {sector} ka {trade} kaam ab nahi hai, app se hata diya gaya.', 'Do not go. The {trade} job in {sector} is off, and it has left your app.'),
+  ('cancelled.title',   60, 'Kaam cancel: {ref}', 'Job cancelled: {ref}', 'technician'),
+  ('cancelled.body',    61, 'Mat jayein. {sector} ka {trade} kaam ab nahi hai, app se hata diya gaya.', 'Do not go. The {trade} job in {sector} is off, and it has left your app.', 'technician'),
 
   -- When the office places a job by hand: the technician, then the customer.
-  ('office_gave.title', 70, 'Pechkas ne aap ko kaam diya: {ref}', 'Pechkas gave you a job: {ref}'),
-  ('office_gave.body',  71, '{trade} · {sector} · {price}. Pata aur number app mein hain.', '{trade} · {sector} · {price}. The address and number are in the app.'),
-  ('office_assigned.title', 72, NULL, '{pro} is your technician for {ref}'),
-  ('office_assigned.body',  73, NULL, 'Pechkas arranged it at {price}. His name and number are in the app.'),
+  ('office_gave.title', 70, 'Pechkas ne aap ko kaam diya: {ref}', 'Pechkas gave you a job: {ref}', 'technician'),
+  ('office_gave.body',  71, '{trade} · {sector} · {price}. Pata aur number app mein hain.', '{trade} · {sector} · {price}. The address and number are in the app.', 'technician'),
+  ('office_assigned.title', 72, NULL, '{pro} is your technician for {ref}', 'customer'),
+  ('office_assigned.body',  73, NULL, 'Pechkas arranged it at {price}. His name and number are in the app.', 'customer'),
 
   -- To the customer, when the office cancels their job. Never the office's
   -- reason itself: that stays in the app.
-  ('office_cancelled.title', 80, NULL, 'Pechkas cancelled {ref}'),
-  ('office_cancelled.body',  81, NULL, 'Open the app to see why. Nobody will come for this job.'),
+  ('office_cancelled.title', 80, NULL, 'Pechkas cancelled {ref}', 'customer'),
+  ('office_cancelled.body',  81, NULL, 'Open the app to see why. Nobody will come for this job.', 'customer'),
 
   -- To the office, when a job has waited with no offer.
-  ('needs_you.title',   90, NULL, 'No offers yet on {ref}'),
-  ('needs_you.body',    91, NULL, '{trade} · {sector} · {price}, waiting {minutes} minutes. Ring round, or place it by hand in the admin panel.')
-ON CONFLICT (key) DO UPDATE SET ur = EXCLUDED.ur, en = EXCLUDED.en, sort = EXCLUDED.sort;
+  ('needs_you.title',   90, NULL, 'No offers yet on {ref}', 'office'),
+  ('needs_you.body',    91, NULL, '{trade} · {sector} · {price}, waiting {minutes} minutes. Ring round, or place it by hand in the admin panel.', 'office')
+ON CONFLICT (key) DO UPDATE SET ur = EXCLUDED.ur, en = EXCLUDED.en, sort = EXCLUDED.sort, who = EXCLUDED.who;
 
 
 /**

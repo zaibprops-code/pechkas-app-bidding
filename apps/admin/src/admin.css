@@ -95,3 +95,12 @@ button:focus-visible, .call:focus-visible, input:focus-visible, select:focus-vis
 .alerts { margin-top: 20px; background: #fff; border: 1px solid var(--rule); border-radius: 18px; padding: 16px 18px; display: grid; gap: 8px; }
 .alerts h2 { margin: 0; font-size: 17px; }
 .alerts p { margin: 0; }
+
+.why { margin: 0; padding: 8px 12px; border-radius: 12px; background: #f6e3dc; color: var(--brick); }
+.history { display: grid; gap: 8px; padding-top: 8px; border-top: 1px solid var(--rule); }
+.history h3 { margin: 6px 0 0; font-size: 15px; }
+.events, .chat { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.chat { list-style: none; padding: 0; }
+.chat li { padding: 8px 12px; border-radius: 12px; background: var(--paper, #faf6ef); max-width: 80%; }
+.chat li.pro { justify-self: end; background: #fff3d1; }
+.chat li p { margin: 2px 0 0; }

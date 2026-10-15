@@ -342,8 +342,10 @@ ok('every slot in every message was filled', all.every((m) => !/\{[a-z_]+\}/.tes
   ok('Bilal, who reads Roman Urdu, never got an English line', urdu.length >= 4 && urdu.every((m) => !/ the | you |Open it|Do not go/i.test(` ${m.title} ${m.body} `)), JSON.stringify(urdu.map((m) => m.title)));
 }
 {
-  const { rows } = await setup(`SELECT key FROM public.push_words WHERE ur IS NULL AND key !~ '^(offer|office_assigned|office_cancelled|needs_you)\.'`);
+  const { rows } = await setup(`SELECT key FROM public.push_words WHERE who IN ('technician', 'both') AND ur IS NULL`);
   ok('every message a technician can get has a Roman Urdu line', rows.length === 0, JSON.stringify(rows));
+  const r = await setup(`INSERT INTO public.push_words (key, sort, ur, en, who) VALUES ('test.title', 999, NULL, 'Only English', 'technician')`).then(() => 'allowed', (e) => e.message);
+  ok('and the database refuses one without it', /push_words_urdu/.test(r), r);
 }
 
 // =============================================================================

@@ -379,6 +379,12 @@ export default function Post() {
         </View>
         <Text style={s.zone}>{zone}</Text>
         <Text style={s.min}>Lowest offer: {rupees(min)}, what it costs for somebody to come and look.</Text>
+        {lists?.visit_fee_min_paisa && lists.visit_fee_max_paisa ? (
+          <Text style={s.min}>
+            If the job turns out bigger, the technician must ask you a new price in the app. Say no, and you pay only a visit fee for
+            his petrol: {rupees(lists.visit_fee_min_paisa)} to {rupees(lists.visit_fee_max_paisa)}.
+          </Text>
+        ) : null}
         {errors.offer ? <Text style={[s.error, { color: '#ffd2c6' }]}>{errors.offer}</Text> : null}
       </View>
 

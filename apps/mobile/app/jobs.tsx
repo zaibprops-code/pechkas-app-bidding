@@ -10,10 +10,12 @@ import { Press } from '../src/components/Press';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
 import { useNotify } from '../src/notifications';
+import { Ended, UnderWay, type JobNow } from '../src/customer/UnderWay';
+import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../src/office';
 import { ask, supabase } from '../src/supabase';
 import { colour, font, radius } from '../src/theme';
 
-type Job = {
+type Job = JobNow & {
   id: string;
   ref: string;
   trade: string;
@@ -24,10 +26,7 @@ type Job = {
   sector: string;
   street: string;
   house: string;
-  status: 'open' | 'assigned' | 'cancelled';
   live_offers: number;
-  agreed_paisa: number | null;
-  pro: { first_name: string; phone: string | null; years: number } | null;
   cancelled_by: 'customer' | 'office' | null;
   cancel_reason: string | null;
   created_at: string;
@@ -156,7 +155,11 @@ function JobCard({ job, trade, tick, onChanged }: { job: Job; trade: string; tic
   const [msg, setMsg] = useState<string | null>(null);
   const open = job.status === 'open';
   const assigned = job.status === 'assigned';
+  const ended = job.status === 'done' || job.status === 'stopped';
   const active = open || assigned;
+  // Once he is at the gate, a "no" is Decline (and the visit fee) or a call
+  // to the office. The database refuses the cancel anyway; this hides it.
+  const canCancel = open || (assigned && (job.stage === 'chosen' || job.stage === 'on_way'));
   const files = (['voice', 'video', 'photo'] as const)
     .map((k) => {
       const n = job.media.filter((m) => m.kind === k).length;
@@ -176,22 +179,27 @@ function JobCard({ job, trade, tick, onChanged }: { job: Job; trade: string; tic
   }
 
   return (
-    <View style={[s.card, !open && s.cardClosed]}>
+    <View style={[s.card, !active && s.cardClosed]}>
       <View style={s.cardTop}>
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={s.trade}>{trade} · {job.ref}</Text>
           <Text style={s.jobTitle}>{job.title}</Text>
         </View>
-        <Text style={s.price}>{rupees(job.offered_paisa)}</Text>
+        {/* What she will actually pay once there is a figure for it; her offer until then. */}
+        <Text style={s.price}>{rupees(job.collect_paisa ?? job.agreed_paisa ?? job.offered_paisa)}</Text>
       </View>
       <Text style={s.line}>
         {WHEN[job.when_kind]}
         {job.when_part ? `, ${job.when_part}` : ''} · {job.house}, {job.street}, {job.sector}
       </Text>
       {files ? <Text style={s.muted}>{files}</Text> : null}
-      <View style={[s.badge, { backgroundColor: active ? colour.greenSoft : colour.paper2 }]}>
-        <Text style={[s.badgeText, { color: active ? colour.greenDark : colour.steel }]}>
-          {assigned
+      <View style={[s.badge, { backgroundColor: active || ended ? colour.greenSoft : colour.paper2 }]}>
+        <Text style={[s.badgeText, { color: active || ended ? colour.greenDark : colour.steel }]}>
+          {job.status === 'done'
+            ? 'Done'
+            : job.status === 'stopped'
+              ? 'Stopped at the door'
+              : assigned
             ? 'Technician chosen'
             : open
               ? job.live_offers > 0
@@ -207,9 +215,16 @@ function JobCard({ job, trade, tick, onChanged }: { job: Job; trade: string; tic
       {open && job.live_offers === 0 ? (
         <Text style={s.muted}>Offers appear here as technicians send them. This screen updates by itself.</Text>
       ) : null}
-      {assigned && job.pro ? <ChosenPro job={job} /> : null}
-      {active && !confirming ? <Button kind="outline" label="Cancel this job" onPress={() => setConfirming(true)} /> : null}
-      {active && confirming ? (
+      {assigned && job.pro ? <UnderWay job={job} onChanged={onChanged} /> : null}
+      {ended ? <Ended job={job} onChanged={onChanged} /> : null}
+      {canCancel && !confirming ? <Button kind="outline" label="Cancel this job" onPress={() => setConfirming(true)} /> : null}
+      {assigned && !canCancel ? (
+        <View style={{ gap: 6 }}>
+          <Text style={s.muted}>He is already at your house. To cancel now, call the Pechkas office.</Text>
+          <Button kind="outline" label={`Call Pechkas · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+        </View>
+      ) : null}
+      {canCancel && confirming ? (
         <View style={{ gap: 8 }}>
           <Text style={s.line}>
             Cancel {job.ref}? {assigned && job.pro ? `Please also call ${job.pro.first_name} to tell him.` : 'Nobody will come for it.'}
@@ -294,29 +309,6 @@ function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChosen: () 
 }
 
 /** Once chosen: who is coming, what was agreed, and how to reach him. */
-function ChosenPro({ job }: { job: Job }) {
-  const pro = job.pro!;
-  const family = encodeURIComponent(
-    `Pechkas is sending ${pro.first_name} for job ${job.ref} (${job.title}) at ${job.house}, ${job.street}, ${job.sector}.${pro.phone ? ` His number: ${showMobile(pro.phone)}.` : ''}`,
-  );
-  return (
-    <View style={s.chosen}>
-      <View style={s.offerTop}>
-        <View style={s.avatar}>
-          <Text style={s.avatarText}>{pro.first_name.charAt(0)}</Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={s.offerName}>{pro.first_name} is your technician</Text>
-          <Text style={s.offerMeta}>Met by Pechkas · agreed {job.agreed_paisa ? rupees(job.agreed_paisa) : 'no price yet'}</Text>
-        </View>
-      </View>
-      <Text style={s.line}>The price only changes if you agree. Pay him after the job.</Text>
-      {pro.phone ? <Button kind="green" label={`Call ${pro.first_name} · ${showMobile(pro.phone)}`} onPress={() => Linking.openURL(`tel:+${pro.phone!.replace(/^\+/, '')}`)} /> : null}
-      <Button kind="outline" label="Send his name to family on WhatsApp" onPress={() => Linking.openURL(`https://wa.me/?text=${family}`)} />
-    </View>
-  );
-}
-
 const s = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   back: { width: 44, height: 44, borderRadius: 999, backgroundColor: colour.paper2, alignItems: 'center', justifyContent: 'center' },

@@ -7,6 +7,30 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Phase 4 — doing the job.** Once a customer has chosen a technician, the
+job goes step by step, and every step is written down for you:
+
+1. He taps **Rasta pakar liya** (on my way) and then **Pohanch gaya**
+   (arrived). Her phone buzzes at each.
+2. Her app shows a **4-digit start code**. He types it in at the gate with a
+   **photo of how it was** before he can start. It proves the man at the
+   door is the one the app sent. Five wrong codes lock it, your phone is
+   told, and you unlock it from the admin panel after ringing them both.
+3. If the job is bigger than it looked, he **cannot just ask for more at the
+   door**: he sends the new price, a reason and a photo, and she taps
+   **Approve** or **Decline** in her app. Declined, the job stops and she
+   pays only the **visit fee** — Rs 300 for now (see below).
+4. He finishes with a **photo of the finished work**. Her app says exactly
+   what to pay him in cash. For 24 hours she has a **Something is wrong**
+   button, which comes straight to you.
+5. The two can **chat** in the app, text only. You can read every chat in the
+   admin panel, and both of them are told so.
+
+The admin panel has new tabs — **Under way** and **Finished** — and each job
+has **History, chat and photos**: who did what, when. **Needs you** now
+also shows locked codes, problems reported, and jobs that look stuck (on
+the way for over 3 hours, or working for over 10).
+
 **Phase 3 — bidding.** A customer posts a job and names a price (phase 2).
 Approved technicians who switch themselves **Online** see new jobs in their
 own trades and sectors — the sector, the customer's first name, the voice
@@ -42,8 +66,8 @@ is buzzed, and the screens still update by themselves while open.
 | 1 | Sign-in, technician applications, you approve them | Done |
 | 2 | Customers post jobs with voice notes, video, photos and a price | Done |
 | 3 | Bidding: technicians accept or counter, customer chooses | Done |
-| 3b | Notifications: a new job buzzes the technician, a new offer buzzes the customer, a waiting job buzzes you | **Built — set up Firebase, run both migrations, rebuild, test** |
-| 4 | Doing the job: on the way, gate code, price changes | |
+| 3b | Notifications: a new job buzzes the technician, a new offer buzzes the customer, a waiting job buzzes you | Done |
+| 4 | Doing the job: on the way, start code, photos, new price at the door, visit fee, chat, done | **Built — run the migration, rebuild, test** |
 | 5 | Money and trust: commission, ratings, Help, guarantee | |
 | 6 | Play Store and App Store | |
 
@@ -64,9 +88,20 @@ not a new app.
 | Open jobs one customer may have | 5 |
 | Jobs one customer may post in a day | 10 |
 | **Sectors taking jobs** | **F-11, E-11, G-13** — the same as the website. **Confirm or change.** |
+| **Visit fee** | **Rs 300 to Rs 1,000**, the petrol for his trip — your decision. Until Google Maps is connected the trip cannot be measured, so it is **Rs 300**, your rule for "no distance". |
+| Wrong start codes before it locks | 5 |
 | App identifier | `net.pechkas.app` — permanent |
 
 **Still open:**
+- **The visit fee needs Google Maps** to measure each trip. When you are
+  ready, Claude will tell you how to make a Google Maps key (it needs a
+  billing card on Google Cloud, with a free monthly allowance), and then
+  one more thing to decide: **how many km per litre** to assume, and where
+  the **petrol price** comes from — you set it, and update it when the
+  government changes it.
+- **Cancelling once he has arrived.** For now a customer can cancel free
+  until he reaches the house; after that the app tells her to call you.
+  Say if cancelling after he has set off should cost her the visit fee.
 - **The lowest offer (Rs 1,000), the highest counter (2×) and the live
   sectors** above.
 - **Online stays on until he switches it off.** A technician who forgets
@@ -392,6 +427,42 @@ Two phones again: one customer, one approved technician.
 
 ---
 
+## Trying phase 4
+
+**Supabase → SQL Editor:** run `20261021000000_doing_the_job.sql`. It should
+say **Success**. Then start a new **preview** build and install it on both
+phones. Use one customer phone and one approved technician phone.
+
+1. **Customer:** post a job. **Technician:** go Online and press **Qubool**.
+   **Customer:** choose him.
+2. **Technician:** **Mere kaam** shows the job with a yellow **Rasta pakar
+   liya** button. Tap it. The customer's phone buzzes "… is on his way" and
+   her **My jobs** shows a big **start code**.
+3. **Technician:** tap **Pohanch gaya**. Her phone buzzes "… has arrived".
+4. **Technician:** type a **wrong** code, take a photo with **+**, press
+   **Kaam shuru karein**. It says the code is wrong and how many tries are
+   left. Now type the right code from her screen and press it again.
+5. **Technician:** **Nayi price bhejein** → type a higher price, a reason
+   and take a photo → **Customer ko bhejein**. Her phone buzzes. On her
+   screen: the new price, the reason and the photo, with **Approve Rs …**
+   and **Decline**. Press **Approve**.
+6. **Both:** press **Message** and send each other a line.
+7. **Technician:** take an **after** photo and press **Kaam mukammal**. Her
+   screen says **Done. Pay … in cash**, with the before and after photos.
+   His shows it under **Pichle 24 ghante** with what to collect — and the
+   address is gone from his phone.
+8. **Customer:** **Something is wrong** → write a line → **Send to
+   Pechkas**. Your phone is told.
+9. **Admin panel → Jobs → Needs you:** the job is there with **Problem
+   reported**. Press **History, chat and photos**: every step, who did it
+   and when, the photos and the chat.
+10. **Try the other ending:** do it again, but at step 5 press **Decline**.
+    The job stops, his phone says to collect only the visit fee, Rs 300.
+11. **Try the lock:** on another job, type a wrong code five times. Your
+    phone is told; in the admin panel press **Unlock the start code**.
+
+---
+
 ## Run a database change (a "migration")
 
 Each change is a file in `supabase/migrations/`, run **once**, **in order**,
@@ -417,7 +488,8 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | `20261017000000_posting_a_job.sql` | Jobs, the website prices, the private bucket for voice notes, videos and photos | Third |
 | `20261018000000_bidding.sql` | Going online, offers, the customer choosing, the address reaching only the chosen technician | Fourth |
 | `20261019000000_notifications.sql` | Phones' notification addresses, and the database telling people when something happens | Fifth — **run it for phase 3b** |
-| `20261020000000_who_else_hears.sql` | The notification words in one table; telling a technician who was not chosen; your alert for jobs with no offers | Sixth — **run it for phase 3b** |
+| `20261020000000_who_else_hears.sql` | The notification words in one table; telling a technician who was not chosen; your alert for jobs with no offers | Sixth |
+| `20261021000000_doing_the_job.sql` | On my way, arrived, the start code, photos, a new price at the door, the visit fee, chat, done, "something is wrong", each job's history | Seventh — **run it for phase 4** |
 
 ---
 
@@ -432,7 +504,8 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | The admin panel | Vercel → pechkas-app-bidding (Root Directory `apps/admin`) |
 | Words on the technician screens | `apps/mobile/src/words.ts` |
 | Every Roman Urdu line, beside its English | `docs/ROMAN_URDU.md` (written by `npm run words`) |
-| Words in the notifications | the `push_words` table, set in `supabase/migrations/20261020000000_who_else_hears.sql` |
+| Words in the notifications | the `push_words` table, set in `supabase/migrations/20261020000000_who_else_hears.sql` and `…21000000_doing_the_job.sql` |
+| The office phone number the app shows | `apps/mobile/src/office.ts` — the same as the website's; change both together |
 | Notifications: Firebase | console.firebase.google.com → Pechkas (`net.pechkas.app`) |
 | Notifications: what was sent | Supabase → Table Editor → `push_log` |
 | Customers' voice notes, videos and photos | Supabase → Storage → `job-media` (private; opened from the admin panel) |

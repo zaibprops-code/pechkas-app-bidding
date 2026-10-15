@@ -32,6 +32,12 @@ Sent by the database, so these live in `push_words`
 | `cancelled.body` | Mat jayein. {sector} ka {trade} kaam ab nahi hai, app se hata diya gaya. | Do not go. The {trade} job in {sector} is off, and it has left your app. |
 | `office_gave.title` | Pechkas ne aap ko kaam diya: {ref} | Pechkas gave you a job: {ref} |
 | `office_gave.body` | {trade} · {sector} · {price}. Pata aur number app mein hain. | {trade} · {sector} · {price}. The address and number are in the app. |
+| `change_ok.title` | Nayi price manzoor: {price} | New price approved: {price} |
+| `change_ok.body` | {customer} ne {ref} ki nayi price maan li. Kaam jaari rakhein. | {customer} approved the new price for {ref}. Carry on. |
+| `stopped.title` | Kaam band: {ref} | Job stopped: {ref} |
+| `stopped.body` | {customer} ne nayi price nahi maani. Sirf visit fee {fee} lein. | {customer} declined the new price. Collect only the visit fee, {fee}. |
+| `message.title` | Naya message: {from} | New message from {from} |
+| `message.body` | {ref} ke baare mein. Parhne ke liye app kholein. | About {ref}. Open the app to read it. |
 
 ## The technician's screens
 
@@ -115,6 +121,50 @@ From `apps/mobile/src/words.ts`.
 | `errEta` | Batayein kitni der mein pohanch sakte hain. | Say how soon you can get there. |
 | `errNote` | Note mein apna number ya CNIC na likhein. | Do not write your number or a CNIC in the note. |
 | `gone` | Yeh kaam ab khula nahi. | This job is no longer open. |
+| `onWay` | Rasta pakar liya | I'm on my way |
+| `onWayNote` | Customer ko bata diya jayega ke aap aa rahe hain. | The customer is told you are coming. |
+| `arrived` | Pohanch gaya | I have arrived |
+| `arrivedNote` | Gate par pohanch kar dabayein. Customer ko pata chal jayega. | Tap at the gate. The customer is told. |
+| `askCode` | Customer se 4 number ka start code lein | Ask the customer for the 4-digit start code |
+| `codeLabel` | Start code | Start code |
+| `triesLeft` | {n} koshish baqi | {n} tries left |
+| `codeLocked` | Code band ho gaya. Pechkas office ko call karein. | The code is locked. Call the Pechkas office. |
+| `callOffice` | Pechkas office ko call karein | Call the Pechkas office |
+| `beforePhoto` | Kaam se pehle ki photo | Photo before you start |
+| `afterPhoto` | Kaam ke baad ki photo | Photo of the finished work |
+| `addPhoto` | Photo lein | Take a photo |
+| `uploading` | Photo upload ho rahi hai… | Uploading the photo… |
+| `start` | Kaam shuru karein | Start the job |
+| `working` | Kaam jaari hai | Working |
+| `newPrice` | Nayi price bhejein | Ask a new price |
+| `newPriceNote` | Kaam bara nikla? Wajah aur photo ke saath nayi price bhejein. Price tabhi badlegi jab customer haan karega. | Bigger than it looked? Send a new price with the reason and a photo. It changes only if the customer says yes. |
+| `newPriceLabel` | Nayi price (Rs) | New price (Rs) |
+| `reasonLabel` | Wajah: kya kharabi mili? | Reason: what did you find? |
+| `changePhoto` | Kharabi ya raseed ki photo | Photo of the fault or the receipt |
+| `sendChange` | Customer ko bhejein | Send to the customer |
+| `back` | Wapas | Back |
+| `waitingAnswer` | Customer ke jawab ka intezar: {price} (pehle {was}) | Waiting for the customer: {price} (was {was}) |
+| `withdrawChange` | Wapas lein | Take it back |
+| `declineFee` | Customer na kare to kaam band, aur sirf visit fee {fee} milegi. | If the customer says no, the job stops and you collect only the visit fee, {fee}. |
+| `finish` | Kaam mukammal | Job done |
+| `finishNote` | Customer se {price} cash lein. | Collect {price} in cash from the customer. |
+| `message` | Message | Message |
+| `finishedToday` | Pichle 24 ghante | Last 24 hours |
+| `collect` | Lena hai: {price} | To collect: {price} |
+| `stoppedLine` | Kaam band hua, sirf visit fee | Stopped, visit fee only |
+| `errCode` | Code sahi nahi. Customer se dobara poochein. | That is not the code. Ask the customer again. |
+| `errPhotos` | Photo lein. Agar li thi to upload nahi hui, dobara lein. | Take a photo. If you did, it did not upload; take it again. |
+| `errReason` | Wajah likhein: kya kharabi mili? | Write the reason: what did you find? |
+| `errStage` | Kaam aage barh chuka. Screen neeche khench kar refresh karein. | The job has moved on. Pull down to refresh. |
+| `errNewPrice` | Poore rupay mein nayi price likhein. | Write the new price in whole rupees. |
+| `errCamera` | Camera ki ijazat dein: phone ki settings mein Pechkas. | Allow the camera: phone settings, Pechkas. |
+| `errBody` | Message khali hai ya bohat lamba. | The message is empty or too long. |
+| `chatWith` | {name} se baat | Chat with {name} |
+| `chatEmpty` | Abhi koi message nahi. | No messages yet. |
+| `chatPlaceholder` | Message likhein… | Write a message… |
+| `sendMessage` | Bhejein | Send |
+| `chatClosed` | Yeh chat band ho gayi. | This chat is closed. |
+| `chatNote` | Pechkas office yeh chat parh sakta hai. | The Pechkas office can read this chat. |
 | `notifyAsk` | Naya kaam phone par | New jobs on your phone |
 | `notifyAskText` | App band ho tab bhi, naya kaam aate hi phone bajega. | Your phone rings the moment a new job arrives, even with the app closed. |
 | `notifyTurnOn` | Notification on karein | Turn on notifications |
@@ -125,4 +175,4 @@ From `apps/mobile/src/words.ts`.
 ## English only
 
 Customers and the office read English, so these have no Roman Urdu:
-`offer.title`, `offer.same`, `offer.counter`, `offer.eta`, `office_assigned.title`, `office_assigned.body`, `office_cancelled.title`, `office_cancelled.body`, `needs_you.title`, `needs_you.body`.
+`offer.title`, `offer.same`, `offer.counter`, `offer.eta`, `office_assigned.title`, `office_assigned.body`, `office_cancelled.title`, `office_cancelled.body`, `needs_you.title`, `needs_you.body`, `on_way.title`, `on_way.body`, `arrived.title`, `arrived.body`, `change.title`, `change.body`, `done.title`, `done.body`, `code_locked.title`, `code_locked.body`, `problem.title`, `problem.body`.
