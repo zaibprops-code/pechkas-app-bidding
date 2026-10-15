@@ -113,11 +113,12 @@ export async function forget(): Promise<void> {
  * Checked again whenever the app comes back to the front, because "turn it
  * on in Settings" means the person leaves and comes back.
  */
-export function useNotify(lang: Lang) {
+export function useNotify(lang: Lang | null) {
   const [notify, setNotify] = useState<NotifyState | null>(null);
 
+  // `null` means "not yet": nobody signed in, or the language still loading.
   const check = useCallback(() => {
-    register(lang).then(setNotify);
+    if (lang) register(lang).then(setNotify);
   }, [lang]);
 
   useEffect(() => {
@@ -129,7 +130,7 @@ export function useNotify(lang: Lang) {
   }, [check]);
 
   const ask = useCallback(async () => {
-    setNotify(await turnOn(lang));
+    if (lang) setNotify(await turnOn(lang));
   }, [lang]);
 
   return { notify, ask };

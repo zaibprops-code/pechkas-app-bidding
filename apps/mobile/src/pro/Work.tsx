@@ -59,8 +59,8 @@ const EVERY = 15000;
 const ETAS = [15, 30, 45, 60, 90];
 
 export function Work({ firstName }: { firstName: string }) {
-  const { w, lang, toggle } = useProWords();
-  const { notify, ask: askNotify } = useNotify(lang);
+  const { w, lang, known, toggle } = useProWords();
+  const { notify, ask: askNotify } = useNotify(known ? lang : null);
   const lists = useLists();
   const insets = useSafeAreaInsets();
   const [feed, setFeed] = useState<Feed | null>(null);

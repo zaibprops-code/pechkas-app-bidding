@@ -139,3 +139,22 @@ BEGIN
   RETURN v_id;
 END;
 $$;
+
+-- Supabase's pg_cron, as far as the migrations use it: scheduling a named
+-- job writes it down here (replacing one of the same name, as the real one
+-- does). The tests read it to prove the clock was set, and call the
+-- scheduled function themselves instead of waiting a minute.
+CREATE SCHEMA IF NOT EXISTS cron;
+CREATE TABLE IF NOT EXISTS cron.job (
+  jobname  text PRIMARY KEY,
+  schedule text NOT NULL,
+  command  text NOT NULL
+);
+CREATE OR REPLACE FUNCTION cron.schedule(job_name text, schedule text, command text)
+RETURNS bigint
+LANGUAGE sql
+AS $$
+  INSERT INTO cron.job (jobname, schedule, command) VALUES (job_name, schedule, command)
+  ON CONFLICT (jobname) DO UPDATE SET schedule = EXCLUDED.schedule, command = EXCLUDED.command;
+  SELECT 1::bigint;
+$$;

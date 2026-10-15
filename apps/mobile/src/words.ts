@@ -203,19 +203,23 @@ export function proError(w: ProWords, field: string | null | undefined, fallback
 const KEY = 'pechkas.pro.lang';
 
 /** The technician's words, and a switch he can flip. Remembered on his phone. */
-export function useProWords(): { w: ProWords; lang: Lang; toggle: () => void } {
+export function useProWords(): { w: ProWords; lang: Lang; known: boolean; toggle: () => void } {
   const [lang, setLang] = useState<Lang>('ur');
+  // False until the phone has said which he chose, so nothing is sent to the
+  // database in Roman Urdu a moment before it turns out he reads English.
+  const [known, setKnown] = useState(false);
   useEffect(() => {
     AsyncStorage.getItem(KEY)
       .then((v) => {
         if (v === 'en' || v === 'ur') setLang(v);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setKnown(true));
   }, []);
   const toggle = () => {
     const next: Lang = lang === 'ur' ? 'en' : 'ur';
     setLang(next);
     AsyncStorage.setItem(KEY, next).catch(() => {});
   };
-  return { w: PRO[lang], lang, toggle };
+  return { w: PRO[lang], lang, known, toggle };
 }

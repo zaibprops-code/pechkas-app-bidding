@@ -21,9 +21,11 @@ by hand.
 
 **Phase 3b — notifications.** The phone now buzzes, even with the app
 closed: a technician who is **Online** when a job he could take is posted;
-a customer when an offer arrives; a technician when he is chosen, or when a
-job he was going to is cancelled; and a customer when you place or cancel
-their job from the admin panel. The database sends them, through Expo's
+a customer when an offer arrives; a technician when he is chosen, when
+somebody else is chosen instead of him, or when a job he offered on or was
+going to is cancelled; a customer when you place or cancel their job from
+the admin panel; and **you**, on your own phone, when a job has had no offer
+for 15 minutes — once per job. The database sends them, through Expo's
 free push service and Google's Firebase. A notification says the trade, the
 sector, a first name, a price and the job number — **never** an address, a
 landmark, a gate note or a phone number, because it shows on a lock screen.
@@ -40,7 +42,7 @@ is buzzed, and the screens still update by themselves while open.
 | 1 | Sign-in, technician applications, you approve them | Done |
 | 2 | Customers post jobs with voice notes, video, photos and a price | Done |
 | 3 | Bidding: technicians accept or counter, customer chooses | Done |
-| 3b | Notifications: a new job buzzes the technician, a new offer buzzes the customer | **Built — set up Firebase, run the migration, rebuild, test** |
+| 3b | Notifications: a new job buzzes the technician, a new offer buzzes the customer, a waiting job buzzes you | **Built — set up Firebase, run both migrations, rebuild, test** |
 | 4 | Doing the job: on the way, gate code, price changes | |
 | 5 | Money and trust: commission, ratings, Help, guarantee | |
 | 6 | Play Store and App Store | |
@@ -71,16 +73,10 @@ not a new app.
   will still see jobs and can still offer — nobody is sent anywhere without
   the customer choosing him, so the harm is small. Say if you want it to
   switch off by itself after some hours.
-- **A technician who was not chosen** simply sees the job disappear from his
-  list, and is **not** sent a notification about it. Say if you want him
-  told "the customer chose someone else".
-- **The Roman Urdu in the notifications.** They are written in
-  `supabase/migrations/20261019000000_notifications.sql` (the database
-  sends them, so the words live there), e.g. "Naya kaam: AC · F-11",
-  "Aap chun liye gaye", "Mat jayein … ab nahi hai". Read them too.
-- **Nobody notifies you.** A job nobody has offered on still waits for you
-  under **Needs you** in the admin panel; the panel is not an app and cannot
-  buzz. Say if you want an SMS or WhatsApp to yourself for that, later.
+- **Every Roman Urdu line is in one list: `docs/ROMAN_URDU.md`** —
+  notifications first, then the screens, each beside its English. Open it
+  on GitHub on your phone, read it as a technician would, and send Claude
+  the name in the first column and what it should say.
 - **Price guidance.** Within 20% of the website price the app says "Fair";
   below that "Low"; above "Generous". Say if you want different words or
   limits.
@@ -325,12 +321,28 @@ While you are in **Project settings**, open the **Cloud Messaging** tab: it
 should say **Firebase Cloud Messaging API (V1)** is **Enabled**. If it says
 disabled, press the three dots beside it and enable it.
 
-### D. Run the database change
+### D. Run the database changes
 
-**Supabase → SQL Editor:** run `20261019000000_notifications.sql`. It should
-say **Success**. If instead it says something about **pg_net** or
-**extension**: Supabase → **Database** → **Extensions** → search `pg_net` →
-switch it on → then run the file again.
+**Supabase → SQL Editor:** run `20261019000000_notifications.sql`, then
+`20261020000000_who_else_hears.sql`. Each should say **Success**. If one
+instead says something about an **extension** — **pg_net** for the first,
+**pg_cron** for the second: Supabase → **Database** → **Extensions** →
+search that name → switch it on → then run the file again.
+
+`pg_cron` is the database's clock: once a minute it looks for jobs that have
+waited 15 minutes with no offer. You can see it under **Integrations →
+Cron** (or **Database → Cron Jobs**) as `pechkas-needs-you`.
+
+### F. Alerts for you
+
+1. In Supabase → **Authentication** → **Phone** → test numbers, make sure
+   your own mobile number is there (step C of phase 1).
+2. On your phone, sign in to the Pechkas app with that number → **Me** →
+   **Turn on notifications** → **Allow**.
+3. **Admin panel → Jobs:** at the top, **Alerts on your phone** → type the
+   same number → **Send alerts here**. It should say **One phone will hear
+   it**. If it says no phone has allowed notifications, step 2 is not done
+   yet.
 
 ### E. Build and install
 
@@ -358,10 +370,15 @@ Two phones again: one customer, one approved technician.
 5. Choose the technician. His phone buzzes: **Aap chun liye gaye**.
 6. Cancel the job from the customer phone. His phone buzzes: **Kaam
    cancel … Mat jayein**.
-7. **Admin panel → Jobs → Open → Place it by hand:** a technician who has
+7. **Two technicians:** if you have a third phone, let both technicians
+   offer, choose one, and check the other's phone says **Customer ne kisi
+   aur ko chuna**.
+8. **Your alert:** post a job and let nobody offer. About 15 minutes later
+   your phone says **No offers yet on PK-…**, once.
+9. **Admin panel → Jobs → Open → Place it by hand:** a technician who has
    not allowed notifications says **no notifications, ring him** beside his
    name.
-8. Read every notification's words and tell Claude what to change.
+10. Read `docs/ROMAN_URDU.md` and tell Claude what to change.
 
 **If nothing arrives:**
 - Supabase → **Table Editor** → `push_log` shows every notification the
@@ -400,6 +417,7 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | `20261017000000_posting_a_job.sql` | Jobs, the website prices, the private bucket for voice notes, videos and photos | Third |
 | `20261018000000_bidding.sql` | Going online, offers, the customer choosing, the address reaching only the chosen technician | Fourth |
 | `20261019000000_notifications.sql` | Phones' notification addresses, and the database telling people when something happens | Fifth — **run it for phase 3b** |
+| `20261020000000_who_else_hears.sql` | The notification words in one table; telling a technician who was not chosen; your alert for jobs with no offers | Sixth — **run it for phase 3b** |
 
 ---
 
@@ -413,7 +431,8 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | Your admin login | Supabase → Authentication → Users (your email); the office list is the `staff` table |
 | The admin panel | Vercel → pechkas-app-bidding (Root Directory `apps/admin`) |
 | Words on the technician screens | `apps/mobile/src/words.ts` |
-| Words in the notifications | `supabase/migrations/20261019000000_notifications.sql` |
+| Every Roman Urdu line, beside its English | `docs/ROMAN_URDU.md` (written by `npm run words`) |
+| Words in the notifications | the `push_words` table, set in `supabase/migrations/20261020000000_who_else_hears.sql` |
 | Notifications: Firebase | console.firebase.google.com → Pechkas (`net.pechkas.app`) |
 | Notifications: what was sent | Supabase → Table Editor → `push_log` |
 | Customers' voice notes, videos and photos | Supabase → Storage → `job-media` (private; opened from the admin panel) |

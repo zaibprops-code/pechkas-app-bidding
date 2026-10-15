@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { showMobile } from '@pechkas/shared';
 import { Body, Button, Notice, Screen, Title } from '../src/components/ui';
 import { useAccount } from '../src/account';
+import { useNotify } from '../src/notifications';
 import { ask, supabase } from '../src/supabase';
+import { useProWords } from '../src/words';
 import { colour, font, radius } from '../src/theme';
 
 /**
@@ -17,6 +19,11 @@ export default function Me() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const dark = account?.role === 'pro';
+  // A technician's notifications are in the language he chose; everyone
+  // else's are English. Saved again from here, so whoever is on this screen
+  // — the owner included, for the office's alerts — can turn them on.
+  const { lang, known } = useProWords();
+  const { notify, ask: askNotify } = useNotify(!session || !account ? null : dark ? (known ? lang : null) : 'en');
 
   const back = <Button kind="outline" dark={dark} label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />;
 
@@ -67,7 +74,16 @@ export default function Me() {
       <View style={[s.card, dark && s.cardDark]}>
         <Row dark={dark} k="Mobile" v={phone} />
         <Row dark={dark} k="Account" v={account?.role === 'pro' ? 'Technician' : account?.role === 'customer' ? 'Customer' : 'Not finished'} />
+        {notify && notify !== 'unavailable' ? <Row dark={dark} k="Notifications" v={notify === 'on' ? 'On' : 'Off'} /> : null}
       </View>
+
+      {notify === 'ask' ? <Button kind={dark ? 'yellow' : 'green'} dark={dark} label="Turn on notifications" onPress={askNotify} /> : null}
+      {notify === 'off' ? (
+        <View style={{ gap: 8 }}>
+          <Body dark={dark} muted>Notifications are switched off for Pechkas in your phone's settings.</Body>
+          <Button kind="outline" dark={dark} label="Open settings" onPress={() => Linking.openSettings()} />
+        </View>
+      ) : null}
 
       {account?.role === 'customer' ? <Button kind="outline" label="I want to work with Pechkas as a technician" onPress={() => router.push('/pro/apply')} /> : null}
 

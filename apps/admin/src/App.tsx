@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { showMobile } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
+import { Alerts } from './Alerts.tsx';
 import { Jobs } from './Jobs.tsx';
 
 /**
@@ -166,7 +167,14 @@ function Office({ name }: { name: string }) {
         <button className={section === 'jobs' ? 'section on' : 'section'} aria-pressed={section === 'jobs'} onClick={() => setSection('jobs')}>Jobs</button>
         <button className={section === 'technicians' ? 'section on' : 'section'} aria-pressed={section === 'technicians'} onClick={() => setSection('technicians')}>Technicians</button>
       </nav>
-      {section === 'jobs' ? <Jobs trades={trades} /> : <Technicians trades={trades} />}
+      {section === 'jobs' ? (
+        <>
+          <Alerts />
+          <Jobs trades={trades} />
+        </>
+      ) : (
+        <Technicians trades={trades} />
+      )}
     </main>
   );
 }

@@ -214,7 +214,9 @@ heading('Choosing');
   all.push(...m);
   const b = to(m, 'bilal')[0];
   ok('Bilal is told, in Roman Urdu', b?.title === `Aap chun liye gaye: ${ref}` && /Ayesha ne Rs 5,500 par aap ko chuna/.test(b?.body ?? ''), JSON.stringify(b));
-  ok('nobody else is (Asad is not told he lost; Ayesha chose, so she knows)', m.length === 1, JSON.stringify(m.map((x) => x.to)));
+  const a = to(m, 'asad')[0];
+  ok('Asad, whose offer was live, is told she chose someone else', a?.title === `The customer chose someone else: ${ref}` && /^Not this time/.test(a?.body ?? ''), JSON.stringify(a));
+  ok('nobody else (Ayesha chose, so she knows)', m.length === 2, JSON.stringify(m.map((x) => x.to)));
 }
 
 // =============================================================================
@@ -250,6 +252,98 @@ heading('The office');
   const pros = (await call('authenticated', OWNER, `SELECT * FROM public.admin_pros()`)).rows;
   ok('the office can see who can be reached', pros.length === 5 && pros.every((p) => p.notifications === true), JSON.stringify(pros.map((p) => [p.full_name, p.notifications])));
   nothing('a technician cannot list them', await as('authenticated', BILAL, `SELECT * FROM public.admin_pros()`));
+}
+
+// =============================================================================
+heading('Offers on a job that is called off');
+
+{
+  const j = (await call('authenticated', AYESHA, POST, ['ac', 'Hall AC dripping water', 300000, 'now', null])).value;
+  await sentSince();
+  await call('authenticated', BILAL, `SELECT public.make_offer($1, 300000, 30, NULL)`, [j.id]);
+  await call('authenticated', ASAD, `SELECT public.make_offer($1, 300000, 30, NULL)`, [j.id]);
+  await call('authenticated', ASAD, `SELECT public.withdraw_offer($1)`, [j.id]);
+  await sentSince();
+  ok('Ayesha cancels it while Bilal\'s offer is live', (await call('authenticated', AYESHA, `SELECT public.cancel_job($1)`, [j.id])).value?.ok === true);
+  const m = await sentSince();
+  all.push(...m);
+  ok('Bilal is told his offer is closed', to(m, 'bilal')[0]?.title === `Kaam cancel: ${j.ref}` && /offer band/.test(to(m, 'bilal')[0]?.body ?? ''), JSON.stringify(m));
+  ok('Asad, who had taken his back, is not', to(m, 'asad').length === 0 && m.length === 1);
+}
+{
+  const j = (await call('authenticated', AYESHA, POST, ['ac', 'Bedroom AC making a noise', 300000, 'now', null])).value;
+  await call('authenticated', BILAL, `SELECT public.make_offer($1, 300000, 30, NULL)`, [j.id]);
+  await call('authenticated', ASAD, `SELECT public.make_offer($1, 320000, 30, NULL)`, [j.id]);
+  await setup(`UPDATE public.offers SET expires_at = now() - interval '1 minute' WHERE pro_id = $1 AND job_id = $2`, [ASAD, j.id]);
+  await sentSince();
+  const offer = (await setup(`SELECT id FROM public.offers WHERE job_id = $1 AND pro_id = $2`, [j.id, BILAL])).rows[0].id;
+  await call('authenticated', AYESHA, `SELECT public.choose_offer($1)`, [offer]);
+  const m = await sentSince();
+  all.push(...m);
+  ok('a technician whose offer had already run out is not told he lost', to(m, 'asad').length === 0 && to(m, 'bilal').length === 1, JSON.stringify(m.map((x) => x.to)));
+  await call('authenticated', AYESHA, `SELECT public.cancel_job($1)`, [j.id]);
+  await sentSince();
+}
+
+// =============================================================================
+heading('The office is told when nobody offers');
+
+const ZOHAIB_PHONE = 'cabcabca-0000-4000-8000-000000000001'; // the owner, signed in to the app with his mobile
+await setup(`INSERT INTO auth.users (id, phone) VALUES ($1, '923009999999')`, [ZOHAIB_PHONE]);
+await setup(`INSERT INTO public.profiles (id, role, first_name) VALUES ($1, 'customer', 'Zohaib')`, [ZOHAIB_PHONE]);
+await call('authenticated', ZOHAIB_PHONE, SAVE, [token('zohaib'), 'android', 'en']);
+
+ok('the clock is set to look every minute', (await setup(`SELECT schedule, command FROM cron.job WHERE jobname = 'pechkas-needs-you'`)).rows[0]?.schedule === '* * * * *');
+ok('nobody can set off the alerts themselves', Boolean((await as('authenticated', OWNER, `SELECT public.alert_needs_you()`)).error));
+ok('a technician cannot set an alert number', (await call('authenticated', BILAL, `SELECT public.admin_set_alert_phone('03001234567')`)).value?.ok === false);
+ok('a number that is not a mobile is refused', (await call('authenticated', OWNER, `SELECT public.admin_set_alert_phone('12345')`)).value?.field === 'phone');
+ok('the owner sets his own', (await call('authenticated', OWNER, `SELECT public.admin_set_alert_phone('+923009999999')`)).value?.ok === true);
+{
+  const r = (await call('authenticated', OWNER, `SELECT public.admin_alerts()`)).value;
+  ok('and the panel can see a phone there will hear it', r?.alert_phone === '923009999999' && r?.phones === 1 && r?.minutes === 15, JSON.stringify(r));
+  ok('a technician cannot see it', (await call('authenticated', BILAL, `SELECT public.admin_alerts()`)).value == null);
+}
+{
+  const quiet = (await call('authenticated', AYESHA, POST, ['ac', 'Nobody wants this one', 300000, 'now', null])).value;
+  const offered = (await call('authenticated', AYESHA, POST, ['ac', 'This one has an offer', 300000, 'now', null])).value;
+  const ancient = (await call('authenticated', AYESHA, POST, ['ac', 'Posted two days ago', 300000, 'now', null])).value;
+  await call('authenticated', BILAL, `SELECT public.make_offer($1, 300000, 30, NULL)`, [offered.id]);
+  await setup(`UPDATE public.jobs SET created_at = now() - interval '20 minutes' WHERE id = ANY($1)`, [[quiet.id, offered.id]]);
+  await setup(`UPDATE public.jobs SET created_at = now() - interval '2 days' WHERE id = $1`, [ancient.id]);
+  await sentSince();
+
+  const n = (await setup(`SELECT public.alert_needs_you() AS n`)).rows[0].n;
+  const m = await sentSince();
+  all.push(...m);
+  const z = to(m, 'zohaib')[0];
+  ok('one job needs him: not the one with an offer, not the two-day-old one', n === 1 && m.length === 1, JSON.stringify({ n, m }));
+  ok('it says which, and what to do', z?.title === `No offers yet on ${quiet.ref}` && /^AC · F-11 · Rs 3,000, waiting 20 minutes/.test(z?.body ?? ''), JSON.stringify(z));
+  ok('and only once, not every minute', (await setup(`SELECT public.alert_needs_you() AS n`)).rows[0].n === 0 && (await sentSince()).length === 0);
+
+  await setup(`UPDATE public.staff SET active = false WHERE id = $1`, [OWNER]);
+  const later = (await call('authenticated', AYESHA, POST, ['ac', 'Another quiet one', 300000, 'now', null])).value;
+  await setup(`UPDATE public.jobs SET created_at = now() - interval '20 minutes' WHERE id = $1`, [later.id]);
+  await sentSince();
+  await setup(`SELECT public.alert_needs_you()`);
+  ok('somebody switched off the office list is not told', (await sentSince()).length === 0);
+  await setup(`UPDATE public.staff SET active = true WHERE id = $1`, [OWNER]);
+  for (const j of [quiet, offered, ancient, later]) await call('authenticated', AYESHA, `SELECT public.cancel_job($1)`, [j.id]);
+  await sentSince();
+}
+
+// =============================================================================
+heading('The words');
+
+nothing('nobody can read the words table directly', await as('authenticated', AYESHA, `SELECT * FROM public.push_words`));
+ok('nobody can make the database say something', Boolean((await as('authenticated', AYESHA, `SELECT public.say('new_job.title', 'en')`)).error));
+ok('every slot in every message was filled', all.every((m) => !/\{[a-z_]+\}/.test(`${m.title} ${m.body}`)), JSON.stringify(all.find((m) => /\{/.test(`${m.title} ${m.body}`))));
+{
+  const urdu = all.filter((m) => m.to === token('bilal'));
+  ok('Bilal, who reads Roman Urdu, never got an English line', urdu.length >= 4 && urdu.every((m) => !/ the | you |Open it|Do not go/i.test(` ${m.title} ${m.body} `)), JSON.stringify(urdu.map((m) => m.title)));
+}
+{
+  const { rows } = await setup(`SELECT key FROM public.push_words WHERE ur IS NULL AND key !~ '^(offer|office_assigned|office_cancelled|needs_you)\.'`);
+  ok('every message a technician can get has a Roman Urdu line', rows.length === 0, JSON.stringify(rows));
 }
 
 // =============================================================================

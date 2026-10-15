@@ -172,11 +172,21 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   push service fail and checks the job still posts.
 - Who is told: `pro_may_see_as(job, pro)` — the same rule as the feed —
   and `online`. A price nudge on a live offer does not buzz the customer
-  again; a new or renewed offer does. Not-chosen technicians are not told
-  (an open decision in `docs/OWNER.md`).
-- Words: the server writes them, so they live in the migration, Roman Urdu
-  by the token's `lang` for technicians, English for customers. Keep them
-  identical in meaning to `words.ts`; the owner reads both.
+  again; a new or renewed offer does. A technician whose offer was **live**
+  is told when someone else is chosen or the job is called off; one whose
+  offer had run out, or who took it back, is not — he has moved on.
+- **The office is told once per job** when it has waited
+  `escalate_minutes` with no live offer: `alert_needs_you()`, run every
+  minute by `pg_cron`, marks `needs_you_told_at` first. It goes to the app
+  signed in as each active staff member's `alert_phone`, set in the admin
+  panel. Jobs older than a day are never announced.
+- **Every word is in `push_words`** (key, `ur`, `en`), filled by `say()`
+  with `{slots}`; a slot can be per language as `name_ur` / `name_en`. `ur`
+  is NULL only for customer and office messages, and a test fails if a
+  technician's message lacks it. Change wording with a migration that
+  updates the table. **`docs/ROMAN_URDU.md` is generated** by `npm run
+  words` from `words.ts` and the migrated table; `npm run check` fails if it
+  is stale, so the owner never reviews an old list.
 - `push_tokens` is keyed by token, so a phone signed in as somebody else
   moves to them. `signOut()` calls `forget()` **before** signing out, while
   the database still knows who is asking. Five phones per person at most.
@@ -193,7 +203,12 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   buzzed; `admin_pros()` shows who cannot be reached.
 - `supabase/local/bootstrap.sql` stands in for `pg_net` with a function of
   the real signature that records each request in `net.sent`, and fails on
-  demand through `net.fail`.
+  demand through `net.fail`; and for `pg_cron` with a `cron.schedule()` that
+  writes `cron.job`. Tests call `alert_needs_you()` themselves.
+- The Me screen shows and turns on notifications for anyone, so the owner's
+  own phone can receive the office alerts without having a job open.
+  `useNotify(null)` waits: a technician's language must be read from the
+  phone before his token is saved, or it is saved in the wrong one.
 
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only

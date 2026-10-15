@@ -91,3 +91,7 @@ button:focus-visible, .call:focus-visible, input:focus-visible, select:focus-vis
 .media video { width: 280px; max-width: 100%; border-radius: 12px; background: var(--ink); }
 .media img { width: 140px; height: 140px; object-fit: cover; border-radius: 12px; display: block; }
 .assign { background: var(--paper-2); border-radius: 14px; padding: 12px 14px; }
+
+.alerts { margin-top: 20px; background: #fff; border: 1px solid var(--rule); border-radius: 18px; padding: 16px 18px; display: grid; gap: 8px; }
+.alerts h2 { margin: 0; font-size: 17px; }
+.alerts p { margin: 0; }
