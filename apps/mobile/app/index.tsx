@@ -1,17 +1,19 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mark } from '../src/components/Mark';
 import { Icon, type IconName } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
+import { useAccount } from '../src/account';
 import { colour, font, radius, TAP } from '../src/theme';
 
 /**
  * The customer's home screen — board 1 of the "Pechkas App Look" canvas.
  *
- * Phase 0 draws it; nothing here talks to the database yet. Every control
- * leads to an honest "being built" screen rather than doing nothing, because
- * a button that does nothing tells the customer the app is broken.
+ * Posting a job arrives in phase 2; until then those buttons lead to an
+ * honest "being built" screen rather than doing nothing, because a button
+ * that does nothing tells the customer the app is broken. A technician who
+ * opens the app is taken to his own, dark side.
  */
 
 const TRADES: { label: string; icon: IconName }[] = [
@@ -27,6 +29,9 @@ const soon = () => router.push('/soon');
 
 export default function Home() {
   const insets = useSafeAreaInsets();
+  const { account } = useAccount();
+
+  if (account?.role === 'pro') return <Redirect href="/pro" />;
 
   return (
     <View style={styles.screen}>
@@ -79,6 +84,11 @@ export default function Home() {
             <PromiseLine icon="shield" text="We meet every technician in person before he gets a single job." />
             <PromiseLine icon="lock" text="The price is fixed in the app before he comes. No bargaining at the gate." />
           </View>
+
+          <Press style={styles.join} onPress={() => router.push('/join')} accessibilityRole="link">
+            <Text style={styles.joinText}>Do you fix things for a living? Work with Pechkas</Text>
+            <Icon name="arrowRight" size={18} color={colour.green} strokeWidth={2.2} />
+          </Press>
         </View>
       </ScrollView>
 
@@ -86,7 +96,7 @@ export default function Home() {
         <NavItem icon="home" label="Home" active />
         <NavItem icon="jobs" label="My jobs" />
         <NavItem icon="chat" label="Chats" />
-        <NavItem icon="me" label="Me" />
+        <NavItem icon="me" label="Me" to="/me" />
       </View>
     </View>
   );
@@ -113,11 +123,11 @@ function PromiseLine({ icon, text }: { icon: IconName; text: string }) {
   );
 }
 
-function NavItem({ icon, label, active = false }: { icon: IconName; label: string; active?: boolean }) {
+function NavItem({ icon, label, active = false, to }: { icon: IconName; label: string; active?: boolean; to?: '/me' }) {
   return (
     <Press
       style={styles.navItem}
-      onPress={active ? undefined : soon}
+      onPress={active ? undefined : to ? () => router.push(to) : soon}
       accessibilityRole="tab"
       accessibilityState={{ selected: active }}
       sink={0.94}
@@ -192,6 +202,20 @@ const styles = StyleSheet.create({
   promiseTitle: { fontFamily: font.displayBold, fontSize: 16, color: colour.ink },
   promiseRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   promiseText: { flex: 1, fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.ink },
+
+  join: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    minHeight: TAP,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: radius.big,
+    borderWidth: 1.5,
+    borderColor: 'rgba(11,81,72,0.35)',
+  },
+  joinText: { flex: 1, fontFamily: font.bodySemi, fontSize: 14, lineHeight: 19, color: colour.green },
 
   nav: {
     flexDirection: 'row',

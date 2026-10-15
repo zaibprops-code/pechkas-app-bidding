@@ -49,3 +49,27 @@ export function commission(pricePaisa: number, bps: number): number {
 export function technicianKeeps(pricePaisa: number, bps: number): number {
   return pricePaisa - commission(pricePaisa, bps);
 }
+
+/**
+ * A Pakistani mobile number, as typed, turned into the form sign-in needs:
+ * "+923001234567". Returns null for anything that is not a mobile number.
+ *
+ * People type it every way: 0300 1234567, 0300-1234567, +92 300 1234567,
+ * 92300…, or just 300…. All of those are the same phone. A landline (051…)
+ * is not, because a code cannot be sent to one.
+ */
+export function pakistaniMobile(typed: string): string | null {
+  const digits = (typed ?? '').replace(/[\s\-().]/g, '').replace(/^\+/, '');
+  if (!/^\d+$/.test(digits)) return null;
+  let local: string;
+  if (digits.startsWith('92')) local = digits.slice(2);
+  else if (digits.startsWith('0')) local = digits.slice(1);
+  else local = digits;
+  return /^3\d{9}$/.test(local) ? `+92${local}` : null;
+}
+
+/** "+923001234567" → "0300 1234567", the way people read their own number. */
+export function showMobile(e164: string): string {
+  const local = e164.replace(/^\+?92/, '0');
+  return /^03\d{9}$/.test(local) ? `${local.slice(0, 4)} ${local.slice(4)}` : e164;
+}

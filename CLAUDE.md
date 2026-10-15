@@ -80,6 +80,28 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - Version 1 holds nobody's money: cash goes customer → technician; commission
   is owed and settled outside the app. A prepaid wallet needs a lawyer first.
 
+### Accounts (phase 1)
+- Customers and technicians sign in with a **mobile number and a code**.
+  `pakistaniMobile()` in `packages/shared` is the one rule for what a number
+  is. The office signs in with **email and password**, one login each, made
+  by the owner in Supabase; `make_owner()` is granted to nobody and run by
+  hand in the SQL editor.
+- Being signed in is never enough for the office. Every `admin_*` function
+  asks `is_staff()` again, so switching someone off works on their next tap.
+- **Approval needs three checks on record**: identity (in person or video
+  call, never a photo of a card), a trial job, the rules. `pro_checks` keeps
+  who checked by name too, so the record survives them leaving.
+- A technician can edit his application until he is approved, never after:
+  it is then the owner's record. He can never set his own status.
+- `delete_my_account()` deletes the `auth.users` row and everything cascades.
+  Both stores require it inside the app.
+- Database refusals are English. On the technician side `proError()` turns
+  the `field` into his language — put the words in `words.ts`, not the SQL.
+- The `EXPO_PUBLIC_*` and `VITE_*` values are baked in **at build time**.
+  Without them the app says it is not connected and the admin panel says so
+  too; Vite even drops the code that would use them. Set them in Expo and
+  Vercel, then rebuild.
+
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only
   `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be in the

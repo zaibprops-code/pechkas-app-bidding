@@ -22,10 +22,13 @@ CREATE SCHEMA IF NOT EXISTS extensions;
 
 CREATE SCHEMA IF NOT EXISTS auth;
 
--- Supabase's auth.users. Only the columns the job book actually reads.
+-- Supabase's auth.users. Only the columns the app actually reads.
 CREATE TABLE IF NOT EXISTS auth.users (
   id    uuid PRIMARY KEY,
-  email text
+  email text,
+  -- Phone sign-in stores the number here, as Supabase does, in E.164 without
+  -- the plus: 923001234567.
+  phone text
 );
 
 /**

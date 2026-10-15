@@ -1,10 +1,15 @@
 /* The app's colours (apps/mobile/src/theme.ts), which are the website's. */
 :root {
   --green: #0b5148;
+  --green-soft: #e3eeec;
   --yellow: #ffc53d;
   --ink: #14171a;
   --ink-soft: #2b3238;
+  --steel: #4c565e;
   --paper: #faf6ef;
+  --paper-2: #f2ece1;
+  --brick: #9e3b22;
+  --rule: rgba(20, 23, 26, 0.14);
 }
 
 * { box-sizing: border-box; }
@@ -16,27 +21,60 @@ body {
   font: 16px/1.5 'IBM Plex Sans', system-ui, sans-serif;
 }
 
-.shell {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 48px 16px;
+.shell { max-width: 880px; margin: 0 auto; padding: 32px 16px 64px; }
+.shell.narrow { max-width: 420px; }
+
+.brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; color: var(--green); }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.who { display: flex; align-items: center; gap: 12px; color: var(--steel); }
+
+h1 { margin: 28px 0 12px; font-size: 32px; letter-spacing: -0.02em; }
+h2 { margin: 0; font-size: 20px; }
+h3 { margin: 0 0 6px; font-size: 15px; }
+.lead, .muted { color: var(--steel); }
+.error { color: var(--brick); font-weight: 600; }
+
+.stack { display: grid; gap: 14px; }
+label { display: grid; gap: 4px; font-size: 14px; font-weight: 600; }
+input, select, textarea {
+  font: inherit; font-weight: 400;
+  min-height: 44px; padding: 8px 12px;
+  border: 1px solid var(--rule); border-radius: 10px; background: #fff; color: var(--ink);
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 800;
-  font-size: 22px;
-  color: var(--green);
+/* Colours on buttons snap; nothing here eases a colour. */
+button, .call {
+  font: inherit; font-weight: 700;
+  min-height: 44px; padding: 0 18px;
+  border-radius: 12px; border: 1.5px solid transparent;
+  background: var(--yellow); color: var(--ink);
+  cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+button.secondary { background: transparent; border-color: var(--rule); }
+button.small { min-height: 36px; padding: 0 12px; font-size: 14px; }
+button.danger { background: var(--brick); color: var(--paper); }
+.call { background: var(--green); color: var(--paper); }
+button:focus-visible, .call:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--green); outline-offset: 2px;
 }
 
-h1 {
-  margin: 40px 0 8px;
-  font-size: 36px;
-  letter-spacing: -0.02em;
-}
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.tab { background: transparent; border-color: var(--rule); font-weight: 600; }
+.tab.on { background: var(--green); color: var(--paper); border-color: var(--green); }
 
-.lead { color: var(--ink-soft); }
+.list { display: grid; gap: 16px; }
+.card { background: #fff; border: 1px solid var(--rule); border-radius: 18px; padding: 18px; display: grid; gap: 8px; }
+.card p { margin: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.about { color: var(--ink-soft); }
+.reason { background: var(--paper-2); padding: 8px 12px; border-radius: 10px; }
 
-li { margin: 8px 0; }
+.checks { background: var(--green-soft); border-radius: 14px; padding: 12px 14px; }
+.checks ul { margin: 0 0 8px; padding-left: 18px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+.row .grow { flex: 1 1 200px; }
+
+.decide { display: grid; gap: 10px; }
+.buttons { display: flex; gap: 10px; flex-wrap: wrap; }
