@@ -32,7 +32,14 @@ type Job = JobNow & {
   cancel_reason: string | null;
   created_at: string;
   media: { kind: 'voice' | 'video' | 'photo' }[];
+  /** Asked for by name: his alone until `until`, then everyone's. */
+  preferred?: { first_name: string; until: string } | null;
+  /** Whom it was held for at all, even after it opened to everyone. */
+  asked_for?: string | null;
+  can_ask_again?: boolean;
 };
+
+const clock = (iso: string) => new Date(iso).toLocaleTimeString('en-PK', { hour: 'numeric', minute: '2-digit' });
 
 const WHEN = { now: 'As soon as possible', today: 'Today', tomorrow: 'Tomorrow' } as const;
 
@@ -54,7 +61,7 @@ const EVERY = 10000;
 
 /** The customer's own jobs. Nobody else's: the database only gives these. */
 export default function Jobs() {
-  const { posted } = useLocalSearchParams<{ posted?: string }>();
+  const { posted, asked } = useLocalSearchParams<{ posted?: string; asked?: string }>();
   const { ready, session, account } = useAccount();
   const lists = useLists();
   const { notify, ask: askNotify } = useNotify('en');
@@ -93,6 +100,7 @@ export default function Jobs() {
   if (account?.role === 'pro') return <Redirect href="/pro" />;
 
   const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
+  const fresh = posted ? jobs?.find((j) => j.ref === posted) : undefined;
 
   return (
     <View style={{ flex: 1, backgroundColor: colour.paper }}>
@@ -109,12 +117,22 @@ export default function Jobs() {
         </View>
 
         {/* "Offers will arrive" is only true while they still can. */}
-        {posted && jobs?.find((j) => j.ref === posted)?.status === 'open' ? (
+        {posted && fresh?.status === 'open' ? (
           <View style={s.posted} accessibilityRole="alert">
             <Text style={s.postedTitle}>Posted · {posted}</Text>
-            <Text style={s.postedText}>
-              Technicians who work in your area will send offers. They appear below as they arrive. If nobody offers soon, Pechkas will call you.
-            </Text>
+            {fresh.preferred ? (
+              <Text style={s.postedText}>Sent to {fresh.preferred.first_name} first. Offers appear below as they arrive.</Text>
+            ) : (
+              <Text style={s.postedText}>
+                {fresh.asked_for
+                  ? 'It has now gone to every checked technician. '
+                  : asked
+                    ? `${asked} is not taking jobs right now, so it went to everyone. `
+                    : ''}
+                Technicians who work in your area will send offers. They appear below as they arrive. If nobody offers soon, Pechkas will call
+                you.
+              </Text>
+            )}
           </View>
         ) : null}
 
@@ -173,6 +191,23 @@ function JobCard({ job, trade, tick, onChanged }: { job: Job; trade: string; tic
     .filter(Boolean)
     .join(' · ');
 
+  async function everyone() {
+    setBusy(true);
+    const r = await ask('release_now', { p_job: job.id });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    onChanged();
+  }
+
+  async function askAgain() {
+    setBusy(true);
+    setMsg(null);
+    const r = await ask<{ first_name: string; minutes: number }>('ask_again', { p_from_job: job.id });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    router.push({ pathname: '/post', params: { trade: job.trade, ask: r.first_name, minutes: String(r.minutes) } });
+  }
+
   async function cancel() {
     setBusy(true);
     const r = await ask('cancel_job', { p_job: job.id, p_reason: null });
@@ -215,12 +250,21 @@ function JobCard({ job, trade, tick, onChanged }: { job: Job; trade: string; tic
         </Text>
       </View>
       {!active && job.cancelled_by === 'office' && job.cancel_reason ? <Text style={s.line}>{job.cancel_reason}</Text> : null}
+      {open && job.preferred ? (
+        <View style={s.held}>
+          <Text style={s.line}>
+            You asked for {job.preferred.first_name}. Only he can see this job until {clock(job.preferred.until)}; then every checked technician can.
+          </Text>
+          <Button kind="outline" label="Ask everyone now" onPress={everyone} busy={busy} />
+        </View>
+      ) : null}
       {open && job.live_offers > 0 ? <Offers job={job} tick={tick} onChosen={onChanged} /> : null}
       {open && job.live_offers === 0 ? (
         <Text style={s.muted}>Offers appear here as technicians send them. This screen updates by itself.</Text>
       ) : null}
       {assigned && job.pro ? <UnderWay job={job} onChanged={onChanged} /> : null}
       {ended ? <Ended job={job} onChanged={onChanged} /> : null}
+      {job.can_ask_again && job.pro ? <Button kind="green" label={`Ask ${job.pro.first_name} again`} onPress={askAgain} busy={busy} /> : null}
       {canCancel && !confirming ? <Button kind="outline" label="Cancel this job" onPress={() => setConfirming(true)} /> : null}
       {assigned && !canCancel ? (
         <View style={{ gap: 6 }}>
@@ -353,4 +397,5 @@ const s = StyleSheet.create({
   offerPrice: { fontFamily: font.display, fontSize: 20, color: colour.ink },
   offerTag: { fontFamily: font.bodySemi, fontSize: 11 },
   chosen: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.greenSoft },
+  held: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.greenSoft },
 });

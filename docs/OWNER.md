@@ -7,6 +7,42 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Phase 7 — after launch.** Four things, all built and tested:
+
+- **"Ask Bilal again."** On a finished job the customer has an **Ask Bilal
+  again** button. Her next job in that trade goes to **him alone for 10
+  minutes**, with a yellow-edged card at the top of his screen, then to
+  every checked technician. He can tap **Is dafa nahi aa sakta** and it
+  goes to everyone at once (she is told); she can tap **Ask everyone now**.
+  If he is offline, over the credit limit, or does not work in her sector,
+  it is never held — it goes to everyone straight away and her screen says
+  why.
+- **The repeat fee: 7% of the labour** when the customer has had a job
+  **done** by the same technician before — whether she asked for him or
+  just chose him again. A job that stopped at the door or was cancelled
+  does not count. He sees the 7% on the job before he offers, and it is
+  written on the job when it is done.
+- **Admin → Demand.** For the last 7, 30 or 90 days: jobs per sector and
+  trade, how many **never had an offer**, how many you placed by hand, and
+  how many technicians cover each; the trades in your live sectors with
+  **nobody at all**; and the sectors you do not serve yet that customers
+  asked for — on the post screen they now tap **My sector is not listed**
+  and choose theirs. Nothing is promised to them.
+- **Admin → Flags.** Patterns worth a look, over the last 60 days: a
+  technician whose jobs keep ending in a refused new price, who asks for a
+  new price on most jobs, whose parts are most of the price, whose jobs get
+  cancelled after he is chosen (sometimes then done for cash outside the
+  app), with many wrong start codes, complaints, low stars, or many jobs for
+  one customer; a customer who cancels a lot, or whom technicians report.
+  **Flags only: nothing happens to anybody by itself.** You ring, write
+  what you found, and press **Checked — it is fine** or suspend him
+  yourself under Technicians. The limits are guesses until real jobs show
+  what is normal; they are settings (below).
+
+The app privacy policy on the website says the three new things it now
+keeps: who a customer asked for, a sector she told you about, and notes
+you write on a flag.
+
 **Phase 6b — the App Store (iPhone).** The same app, built for iPhone on
 Expo's servers — no Mac needed. Ready for you, with the steps under
 **"Putting the app on the App Store"** below:
@@ -142,6 +178,7 @@ is buzzed, and the screens still update by themselves while open.
 | 5 | Money and trust: parts, commission, ledger, credit limit, payments, ratings, problems, guarantee, emergency | Done |
 | 6 | Google Play: listing, policy pages, forms, closed test → public | **Ready — your steps below** |
 | 6b | App Store (iPhone): settings, screenshots, App Privacy, age rating, TestFlight → review | **Ready — your steps below** |
+| 7 | After launch: ask a technician again, 7% repeat fee, demand report, fraud flags | Done — **"Trying phase 7"** below |
 
 ## The settings you chose
 
@@ -166,9 +203,32 @@ not a new app.
 | **Emergency numbers** | Police 15, Rescue 1122, Fire brigade 16, Edhi 115 — confirmed by you |
 | **Visit fee** | **Rs 300 to Rs 1,000**, the petrol for his trip — your decision. Until Google Maps is connected the trip cannot be measured, so it is **Rs 300**, your rule for "no distance". |
 | Wrong start codes before it locks | 5 |
+| **Repeat fee** | **7% of the labour** when the customer has had a job done by the same technician before |
+| **A job asked for by name** | His alone for **10 minutes**, then everyone's |
+| **Flags look back** | **60 days** |
+| Flag: refused new prices | **30%** of his finished jobs, once he has **3** |
+| Flag: asked a new price | **50%** of his finished jobs, once he has **3** |
+| Flag: parts-heavy jobs | **2** jobs where parts were **60%** or more of the price |
+| Flag: wrong start codes | **5** on his jobs |
+| Flag: cancelled after he was chosen | **3** jobs |
+| Flag: problems or claims about somebody | **2** |
+| Flag: ratings of 1 or 2 stars | **3** |
+| Flag: jobs for one customer | **4** |
+| Flag: a customer's cancellations | **5** |
 | App identifier | `net.pechkas.app` — permanent |
 
 **Still open:**
+- **The flag limits are guesses.** Watch **Admin → Flags** for the first
+  month or two. When honest people keep showing up, or something you know
+  was wrong never did, tell Claude which limit and it becomes a new
+  migration.
+- **The repeat fee counts any earlier finished job** between the same
+  customer and technician, however long ago. Say if it should only count,
+  say, the last 12 months.
+- **A lawyer reads the privacy page again** for the three new lines in
+  phase 7 (who a customer asked for, a sector she asked about, notes on a
+  flag). The Google Play Data safety answers changed too:
+  `docs/store/data-safety.md`.
 - **A lawyer reads the two app pages** — pechkas.net/app/privacy and
   /app/delete-account — and the Data safety answers, before the app goes
   public. Fill in the bracketed gaps: the registered business name and
@@ -588,6 +648,39 @@ say **Success**. Then a new **preview** build on both phones.
 
 ---
 
+## Trying phase 7
+
+**Supabase → SQL Editor:** run `20261023000000_after_launch.sql`. It should
+say **Success**. Then a new **preview** build on both phones, and the admin
+panel redeploys by itself on Vercel.
+
+1. Finish a job between your customer phone and your technician phone, as
+   in phase 5. Make sure the technician is **Online**.
+2. **Customer → My jobs:** the finished job has **Ask Bilal again** (his
+   name). Tap it. The post screen says **Asking Bilal first**. Fill it in
+   and **Post job**. The green box says it was sent to him first.
+3. **Technician:** his phone buzzes **Customer ne dobara aap ko bulaya**.
+   The job is at the top with a yellow edge, and under the price it says
+   the Pechkas fee is **only 7%** — **Aap ko milenge** is 93% of the price.
+4. **A second technician phone, if you have one:** the job is **not** there.
+5. **Technician:** tap **Is dafa nahi aa sakta**. The customer's phone
+   buzzes **Bilal cannot take PK-…**, and the second technician now sees the
+   job, at 10%.
+6. Post another, ask for him again, and this time **wait 10 minutes**: it
+   opens to everyone by itself. Or tap **Ask everyone now** on her card.
+7. **Customer → Post another job:** choose a trade, then under **Where**
+   tap **My sector is not listed** and choose, say, **G-9**. It thanks her
+   and posts nothing.
+8. **Admin → Demand:** G-9 is under **Asked for, not served yet**. Any job
+   that waited with no offer shows in **No offer**. **Nobody to send** lists
+   the trades in F-11, E-11 and G-13 with no approved technician.
+9. **Admin → Flags:** probably empty, which is right. Cancel three jobs
+   after choosing the same technician and he appears, with the reason in
+   plain words. Write a line and press **Checked — it is fine**: he moves
+   to the bottom, and nothing else about him changes.
+
+---
+
 ## Putting the app on Google Play
 
 No migration this time. Do these in order; each says which screen and which
@@ -823,6 +916,7 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | `20261020000000_who_else_hears.sql` | The notification words in one table; telling a technician who was not chosen; your alert for jobs with no offers | Sixth |
 | `20261021000000_doing_the_job.sql` | On my way, arrived, the start code, photos, a new price at the door, the visit fee, chat, done, "something is wrong", each job's history | Seventh |
 | `20261022000000_money_and_trust.sql` | Parts, commission, the ledger, the credit limit, payments, ratings, problems, guarantee claims, the emergency button | Eighth — **run it for phase 5** |
+| `20261023000000_after_launch.sql` | Asking a technician again, the 7% repeat fee, the demand report, fraud flags | Ninth — **run it for phase 7** |
 
 ---
 

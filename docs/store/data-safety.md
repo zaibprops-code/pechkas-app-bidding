@@ -81,17 +81,22 @@ For each: **Collected: Yes · Shared: No · Processed ephemerally: No.**
 | Data type | Required or optional | Purposes | What it is in the app |
 | --- | --- | --- | --- |
 | **Location → Precise location** | Optional | App functionality | The map pin a customer may add to a job; where the phone was when the emergency button was pressed. Only while the app is open, never in the background. |
-| **Personal info → Name** | Required | App functionality, Account management | First name; a technician's full name. |
+| **Personal info → Name** | Required | App functionality, Account management, Fraud prevention, security and compliance | First name; a technician's full name. |
 | **Personal info → Phone number** | Required | App functionality, Account management, Fraud prevention, security and compliance | Sign-in, and passed to the other side once a technician is chosen. |
-| **Personal info → Address** | Required | App functionality | Where the job is: sector, street, house, landmark, gate note. |
+| **Personal info → Address** | Required | App functionality | Where the job is: sector, street, house, landmark, gate note. If a customer says Pechkas does not serve her sector yet: that sector and the kind of work. |
 | **Personal info → Other info** | Required (technicians) | App functionality, Account management | A technician's trades, years in the trade, sectors, and that his identity was checked. Never a CNIC number. |
-| **Financial info → Other financial info** | Required (technicians) | App functionality, Account management | What a technician owes Pechkas in fees and what he has paid, with the payment reference. |
+| **Financial info → Other financial info** | Required (technicians) | App functionality, Account management, Fraud prevention, security and compliance | What a technician owes Pechkas in fees and what he has paid, with the payment reference. |
 | **Messages → Other in-app messages** | Optional | App functionality | The chat between a customer and her chosen technician. |
 | **Photos and videos → Photos** | Optional (customers), required (technicians, to start and finish a job) | App functionality | What is wrong; before and after photos; receipts for parts. |
 | **Photos and videos → Videos** | Optional | App functionality | A short video of what is wrong. |
 | **Audio → Voice or sound recordings** | Optional | App functionality | The voice note describing the problem. |
-| **App activity → Other user-generated content** | Optional | App functionality | Star ratings and their words; problem reports and guarantee claims. |
+| **App activity → Other user-generated content** | Optional | App functionality, Fraud prevention, security and compliance | Star ratings and their words; problem reports and guarantee claims; which technician a customer asked for again. |
 | **Device or other IDs** | Optional | App functionality | The notification code for the phone, only if the person allows notifications. |
+
+**Fraud prevention** is the office's flags (phase 7): patterns across jobs,
+such as many jobs cancelled after a technician was chosen. A person reads
+them; nothing is decided automatically, and nobody's account changes
+without the office doing it by hand.
 
 ### Not collected
 

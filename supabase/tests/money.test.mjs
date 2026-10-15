@@ -71,6 +71,18 @@ const owed = async (pro) => Number((await setup(`SELECT public.pro_owed($1) AS n
 const balanced = async () => Number((await setup(`SELECT coalesce(sum(amount_paisa), 0) AS n FROM public.ledger_entries`)).rows[0].n) === 0;
 
 let n = 0;
+let strangers = 0;
+/**
+ * A customer who has never used anybody. From phase 7 a returning customer
+ * pays 7%, so every sum below that assumes 10% gets somebody new.
+ */
+async function stranger() {
+  strangers += 1;
+  const id = `e5555555-5555-4555-8555-${String(strangers).padStart(12, '0')}`;
+  await setup(`INSERT INTO auth.users (id, phone) VALUES ($1, $2)`, [id, `92300555${String(strangers).padStart(4, '0')}`]);
+  await setup(`INSERT INTO public.profiles (id, role, first_name) VALUES ($1, 'customer', 'Nadia')`, [id]);
+  return id;
+}
 /** A job for `pro` at `price`, taken all the way to working. */
 async function working(pro, price, customer = AYESHA) {
   n += 1;
@@ -155,13 +167,13 @@ heading('The credit limit');
 {
   // Rs 3,000 limit. Bilal owes Rs 400; jobs worth Rs 13,000 of labour add Rs 1,300 each.
   for (let i = 0; i < 2; i += 1) {
-    const j = await working(BILAL, 1300000);
+    const j = await working(BILAL, 1300000, await stranger());
     await me(BILAL, FINISH, [j.id, JSON.stringify([await upload(BILAL)]), 0, null]);
   }
   ok('he owes Rs 3,000: at the limit, not over it', (await owed(BILAL)) === 300000);
   const m0 = await sent();
   ok('not told yet: he has not crossed it', to(m0, 'bilal').every((x) => !/baqaya/.test(x.title)));
-  const j = await working(BILAL, 100000);
+  const j = await working(BILAL, 100000, await stranger());
   await me(BILAL, FINISH, [j.id, JSON.stringify([await upload(BILAL)]), 0, null]);
   ok('one more job puts him over: Rs 3,100', (await owed(BILAL)) === 310000);
   ok('and he is told, once, in Roman Urdu', to(await sent(), 'bilal').some((x) => x.title === 'Pechkas ka baqaya: Rs 3,100'));
@@ -237,10 +249,10 @@ const RATE = `SELECT public.rate_job($1, $2, $3)`;
   ok('one rating is not enough to show: still "New"', money?.rating?.avg === null);
   nothing('nobody can read the ratings table', await as('authenticated', AYESHA, `SELECT * FROM public.ratings`));
 
-  const others = (await setup(`SELECT id FROM public.jobs WHERE pro_id = $1 AND status = 'done' AND id <> $2 ORDER BY created_at`, [BILAL, j1.id])).rows;
-  await me(AYESHA, RATE, [others[0].id, 4, null]);
-  await me(AYESHA, RATE, [others[1].id, 3, null]);
-  ok('two more, only she has rated: hidden for two days', (await me(BILAL, `SELECT public.pro_money()`)).value?.rating?.count === 1);
+  const others = (await setup(`SELECT id, customer_id FROM public.jobs WHERE pro_id = $1 AND status = 'done' AND id <> $2 ORDER BY created_at`, [BILAL, j1.id])).rows;
+  await me(others[0].customer_id, RATE, [others[0].id, 4, null]);
+  await me(others[1].customer_id, RATE, [others[1].id, 3, null]);
+  ok('two more, only the customers have rated: hidden for two days', (await me(BILAL, `SELECT public.pro_money()`)).value?.rating?.count === 1);
   await setup(`UPDATE public.jobs SET finished_at = now() - interval '49 hours' WHERE id = ANY($1)`, [[others[0].id, others[1].id]]);
   money = (await me(BILAL, `SELECT public.pro_money()`)).value;
   ok('after two days they show: three ratings, average 4.0', money?.rating?.count === 3 && Number(money?.rating?.avg) === 4, JSON.stringify(money?.rating));

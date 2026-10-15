@@ -41,6 +41,8 @@ export type ActiveJob = {
   customer_phone: string | null;
   agreed_paisa: number;
   keeps_paisa: number;
+  /** His share on this job: lower when the customer has had work done by him before. */
+  commission_bps?: number;
   media: StoredMedia[];
   stage: Stage;
   code_locked: boolean;

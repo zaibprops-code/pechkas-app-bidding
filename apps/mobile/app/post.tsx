@@ -27,6 +27,8 @@ import { colour, font, radius } from '../src/theme';
 // Trades where whether the electricity is on decides if the visit is wasted.
 const NEEDS_POWER = new Set(['ac', 'electrician', 'ups', 'solar', 'appliances', 'cctv', 'wifi', 'computers']);
 const LAST_ADDRESS = 'pechkas.last-address';
+// The database keeps an "ask again" for an hour (job_preferred()); so does the form.
+const ASK_LASTS = 60 * 60 * 1000;
 const PARTS_OF_DAY = [
   ['morning', 'Morning'],
   ['afternoon', 'Afternoon'],
@@ -34,7 +36,7 @@ const PARTS_OF_DAY = [
 ] as const;
 
 export default function Post() {
-  const params = useLocalSearchParams<{ trade?: string; start?: string }>();
+  const params = useLocalSearchParams<{ trade?: string; start?: string; ask?: string; minutes?: string }>();
   const { ready, session, account } = useAccount();
   const lists = useLists();
   const [d, setD] = useState<Draft | null>(null);
@@ -43,6 +45,9 @@ export default function Post() {
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
+  const [elsewhere, setElsewhere] = useState(false);
+  const [asking, setAsking] = useState<string | null>(null);
+  const [asked, setAsked] = useState<string | null>(null);
   const opened = useRef(false);
 
   // Start from the draft on this phone, or from the last address used.
@@ -62,9 +67,16 @@ export default function Post() {
         // still chosen when the form comes back after it.
         saveDraft(next);
       }
+      // Arriving from "Ask Bilal again": the database already has the request.
+      if (params.ask && params.trade) {
+        next = { ...next, askFor: { name: params.ask, trade: params.trade, minutes: Number(params.minutes) || 10, at: Date.now() } };
+        saveDraft(next);
+      } else if (next.askFor && !(Date.now() - (next.askFor.at ?? 0) < ASK_LASTS)) {
+        next = { ...next, askFor: null };
+      }
       setD(next);
     })();
-  }, [params.trade]);
+  }, [params.trade, params.ask, params.minutes]);
 
   const update = (patch: Partial<Draft>) => {
     // Any change answers the last complaint; do not leave it on screen.
@@ -127,6 +139,34 @@ export default function Post() {
     } catch (e) {
       problem(e);
     }
+  }
+
+  /** Another trade is another job: he was asked for this one, so the request goes. */
+  function chooseTrade(slug: string) {
+    if (d?.askFor && d.askFor.trade !== slug) forgetAsk();
+    update({ trade: slug, jobType: null, offer: null });
+  }
+
+  function forgetAsk() {
+    update({ askFor: null });
+    ask('forget_ask_again', {}).catch(() => {});
+  }
+
+  /** "Pechkas is not in G-9 yet": counted, and nothing promised in return. */
+  async function askForSector(name: string) {
+    if (!d?.trade) {
+      setErrors((e) => ({ ...e, elsewhere: 'Choose what needs fixing first, at the top.' }));
+      return;
+    }
+    setErrors((e) => ({ ...e, elsewhere: '' }));
+    setAsking(name);
+    const r = await ask('ask_for_sector', { p_trade: d.trade, p_sector: name });
+    setAsking(null);
+    if (!r.ok) {
+      setErrors((e) => ({ ...e, elsewhere: r.why }));
+      return;
+    }
+    setAsked(name);
   }
 
   async function locate() {
@@ -214,7 +254,7 @@ export default function Post() {
     ).catch(() => {});
     clearDraft();
     if (router.canDismiss()) router.dismissAll();
-    router.replace({ pathname: '/jobs', params: { posted: r.ref } });
+    router.replace({ pathname: '/jobs', params: d.askFor ? { posted: r.ref, asked: d.askFor.name } : { posted: r.ref } });
   }
 
   const zone = !chosen?.list_paisa
@@ -225,6 +265,8 @@ export default function Post() {
         ? 'Fair. Close to the Pechkas website price.'
         : 'Generous. You should hear back quickly.';
   const live = lists?.live_sectors ?? [];
+  const notYet = (lists?.sectors ?? []).filter((x) => !live.includes(x));
+  const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
 
   return (
     <Screen footer={<Button label={progress ?? 'Post job'} onPress={post} busy={busy && !progress} disabled={busy} />}>
@@ -236,10 +278,23 @@ export default function Post() {
       </View>
       <Title>Post a job</Title>
 
+      {d.askFor ? (
+        <View style={s.askFor}>
+          <Text style={s.askForTitle}>Asking {d.askFor.name} first</Text>
+          <Text style={s.askForText}>
+            {d.askFor.name} sees this {tradeName(d.askFor.trade)} job first, for {d.askFor.minutes} minutes. Then every checked technician can
+            send an offer. If he is not working right now, it goes to everyone straight away.
+          </Text>
+          <Press onPress={forgetAsk} accessibilityRole="button" style={s.askForLink}>
+            <Text style={s.askForLinkText}>Ask everyone instead</Text>
+          </Press>
+        </View>
+      ) : null}
+
       <Section n={1} title="What needs fixing?" error={errors.trade || errors.job_type}>
         <View style={s.wrap}>
           {(lists?.trades ?? []).map((t) => (
-            <Chip key={t.slug} label={t.name} on={d.trade === t.slug} onPress={() => update({ trade: t.slug, jobType: null, offer: null })} />
+            <Chip key={t.slug} label={t.name} on={d.trade === t.slug} onPress={() => chooseTrade(t.slug)} />
           ))}
         </View>
         {d.trade ? (
@@ -324,6 +379,29 @@ export default function Post() {
           <Button kind="outline" label={locating ? 'Finding you…' : 'Add my exact location'} onPress={locate} busy={locating} />
         )}
         {errors.location ? <Text style={s.error}>{errors.location}</Text> : null}
+        {asked ? (
+          <View style={s.asked} accessibilityRole="alert">
+            <Text style={s.askedTitle}>Thank you. We have counted you in {asked}.</Text>
+            <Text style={s.line}>
+              Pechkas does not work in {asked} yet, so a job cannot be posted there: nobody could honestly be promised. Knowing where people
+              need us helps decide where to go next.
+            </Text>
+          </View>
+        ) : elsewhere ? (
+          <View style={{ gap: 8 }}>
+            <Text style={s.hint}>Tap your sector. It tells Pechkas you need {d.trade ? tradeName(d.trade) : 'this'} there. Nothing else is sent.</Text>
+            <View style={s.wrap}>
+              {notYet.map((name) => (
+                <Chip key={name} label={asking === name ? 'Sending…' : name} on={false} onPress={() => askForSector(name)} />
+              ))}
+            </View>
+            {errors.elsewhere ? <Text style={s.error}>{errors.elsewhere}</Text> : null}
+          </View>
+        ) : (
+          <Press onPress={() => setElsewhere(true)} accessibilityRole="button" style={s.askForLink}>
+            <Text style={s.elsewhereText}>My sector is not listed</Text>
+          </Press>
+        )}
       </Section>
 
       <Section n={4} title="When" error={errors.when}>
@@ -464,6 +542,15 @@ const s = StyleSheet.create({
   photoXText: { width: 26, height: 26, borderRadius: 999, backgroundColor: colour.ink, color: colour.paper, textAlign: 'center', lineHeight: 25, fontFamily: font.bodySemi, fontSize: 18 },
   remove: { minHeight: 44, minWidth: 44, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },
   removeText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
+  askFor: { gap: 6, padding: 14, borderRadius: radius.big, backgroundColor: colour.greenSoft },
+  askForTitle: { fontFamily: font.bodySemi, fontSize: 15, color: colour.greenDark },
+  askForText: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.ink },
+  askForLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
+  askForLinkText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.greenDark, textDecorationLine: 'underline' },
+  elsewhereText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink, textDecorationLine: 'underline' },
+  asked: { gap: 6, padding: 14, borderRadius: radius.big, backgroundColor: colour.white, borderWidth: 1, borderColor: colour.rule },
+  askedTitle: { fontFamily: font.bodySemi, fontSize: 15, color: colour.ink },
+  line: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft },
   offer: { gap: 10, padding: 16, borderRadius: 22, backgroundColor: colour.green, marginTop: 6 },
   offerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   offerLabel: { fontFamily: font.bodySemi, fontSize: 13, color: colour.yellow },

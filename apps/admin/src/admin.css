@@ -79,7 +79,7 @@ button:focus-visible, .call:focus-visible, input:focus-visible, select:focus-vis
 .decide { display: grid; gap: 10px; }
 .buttons { display: flex; gap: 10px; flex-wrap: wrap; }
 
-.sections { display: flex; gap: 8px; margin-top: 24px; border-bottom: 1px solid var(--rule); }
+.sections { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; border-bottom: 1px solid var(--rule); }
 .section { background: transparent; border-radius: 12px 12px 0 0; border-color: transparent; font-weight: 700; }
 .section.on { background: var(--ink); color: var(--paper); }
 
@@ -116,3 +116,7 @@ button:focus-visible, .call:focus-visible, input:focus-visible, select:focus-vis
 .kind.emergency { color: var(--brick); font-size: 14px; }
 .card.urgent { border: 2px solid var(--brick); }
 .alerts + .list { margin-top: 16px; }
+.scroll { overflow-x: auto; }
+.ledger tr.short td { background: #fdf3df; }
+.flags { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.card.checked { background: var(--paper); }

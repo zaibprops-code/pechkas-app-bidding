@@ -41,7 +41,8 @@ legal declaration, like Google's Data safety form.
 For **every** data type below, Apple asks three things. The answers are the
 same each time:
 
-- **Purposes:** **App Functionality** only.
+- **Purposes:** **App Functionality** only. (Apple counts preventing fraud as
+  App Functionality, so the office's flags need no other purpose.)
 - **Linked to the user's identity?** **Yes** — everything belongs to an
   account.
 - **Used for tracking?** **No.** Nothing is used for advertising or shared with
@@ -51,13 +52,13 @@ same each time:
 | --- | --- |
 | Contact Info → **Name** | First name; a technician's full name |
 | Contact Info → **Phone Number** | Sign-in, and given to the other side once a technician is chosen |
-| Contact Info → **Physical Address** | Where the job is: sector, street, house, landmark, gate note |
+| Contact Info → **Physical Address** | Where the job is: sector, street, house, landmark, gate note; a sector a customer says Pechkas does not serve yet |
 | Location → **Precise Location** | The map pin a customer may add; where the phone was when the emergency button was pressed. Only while the app is open |
 | Financial Info → **Other Financial Info** | What a technician owes Pechkas in fees and what he paid |
 | User Content → **Photos or Videos** | What is wrong; before and after photos; receipts for parts |
 | User Content → **Audio Data** | The voice note describing the problem |
 | User Content → **Emails or Text Messages** | The chat between a customer and her chosen technician |
-| User Content → **Other User Content** | Star ratings and their words; problem reports and guarantee claims |
+| User Content → **Other User Content** | Star ratings and their words; problem reports and guarantee claims; which technician a customer asked for again |
 | Identifiers → **User ID** | The account's own ID inside Pechkas |
 | Identifiers → **Device ID** | The notification address of the phone, only if notifications are allowed |
 | Other Data → **Other Data Types** | A technician's trades, years in the trade, sectors, and the record that Pechkas checked his identity (never a CNIC number) |

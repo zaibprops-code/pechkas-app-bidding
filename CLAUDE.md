@@ -335,6 +335,44 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - Sold in Pakistan only. App Store answers live in `docs/store/app-store.md`
   and must agree with the Play answers and pechkas.net/app/privacy.
 
+### After launch (phase 7)
+- **"Ask again" holds a job for one technician through `pro_may_see()`**,
+  nothing else: while `preferred_until > now()` the feed, the offer, the
+  files and the notification cannot reach anybody else, and the moment it
+  passes the job is everyone's whether or not the clock has run.
+  `release_preferred()` (pg_cron, every minute), `release_now()` (the
+  customer) and `pass_asked()` (him) only announce it, through
+  `release_job()`, which marks the row in the statement that finds it, so
+  it is announced once.
+- The request lives in `asked_for` and is used by the `job_preferred`
+  BEFORE INSERT trigger on her next job in that trade within the hour. It
+  is never held for a man who could not take it right now: offline, not
+  approved, over the credit limit, or not in that trade and sector. Then it
+  goes to everyone at once, and `my_jobs().asked_for` tells the screen the
+  difference between "he passed" and "he was never asked".
+- **The repeat fee is `commission_rate(customer, pro, job)`:** 7%
+  (`repeat_commission_bps`) when the pair has a **done** job, 10% otherwise.
+  Stopped and cancelled jobs do not count. A done job never becomes undone,
+  so the rate shown in the feed can only stay or fall by the time he
+  finishes. `finish_work()` fixes `commission_bps` on the job with the
+  commission; `commission_at()` is the same rounding as `commission()` in
+  `packages/shared`. The screens take the per-job `commission_bps`, never
+  the standard one, for "you keep".
+- **The demand report counts rows, nothing else.** "No offer" means no
+  offer ever AND (placed by hand, or waited `escalate_minutes`): a job
+  cancelled a minute after posting says nothing about supply.
+  `sector_asks` is one line per customer, sector and trade, refuses live
+  sectors, and promises the customer nothing.
+- **Fraud flags are flags only.** `admin_flags()` reads; nothing in phase 7
+  suspends, blocks or charges anybody, and must not start to. Every limit
+  is a `flag_*` setting — the owner set none of them from data, so they are
+  guesses to be tuned by migration. Notes (`flag_notes`) are deleted with
+  the account they are about, like everything else. The sentences live in
+  `apps/admin/src/Flags.tsx`, not the SQL.
+- What the app keeps changed (who a customer asked for, a sector she asked
+  about, office notes), so the privacy page and both stores' answers
+  changed with it. Keep it that way.
+
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only
   `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be in the

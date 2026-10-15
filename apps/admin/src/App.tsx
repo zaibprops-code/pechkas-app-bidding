@@ -3,6 +3,8 @@ import type { Session } from '@supabase/supabase-js';
 import { showMobile } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
 import { Alerts } from './Alerts.tsx';
+import { Demand } from './Demand.tsx';
+import { Flags } from './Flags.tsx';
 import { Jobs } from './Jobs.tsx';
 import { Money } from './Money.tsx';
 import { Problems } from './Problems.tsx';
@@ -146,7 +148,7 @@ function SignIn() {
 }
 
 function Office({ name }: { name: string }) {
-  const [section, setSection] = useState<'jobs' | 'problems' | 'money' | 'technicians'>('jobs');
+  const [section, setSection] = useState<'jobs' | 'problems' | 'money' | 'technicians' | 'demand' | 'flags'>('jobs');
   const [trades, setTrades] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -170,6 +172,8 @@ function Office({ name }: { name: string }) {
         <button className={section === 'problems' ? 'section on' : 'section'} aria-pressed={section === 'problems'} onClick={() => setSection('problems')}>Problems</button>
         <button className={section === 'money' ? 'section on' : 'section'} aria-pressed={section === 'money'} onClick={() => setSection('money')}>Money</button>
         <button className={section === 'technicians' ? 'section on' : 'section'} aria-pressed={section === 'technicians'} onClick={() => setSection('technicians')}>Technicians</button>
+        <button className={section === 'demand' ? 'section on' : 'section'} aria-pressed={section === 'demand'} onClick={() => setSection('demand')}>Demand</button>
+        <button className={section === 'flags' ? 'section on' : 'section'} aria-pressed={section === 'flags'} onClick={() => setSection('flags')}>Flags</button>
       </nav>
       {section === 'jobs' ? (
         <>
@@ -180,6 +184,10 @@ function Office({ name }: { name: string }) {
         <Problems />
       ) : section === 'money' ? (
         <Money />
+      ) : section === 'demand' ? (
+        <Demand />
+      ) : section === 'flags' ? (
+        <Flags />
       ) : (
         <Technicians trades={trades} />
       )}

@@ -43,6 +43,12 @@ type FeedJob = {
   customer_first_name: string;
   media: StoredMedia[];
   my_offer: Offer | null;
+  /** The customer asked for him by name: his alone until `asked_until`. */
+  asked_you?: boolean;
+  asked_until?: string | null;
+  /** She has had a job done by him before, so his share is the lower one. */
+  repeat?: boolean;
+  commission_bps?: number;
 };
 type Feed = {
   approved: boolean;
@@ -171,7 +177,7 @@ export function Work({ firstName }: { firstName: string }) {
                 trade={tradeName(j.trade)}
                 when={whenText(j, w)}
                 userId={session?.user.id ?? ''}
-                commissionBps={feed?.commission_bps ?? null}
+                commissionBps={j.commission_bps ?? feed?.commission_bps ?? null}
                 onChanged={load}
               />
             ))}
@@ -235,7 +241,9 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
 
   const min = feed.min_offer_paisa;
   const max = Math.floor((j.offered_paisa * feed.max_counter_bps) / 10000 / 100) * 100;
-  const pct = Math.round(feed.commission_bps / 100);
+  // Per job: 7% for a customer he has worked for before, 10% otherwise.
+  const bps = j.commission_bps ?? feed.commission_bps;
+  const pct = Math.round(bps / 100);
   const minutesLeft = live ? Math.max(0, Math.ceil((new Date(live.expires_at).getTime() - Date.now()) / 60000)) : 0;
 
   async function send(p: number) {
@@ -255,6 +263,14 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
     onChanged();
   }
 
+  async function pass() {
+    setBusy(true);
+    const r = await ask('pass_asked', { p_job: j.id });
+    setBusy(false);
+    if (!r.ok) setMsg(w.gone);
+    onChanged();
+  }
+
   async function withdraw() {
     setBusy(true);
     await ask('withdraw_offer', { p_job: j.id });
@@ -264,7 +280,15 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
   }
 
   return (
-    <View style={s.card}>
+    <View style={[s.card, j.asked_you && s.cardAsked]}>
+      {j.asked_you && j.asked_until ? (
+        <View style={{ gap: 8 }}>
+          <Text style={s.asked}>
+            {fill(w.askedYou, { name: j.customer_first_name, time: new Date(j.asked_until).toLocaleTimeString('en-PK', { hour: 'numeric', minute: '2-digit' }) })}
+          </Text>
+          {!live ? <Button dark kind="outline" label={w.passAsked} onPress={pass} busy={busy} /> : null}
+        </View>
+      ) : null}
       <View style={s.cardTop}>
         <View style={s.badge}>
           <Text style={s.badgeText}>
@@ -286,10 +310,10 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Text style={s.moneyLabel}>{w.youKeep}</Text>
-          <Text style={s.keep}>{rupees(technicianKeeps(editing ? price : live?.price_paisa ?? price, feed.commission_bps))}</Text>
+          <Text style={s.keep}>{rupees(technicianKeeps(editing ? price : live?.price_paisa ?? price, bps))}</Text>
         </View>
       </View>
-      <Text style={s.fee}>{fill(w.feeLine, { pct })}</Text>
+      <Text style={s.fee}>{j.repeat ? fill(w.feeRepeat, { name: j.customer_first_name, pct }) : fill(w.feeLine, { pct })}</Text>
 
       {!editing && live ? (
         <View style={{ gap: 8 }}>
@@ -381,6 +405,8 @@ const s = StyleSheet.create({
   section: { fontFamily: font.bodySemi, fontSize: 14, color: '#b9c2c9', marginTop: 4 },
   empty: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: '#b9c2c9' },
   card: { gap: 10, padding: 14, borderRadius: 22, backgroundColor: '#22282d' },
+  cardAsked: { borderWidth: 2, borderColor: colour.yellow },
+  asked: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.yellow },
   chosen: { backgroundColor: colour.paper },
   cardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill, backgroundColor: colour.yellow },

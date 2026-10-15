@@ -51,9 +51,10 @@ AFTER THE JOB
 • Pay him in cash. The app takes no payments and holds no money.
 • Rate each other. Neither sees the other's rating until both have rated.
 • Something wrong? Tell Pechkas within a day. Pechkas stands behind the work for 30 days.
+• Happy with him? Ask for him again next time: your job goes to him first.
 
 FOR TECHNICIANS
-Work with Pechkas: the technician side is in Roman Urdu (with English if you prefer). See jobs in your trades and sectors, accept or send your price, and see exactly what you keep before you offer. Pechkas' fee is 10% of your labour, never of the parts you buy. Applying is free.
+Work with Pechkas: the technician side is in Roman Urdu (with English if you prefer). See jobs in your trades and sectors, accept or send your price, and see exactly what you keep before you offer. Pechkas' fee is 10% of your labour, never of the parts you buy, and 7% when a customer you have worked for before books you again. Applying is free.
 
 WHERE
 Pechkas works in Islamabad, in F-11, E-11 and G-13 for now, with more sectors to come.

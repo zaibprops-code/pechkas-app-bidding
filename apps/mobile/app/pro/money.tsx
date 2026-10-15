@@ -22,6 +22,8 @@ type Money = {
   owed_paisa: number;
   credit_limit_paisa: number;
   blocked: boolean;
+  commission_bps?: number;
+  repeat_commission_bps?: number;
   pay_to: string | null;
   month: { jobs: number; collected_paisa: number; parts_paisa: number; commission_paisa: number };
   rating: { count: number; avg: number | null; jobs_done: number };
@@ -91,6 +93,10 @@ export default function MoneyScreen() {
               <Row k={w.collected} v={rupees(m.month.collected_paisa)} />
               <Row k={w.partsSpent} v={rupees(m.month.parts_paisa)} />
               <Row k={w.feeTotal} v={rupees(m.month.commission_paisa)} />
+              {m.commission_bps !== undefined ? <Text style={s.note}>{fill(w.feeLine, { pct: Math.round(m.commission_bps / 100) })}</Text> : null}
+              {m.repeat_commission_bps !== undefined && m.repeat_commission_bps !== m.commission_bps ? (
+                <Text style={s.note}>{fill(w.feeRepeatRule, { pct: Math.round(m.repeat_commission_bps / 100) })}</Text>
+              ) : null}
             </View>
 
             <View style={s.card}>

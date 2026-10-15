@@ -42,6 +42,8 @@ Sent by the database, so these live in `push_words`
 | `settled.body` | Ab aap ka baqaya {owed} hai. Shukriya. | You now owe {owed}. Thank you. |
 | `over_limit.title` | Pechkas ka baqaya: {owed} | You owe Pechkas {owed} |
 | `over_limit.body` | Nayi offer bhejne se pehle baqaya ada karein. Tareeqa app mein hai. | Pay it before you can send new offers. How to pay is in the app. |
+| `asked_again.title` | Customer ne dobara aap ko bulaya: {trade} · {sector} | Asked for you again: {trade} · {sector} |
+| `asked_again.body` | {customer} · {price} · {when}. {minutes} minute tak yeh kaam sirf aap ke liye hai, phir sab ko jayega. | {customer} · {price} · {when}. For {minutes} minutes this job is yours alone; then everyone sees it. |
 
 ## The technician's screens
 
@@ -201,6 +203,10 @@ From `apps/mobile/src/words.ts`.
 | `rateWords` | Kuch kehna hai? (zaroori nahi) | Anything to say? (optional) |
 | `rateSend` | Rating bhejein | Send rating |
 | `rated` | Aap ne rate kar diya | You rated |
+| `feeRepeat` | {name} pehle bhi aap se kaam karwa chuke hain, is liye Pechkas fee sirf {pct}% hai. | {name} has used you before, so the Pechkas fee is only {pct}%. |
+| `askedYou` | {name} ne dobara aap ko bulaya hai. {time} tak yeh kaam sirf aap dekh sakte hain, phir sab ko jayega. | {name} asked for you again. Only you can see this job until {time}; then everyone can. |
+| `passAsked` | Is dafa nahi aa sakta | I cannot come this time |
+| `feeRepeatRule` | Purane customer ke kaam par Pechkas fee sirf {pct}% hai. | On a job for a customer you have worked for before, the Pechkas fee is only {pct}%. |
 | `emergency` | Emergency | Emergency |
 | `reportProblem` | Masla batayein | Report a problem |
 | `reportPlaceholder` | Kya masla hai? | What is wrong? |
@@ -232,4 +238,4 @@ From `apps/mobile/src/words.ts`.
 ## English only
 
 Customers and the office read English, so these have no Roman Urdu:
-`offer.title`, `offer.same`, `offer.counter`, `offer.eta`, `office_assigned.title`, `office_assigned.body`, `office_cancelled.title`, `office_cancelled.body`, `needs_you.title`, `needs_you.body`, `on_way.title`, `on_way.body`, `arrived.title`, `arrived.body`, `change.title`, `change.body`, `done.title`, `done.body`, `code_locked.title`, `code_locked.body`, `problem.title`, `problem.body`, `emergency.title`, `emergency.body`, `emergency_mistake.title`, `emergency_mistake.body`, `guarantee.title`, `guarantee.body`, `pro_problem.title`, `pro_problem.body`.
+`offer.title`, `offer.same`, `offer.counter`, `offer.eta`, `office_assigned.title`, `office_assigned.body`, `office_cancelled.title`, `office_cancelled.body`, `needs_you.title`, `needs_you.body`, `on_way.title`, `on_way.body`, `arrived.title`, `arrived.body`, `change.title`, `change.body`, `done.title`, `done.body`, `code_locked.title`, `code_locked.body`, `problem.title`, `problem.body`, `emergency.title`, `emergency.body`, `emergency_mistake.title`, `emergency_mistake.body`, `guarantee.title`, `guarantee.body`, `pro_problem.title`, `pro_problem.body`, `pref_passed.title`, `pref_passed.body`.

@@ -24,6 +24,13 @@ export type Draft = {
   parts: 'pro_buys' | 'customer_has' | null;
   gateNote: string;
   offer: number | null;
+  /**
+   * "Ask Bilal again", tapped on a finished job. The database remembers the
+   * request, for an hour; this is only so the form can say so, and offer to
+   * forget it. `at` is when it was asked, so the form forgets it when the
+   * database does.
+   */
+  askFor: { name: string; trade: string; minutes: number; at: number } | null;
 };
 
 export const EMPTY: Draft = {
@@ -44,6 +51,7 @@ export const EMPTY: Draft = {
   parts: null,
   gateNote: '',
   offer: null,
+  askFor: null,
 };
 
 const KEY = 'pechkas.draft.job';
