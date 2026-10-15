@@ -294,6 +294,27 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `apps/mobile/src/emergency.ts`, confirmed by the owner — never change one
   from memory.
 
+### The stores (phase 6)
+- **The privacy policy and delete-account page are on the website**,
+  `src/pages/app/` in `zaibprops-code/Pechkas` (noindex, out of the
+  sitemap, run that repo's checks before pushing). They, the Data safety
+  answers in `docs/store/data-safety.md` and the app must say the same
+  thing: a change to what the app collects changes all three.
+- **Permissions are only what is used.** `app.json` blocks storage, media,
+  overlay and background-location permissions; the gallery uses the
+  system photo picker, which needs none, so `media.ts` asks only for the
+  camera. Check the merged list with `npx expo prebuild --platform android
+  --no-install` (then delete `android/` and restore `package.json`) before
+  adding a library that might bring its own.
+- Store builds: `eas.json` takes versions from EAS (`appVersionSource:
+  remote`) and `production` auto-increments, so two uploads can never share
+  a version code. The owner uploads the `.aab` himself in Play Console.
+- Store copy (`docs/store/listing.md`) claims nothing the app does not do and
+  no numbers: no ratings, job counts or customers until they are real.
+  Screenshots are of the real app with test accounts and no stars.
+- Reviewer sign-in uses Supabase test numbers, typed only into Supabase and
+  Play Console, never into this repository.
+
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only
   `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be in the
@@ -318,5 +339,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - The mark's paths in `Mark.tsx` and `scripts/make-icons.mjs` are the
   website's and must stay identical. Never edit `apps/mobile/assets/` by
   hand; run `node scripts/make-icons.mjs`.
-- No button may do nothing. Until its feature exists it leads to `/soon`.
+- No button may do nothing, and nothing says "coming soon": the stores reject
+  both. The `/soon` screen was deleted before the first store build; a
+  feature that is not built has no button.
 - Every tap target is at least 44 × 44.

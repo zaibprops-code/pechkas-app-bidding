@@ -5,6 +5,7 @@ import { showMobile } from '@pechkas/shared';
 import { Body, Button, Notice, Screen, Title } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { useNotify } from '../src/notifications';
+import { PRIVACY_URL } from '../src/office';
 import { ask, supabase } from '../src/supabase';
 import { useProWords } from '../src/words';
 import { colour, font, radius } from '../src/theme';
@@ -33,6 +34,7 @@ export default function Me() {
         <Title>Your account</Title>
         <Body muted>{connected ? 'Sign in with your mobile number to post jobs and see your offers.' : 'The app is not connected to Pechkas yet.'}</Body>
         {connected ? <Button label="Sign in" onPress={() => router.push('/sign-in')} /> : null}
+        <Button kind="outline" label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
       </Screen>
     );
   }
@@ -88,6 +90,7 @@ export default function Me() {
       {account?.role === 'customer' ? <Button kind="outline" label="I want to work with Pechkas as a technician" onPress={() => router.push('/pro/apply')} /> : null}
 
       <Button kind="outline" dark={dark} label="Sign out" onPress={async () => { await signOut(); router.replace('/'); }} />
+      <Button kind="outline" dark={dark} label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
 
       <View style={{ gap: 10, marginTop: 12 }}>
         {!confirming ? (

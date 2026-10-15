@@ -7,6 +7,26 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Phase 6 — Google Play.** Everything the store asks for is ready, and the
+steps are under **"Putting the app on Google Play"** below:
+
+- the store text, the icon, the banner and six screenshots
+  (`docs/store/`);
+- the answers to every App content form — Data safety, Content rating,
+  App access and the rest (`docs/store/data-safety.md`,
+  `docs/store/review-notes.md`);
+- the app's privacy policy at **pechkas.net/app/privacy** and how to delete
+  an account at **pechkas.net/app/delete-account** — new pages on the
+  website, nothing else there changed. Both are drafts with a visible
+  review box until a lawyer has read them;
+- the app itself is tidied for review: no "being built" screen anywhere,
+  links to the privacy policy on the sign-in and Me screens, only the
+  permissions it really uses, and store builds that number themselves.
+
+Google requires a personal account's first app to run a **closed test with
+at least 12 testers for 14 days** before it can go public. The iPhone
+version comes after Android is live.
+
 **Phase 5 — money and trust.**
 
 - **Parts and commission.** At **Kaam mukammal** the technician says what he
@@ -102,8 +122,9 @@ is buzzed, and the screens still update by themselves while open.
 | 3 | Bidding: technicians accept or counter, customer chooses | Done |
 | 3b | Notifications: a new job buzzes the technician, a new offer buzzes the customer, a waiting job buzzes you | Done |
 | 4 | Doing the job: on the way, start code, photos, new price at the door, visit fee, chat, done | Done |
-| 5 | Money and trust: parts, commission, ledger, credit limit, payments, ratings, problems, guarantee, emergency | **Built — run the migration, rebuild, test** |
-| 6 | Play Store and App Store | |
+| 5 | Money and trust: parts, commission, ledger, credit limit, payments, ratings, problems, guarantee, emergency | Done |
+| 6 | Google Play: listing, policy pages, forms, closed test → public | **Ready — your steps below** |
+| 6b | App Store (iPhone) | After Android is public; needs an Apple Developer account |
 
 ## The settings you chose
 
@@ -131,6 +152,16 @@ not a new app.
 | App identifier | `net.pechkas.app` — permanent |
 
 **Still open:**
+- **A lawyer reads the two app pages** — pechkas.net/app/privacy and
+  /app/delete-account — and the Data safety answers, before the app goes
+  public. Fill in the bracketed gaps: the registered business name and
+  address, the Supabase region (**Supabase → Project Settings → General →
+  Region**), how many days a deletion request takes, how long the
+  technicians' money records are kept, and how long photos taken at a
+  customer's home are kept after she deletes her account. Then tell Claude
+  and the review boxes come off.
+- **Twilio** for real sign-in codes, before the public can sign in (steps
+  below).
 - **Where technicians pay.** Type it in **Admin → Money → Where
   technicians pay** (for example your JazzCash number and account name).
   Until then they are told to ask the office.
@@ -540,6 +571,100 @@ say **Success**. Then a new **preview** build on both phones.
 
 ---
 
+## Putting the app on Google Play
+
+No migration this time. Do these in order; each says which screen and which
+button. Nothing secret goes into a chat.
+
+### A. A store email address
+
+Create a new Gmail just for this (for example `pechkas.app@gmail.com`, if it
+is free). Google shows it on the store page. Your own email stays private,
+and nothing on the website changes.
+
+### B. The Google Play developer account
+
+1. Go to **play.google.com/console**, sign in with the new Gmail, and
+   choose **Yourself** (a personal account).
+2. Pay the one-time fee (US$25) and follow Google's identity check. Google
+   asks for your ID document and may ask you to verify on an Android phone
+   with the **Play Console** app. That is between you and Google: it never
+   comes to Pechkas or to this project.
+3. Wait for Google to confirm the account. It can take a few days.
+
+### C. Create the app
+
+1. **Play Console → Create app.** App name `Pechkas: Home Repairs`, default
+   language **English (United States)**, **App**, **Free**. Tick the
+   declarations, **Create app**.
+2. **Policy and programs → App content:** fill every section from
+   `docs/store/data-safety.md`. For **App access**, first make the two
+   reviewer accounts in `docs/store/review-notes.md`.
+3. **Grow users → Store presence → Main store listing:** copy the text from
+   `docs/store/listing.md` and upload the icon, banner and six screenshots
+   from `docs/store/graphics/` and `docs/store/screenshots/`. To download
+   one from GitHub: open the file, then the **download** button.
+
+### D. The store build
+
+1. In **expo.dev → Pechkas App → Environment variables**, check the
+   **Production** environment has all three: `EXPO_PUBLIC_SUPABASE_URL`,
+   `EXPO_PUBLIC_SUPABASE_ANON_KEY` and the `GOOGLE_SERVICES_JSON` file.
+2. **Builds → Build from GitHub**, the same as always, except
+   **EAS Build profile: `production`** and **Environment: Production**. It
+   makes an `.aab` file (the store format) instead of an APK, and numbers
+   itself.
+3. When it says **Finished**, **download** the `.aab`.
+
+### E. The closed test (12 testers, 14 days)
+
+1. Collect the Gmail addresses of **at least 12 people** with Android
+   phones who will keep the app installed for two weeks: technicians,
+   family, friends. More than 12 is safer — Google counts only those who
+   stay opted in.
+2. **Play Console → Test and release → Testing → Closed testing →** the
+   track called **Closed testing - Alpha** (or **Create track**).
+3. **Countries / regions:** add **Pakistan**.
+4. **Testers → Create email list**, name it `Pechkas testers`, paste the
+   addresses, **Save**, and tick the list.
+5. **Create new release:** if asked about app signing, choose **Use
+   Google-generated key** (Google keeps the key that signs the app for
+   phones; your Expo key only proves uploads come from you). Upload the
+   `.aab` from D, release notes `First test of Pechkas.`, **Next → Save →
+   Send for review / Start rollout**.
+6. Once Google has reviewed it, copy the **opt-in link** from the Testers
+   tab and send it to every tester on WhatsApp. Each one opens it, taps
+   **Become a tester**, then installs Pechkas from the Play Store.
+7. Ask them to actually use it: post a job, offer, chat. Google asks about
+   that later.
+8. After **14 days**, **Dashboard → Apply for production**. Answer
+   Google's questions about the test honestly.
+
+### F. Real sign-in codes (Twilio) — before the public can sign in
+
+1. Make an account at **twilio.com**. In the Console, note where it shows
+   **Account SID** and **Auth Token**.
+2. **Messaging → Services → Create Messaging Service**, name it `Pechkas
+   sign-in`, and follow the steps to add a sender. **If Twilio says
+   Pakistan needs a registered sender name or a special number, stop and
+   tell Claude what it says** — that rule changes, and it decides what to
+   do next.
+3. Note the **Messaging Service SID**.
+4. **Supabase → Authentication → Sign In / Providers → Phone →** SMS
+   provider **Twilio**. Paste the Account SID, Auth Token and Messaging
+   Service SID **there**, never in a chat. **Save**.
+5. Try it from a number that is **not** a test number. Keep the reviewer
+   test numbers: Google's reviewers still need them.
+
+### G. Going public
+
+When Google grants production access (and a lawyer has read the pages):
+**Test and release → Production → Create new release**, upload the
+newest `.aab`, and roll out. Every later update is the same: a production
+build in Expo, then a new release with its `.aab`.
+
+---
+
 ## Run a database change (a "migration")
 
 Each change is a file in `supabase/migrations/`, run **once**, **in order**,
@@ -590,6 +715,8 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | Notifications: Firebase | console.firebase.google.com → Pechkas (`net.pechkas.app`) |
 | Notifications: what was sent | Supabase → Table Editor → `push_log` |
 | Customers' voice notes, videos and photos | Supabase → Storage → `job-media` (private; opened from the admin panel) |
+| Store text, graphics, screenshots, form answers | `docs/store/` (graphics made by `node scripts/make-store.mjs`) |
+| The app's privacy policy and delete-account page | pechkas.net/app/privacy and /app/delete-account — `src/pages/app/` in the website repository |
 | The approved design | https://claude.ai/artifact/42Sb6DBfcN9pP1kLnvBqBr |
 | The full plan | `APP_BUILD_PROMPT.md` in `zaibprops-code/Pechkas` |
 | Android keystore backup | Your private storage. **Never** GitHub, never a chat. |

@@ -291,7 +291,7 @@ function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChosen: () 
                   {o.jobs_done !== undefined ? <Text style={s.offerMeta}>· {o.jobs_done} {o.jobs_done === 1 ? 'job' : 'jobs'} done</Text> : null}
                 </View>
                 <Text style={s.offerMeta}>
-                  Met by Pechkas · {o.years} {o.years === 1 ? 'year' : 'years'} in the trade
+                  Checked by Pechkas · {o.years} {o.years === 1 ? 'year' : 'years'} in the trade
                 </Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>

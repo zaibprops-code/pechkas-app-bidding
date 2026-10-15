@@ -26,8 +26,6 @@ const TRADES: { label: string; slug: string; icon: IconName }[] = [
 
 const postFor = (params: { trade?: string; start?: string }) => router.push({ pathname: '/post', params });
 
-const soon = () => router.push('/soon');
-
 export default function Home() {
   const insets = useSafeAreaInsets();
   const { account } = useAccount();
@@ -43,11 +41,11 @@ export default function Home() {
               <Mark size={32} />
               <Text style={styles.wordmark}>pechkas</Text>
             </View>
-            <Press style={styles.area} onPress={soon} accessibilityRole="button" accessibilityLabel="Choose your area. Islamabad.">
+            {/* Islamabad is the only city, so this says where, and is not a button. */}
+            <View style={styles.area} accessibilityLabel="Pechkas works in Islamabad">
               <Icon name="pin" size={16} color={colour.yellow} strokeWidth={2} />
               <Text style={styles.areaText}>Islamabad</Text>
-              <Icon name="chevronDown" size={14} color={colour.paper} strokeWidth={2} />
-            </Press>
+            </View>
           </View>
 
           <Text style={styles.salaam}>Assalam o Alaikum</Text>
@@ -82,8 +80,8 @@ export default function Home() {
 
           <View style={styles.promise}>
             <Text style={styles.promiseTitle}>How Pechkas is different</Text>
-            <PromiseLine icon="shield" text="We meet every technician in person before he gets a single job." />
-            <PromiseLine icon="lock" text="The price is fixed in the app before he comes. No bargaining at the gate." />
+            <PromiseLine icon="shield" text="We check every technician — who he is, a trial job, our rules — before he gets a single job." />
+            <PromiseLine icon="lock" text="The price is agreed in the app before he comes. It changes only if you say yes, in the app." />
           </View>
 
           <Press style={styles.join} onPress={() => router.push('/join')} accessibilityRole="link">
@@ -96,7 +94,6 @@ export default function Home() {
       <View style={[styles.nav, { paddingBottom: Math.max(insets.bottom, 10) }]} accessibilityRole="tablist">
         <NavItem icon="home" label="Home" active />
         <NavItem icon="jobs" label="My jobs" to="/jobs" />
-        <NavItem icon="chat" label="Chats" />
         <NavItem icon="me" label="Me" to="/me" />
       </View>
     </View>
@@ -128,7 +125,7 @@ function NavItem({ icon, label, active = false, to }: { icon: IconName; label: s
   return (
     <Press
       style={styles.navItem}
-      onPress={active ? undefined : to ? () => router.push(to) : soon}
+      onPress={active || !to ? undefined : () => router.push(to)}
       accessibilityRole="tab"
       accessibilityState={{ selected: active }}
       sink={0.94}

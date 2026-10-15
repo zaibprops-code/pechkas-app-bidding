@@ -97,7 +97,7 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
         </View>
         <View style={{ flex: 1 }}>
           <Text style={s.name}>{job.stage ? WHERE[job.stage](pro.first_name) : `${pro.first_name} is your technician`}</Text>
-          <Text style={s.meta}>Met by Pechkas · agreed {rupees(job.agreed_paisa)}</Text>
+          <Text style={s.meta}>Checked by Pechkas · agreed {rupees(job.agreed_paisa)}</Text>
         </View>
       </View>
 

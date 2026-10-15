@@ -50,9 +50,20 @@ async function shrink(uri: string): Promise<string> {
   }
 }
 
+/**
+ * Only the camera needs permission. Choosing from the gallery uses the
+ * phone's own photo picker, which hands over just the one picture chosen and
+ * needs no access to the rest — which is why app.json blocks the storage and
+ * media permissions, and Google Play's photo policy has nothing to ask.
+ */
+async function allowed(fromCamera: boolean) {
+  if (!fromCamera) return;
+  const perm = await ImagePicker.requestCameraPermissionsAsync();
+  if (!perm.granted) throw new Error('camera');
+}
+
 export async function takePhoto(fromCamera: boolean): Promise<Media | null> {
-  const perm = fromCamera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (!perm.granted) throw new Error(fromCamera ? 'camera' : 'photos');
+  await allowed(fromCamera);
   const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.8 };
   const r = fromCamera ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
   if (r.canceled || !r.assets[0]) return null;
@@ -60,8 +71,7 @@ export async function takePhoto(fromCamera: boolean): Promise<Media | null> {
 }
 
 export async function takeVideo(fromCamera: boolean): Promise<Media | null> {
-  const perm = fromCamera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (!perm.granted) throw new Error(fromCamera ? 'camera' : 'photos');
+  await allowed(fromCamera);
   const opts: ImagePicker.ImagePickerOptions = {
     mediaTypes: ['videos'],
     videoMaxDuration: LIMITS.videoSeconds,
