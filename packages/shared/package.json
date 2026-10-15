@@ -1,0 +1,9 @@
+{
+  "name": "@pechkas/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Rules both the app and the admin panel must agree on: money, words for statuses, formatting.",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts"
+}

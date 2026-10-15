@@ -1,0 +1,19 @@
+node_modules/
+.expo/
+dist/
+web-build/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+
+# Signing keys never go in the repository. Expo keeps the Android one.
+*.jks
+*.p12
+*.keystore
+*.p8
+*.mobileprovision
+google-service-account*.json
+
+.DS_Store
+npm-debug.*

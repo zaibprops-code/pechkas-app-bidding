@@ -1,0 +1,23 @@
+{
+  "name": "pechkas-app-bidding",
+  "private": true,
+  "description": "Pechkas: an open-bidding app for home repairs in Islamabad.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "npm run test:shared && npm run db:test",
+    "test:shared": "node --test packages/shared/test/*.test.ts",
+    "db:test": "node supabase/tests/foundations.test.mjs",
+    "typecheck": "npm run typecheck --workspace apps/mobile && npm run typecheck --workspace apps/admin",
+    "check": "npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
+    "sharp": "^0.35.5"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

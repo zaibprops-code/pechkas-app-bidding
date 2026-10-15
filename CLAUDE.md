@@ -1,0 +1,108 @@
+# Working on the Pechkas app
+
+An open-bidding app for home repairs in Islamabad: a customer posts a job and
+names a price, checked technicians accept or counter, the customer picks one.
+The full brief is `APP_BUILD_PROMPT.md` in `zaibprops-code/Pechkas`; the
+approved design is the canvas "Pechkas App Look"
+(https://claude.ai/artifact/42Sb6DBfcN9pP1kLnvBqBr). Where this file and the
+brief disagree, ask.
+
+## Working with the owner
+
+- **Commit and push straight to `main`.** No branches or pull requests unless
+  he asks for one by name.
+- He is not an experienced developer. Plain words, numbered steps, and say
+  which screen and which button. **Never ask him to paste a secret into the
+  chat** — tell him where to put it instead.
+- He tests on an Android phone and has no Mac. Builds run on Expo's servers
+  from this repository (base directory `apps/mobile`, profile `preview` for a
+  test APK, `production` for the Play Store).
+- **He runs migrations himself**, in the Supabase SQL editor, following
+  `docs/OWNER.md`. So every migration must be safe to run twice, wrapped in
+  `BEGIN … COMMIT`, and must end by recording itself in
+  `public.applied_migrations`.
+- Each phase: short plan → his yes → build with tests → steps to try it on his
+  phone → stop. When something touches safety, money or the law, stop and ask.
+- Keep `docs/OWNER.md` current, including the open decisions at the top.
+
+## Before you commit
+
+```bash
+npm run check   # both apps type-check, money tests, database break-in tests
+```
+
+And for anything that changes a screen, bundle it and look at it:
+
+```bash
+cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
+```
+
+## Rules that are not negotiable
+
+### Trust and safety
+- **A CNIC number or CNIC image never enters this repository or the
+  database.** Only that it was checked, when, by whom and how. `db:test` fails
+  on anything shaped like one.
+- **Never invent** prices, ratings, reviews, job counts or statistics. A new
+  technician shows "New". Unknown values are visible placeholders in square
+  brackets.
+- A customer's address and phone reach only the chosen technician, only while
+  the job is active. A technician sees a customer's first name only.
+
+### The database decides
+- Every change is a numbered file in `supabase/migrations/`. Nothing is ever
+  typed into the dashboard that is not also in a file.
+- **The door is locked by default.** The first migration reverses Postgres's
+  defaults: no new table or function in `public` is reachable with the public
+  key until a migration grants it on purpose. Never add a policy for `anon`;
+  add a function and say which columns come back.
+- `ALTER DEFAULT PRIVILEGES … IN SCHEMA` **cannot** revoke `EXECUTE` from
+  `PUBLIC` — that default is global and the per-schema revoke is silently
+  ignored. The foundations migration revokes it database-wide; `db:test`
+  proves a new function stays closed. Do not "tidy" that line into the schema
+  block.
+- Every `security definer` function has `set search_path = ''` and spells
+  every name in full (`public.jobs`, `extensions.gen_random_bytes`).
+- A refusal that must be remembered returns `{ ok: false, why, field }`
+  instead of raising, because a raise undoes the row recording the attempt.
+- The apps never write a price, a status or a balance. They ask a function.
+- Two technicians can never win the same job: lock the row, check the status,
+  then assign, in one transaction.
+- **An empty test result must be empty for the right reason.** Use
+  `nothing()` / `denied()` from `supabase/tests/harness.mjs`; a broken query
+  also returns no rows.
+
+### Money
+- **Integer paisa, always.** Rs 2,500 is `250000`. Never a float.
+- Commission is basis points, rounded **down**, so odd paisa stay with the
+  technician. `packages/shared` and the database must give the same answer.
+- No agreed price shows "no price yet", never `Rs 0`.
+- Version 1 holds nobody's money: cash goes customer → technician; commission
+  is owed and settled outside the app. A prepaid wallet needs a lawyer first.
+
+### Secrets
+- Nothing secret is ever committed (`.gitignore` blocks keystores). Only
+  `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be in the
+  app; they are set in Expo's environment variables, not in a file here.
+- The Android upload keystore lives in Expo's credentials and in the owner's
+  private storage. Never in the repository.
+
+## The look (`apps/mobile/src/theme.ts`)
+
+- The website's colours: green `#0b5148` trust, yellow `#ffc53d` action and
+  money, ink, paper, brick for warnings only. Every text pair ≥ 4.5:1.
+- **No decoration.** The owner rejected truck-art and ajrak as unprofessional.
+  The app is Pakistani in how it works: voice notes in Urdu, landmarks beside
+  the pin, load-shedding asked about, parts with a shop receipt, the
+  chowkidar at the gate, family told who is coming, Roman Urdu on the
+  technician side (the owner checks every line).
+- Customer side light, technician side dark.
+- **Only `transform` moves.** `Press` sinks on tap and buzzes; it never eases
+  a colour. A control whose text colour changes between states eases no
+  colour at all — halfway through, text and background are the same grey.
+- One line-icon set (`Icon.tsx`), no emoji. No stock photos of strangers.
+- The mark's paths in `Mark.tsx` and `scripts/make-icons.mjs` are the
+  website's and must stay identical. Never edit `apps/mobile/assets/` by
+  hand; run `node scripts/make-icons.mjs`.
+- No button may do nothing. Until its feature exists it leads to `/soon`.
+- Every tap target is at least 44 × 44.

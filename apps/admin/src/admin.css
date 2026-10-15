@@ -1,0 +1,42 @@
+/* The app's colours (apps/mobile/src/theme.ts), which are the website's. */
+:root {
+  --green: #0b5148;
+  --yellow: #ffc53d;
+  --ink: #14171a;
+  --ink-soft: #2b3238;
+  --paper: #faf6ef;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.5 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+.shell {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 48px 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--green);
+}
+
+h1 {
+  margin: 40px 0 8px;
+  font-size: 36px;
+  letter-spacing: -0.02em;
+}
+
+.lead { color: var(--ink-soft); }
+
+li { margin: 8px 0; }
