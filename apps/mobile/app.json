@@ -1,7 +1,8 @@
 {
   "expo": {
     "name": "Pechkas",
-    "slug": "pechkas-app-bidding",
+    "slug": "pechkas-app",
+    "owner": "fixmindss-team",
     "scheme": "pechkas",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -37,6 +38,11 @@
           "backgroundColor": "#0b5148"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "225cda33-cb96-4105-8927-ca3f8b9d314a"
+      }
+    }
   }
 }

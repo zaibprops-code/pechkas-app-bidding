@@ -43,8 +43,8 @@ sign-in codes.
 
 ## Try the app on your phone
 
-1. Go to **expo.dev** → your project **pechkas-app-bidding** → **Builds** →
-   **Build from GitHub** (or the "Build" button).
+1. Go to **expo.dev** → team **fixmindss-team** → project **Pechkas App**
+   (slug `pechkas-app`) → **Builds** → **Build from GitHub**.
 2. Fill it in exactly like this:
 
    | Field | Set it to |
@@ -98,7 +98,7 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | What | Where |
 | --- | --- |
 | The code | GitHub: `zaibprops-code/pechkas-app-bidding` |
-| Builds and the signing key | expo.dev → pechkas-app-bidding → Builds / Credentials |
+| Builds and the signing key | expo.dev → fixmindss-team → Pechkas App (`pechkas-app`, ID `225cda33-cb96-4105-8927-ca3f8b9d314a`) → Builds / Credentials |
 | The database | supabase.com → pechkas-app-bidding |
 | The approved design | https://claude.ai/artifact/42Sb6DBfcN9pP1kLnvBqBr |
 | The full plan | `APP_BUILD_PROMPT.md` in `zaibprops-code/Pechkas` |

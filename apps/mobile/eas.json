@@ -4,7 +4,11 @@
     "appVersionSource": "local"
   },
   "build": {
+    "base": {
+      "node": "22.22.0"
+    },
     "preview": {
+      "extends": "base",
       "distribution": "internal",
       "environment": "preview",
       "android": {
@@ -12,6 +16,7 @@
       }
     },
     "production": {
+      "extends": "base",
       "environment": "production",
       "android": {
         "buildType": "app-bundle"
