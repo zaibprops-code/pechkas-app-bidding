@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { rupees, showMobile } from '@pechkas/shared';
+import { rupees } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
+import { shown } from './phones.ts';
 
 /**
  * Every job customers have posted, with what the office needs to act on it
@@ -198,7 +199,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
       {extras.length ? <ul className="extras">{extras.map((e) => <li key={e}>{e}</li>)}</ul> : null}
       <div className="card-head">
         <p><strong>Customer:</strong> {j.customer_name}</p>
-        {j.customer_phone ? <a className="call" href={`tel:+${j.customer_phone.replace(/^\+/, '')}`}>Call {showMobile(j.customer_phone)}</a> : null}
+        {j.customer_phone ? <a className="call" href={`tel:+${j.customer_phone.replace(/^\+/, '')}`}>Call {shown(j.customer_phone)}</a> : null}
       </div>
       {j.media.length ? <MediaList items={j.media} /> : null}
       {j.why ? <p className="why"><strong>Needs you:</strong> {j.why}</p> : null}
@@ -217,7 +218,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
             <strong>Technician:</strong> {j.pro_name} · agreed {j.agreed_paisa ? rupees(j.agreed_paisa) : 'no price yet'} ·{' '}
             {j.assigned_by === 'office' ? 'placed by the office' : 'chosen by the customer'}
           </p>
-          {j.pro_phone ? <a className="call" href={`tel:+${j.pro_phone.replace(/^\+/, '')}`}>Call {showMobile(j.pro_phone)}</a> : null}
+          {j.pro_phone ? <a className="call" href={`tel:+${j.pro_phone.replace(/^\+/, '')}`}>Call {shown(j.pro_phone)}</a> : null}
         </div>
       ) : null}
       {j.status === 'assigned' && j.stage ? (

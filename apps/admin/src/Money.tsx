@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { rupees, showMobile } from '@pechkas/shared';
+import { rupees } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
+import { shown } from './phones.ts';
 
 /**
  * What each technician owes Pechkas, and recording what he paid.
@@ -122,7 +123,7 @@ function ProMoney({ p, onChanged }: { p: ProRow; onChanged: () => void }) {
         <div>
           <h2>{p.full_name}</h2>
           <p className="muted">
-            {p.phone ? showMobile(p.phone) : 'no number'} · {p.jobs_done} {p.jobs_done === 1 ? 'job' : 'jobs'} done ·{' '}
+            {p.phone ? shown(p.phone) : 'no number'} · {p.jobs_done} {p.jobs_done === 1 ? 'job' : 'jobs'} done ·{' '}
             {p.rating.avg !== null ? `${Number(p.rating.avg).toFixed(1)} stars from ${p.rating.count}` : `New (${p.rating.count} ${p.rating.count === 1 ? 'rating' : 'ratings'})`}
             {p.status !== 'approved' ? ` · ${p.status}` : ''}
           </p>

@@ -82,6 +82,7 @@ For each: **Collected: Yes · Shared: No · Processed ephemerally: No.**
 | --- | --- | --- | --- |
 | **Location → Precise location** | Optional | App functionality | The map pin a customer may add to a job; where the phone was when the emergency button was pressed. Only while the app is open, never in the background. |
 | **Personal info → Name** | Required | App functionality, Account management, Fraud prevention, security and compliance | First name; a technician's full name. |
+| **Personal info → Email address** | Optional | App functionality, Account management | Only for somebody who signs in with an email code instead of a mobile number. |
 | **Personal info → Phone number** | Required | App functionality, Account management, Fraud prevention, security and compliance | Sign-in, and passed to the other side once a technician is chosen. |
 | **Personal info → Address** | Required | App functionality | Where the job is: sector, street, house, landmark, gate note. If a customer says Pechkas does not serve her sector yet: that sector and the kind of work. |
 | **Personal info → Other info** | Required (technicians) | App functionality, Account management | A technician's trades, years in the trade, sectors, and that his identity was checked. Never a CNIC number. |
@@ -101,7 +102,7 @@ without the office doing it by hand.
 ### Not collected
 
 Approximate location (the app only ever takes the precise pin, and only when
-asked), email address, user IDs from other services, race, religion,
+asked), user IDs from other services, race, religion,
 political or sexual information, payment card or bank details, credit score,
 health, contacts, calendar, files and documents, web history, installed
 apps, search history, app interactions and in-app search (there is no

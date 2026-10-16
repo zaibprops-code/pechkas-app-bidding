@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { showMobile } from '@pechkas/shared';
-import { Body, Button, Notice, Screen, Title } from '../src/components/ui';
+import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { useNotify } from '../src/notifications';
 import { AGREEMENT_URL, PRIVACY_URL, TERMS_URL } from '../src/office';
@@ -15,7 +15,10 @@ import { colour, font, radius } from '../src/theme';
  * stores require that an account can be deleted from inside the app.
  */
 export default function Me() {
-  const { session, account, signOut, connected } = useAccount();
+  const { session, account, signOut, connected, refresh } = useAccount();
+  const [editing, setEditing] = useState(false);
+  const [newPhone, setNewPhone] = useState('');
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -69,16 +72,50 @@ export default function Me() {
     router.replace('/');
   }
 
-  const phone = session.user.phone ? showMobile(session.user.phone) : '';
+  const number = account?.phone ?? session.user.phone ?? '';
+  const phone = number ? `${showMobile(number)}${account?.phone_checked === false ? ' (not checked)' : ''}` : 'Not given yet';
+
+  async function savePhone() {
+    setPhoneError(null);
+    setBusy(true);
+    const r = await ask('set_my_phone', { p_phone: newPhone });
+    setBusy(false);
+    if (!r.ok) return setPhoneError(r.why);
+    setEditing(false);
+    setNewPhone('');
+    await refresh();
+  }
 
   return (
     <Screen dark={dark} footer={back}>
       <Title dark={dark}>{account?.first_name ? `${account.first_name}` : 'Your account'}</Title>
       <View style={[s.card, dark && s.cardDark]}>
         <Row dark={dark} k="Mobile" v={phone} />
+        {account?.email ? <Row dark={dark} k="Email" v={account.email} /> : null}
         <Row dark={dark} k="Account" v={account?.role === 'pro' ? 'Technician' : account?.role === 'customer' ? 'Customer' : 'Not finished'} />
         {notify && notify !== 'unavailable' ? <Row dark={dark} k="Notifications" v={notify === 'on' ? 'On' : 'Off'} /> : null}
       </View>
+
+      {account?.phone_checked === false && !editing ? (
+        <Button kind="outline" dark={dark} label="Change my mobile number" onPress={() => setEditing(true)} />
+      ) : null}
+      {editing ? (
+        <View style={{ gap: 8 }}>
+          <Field
+            dark={dark}
+            label="Your mobile number"
+            value={newPhone}
+            onChangeText={setNewPhone}
+            placeholder="0300 1234567"
+            keyboardType="phone-pad"
+            autoComplete="tel"
+            error={phoneError ?? undefined}
+            hint="The person you are working with rings you on this."
+          />
+          <Button dark={dark} label="Save number" onPress={savePhone} busy={busy} />
+          <Button kind="outline" dark={dark} label="Cancel" onPress={() => { setEditing(false); setPhoneError(null); }} />
+        </View>
+      ) : null}
 
       {notify === 'ask' ? <Button kind={dark ? 'yellow' : 'green'} dark={dark} label="Turn on notifications" onPress={askNotify} /> : null}
       {notify === 'off' ? (

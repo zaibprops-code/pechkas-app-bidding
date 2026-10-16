@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { showMobile } from '@pechkas/shared';
+
 import { ask, supabase } from './supabase.ts';
+import { shown } from './phones.ts';
 
 /**
  * Patterns worth a look, from public.admin_flags(). A flag is not a verdict:
@@ -120,7 +121,7 @@ function PersonCard({ p, limits, onChanged }: { p: Person; limits: Record<string
           </p>
           <h2>{p.name}</h2>
         </div>
-        {p.phone ? <a className="call" href={tel(p.phone)}>Call · {showMobile(p.phone)}</a> : null}
+        {p.phone ? <a className="call" href={tel(p.phone)}>Call · {shown(p.phone)}</a> : null}
       </div>
       <ul className="flags">
         {p.flags.map((f) => {
@@ -186,7 +187,7 @@ function Blocks({ pro }: { pro: string }) {
         {rows.map((b, i) => (
           <li key={i}>
             {time(b.at)} · {b.customer}
-            {b.phone ? ` · ${showMobile(b.phone)}` : ''}
+            {b.phone ? ` · ${shown(b.phone)}` : ''}
             {b.ref ? ` · after ${b.ref}` : ''}
             {b.reason ? `: “${b.reason}”` : ''}
           </li>

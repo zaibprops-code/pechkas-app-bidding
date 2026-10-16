@@ -10,6 +10,13 @@ export type Account = {
   role: 'customer' | 'pro' | null;
   first_name: string | null;
   is_staff: boolean;
+  /** Set when they signed in with an email code. */
+  email?: string | null;
+  /** The number the other side rings: checked by SMS, or typed by an email account. */
+  phone?: string | null;
+  phone_checked?: boolean;
+  /** An email account that has not typed a number yet: it cannot post or apply. */
+  needs_phone?: boolean;
   pro: {
     full_name: string;
     trades: string[];

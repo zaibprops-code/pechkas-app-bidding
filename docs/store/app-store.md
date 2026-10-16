@@ -51,6 +51,7 @@ same each time:
 | Apple's category → type | Why the app has it |
 | --- | --- |
 | Contact Info → **Name** | First name; a technician's full name |
+| Contact Info → **Email Address** | Only for somebody who signs in with an email code instead of a mobile number |
 | Contact Info → **Phone Number** | Sign-in, and given to the other side once a technician is chosen |
 | Contact Info → **Physical Address** | Where the job is: sector, street, house, landmark, gate note; a sector a customer says Pechkas does not serve yet |
 | Location → **Precise Location** | The map pin a customer may add; where the phone was when the emergency button was pressed. Only while the app is open |
@@ -63,7 +64,7 @@ same each time:
 | Identifiers → **Device ID** | The notification address of the phone, only if notifications are allowed |
 | Other Data → **Other Data Types** | A technician's trades, years in the trade, sectors, and the record that Pechkas checked his identity (never a CNIC number) |
 
-**Not collected:** email address, health, payment cards or bank details,
+**Not collected:** health, payment cards or bank details,
 contacts, browsing or search history, purchases, coarse location, product
 interaction or other usage data (there is no analytics), crash data,
 performance data, advertising data, sensitive info.

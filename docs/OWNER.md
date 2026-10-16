@@ -7,6 +7,15 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Signing in with an email code (new).** On the sign-in screen, **Use my
+email instead** sends a code by email — no Twilio needed. Somebody who signs
+in by email types their mobile number next, because the technician they
+choose still has to ring them. That number is marked **(not checked)** on
+their **Me** screen and everywhere in the admin panel, since nobody has
+proved it by SMS. Your own office alerts still go only to a number that
+signed in by SMS. Set it up once: **"Setting up email sign-in (once)"**
+below.
+
 **Phase 8 — settings, blocking, terms.**
 
 - **Admin → Settings.** Change the offer time, the "no offer" waiting time,
@@ -243,6 +252,11 @@ not a new app.
 | App identifier | `net.pechkas.app` — permanent |
 
 **Still open:**
+- **An email service before launch.** Supabase's own email sender is for
+  testing only: a few emails an hour, and it may deliver only to your own
+  Supabase team's addresses. Before real customers sign in by email, connect
+  an email service (Resend, Brevo or similar) under **Authentication →
+  Emails → SMTP Settings** — tell Claude when you want the steps.
 - **The guarantee: 15 days or 30?** The website (its /guarantee and /terms
   pages) promises **15 days**. The app, both store listings and the new app
   terms promise **30 days**. Customers will see both. Tell Claude which is
@@ -717,6 +731,37 @@ panel redeploys by itself on Vercel.
 
 ---
 
+## Setting up email sign-in (once)
+
+1. **Supabase → SQL Editor:** run `20261025000000_email_sign_in.sql`. It
+   should say **Success**.
+2. **Authentication → Sign In / Providers → Email:** make sure it is **on**.
+   If there is a box **Email OTP Length**, leave it at **6**.
+3. **Authentication → Emails → Templates** (or **Email Templates**). Open
+   **Magic Link**, replace the message with this, and **Save**:
+
+   ```
+   <h2>Your Pechkas code</h2>
+   <p>Type this code in the Pechkas app: <strong>{{ .Token }}</strong></p>
+   <p>If you did not ask for it, you can ignore this email.</p>
+   ```
+
+   Do the same for **Confirm signup** (a brand-new email gets that one).
+   `{{ .Token }}` is where Supabase puts the code; without it the email
+   holds only a link the app cannot use.
+4. **Expo:** a new **preview** build from `main`.
+5. On your phone: **Me → Sign in → Use my email instead**, type **your own
+   email address** (Supabase's test sender may only deliver to it), and
+   **Send me a code**. Type the code from the email, then your first name,
+   **I need something fixed**, and your mobile number.
+6. **Me** shows your number with **(not checked)** and your email. In the
+   admin panel, your number shows **(not checked)** on anything you post.
+
+If it fails, the red box says why and gives Supabase's own words: send a
+screenshot to Claude.
+
+---
+
 ## Trying phase 8
 
 **Supabase → SQL Editor:** run `20261024000000_settings_and_blocks.sql`. It
@@ -979,6 +1024,7 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | `20261022000000_money_and_trust.sql` | Parts, commission, the ledger, the credit limit, payments, ratings, problems, guarantee claims, the emergency button | Eighth — **run it for phase 5** |
 | `20261023000000_after_launch.sql` | Asking a technician again, the 7% repeat fee, the demand report, fraud flags | Ninth — **run it for phase 7** |
 | `20261024000000_settings_and_blocks.sql` | The settings screen with its safe ranges and record of changes, opening and closing sectors, customers blocking a technician | Tenth — **run it for phase 8** |
+| `20261025000000_email_sign_in.sql` | Signing in with an email code: the mobile number an email account types, marked not checked | Eleventh — **run it for email sign-in** |
 
 ---
 

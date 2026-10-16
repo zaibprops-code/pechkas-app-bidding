@@ -81,9 +81,26 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   is owed and settled outside the app. A prepaid wallet needs a lawyer first.
 
 ### Accounts (phase 1)
-- Customers and technicians sign in with a **mobile number and a code**.
-  `pakistaniMobile()` in `packages/shared` is the one rule for what a number
-  is. The office signs in with **email and password**, one login each, made
+- Customers and technicians sign in with a **mobile number and a code**,
+  or — the owner's choice, after the brief — an **email code**.
+  `pakistaniMobile()` in `packages/shared` and `tidy_mobile()` in the
+  database are the one rule for what a number is, and `email.test.mjs`
+  checks they agree.
+- **An email account has no checked number**, so it types one
+  (`set_my_phone()`, kept in `profiles.phone`) before it can post or apply
+  — the `needs_a_phone` triggers are the lock behind the welcome screen.
+  `phone_of()` is the one place a number to ring comes from: checked by SMS
+  first, typed otherwise. Every function that hands a number to somebody
+  asks it; `u.phone` straight from `auth.users` is a bug, because it is
+  empty for an email account. The office sees a typed number marked
+  "(not checked)" (`admin_unchecked_phones()`, `phones.ts`). **The office's
+  own alerts match only a number checked by SMS** (`alert_needs_you`,
+  `tell_office`, `admin_alerts`): a typed number proves nothing, and
+  nobody may type the owner's number to receive his alerts.
+- Every sign-in failure shows `explainAuthError()` plus Supabase's own
+  words and the project's host. Never go back to "check your signal" for
+  everything: it hid a Supabase refusal for a whole afternoon.
+- The office signs in with **email and password**, one login each, made
   by the owner in Supabase; `make_owner()` is granted to nobody and run by
   hand in the SQL editor.
 - Being signed in is never enough for the office. Every `admin_*` function

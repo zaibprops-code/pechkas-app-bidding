@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { rupees, showMobile } from '@pechkas/shared';
+import { rupees } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
+import { shown } from './phones.ts';
 
 /**
  * Everything somebody has told Pechkas is wrong: emergencies first, then
@@ -127,8 +128,8 @@ function ProblemCard({ p, onChanged }: { p: Problem; onChanged: () => void }) {
         {p.job.finished_at ? ` · finished ${time(p.job.finished_at)}` : ''}
       </p>
       <div className="buttons">
-        {p.customer.phone ? <a className="call" href={tel(p.customer.phone)}>Call {p.customer.name} · {showMobile(p.customer.phone)}</a> : null}
-        {p.pro?.phone ? <a className="call" href={tel(p.pro.phone)}>Call {p.pro.name.split(' ')[0]} · {showMobile(p.pro.phone)}</a> : null}
+        {p.customer.phone ? <a className="call" href={tel(p.customer.phone)}>Call {p.customer.name} · {shown(p.customer.phone)}</a> : null}
+        {p.pro?.phone ? <a className="call" href={tel(p.pro.phone)}>Call {p.pro.name.split(' ')[0]} · {shown(p.pro.phone)}</a> : null}
       </div>
       {p.status === 'open' ? (
         <section className="decide">

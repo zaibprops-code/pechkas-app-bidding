@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { showMobile } from '@pechkas/shared';
+
 import { ask, supabase } from './supabase.ts';
+import { loadUnchecked, shown } from './phones.ts';
 import { Alerts } from './Alerts.tsx';
 import { Demand } from './Demand.tsx';
 import { Flags } from './Flags.tsx';
@@ -149,6 +150,14 @@ function SignIn() {
 }
 
 function Office({ name }: { name: string }) {
+  // Which numbers were typed rather than checked; re-drawn once they are known.
+  const [, setPhonesKnown] = useState(0);
+  useEffect(() => {
+    const load = () => loadUnchecked().then(() => setPhonesKnown((n) => n + 1));
+    load();
+    const t = setInterval(load, 60000);
+    return () => clearInterval(t);
+  }, []);
   const [section, setSection] = useState<'jobs' | 'problems' | 'money' | 'technicians' | 'demand' | 'flags' | 'settings'>('jobs');
   const [trades, setTrades] = useState<Record<string, string>>({});
 
@@ -285,7 +294,7 @@ function Card({ a, trades, onChange }: { a: Application; trades: Record<string, 
           </p>
         </div>
         {a.phone ? (
-          <a className="call" href={`tel:+${a.phone.replace(/^\+/, '')}`}>Call {showMobile(a.phone)}</a>
+          <a className="call" href={`tel:+${a.phone.replace(/^\+/, '')}`}>Call {shown(a.phone)}</a>
         ) : null}
       </div>
       <p><strong>Work:</strong> {a.trades.map((t) => trades[t] ?? t).join(', ')}</p>

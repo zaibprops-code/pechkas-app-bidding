@@ -9,7 +9,9 @@ import { supabase, url } from '../src/supabase';
 const WAIT = 30;
 
 export default function Verify() {
-  const { phone, next } = useLocalSearchParams<{ phone: string; next?: string }>();
+  const { phone, email, next } = useLocalSearchParams<{ phone?: string; email?: string; next?: string }>();
+  // Supabase's email codes are 6 digits unless changed in its settings; up to 10 is allowed there.
+  const longest = email ? 10 : 6;
   const { refresh } = useAccount();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -27,13 +29,15 @@ export default function Verify() {
     setError(null);
     setNotice(null);
     const token = code.replace(/\D/g, '');
-    if (token.length !== 6) {
-      setError('The code is 6 numbers.');
+    if (email ? token.length < 6 || token.length > longest : token.length !== 6) {
+      setError(email ? 'Type the numbers from the email.' : 'The code is 6 numbers.');
       return;
     }
-    if (!supabase || !phone) return;
+    if (!supabase || (!phone && !email)) return;
     setBusy(true);
-    const { error: e } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
+    const { error: e } = email
+      ? await supabase.auth.verifyOtp({ email, token, type: 'email' })
+      : await supabase.auth.verifyOtp({ phone: phone!, token, type: 'sms' });
     if (e) {
       setBusy(false);
       if (/expired/i.test(e.message)) setError('That code has expired. Ask for a new one.');
@@ -49,9 +53,9 @@ export default function Verify() {
   }
 
   async function resend() {
-    if (!supabase || !phone || left > 0) return;
+    if (!supabase || (!phone && !email) || left > 0) return;
     setNotice(null);
-    const { error: e } = await supabase.auth.signInWithOtp({ phone });
+    const { error: e } = email ? await supabase.auth.signInWithOtp({ email }) : await supabase.auth.signInWithOtp({ phone: phone! });
     if (e) setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);
     else setLeft(WAIT);
   }
@@ -59,7 +63,9 @@ export default function Verify() {
   return (
     <Screen footer={<Button label="Continue" onPress={check} busy={busy} />}>
       <Title>Enter the code</Title>
-      <Body muted>We sent a 6-number code to {phone ? showMobile(phone) : 'your phone'}.</Body>
+      <Body muted>
+        {email ? `We emailed a code to ${email}. If it is not in your inbox, look in spam.` : `We sent a 6-number code to ${phone ? showMobile(phone) : 'your phone'}.`}
+      </Body>
       <Field
         label="Code"
         value={code}
@@ -67,8 +73,8 @@ export default function Verify() {
         placeholder="123456"
         keyboardType="number-pad"
         textContentType="oneTimeCode"
-        autoComplete="sms-otp"
-        maxLength={6}
+        autoComplete={email ? 'one-time-code' : 'sms-otp'}
+        maxLength={longest}
         autoFocus
         onSubmitEditing={check}
         error={error}
