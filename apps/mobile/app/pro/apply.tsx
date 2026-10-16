@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 import { Redirect, router } from 'expo-router';
 import { Press } from '../../src/components/Press';
 import { Body, Button, Chip, Field, Loading, Notice, Screen, Title } from '../../src/components/ui';
 import { useAccount } from '../../src/account';
+import { AGREEMENT_URL } from '../../src/office';
 import { ask, supabase } from '../../src/supabase';
 import { proError, useProWords } from '../../src/words';
 import { colour, font, radius } from '../../src/theme';
@@ -74,6 +75,7 @@ export default function Apply() {
       </View>
       <Title dark>{w.applyTitle}</Title>
       <Body dark muted>{w.applyIntro}</Body>
+      <Button kind="outline" dark label={w.agreement} onPress={() => Linking.openURL(AGREEMENT_URL)} />
 
       <Field dark label={w.fullName} value={fullName} onChangeText={setFullName} autoCapitalize="words" autoComplete="name" textContentType="name" error={errors.full_name} hint={w.noCnic} />
 

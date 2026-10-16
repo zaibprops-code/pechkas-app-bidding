@@ -58,7 +58,7 @@ same each time:
 | User Content → **Photos or Videos** | What is wrong; before and after photos; receipts for parts |
 | User Content → **Audio Data** | The voice note describing the problem |
 | User Content → **Emails or Text Messages** | The chat between a customer and her chosen technician |
-| User Content → **Other User Content** | Star ratings and their words; problem reports and guarantee claims; which technician a customer asked for again |
+| User Content → **Other User Content** | Star ratings and their words; problem reports and guarantee claims; which technician a customer asked for again; a technician a customer blocked, and her reason if given |
 | Identifiers → **User ID** | The account's own ID inside Pechkas |
 | Identifiers → **Device ID** | The notification address of the phone, only if notifications are allowed |
 | Other Data → **Other Data Types** | A technician's trades, years in the trade, sectors, and the record that Pechkas checked his identity (never a CNIC number) |

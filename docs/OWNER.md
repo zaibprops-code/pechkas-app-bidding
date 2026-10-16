@@ -7,6 +7,30 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Phase 8 — settings, blocking, terms.**
+
+- **Admin → Settings.** Change the offer time, the "no offer" waiting time,
+  the "asked for by name" time, the lowest offer, the highest counter, the
+  visit fee, the wrong-code limit, the ratings rules and every flag limit —
+  each only within a safe range, and every change is kept with your name
+  under **Recent changes**. **Commission, the repeat fee, the credit limit,
+  the guarantee reserve and the 30-day guarantee are shown but locked**,
+  as you chose: they change only through Claude, in a migration.
+- **Sectors.** Open or close a sector for new jobs from the same screen. A
+  sector can only open once an approved technician works there; closing one
+  leaves jobs already posted there as they are. The website and the store
+  pages name the live sectors too, so tell Claude when you change one.
+- **Blocking.** On a finished job (or one cancelled after she chose
+  someone) a customer can tap **Never send me Bilal again**, with a reason
+  if she likes. He never sees her jobs again and **is not told**. She can
+  **Undo**. Two customers blocking the same man is a flag, and **Admin →
+  Flags → Who blocked him** shows who and why.
+- **Terms.** Drafts of the customer terms (**pechkas.net/app/terms**) and
+  the technician agreement (**pechkas.net/app/technician-agreement**),
+  linked from the sign-in screen, the application form and **Me**. They
+  describe exactly what the app does, and every legal question is marked
+  **[DECIDE WITH A LAWYER]** rather than guessed.
+
 **Phase 7 — after launch.** Four things, all built and tested:
 
 - **"Ask Bilal again."** On a finished job the customer has an **Ask Bilal
@@ -179,6 +203,7 @@ is buzzed, and the screens still update by themselves while open.
 | 6 | Google Play: listing, policy pages, forms, closed test → public | **Ready — your steps below** |
 | 6b | App Store (iPhone): settings, screenshots, App Privacy, age rating, TestFlight → review | **Ready — your steps below** |
 | 7 | After launch: ask a technician again, 7% repeat fee, demand report, fraud flags | Done — **"Trying phase 7"** below |
+| 8 | Settings screen, customers blocking a technician, terms and technician agreement | Done — **"Trying phase 8"** below |
 
 ## The settings you chose
 
@@ -218,6 +243,17 @@ not a new app.
 | App identifier | `net.pechkas.app` — permanent |
 
 **Still open:**
+- **The guarantee: 15 days or 30?** The website (its /guarantee and /terms
+  pages) promises **15 days**. The app, both store listings and the new app
+  terms promise **30 days**. Customers will see both. Tell Claude which is
+  right and everything will be made to say the same.
+- **The big legal question in the new terms:** is a customer's agreement
+  for the repair **with Pechkas** (the website's terms say the technician
+  works for Pechkas and Pechkas is responsible) or **with the technician**,
+  Pechkas introducing and checking him? A lawyer should answer it; the
+  terms, the technician agreement and tax all follow from it. The other
+  bracketed points — damage, limits of responsibility, notice before
+  suspension, redoing failed work — go to the same lawyer.
 - **The flag limits are guesses.** Watch **Admin → Flags** for the first
   month or two. When honest people keep showing up, or something you know
   was wrong never did, tell Claude which limit and it becomes a new
@@ -681,6 +717,31 @@ panel redeploys by itself on Vercel.
 
 ---
 
+## Trying phase 8
+
+**Supabase → SQL Editor:** run `20261024000000_settings_and_blocks.sql`. It
+should say **Success**. Then a new **preview** build on your phone; the
+admin panel and the website update by themselves.
+
+1. **Admin → Settings:** change **An offer stays open for** to **90** and
+   press **Save**. It is refused: 5 to 60 minutes. Make it **15** and save.
+   It appears under **Recent changes** with your name.
+2. Look at **Money and promises**: commission, credit limit and the
+   guarantee are there, marked **Locked**.
+3. Under **Sectors taking jobs**, open **Open another sector** and tap one
+   where nobody works. It is refused, and says why.
+4. **Customer phone → My jobs**, on a finished job: tap **Never send me …
+   again**, write a reason, and **Yes, block**. The card says he was not
+   told. On the technician's phone, post a new job from the customer: it
+   does not appear for him. Tap **Undo** and it does.
+5. **Sign-in screen** and **Me**: **Terms of use** opens
+   pechkas.net/app/terms. On a technician's **Me** and on the application
+   form, the technician agreement opens.
+6. Put **offer time back to 10 minutes** when you are done, or leave it if
+   15 suits you better.
+
+---
+
 ## Putting the app on Google Play
 
 No migration this time. Do these in order; each says which screen and which
@@ -917,6 +978,7 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | `20261021000000_doing_the_job.sql` | On my way, arrived, the start code, photos, a new price at the door, the visit fee, chat, done, "something is wrong", each job's history | Seventh |
 | `20261022000000_money_and_trust.sql` | Parts, commission, the ledger, the credit limit, payments, ratings, problems, guarantee claims, the emergency button | Eighth — **run it for phase 5** |
 | `20261023000000_after_launch.sql` | Asking a technician again, the 7% repeat fee, the demand report, fraud flags | Ninth — **run it for phase 7** |
+| `20261024000000_settings_and_blocks.sql` | The settings screen with its safe ranges and record of changes, opening and closing sectors, customers blocking a technician | Tenth — **run it for phase 8** |
 
 ---
 

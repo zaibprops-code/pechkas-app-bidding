@@ -47,6 +47,10 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     `${f.n} jobs done for the same customer.`,
     'A loyal customer — or ratings and job counts made up between friends. Check the photos are real work.',
   ],
+  blocked: (f) => [
+    `${f.n} customers blocked him: they never want him sent again.`,
+    'Ring them and ask why. Open "Who blocked him" below for their names and words.',
+  ],
   cancels: (f) => [`This customer cancelled ${f.n} jobs.`, 'Each one may have cost a technician a trip.'],
   reports: (f) => [`Technicians reported ${f.n} problems on this customer's jobs.`, 'Read them under Problems.'],
 };
@@ -129,6 +133,7 @@ function PersonCard({ p, limits, onChanged }: { p: Person; limits: Record<string
           );
         })}
       </ul>
+      {p.side === 'pro' && p.flags.some((f) => f.kind === 'blocked') ? <Blocks pro={p.id} /> : null}
       {p.notes.length ? (
         <div className="history">
           <h3>Notes</h3>
@@ -155,5 +160,38 @@ function PersonCard({ p, limits, onChanged }: { p: Person; limits: Record<string
         {msg ? <p className="error" role="alert">{msg}</p> : null}
       </section>
     </article>
+  );
+}
+
+type Block = { customer: string; phone: string | null; ref: string | null; reason: string | null; at: string };
+
+/** Who blocked a technician, and what they said. Only the office sees this; he is never told. */
+function Blocks({ pro }: { pro: string }) {
+  const [rows, setRows] = useState<Block[] | null>(null);
+  async function open() {
+    const { data } = (await supabase?.rpc('admin_blocks', { p_pro: pro })) ?? { data: null };
+    setRows((data as Block[]) ?? []);
+  }
+  if (rows === null) {
+    return (
+      <div className="buttons">
+        <button className="secondary small" onClick={open}>Who blocked him</button>
+      </div>
+    );
+  }
+  return (
+    <div className="history">
+      <h3>Who blocked him (he is not told)</h3>
+      <ul className="events">
+        {rows.map((b, i) => (
+          <li key={i}>
+            {time(b.at)} · {b.customer}
+            {b.phone ? ` · ${showMobile(b.phone)}` : ''}
+            {b.ref ? ` · after ${b.ref}` : ''}
+            {b.reason ? `: “${b.reason}”` : ''}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

@@ -14,3 +14,7 @@ export const OFFICE_PHONE_SHOWN = '0335 8855076';
  */
 export const PRIVACY_URL = 'https://pechkas.net/app/privacy';
 export const DELETE_ACCOUNT_URL = 'https://pechkas.net/app/delete-account';
+
+/** The customer terms and the technician agreement, on the same site. Drafts until a lawyer has read them. */
+export const TERMS_URL = 'https://pechkas.net/app/terms';
+export const AGREEMENT_URL = 'https://pechkas.net/app/technician-agreement';

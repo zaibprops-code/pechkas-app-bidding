@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { pakistaniMobile } from '@pechkas/shared';
 import { Mark } from '../src/components/Mark';
 import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
-import { PRIVACY_URL } from '../src/office';
+import { PRIVACY_URL, TERMS_URL } from '../src/office';
 import { supabase } from '../src/supabase';
 
 /**
@@ -60,6 +60,7 @@ export default function SignIn() {
       />
       <Notice text={notice} />
       <Button kind="outline" label="How Pechkas uses your number" onPress={() => Linking.openURL(PRIVACY_URL)} />
+      <Button kind="outline" label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} />
     </Screen>
   );
 }

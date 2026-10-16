@@ -120,3 +120,19 @@ button:focus-visible, .call:focus-visible, input:focus-visible, select:focus-vis
 .ledger tr.short td { background: #fdf3df; }
 .flags { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 .card.checked { background: var(--paper); }
+.setting { display: grid; grid-template-columns: 1fr auto; gap: 12px 18px; padding: 12px 0; border-top: 1px solid var(--rule); align-items: start; }
+.setting-text { display: grid; gap: 2px; }
+.setting-text .muted { font-size: 14px; }
+.setting-edit { display: grid; gap: 4px; justify-items: end; min-width: 150px; }
+.unit-field { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.unit-field input { width: 110px; text-align: right; }
+.small { font-size: 13px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.chip { background: transparent; border-color: var(--rule); font-weight: 600; font-size: 14px; }
+.chip.on { background: var(--green); color: var(--paper); border-color: var(--green); }
+details summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+@media (max-width: 560px) {
+  .setting { grid-template-columns: 1fr; }
+  .setting-edit { justify-items: start; }
+}

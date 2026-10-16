@@ -5,6 +5,7 @@ import { ask, supabase } from './supabase.ts';
 import { Alerts } from './Alerts.tsx';
 import { Demand } from './Demand.tsx';
 import { Flags } from './Flags.tsx';
+import { Settings } from './Settings.tsx';
 import { Jobs } from './Jobs.tsx';
 import { Money } from './Money.tsx';
 import { Problems } from './Problems.tsx';
@@ -148,7 +149,7 @@ function SignIn() {
 }
 
 function Office({ name }: { name: string }) {
-  const [section, setSection] = useState<'jobs' | 'problems' | 'money' | 'technicians' | 'demand' | 'flags'>('jobs');
+  const [section, setSection] = useState<'jobs' | 'problems' | 'money' | 'technicians' | 'demand' | 'flags' | 'settings'>('jobs');
   const [trades, setTrades] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -174,6 +175,7 @@ function Office({ name }: { name: string }) {
         <button className={section === 'technicians' ? 'section on' : 'section'} aria-pressed={section === 'technicians'} onClick={() => setSection('technicians')}>Technicians</button>
         <button className={section === 'demand' ? 'section on' : 'section'} aria-pressed={section === 'demand'} onClick={() => setSection('demand')}>Demand</button>
         <button className={section === 'flags' ? 'section on' : 'section'} aria-pressed={section === 'flags'} onClick={() => setSection('flags')}>Flags</button>
+        <button className={section === 'settings' ? 'section on' : 'section'} aria-pressed={section === 'settings'} onClick={() => setSection('settings')}>Settings</button>
       </nav>
       {section === 'jobs' ? (
         <>
@@ -188,6 +190,8 @@ function Office({ name }: { name: string }) {
         <Demand />
       ) : section === 'flags' ? (
         <Flags />
+      ) : section === 'settings' ? (
+        <Settings />
       ) : (
         <Technicians trades={trades} />
       )}

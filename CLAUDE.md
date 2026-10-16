@@ -373,6 +373,37 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   about, office notes), so the privacy page and both stores' answers
   changed with it. Keep it that way.
 
+### Settings, blocking and terms (phase 8)
+- **What the office may change is the `setting_limits` table, and leaving
+  a key out is the lock.** `commission_bps`, `repeat_commission_bps`,
+  `credit_limit_paisa`, `reserve_bps` and `guarantee_days` are left out on
+  purpose — money, and a promise the store pages and the terms make — and
+  the migration deletes them from that table if they ever appear. A new
+  setting is locked until a migration gives it a range.
+  `admin_set_setting()` checks the range, whole rupees, and the visit fee's
+  min ≤ max; `setting_changes` records every change and cannot be edited
+  or deleted by anyone.
+- **A sector opens only with an approved technician in it**
+  (`admin_set_sector()`); closing one leaves posted jobs alone. The website
+  and the store listing name the live sectors, so the screen tells the
+  owner to say when he changes one.
+- **Blocking is in `pro_may_see_as()`**, the one visibility rule, and in
+  `job_preferred()`: a blocked man's feed, offers, files, notifications and
+  "ask again" all stop together. Only after a job is over (done, stopped,
+  or cancelled after he was chosen); during a job it is a problem for the
+  office. **He is never told** — that is the safety of it; nothing may
+  ever tell him, including a count. The office reads who and why through
+  `admin_blocks()`; two blocks are a flag (`flag_blocked`).
+- **The app's terms (`/app/terms`) and technician agreement
+  (`/app/technician-agreement`)** are on the website, noindex, drafts for a
+  lawyer. They state the LOCKED numbers (10%, 7%, Rs 3,000, 30 days) and
+  deliberately not the ones the office can change. Changing a locked
+  setting by migration changes those pages in the same week. Every legal
+  choice is a visible `[DECIDE WITH A LAWYER]`, never a guess.
+- **Two promises disagree and are the owner's to settle:** the website's
+  guarantee is 15 days (`SITE.guaranteeDays`), the app's is 30. Do not
+  quietly change either.
+
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only
   `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be in the

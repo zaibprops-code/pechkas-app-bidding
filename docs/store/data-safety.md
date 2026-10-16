@@ -90,7 +90,7 @@ For each: **Collected: Yes · Shared: No · Processed ephemerally: No.**
 | **Photos and videos → Photos** | Optional (customers), required (technicians, to start and finish a job) | App functionality | What is wrong; before and after photos; receipts for parts. |
 | **Photos and videos → Videos** | Optional | App functionality | A short video of what is wrong. |
 | **Audio → Voice or sound recordings** | Optional | App functionality | The voice note describing the problem. |
-| **App activity → Other user-generated content** | Optional | App functionality, Fraud prevention, security and compliance | Star ratings and their words; problem reports and guarantee claims; which technician a customer asked for again. |
+| **App activity → Other user-generated content** | Optional | App functionality, Fraud prevention, security and compliance | Star ratings and their words; problem reports and guarantee claims; which technician a customer asked for again; a technician a customer blocked, and her reason if she gave one. |
 | **Device or other IDs** | Optional | App functionality | The notification code for the phone, only if the person allows notifications. |
 
 **Fraud prevention** is the office's flags (phase 7): patterns across jobs,

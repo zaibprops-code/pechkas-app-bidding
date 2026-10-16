@@ -54,6 +54,7 @@ From `apps/mobile/src/words.ts`.
 | `switchTo` | English | Roman Urdu |
 | `applyTitle` | Pechkas ke saath kaam karein | Work with Pechkas |
 | `applyIntro` | Yeh form bharein. Hum aap ko call kar ke milne ka waqt tay karenge. Apply karne ki koi fees nahi. | Fill in this form. We will call you to arrange a time to meet. Applying is free. |
+| `agreement` | Technician ka muahida parhein | Read the technician agreement |
 | `fullName` | Poora naam, jaisa ID card par hai | Full name, as on your ID card |
 | `noCnic` | CNIC number yahan na likhein. Hum milte waqt card dekhenge. | Do not write your CNIC number here. We see the card when we meet. |
 | `trades` | Aap kya kaam karte hain? | What work do you do? |

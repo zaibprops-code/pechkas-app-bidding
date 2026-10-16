@@ -4,7 +4,7 @@ import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-rou
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { rupees, showMobile } from '@pechkas/shared';
-import { Button, Loading, Notice, NotifyCard } from '../src/components/ui';
+import { Button, Field, Loading, Notice, NotifyCard } from '../src/components/ui';
 import { Icon } from '../src/components/Icon';
 import { Stars } from '../src/components/Stars';
 import { Press } from '../src/components/Press';
@@ -37,6 +37,11 @@ type Job = JobNow & {
   /** Whom it was held for at all, even after it opened to everyone. */
   asked_for?: string | null;
   can_ask_again?: boolean;
+  /** She blocked this job's technician: he never sees her jobs again, and is not told. */
+  blocked?: boolean;
+  can_block?: boolean;
+  /** His first name, for the block button only. */
+  block_name?: string | null;
 };
 
 const clock = (iso: string) => new Date(iso).toLocaleTimeString('en-PK', { hour: 'numeric', minute: '2-digit' });
@@ -175,6 +180,8 @@ function JobCard({ job, trade, tick, onChanged }: { job: Job; trade: string; tic
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [blocking, setBlocking] = useState(false);
+  const [blockWhy, setBlockWhy] = useState('');
   const open = job.status === 'open';
   const assigned = job.status === 'assigned';
   const ended = job.status === 'done' || job.status === 'stopped';
@@ -206,6 +213,24 @@ function JobCard({ job, trade, tick, onChanged }: { job: Job; trade: string; tic
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
     router.push({ pathname: '/post', params: { trade: job.trade, ask: r.first_name, minutes: String(r.minutes) } });
+  }
+
+  async function block() {
+    setBusy(true);
+    setMsg(null);
+    const r = await ask('block_pro', { p_job: job.id, p_reason: blockWhy });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    setBlocking(false);
+    onChanged();
+  }
+
+  async function unblock() {
+    setBusy(true);
+    const r = await ask('unblock_pro', { p_job: job.id });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    onChanged();
   }
 
   async function cancel() {
@@ -265,6 +290,33 @@ function JobCard({ job, trade, tick, onChanged }: { job: Job; trade: string; tic
       {assigned && job.pro ? <UnderWay job={job} onChanged={onChanged} /> : null}
       {ended ? <Ended job={job} onChanged={onChanged} /> : null}
       {job.can_ask_again && job.pro ? <Button kind="green" label={`Ask ${job.pro.first_name} again`} onPress={askAgain} busy={busy} /> : null}
+      {job.can_block && job.block_name && job.blocked ? (
+        <View style={s.held}>
+          <Text style={s.line}>You blocked {job.block_name}. He does not see your jobs, and he was not told.</Text>
+          <Button kind="outline" label="Undo" onPress={unblock} busy={busy} />
+        </View>
+      ) : null}
+      {job.can_block && job.block_name && !job.blocked && !blocking ? (
+        <Press onPress={() => setBlocking(true)} accessibilityRole="button" style={s.link}>
+          <Text style={s.linkText}>Never send me {job.block_name} again</Text>
+        </Press>
+      ) : null}
+      {job.can_block && job.block_name && !job.blocked && blocking ? (
+        <View style={{ gap: 8 }}>
+          <Text style={s.line}>
+            Block {job.block_name}? He will never see your jobs again. He is not told, and you can undo this here.
+          </Text>
+          <Field
+            label="Tell Pechkas why (optional — only the office sees it)"
+            value={blockWhy}
+            onChangeText={setBlockWhy}
+            maxLength={300}
+            multiline
+          />
+          <Button kind="danger" label={`Yes, block ${job.block_name}`} onPress={block} busy={busy} />
+          <Button kind="outline" label="No" onPress={() => setBlocking(false)} />
+        </View>
+      ) : null}
       {canCancel && !confirming ? <Button kind="outline" label="Cancel this job" onPress={() => setConfirming(true)} /> : null}
       {assigned && !canCancel ? (
         <View style={{ gap: 6 }}>
@@ -398,4 +450,6 @@ const s = StyleSheet.create({
   offerTag: { fontFamily: font.bodySemi, fontSize: 11 },
   chosen: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.greenSoft },
   held: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.greenSoft },
+  link: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
+  linkText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, textDecorationLine: 'underline' },
 });

@@ -5,7 +5,7 @@ import { showMobile } from '@pechkas/shared';
 import { Body, Button, Notice, Screen, Title } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { useNotify } from '../src/notifications';
-import { PRIVACY_URL } from '../src/office';
+import { AGREEMENT_URL, PRIVACY_URL, TERMS_URL } from '../src/office';
 import { ask, supabase } from '../src/supabase';
 import { useProWords } from '../src/words';
 import { colour, font, radius } from '../src/theme';
@@ -35,6 +35,7 @@ export default function Me() {
         <Body muted>{connected ? 'Sign in with your mobile number to post jobs and see your offers.' : 'The app is not connected to Pechkas yet.'}</Body>
         {connected ? <Button label="Sign in" onPress={() => router.push('/sign-in')} /> : null}
         <Button kind="outline" label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
+        <Button kind="outline" label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} />
       </Screen>
     );
   }
@@ -91,6 +92,11 @@ export default function Me() {
 
       <Button kind="outline" dark={dark} label="Sign out" onPress={async () => { await signOut(); router.replace('/'); }} />
       <Button kind="outline" dark={dark} label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
+      {account?.role === 'pro' ? (
+        <Button kind="outline" dark={dark} label="Technician agreement" onPress={() => Linking.openURL(AGREEMENT_URL)} />
+      ) : (
+        <Button kind="outline" dark={dark} label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} />
+      )}
 
       <View style={{ gap: 10, marginTop: 12 }}>
         {!confirming ? (
