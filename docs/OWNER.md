@@ -745,6 +745,15 @@ Open **Me** and scroll to **This copy of the app**. It says two things:
    changes and which file to run from. Run those files in **Supabase → SQL
    Editor**, oldest first (the table under **"Run a database change"**).
 
+**Two checks you can paste into Supabase → SQL Editor** (both only read,
+nothing changes):
+
+- `supabase/checks/1_which_migrations_ran.sql` — every database change, with
+  **ran on …** or **NOT RUN — run this file**.
+- `supabase/checks/2_is_everything_set_up.sql` — your owner login, the photo
+  store, notifications, the timed jobs, open sectors, technicians and alert
+  numbers. Each line says **OK** or what is missing and where to fix it.
+
 Two more things that look like "missing" but are not:
 
 - **Demand, Flags, Settings, Money, Problems** are in the **admin panel**

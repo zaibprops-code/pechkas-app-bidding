@@ -428,6 +428,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   commit. The Me screen compares it with `db_version()` and tells the owner
   in plain words when the database is behind the app — he runs migrations
   by hand, and a skipped one makes whole features quietly do nothing.
+- `supabase/checks/1_which_migrations_ran.sql` lists every migration by name
+  for the owner to paste into the SQL editor; `version:check` fails if a
+  migration is missing from it, so add the line in the same commit.
 - `app.config.js` stamps every EAS build with `EAS_BUILD_GIT_COMMIT_HASH`;
   Me shows it. "Something is missing" starts there, not with guessing.
 
