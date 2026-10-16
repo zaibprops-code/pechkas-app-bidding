@@ -138,4 +138,15 @@ heading('One rule for a mobile number, in the app and in the database');
   }
 }
 
+// =============================================================================
+heading('The app can tell when the database is behind');
+
+{
+  const { readdir } = await import('node:fs/promises');
+  const newest = (await readdir('supabase/migrations')).filter((f) => f.endsWith('.sql')).sort().at(-1).replace(/\.sql$/, '');
+  const v = (await call('anon', null, `SELECT public.db_version()`)).value;
+  ok('anybody can ask which migration ran last, and it is the newest file', v?.newest === newest && v?.count >= 12, JSON.stringify(v));
+  ok('it says nothing but migration names', JSON.stringify(Object.keys(v ?? {}).sort()) === JSON.stringify(['count', 'newest']));
+}
+
 report();

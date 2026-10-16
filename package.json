@@ -11,9 +11,10 @@
     "test:shared": "node --test packages/shared/test/*.test.ts",
     "db:test": "node supabase/tests/foundations.test.mjs && node supabase/tests/accounts.test.mjs && node supabase/tests/jobs.test.mjs && node supabase/tests/bidding.test.mjs && node supabase/tests/notifications.test.mjs && node supabase/tests/doing.test.mjs && node supabase/tests/money.test.mjs && node supabase/tests/after.test.mjs && node supabase/tests/settings.test.mjs && node supabase/tests/email.test.mjs",
     "typecheck": "npm run typecheck --workspace apps/mobile && npm run typecheck --workspace apps/admin",
-    "check": "npm run typecheck && npm test && npm run words:check",
+    "check": "npm run typecheck && npm test && npm run words:check && npm run version:check",
     "words": "node scripts/words.mjs",
-    "words:check": "node scripts/words.mjs --check"
+    "words:check": "node scripts/words.mjs --check",
+    "version:check": "node scripts/version-check.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.10",

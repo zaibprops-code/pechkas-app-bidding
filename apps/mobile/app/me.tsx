@@ -3,6 +3,7 @@ import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { showMobile } from '@pechkas/shared';
 import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
+import { ThisCopy } from '../src/components/ThisCopy';
 import { useAccount } from '../src/account';
 import { useNotify } from '../src/notifications';
 import { AGREEMENT_URL, PRIVACY_URL, TERMS_URL } from '../src/office';
@@ -39,6 +40,7 @@ export default function Me() {
         {connected ? <Button label="Sign in" onPress={() => router.push('/sign-in')} /> : null}
         <Button kind="outline" label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
         <Button kind="outline" label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} />
+        <ThisCopy />
       </Screen>
     );
   }
@@ -134,6 +136,7 @@ export default function Me() {
       ) : (
         <Button kind="outline" dark={dark} label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} />
       )}
+      <ThisCopy dark={dark} />
 
       <View style={{ gap: 10, marginTop: 12 }}>
         {!confirming ? (

@@ -421,6 +421,16 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   guarantee is 15 days (`SITE.guaranteeDays`), the app's is 30. Do not
   quietly change either.
 
+### Which copy is which
+- **`NEWEST_MIGRATION` in `apps/mobile/src/version.ts` names the newest
+  migration file**, and `npm run version:check` (part of `npm run check`)
+  fails if it does not. Add a migration, change that line in the same
+  commit. The Me screen compares it with `db_version()` and tells the owner
+  in plain words when the database is behind the app — he runs migrations
+  by hand, and a skipped one makes whole features quietly do nothing.
+- `app.config.js` stamps every EAS build with `EAS_BUILD_GIT_COMMIT_HASH`;
+  Me shows it. "Something is missing" starts there, not with guessing.
+
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only
   `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be in the

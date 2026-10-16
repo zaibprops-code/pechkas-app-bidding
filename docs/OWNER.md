@@ -731,6 +731,31 @@ panel redeploys by itself on Vercel.
 
 ---
 
+## Something is missing on my phone?
+
+Open **Me** and scroll to **This copy of the app**. It says two things:
+
+1. **Version 1.0.0 · code b305ba8 · built 16 Oct 2026** — the code inside
+   the app on your phone. Compare the code with the newest commit on GitHub
+   (**zaibprops-code/pechkas-app-bidding → Commits**, the first line). If it
+   is older, build again from `main` and install the new APK over the old
+   one. On the Expo build page, the **Commit** line shows which code it
+   built.
+2. **Database: up to date**, or a red box saying the database is missing
+   changes and which file to run from. Run those files in **Supabase → SQL
+   Editor**, oldest first (the table under **"Run a database change"**).
+
+Two more things that look like "missing" but are not:
+
+- **Demand, Flags, Settings, Money, Problems** are in the **admin panel**
+  (your Vercel address, in a browser), not in the phone app.
+- Some buttons appear only at the right moment: **Ask … again** and
+  **Never send me … again** only on a finished job; **Report a problem**
+  and **Emergency** only while a job is on; the technician screens only
+  for an approved technician who is **Online**.
+
+---
+
 ## Setting up email sign-in (once)
 
 1. **Supabase → SQL Editor:** run `20261025000000_email_sign_in.sql`. It
@@ -1025,6 +1050,7 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | `20261023000000_after_launch.sql` | Asking a technician again, the 7% repeat fee, the demand report, fraud flags | Ninth — **run it for phase 7** |
 | `20261024000000_settings_and_blocks.sql` | The settings screen with its safe ranges and record of changes, opening and closing sectors, customers blocking a technician | Tenth — **run it for phase 8** |
 | `20261025000000_email_sign_in.sql` | Signing in with an email code: the mobile number an email account types, marked not checked | Eleventh — **run it for email sign-in** |
+| `20261026000000_what_has_run.sql` | Lets the app's Me screen say whether the database is up to date | Twelfth |
 
 ---
 
