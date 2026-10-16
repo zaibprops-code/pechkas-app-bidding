@@ -15,7 +15,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
  * Without them the app still opens and says it is not connected, rather
  * than crashing.
  */
-const url = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
+export const url = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 export const supabase: SupabaseClient | null =

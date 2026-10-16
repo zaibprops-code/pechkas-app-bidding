@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Linking } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { pakistaniMobile } from '@pechkas/shared';
+import { authErrorDetails, explainAuthError, pakistaniMobile } from '@pechkas/shared';
 import { Mark } from '../src/components/Mark';
 import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
 import { PRIVACY_URL, TERMS_URL } from '../src/office';
-import { supabase } from '../src/supabase';
+import { supabase, url } from '../src/supabase';
 
 /**
  * Sign in with a mobile number. A code is sent to it; nothing else is asked
@@ -34,7 +34,8 @@ export default function SignIn() {
     const { error: e } = await supabase.auth.signInWithOtp({ phone });
     setBusy(false);
     if (e) {
-      setNotice(/rate|too many/i.test(e.message) ? 'Too many codes asked for. Wait a few minutes and try again.' : 'The code could not be sent. Check your signal and try again.');
+      // Supabase's own words go under the sentence, so a screenshot shows what is wrong.
+      setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);
       return;
     }
     router.push({ pathname: '/verify', params: { phone, next: next ?? '' } });

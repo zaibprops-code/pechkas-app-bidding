@@ -73,3 +73,37 @@ export function showMobile(e164: string): string {
   const local = e164.replace(/^\+?92/, '0');
   return /^03\d{9}$/.test(local) ? `${local.slice(0, 4)} ${local.slice(4)}` : e164;
 }
+
+/**
+ * Why a sign-in code could not be sent, in plain words, from what Supabase
+ * said. The app used to say "check your signal" for every failure, which
+ * sent the owner looking at his phone's signal when Supabase had refused
+ * the number. The sentence is for whoever is holding the phone; Supabase's
+ * own words go underneath (see `authErrorDetails`), so a screenshot is
+ * enough to tell what is wrong.
+ */
+export function explainAuthError(message: string | null | undefined, status?: number | null): string {
+  const m = message ?? '';
+  if (status === 0 || /network request failed|failed to fetch|fetch failed|network|timeout|timed out/i.test(m)) {
+    return 'Pechkas could not be reached. Check your internet connection, then try again.';
+  }
+  if (/rate|too many/i.test(m) || status === 429) return 'Too many codes asked for. Wait a few minutes and try again.';
+  if (/sign ?ups? (are |is )?(not allowed|disabled)/i.test(m)) return 'New accounts cannot be made right now. Please try again later.';
+  if (/unsupported phone provider|phone (provider|logins?|signups?) (is |are )?disabled/i.test(m)) {
+    return 'Signing in with a mobile number is switched off right now. Please try again later.';
+  }
+  if (/invalid.*phone|phone.*invalid/i.test(m)) return 'That number was not accepted. Check it and try again.';
+  if (/sms|twilio|messagebird|vonage|textlocal|send/i.test(m)) return 'A code could not be sent to this number right now.';
+  return 'The code could not be sent. Please try again.';
+}
+
+/** "Supabase said: … (400) · abcd.supabase.co", for the small print under that sentence. */
+export function authErrorDetails(message: string | null | undefined, status: number | null | undefined, url: string): string {
+  let host = '';
+  try {
+    host = new URL(url).host;
+  } catch {
+    host = url ? 'an address that is not a web address' : 'no address';
+  }
+  return `Details: ${message || 'no message'}${status ? ` (${status})` : ''} · ${host}`;
+}

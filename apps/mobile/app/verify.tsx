@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { showMobile } from '@pechkas/shared';
+import { authErrorDetails, explainAuthError, showMobile } from '@pechkas/shared';
 import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
 import { useAccount, type Account } from '../src/account';
 import { routeFor } from '../src/route';
-import { supabase } from '../src/supabase';
+import { supabase, url } from '../src/supabase';
 
 const WAIT = 30;
 
@@ -36,7 +36,10 @@ export default function Verify() {
     const { error: e } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
     if (e) {
       setBusy(false);
-      setError(/expired/i.test(e.message) ? 'That code has expired. Ask for a new one.' : 'That code is not right. Check it and try again.');
+      if (/expired/i.test(e.message)) setError('That code has expired. Ask for a new one.');
+      else if (/invalid|token|otp/i.test(e.message)) setError('That code is not right. Check it and try again.');
+      // Anything else is not the code's fault: say what Supabase said.
+      else setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);
       return;
     }
     const { data } = await supabase.rpc('my_account');
@@ -49,7 +52,7 @@ export default function Verify() {
     if (!supabase || !phone || left > 0) return;
     setNotice(null);
     const { error: e } = await supabase.auth.signInWithOtp({ phone });
-    if (e) setNotice('The code could not be sent. Check your signal and try again.');
+    if (e) setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);
     else setLeft(WAIT);
   }
 
