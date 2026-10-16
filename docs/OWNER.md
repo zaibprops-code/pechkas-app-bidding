@@ -252,11 +252,10 @@ not a new app.
 | App identifier | `net.pechkas.app` — permanent |
 
 **Still open:**
-- **An email service before launch.** Supabase's own email sender is for
-  testing only: a few emails an hour, and it may deliver only to your own
-  Supabase team's addresses. Before real customers sign in by email, connect
-  an email service (Resend, Brevo or similar) under **Authentication →
-  Emails → SMTP Settings** — tell Claude when you want the steps.
+- **Email codes through Resend.** Until it is connected, Supabase's own
+  test sender delivers only a few emails an hour, and only to your own
+  Supabase team's addresses — real customers would never get their code.
+  Steps: **"Sending email codes through Resend (once)"** below.
 - **The guarantee: 15 days or 30?** The website (its /guarantee and /terms
   pages) promises **15 days**. The app, both store listings and the new app
   terms promise **30 days**. Customers will see both. Tell Claude which is
@@ -777,15 +776,18 @@ Two more things that look like "missing" but are not:
    ```
    <h2>Your Pechkas code</h2>
    <p>Type this code in the Pechkas app: <strong>{{ .Token }}</strong></p>
-   <p>If you did not ask for it, you can ignore this email.</p>
+   <p>It works for one hour. If you did not ask for it, you can ignore this email.</p>
+   <p>Nobody reads replies to this address. To reach Pechkas, message us on WhatsApp: 0335 8855076.</p>
    ```
+
+   Subject: `Your Pechkas code`.
 
    Do the same for **Confirm signup** (a brand-new email gets that one).
    `{{ .Token }}` is where Supabase puts the code; without it the email
    holds only a link the app cannot use.
 4. **Expo:** a new **preview** build from `main`.
 5. On your phone: **Me → Sign in → Use my email instead**, type **your own
-   email address** (Supabase's test sender may only deliver to it), and
+   email address** (until Resend is connected, Supabase's test sender only delivers to it), and
    **Send me a code**. Type the code from the email, then your first name,
    **I need something fixed**, and your mobile number.
 6. **Me** shows your number with **(not checked)** and your email. In the
@@ -793,6 +795,70 @@ Two more things that look like "missing" but are not:
 
 If it fails, the red box says why and gives Supabase's own words: send a
 screenshot to Claude.
+
+---
+
+## Sending email codes through Resend (once)
+
+The app does not change for this: it asks Supabase for a code, and Supabase
+hands the email to Resend instead of its own test sender. No new build, no
+migration. Do it in this order — Resend will not send from pechkas.net until
+it has seen the DNS records.
+
+### A. Resend: prove pechkas.net is yours
+
+1. **resend.com → Domains → Add Domain.** Type `pechkas.net`. Region: leave
+   the one it offers. **Add**.
+2. Resend shows **three or four DNS records** (an `MX` and a `TXT` on
+   `send`, a `TXT` on `resend._domainkey`, sometimes a `TXT` on `_dmarc`).
+   Keep that page open.
+3. Add each one where you added the Google Search Console record — the
+   website's README, section 21 (**Vercel → your website project →
+   Settings → Domains → pechkas.net → DNS records**, or wherever you bought
+   the domain if its DNS is there). Copy **Name**, **Type**, **Value** and,
+   for the MX, **Priority** exactly as Resend shows them. They sit on
+   `send.` and `resend._domainkey.`, so they do not touch the website, the
+   `www` record or the Search Console record.
+4. Back in Resend, **Verify DNS Records**. It can take a few minutes to a
+   few hours; press it again until all of them say **Verified**.
+
+### B. Resend: a key for Supabase
+
+1. **Resend → API Keys → Create API Key.** Name `Supabase sign-in codes`,
+   permission **Sending access**, domain **pechkas.net**. **Add**.
+2. Resend shows the key **once**. Do not close the page and do not paste it
+   anywhere except step C4.
+
+### C. Supabase: send through Resend
+
+1. **Supabase → Authentication → Emails → SMTP Settings** (on some screens:
+   **Project Settings → Authentication → SMTP Settings**). Switch on
+   **Enable Custom SMTP**.
+2. **Sender email:** `codes@pechkas.net`. **Sender name:** `Pechkas`.
+   (This is only a sender — there is no inbox behind it, which is why the
+   email says to use WhatsApp. The website still shows no email address.)
+3. **Host:** `smtp.resend.com`. **Port:** `465`.
+4. **Username:** `resend`. **Password:** the key from B2. **Save**.
+5. **Authentication → Rate Limits → Rate limit for sending emails**:
+   Supabase sets this low once your own sender is connected. Set it to
+   **60** an hour for now. Resend's free plan sends 100 a day and 3,000 a
+   month; if sign-ups ever come near that, it is time for Resend's paid plan.
+6. Check the two templates from **"Setting up email sign-in"**, step 3, are
+   saved with `{{ .Token }}` in them.
+
+### D. Try it
+
+1. On your phone: **Me → Sign out**, then **Sign in → Use my email
+   instead**, and type an email address that is **not** on your Supabase
+   team — a family member's, or a second Gmail. **Send me a code**.
+2. The email comes from **Pechkas &lt;codes@pechkas.net&gt;** within a
+   minute. Check the spam folder the first time; if it is there, mark it
+   **Not spam**.
+3. **Resend → Emails** lists every email sent, and says **Delivered** or why
+   not. If the app shows a red box instead, it gives Supabase's own words:
+   send a screenshot to Claude. The usual ones: *"Error sending magic link
+   email"* — the SMTP password or domain is wrong (C4, A4); *"email rate
+   limit exceeded"* — C5.
 
 ---
 

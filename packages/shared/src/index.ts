@@ -93,6 +93,10 @@ export function explainAuthError(message: string | null | undefined, status?: nu
     return 'Signing in with a mobile number is switched off right now. Please try again later.';
   }
   if (/invalid.*phone|phone.*invalid/i.test(m)) return 'That number was not accepted. Check it and try again.';
+  if (/email (provider|logins?|signups?) (is |are )?disabled/i.test(m)) return 'Signing in with an email is switched off right now. Please try again later.';
+  if (/invalid.*email|email.*invalid/i.test(m)) return 'That email address was not accepted. Check it and try again.';
+  // Supabase's words when its email sender (Resend, through SMTP) refuses or is not set up.
+  if (/email|smtp|magic link/i.test(m)) return 'A code could not be emailed right now. Please try again later.';
   if (/sms|twilio|messagebird|vonage|textlocal|send/i.test(m)) return 'A code could not be sent to this number right now.';
   return 'The code could not be sent. Please try again.';
 }

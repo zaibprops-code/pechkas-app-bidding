@@ -8,6 +8,7 @@ test('a refusal from Supabase is never blamed on the signal', () => {
     ['Signups not allowed for otp', 422],
     ['Unsupported phone provider', 400],
     ['Invalid phone number format (E.164 required)', 400],
+    ['Error sending magic link email', 500],
     ['Something nobody expected', 500],
   ] as const) {
     assert.doesNotMatch(explainAuthError(message, status), /signal|internet/i, message);
@@ -19,6 +20,11 @@ test('each refusal gets its own sentence', () => {
   assert.match(explainAuthError('Signups not allowed for otp', 422), /New accounts/);
   assert.match(explainAuthError('Unsupported phone provider', 400), /switched off/);
   assert.match(explainAuthError('Invalid phone number format', 400), /not accepted/);
+  assert.match(explainAuthError('Error sending magic link email', 500), /could not be emailed/);
+  assert.match(explainAuthError('Error sending confirmation email', 500), /could not be emailed/);
+  assert.match(explainAuthError('Email address "x@y" is invalid', 400), /email address was not accepted/);
+  assert.match(explainAuthError('Email logins are disabled', 422), /email is switched off/);
+  assert.match(explainAuthError('Email rate limit exceeded', 429), /Too many/);
   assert.match(explainAuthError('For security purposes, you can only request this after 52 seconds. Too many', 429), /Too many/);
 });
 
