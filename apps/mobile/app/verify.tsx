@@ -4,7 +4,7 @@ import { authErrorDetails, explainAuthError, showMobile } from '@pechkas/shared'
 import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
 import { useAccount, type Account } from '../src/account';
 import { routeFor } from '../src/route';
-import { supabase, url } from '../src/supabase';
+import { sendEmailCode, supabase, url } from '../src/supabase';
 
 const WAIT = 30;
 
@@ -55,7 +55,7 @@ export default function Verify() {
   async function resend() {
     if (!supabase || (!phone && !email) || left > 0) return;
     setNotice(null);
-    const { error: e } = email ? await supabase.auth.signInWithOtp({ email }) : await supabase.auth.signInWithOtp({ phone: phone! });
+    const { error: e } = email ? await sendEmailCode(email) : await supabase.auth.signInWithOtp({ phone: phone! });
     if (e) setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);
     else setLeft(WAIT);
   }
@@ -64,7 +64,7 @@ export default function Verify() {
     <Screen footer={<Button label="Continue" onPress={check} busy={busy} />}>
       <Title>Enter the code</Title>
       <Body muted>
-        {email ? `We emailed a code to ${email}. If it is not in your inbox, look in spam.` : `We sent a 6-number code to ${phone ? showMobile(phone) : 'your phone'}.`}
+        {email ? `We emailed a code to ${email}. Type it here — or, on this phone, tap the link in the email. If it is not in your inbox, look in spam.` : `We sent a 6-number code to ${phone ? showMobile(phone) : 'your phone'}.`}
       </Body>
       <Field
         label="Code"

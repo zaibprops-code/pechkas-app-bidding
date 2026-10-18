@@ -101,6 +101,49 @@ export function explainAuthError(message: string | null | undefined, status?: nu
   return 'The code could not be sent. Please try again.';
 }
 
+/**
+ * What a sign-in link from an email brought back to the app.
+ *
+ * Supabase's email holds a link as well as the code. Tapped on the phone, it
+ * goes to Supabase and comes back as pechkas://auth-callback?code=… — a
+ * one-time code that only THIS phone can trade for a session, because the
+ * other half of it (the PKCE verifier) never left the phone. A link carrying
+ * a finished session (#access_token=…) is never accepted: any website can
+ * open a pechkas:// address, and that would sign somebody into an account a
+ * stranger chose — whose job list the stranger can read.
+ */
+export type SignInLink = { kind: 'code'; code: string } | { kind: 'error'; why: string } | { kind: 'none' };
+
+export function readSignInLink(link: string | null | undefined): SignInLink {
+  if (!link) return { kind: 'none' };
+  const [beforeHash, hash = ''] = link.split('#', 2);
+  const query = beforeHash.includes('?') ? beforeHash.slice(beforeHash.indexOf('?') + 1) : '';
+  const q = new URLSearchParams(query);
+  const h = new URLSearchParams(hash);
+  const get = (k: string) => q.get(k) ?? h.get(k);
+  const error = get('error_code') ?? get('error');
+  if (error) {
+    const said = get('error_description') ?? error;
+    if (/expired|invalid/i.test(`${error} ${said}`)) {
+      return { kind: 'error', why: 'This link has expired or was already used. Ask for a new code.' };
+    }
+    return { kind: 'error', why: `The link did not work: ${said}` };
+  }
+  const code = q.get('code');
+  if (code && /^[A-Za-z0-9-]{8,}$/.test(code)) return { kind: 'code', code };
+  return { kind: 'none' };
+}
+
+/** Why trading a link's code for a session failed, in plain words. */
+export function explainLinkError(message: string | null | undefined): string {
+  const m = message ?? '';
+  if (/network|fetch|timeout/i.test(m)) return 'Pechkas could not be reached. Check your internet connection, then tap the link again.';
+  if (/flow state|verifier|expired|invalid|not found/i.test(m)) {
+    return 'This link is from an older email, or was opened on a different phone. Use the newest email, on the phone you asked from — or type its code.';
+  }
+  return 'The link did not work. Type the code from the email instead, or ask for a new one.';
+}
+
 /** "Supabase said: … (400) · abcd.supabase.co", for the small print under that sentence. */
 export function authErrorDetails(message: string | null | undefined, status: number | null | undefined, url: string): string {
   let host = '';

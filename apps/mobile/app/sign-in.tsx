@@ -6,7 +6,7 @@ import { Mark } from '../src/components/Mark';
 import { Press } from '../src/components/Press';
 import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
 import { PRIVACY_URL, TERMS_URL } from '../src/office';
-import { supabase, url } from '../src/supabase';
+import { sendEmailCode, supabase, url } from '../src/supabase';
 import { colour, font } from '../src/theme';
 
 /**
@@ -46,7 +46,7 @@ export default function SignIn() {
         return;
       }
       setBusy(true);
-      const { error: e } = await supabase.auth.signInWithOtp({ email: address, options: { shouldCreateUser: true } });
+      const { error: e } = await sendEmailCode(address);
       setBusy(false);
       if (e) {
         setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);

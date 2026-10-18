@@ -1,6 +1,7 @@
 import 'react-native-url-polyfill/auto';
 import { AppState, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Linking from 'expo-linking';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 /**
@@ -26,6 +27,10 @@ export const supabase: SupabaseClient | null =
           autoRefreshToken: true,
           persistSession: true,
           detectSessionInUrl: false,
+          // The email's link comes back with a one-time code that only this
+          // phone can trade, never with a finished session: see
+          // readSignInLink() in packages/shared.
+          flowType: 'pkce',
         },
       })
     : null;
@@ -37,6 +42,19 @@ if (supabase && Platform.OS !== 'web') {
     if (state === 'active') supabase.auth.startAutoRefresh();
     else supabase.auth.stopAutoRefresh();
   });
+}
+
+/**
+ * Where the link in a sign-in email sends the phone: pechkas://auth-callback
+ * in a real build. Supabase only sends it there if this address is on its
+ * Redirect URLs list (docs/OWNER.md); otherwise the link opens its Site URL.
+ */
+export const LINK_BACK = Linking.createURL('auth-callback');
+
+/** Emails a code — and a link that opens this app — to somebody signing in by email. */
+export function sendEmailCode(email: string) {
+  if (!supabase) return Promise.resolve({ error: { message: 'The app is not connected to Pechkas yet.', status: 0 } });
+  return supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: LINK_BACK } });
 }
 
 /** What a database function gives back when it refuses: which box, and why. */

@@ -97,6 +97,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   own alerts match only a number checked by SMS** (`alert_needs_you`,
   `tell_office`, `admin_alerts`): a typed number proves nothing, and
   nobody may type the owner's number to receive his alerts.
+- **The email holds a code and a link; both work, on the asking phone
+  only.** The client uses `flowType: 'pkce'`, `sendEmailCode()` sets
+  `emailRedirectTo` to `pechkas://auth-callback`, and that screen trades the
+  link's `?code=` with `exchangeCodeForSession()`. `readSignInLink()` never
+  accepts a link carrying `#access_token`: any website can open a
+  `pechkas://` address, and taking its tokens would sign the phone into a
+  stranger's account, where her address would be posted for him to read.
+  Supabase must have `pechkas://auth-callback` under Redirect URLs, or the
+  link opens the Site URL instead.
 - Every sign-in failure shows `explainAuthError()` plus Supabase's own
   words and the project's host. Never go back to "check your signal" for
   everything: it hid a Supabase refusal for a whole afternoon.

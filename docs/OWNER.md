@@ -770,27 +770,44 @@ Two more things that look like "missing" but are not:
    should say **Success**.
 2. **Authentication → Sign In / Providers → Email:** make sure it is **on**.
    If there is a box **Email OTP Length**, leave it at **6**.
-3. **Authentication → Emails → Templates** (or **Email Templates**). Open
-   **Magic Link**, replace the message with this, and **Save**:
+3. **Authentication → Emails → Templates** (or **Email Templates**). This is
+   the step that makes the email show a **code**. Supabase's own message
+   holds only a link, and that link opens a web page that does not exist —
+   which is what you saw. Open **Magic Link**, set the **Subject** to
+   `Your Pechkas code`, delete everything in the message box, paste this,
+   and **Save**:
 
    ```
    <h2>Your Pechkas code</h2>
-   <p>Type this code in the Pechkas app: <strong>{{ .Token }}</strong></p>
+   <p>Type this code in the Pechkas app:</p>
+   <p style="font-size:28px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
+   <p>Or, on the phone where you asked for it, tap: <a href="{{ .ConfirmationURL }}">Sign in to Pechkas</a></p>
    <p>It works for one hour. If you did not ask for it, you can ignore this email.</p>
    <p>Nobody reads replies to this address. To reach Pechkas, message us on WhatsApp: 0335 8855076.</p>
    ```
 
-   Subject: `Your Pechkas code`.
-
-   Do the same for **Confirm signup** (a brand-new email gets that one).
-   `{{ .Token }}` is where Supabase puts the code; without it the email
-   holds only a link the app cannot use.
-4. **Expo:** a new **preview** build from `main`.
-5. On your phone: **Me → Sign in → Use my email instead**, type **your own
+   Then open **Confirm signup** (a brand-new email address gets that one
+   instead) and do exactly the same. `{{ .Token }}` is where Supabase puts
+   the code, `{{ .ConfirmationURL }}` the link. Type them exactly, with the
+   two curly brackets each side.
+4. **Authentication → URL Configuration.** This is what makes the link
+   open the app:
+   - **Site URL:** `https://pechkas.net` — **Save**. (It was
+     `http://localhost:3000`, a page on a programmer's own computer: that is
+     the page that "did not work".)
+   - **Redirect URLs → Add URL:** `pechkas://auth-callback` — **Save**.
+5. **Expo:** a new **preview** build from `main`. The code in step 3 works
+   with the app you already have; the link needs this new build.
+6. On your phone: **Me → Sign in → Use my email instead**, type **your own
    email address** (until Resend is connected, Supabase's test sender only delivers to it), and
    **Send me a code**. Type the code from the email, then your first name,
    **I need something fixed**, and your mobile number.
-6. **Me** shows your number with **(not checked)** and your email. In the
+7. Sign out and try the link instead: ask for a new code, open the email
+   **on the same phone**, and tap **Sign in to Pechkas**. Android may ask
+   which app to open it with — choose **Pechkas**. The app opens and signs
+   you in. Only the **newest** email's link works, and only on the phone
+   that asked for it; anywhere else it says so, and the code still works.
+8. **Me** shows your number with **(not checked)** and your email. In the
    admin panel, your number shows **(not checked)** on anything you post.
 
 If it fails, the red box says why and gives Supabase's own words: send a
