@@ -474,9 +474,18 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   guard at the gate, family told who is coming. The words are formal
   English throughout.
 - Customer side light, technician side dark.
+- **Laid out the way inDrive is — the owner's reference.** No tab bar: the
+  ☰ `MenuButton` (`src/components/Menu.tsx`) opens a side menu with the
+  profile on top and line-icon rows; every item goes to a real screen
+  (`/safety` and `/help` exist for that). Customer screens are a light grey
+  `colour.canvas` with white rounded cards, bold black headings, yellow as
+  the one highlight. Home is one big trade tile and two beside it, the
+  question "What needs fixing & for how much?", the last two jobs, then
+  more trades side by side. The tile drawings are `src/components/Art.tsx`
+  — objects, never people, over a yellow sweep.
 - **Every screen is built from the same few pieces in `src/components/ui.tsx`**
-  so they look like one app: `Screen` with a `hero` (the green panel at the
-  top, the same family as the welcome screen), `useArrive()` for the gentle
+  so they look like one app: `Screen` with a `hero` (a round back or menu
+  button, then a big bold title on the screen's own background), `useArrive()` for the gentle
   slide-in, `Button` with an optional icon (an arrow always after the
   words), `Field` (green outline while typing, snapped), `ListGroup` and
   `ListRow` for settings-style lists, `Avatar` for a first letter in a

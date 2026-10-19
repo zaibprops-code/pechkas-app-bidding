@@ -7,6 +7,17 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The inDrive look (new).** As you asked, the app is now laid out the way
+inDrive is: no bar of tabs along the bottom, a **☰ button** at the top left
+that opens a side menu (your name and number, then Home, My jobs, Safety,
+Help, Settings and Work with Pechkas), light grey screens with white
+rounded cards, bold black headings and drawn pictures on the trade tiles.
+Home asks **"What needs fixing & for how much?"** with your last two jobs
+under it. Two new screens: **Safety** (the emergency numbers and what
+Pechkas checks) and **Help** (WhatsApp or call the office). The technician
+side keeps its dark look and gets the same ☰ menu. No migration — a new
+**preview** build from `main`, then open the ☰ menu and try each item.
+
 **Sign in first, like every big app (new).** The first screen after
 installing — and after signing out — is a green welcome screen: what
 Pechkas is, then **Continue with mobile number** or **Continue with email**.

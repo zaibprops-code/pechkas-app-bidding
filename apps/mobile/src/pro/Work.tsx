@@ -4,9 +4,10 @@ import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { rupees, showMobile, technicianKeeps } from '@pechkas/shared';
+import { MenuButton } from '../components/Menu';
 import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
-import { Avatar, Button, Notice, NotifyCard } from '../components/ui';
+import { Button, Notice, NotifyCard } from '../components/ui';
 import { RemoteMedia, type StoredMedia } from '../post/RemoteMedia';
 import { Chosen, Finished, type ActiveJob, type FinishedJob } from './OnTheJob';
 import { useAccount } from '../account';
@@ -121,6 +122,7 @@ export function Work({ firstName }: { firstName: string }) {
         refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.yellow} />}
       >
         <View style={s.top}>
+          <MenuButton dark />
           <View style={s.brand}>
             <Mark size={30} />
             <View>
@@ -128,9 +130,6 @@ export function Work({ firstName }: { firstName: string }) {
               <Text style={s.who}>{firstName}</Text>
             </View>
           </View>
-          <Press onPress={() => router.push('/me')} accessibilityRole="button" accessibilityLabel={w.account} sink={0.92} style={s.avatar}>
-            <Avatar name={firstName} size={40} dark />
-          </Press>
         </View>
 
         <Press
@@ -389,8 +388,7 @@ const s = StyleSheet.create({
   owedLabel: { fontFamily: font.bodySemi, fontSize: 14, color: '#b9c2c9' },
   owedText: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.white, marginTop: 2 },
   owedAmount: { fontFamily: font.display, fontSize: 20, color: colour.yellow },
-  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  avatar: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   brandText: { fontFamily: font.display, fontSize: 18, color: colour.paper },
   who: { fontFamily: font.body, fontSize: 12, color: '#b9c2c9' },

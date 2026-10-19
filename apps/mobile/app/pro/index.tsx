@@ -3,10 +3,11 @@ import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native
 import { Redirect, router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MenuButton } from '../../src/components/Menu';
 import { Mark } from '../../src/components/Mark';
 import { Icon } from '../../src/components/Icon';
 import { Press } from '../../src/components/Press';
-import { Avatar, Button, Loading } from '../../src/components/ui';
+import { Button, Loading } from '../../src/components/ui';
 import { useAccount } from '../../src/account';
 import { supabase } from '../../src/supabase';
 import { useProWords } from '../../src/words';
@@ -60,6 +61,7 @@ export default function ProHome() {
         refreshControl={<RefreshControl refreshing={false} onRefresh={refresh} tintColor={colour.yellow} />}
       >
         <View style={s.top}>
+          <MenuButton dark />
           <View style={s.brand}>
             <Mark size={30} />
             <View>
@@ -67,9 +69,6 @@ export default function ProHome() {
               <Text style={s.who}>{pro.full_name.split(' ')[0]}</Text>
             </View>
           </View>
-          <Press onPress={() => router.push('/me')} accessibilityRole="button" accessibilityLabel={w.account} sink={0.92} style={s.avatar}>
-            <Avatar name={pro.full_name.split(' ')[0]} size={40} dark />
-          </Press>
         </View>
 
         <View style={s.card}>
@@ -98,8 +97,7 @@ export default function ProHome() {
 }
 
 const s = StyleSheet.create({
-  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  avatar: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   brandText: { fontFamily: font.display, fontSize: 18, color: colour.paper },
   who: { fontFamily: font.body, fontSize: 12, color: '#b9c2c9' },

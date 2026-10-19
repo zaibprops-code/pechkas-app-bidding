@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { rupees } from '@pechkas/shared';
 import { Hero, Loading, Notice } from '../../src/components/ui';
+import { MenuButton } from '../../src/components/Menu';
 import { Stars } from '../../src/components/Stars';
 import { supabase } from '../../src/supabase';
 import { fill, useProWords } from '../../src/words';
@@ -64,7 +65,7 @@ export default function MoneyScreen() {
         contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 16) + 8 }}
         refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.yellow} />}
       >
-        <Hero title={w.moneyTitle} back={() => (router.canGoBack() ? router.back() : router.replace('/pro'))} />
+        <Hero dark title={w.moneyTitle} left={<MenuButton dark />} />
         <View style={{ paddingTop: 18, paddingHorizontal: 16, gap: 14 }}>
         <Notice dark text={problem} />
 

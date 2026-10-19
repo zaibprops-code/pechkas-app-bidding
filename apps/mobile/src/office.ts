@@ -7,6 +7,9 @@
 export const OFFICE_PHONE = '+923358855076';
 export const OFFICE_PHONE_SHOWN = '0335 8855076';
 
+/** The office on WhatsApp: the website's `contact.whatsapp`, the same number. Change both together. */
+export const OFFICE_WHATSAPP = 'https://wa.me/923358855076';
+
 /**
  * The app's privacy policy and how to delete an account, on the website
  * (zaibprops-code/Pechkas, src/pages/app/). The stores link to the same two

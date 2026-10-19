@@ -3,6 +3,7 @@ import { Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from 'rea
 import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { rupees, showMobile } from '@pechkas/shared';
+import { MenuButton } from '../src/components/Menu';
 import { Button, Field, Hero, Loading, Notice, NotifyCard } from '../src/components/ui';
 import { Icon } from '../src/components/Icon';
 import { Stars } from '../src/components/Stars';
@@ -109,13 +110,13 @@ export default function Jobs() {
   const summary = jobs === null ? undefined : going ? `${going} in progress` : jobs.length ? 'Nothing in progress' : undefined;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colour.paper }}>
-      <StatusBar style="light" />
+    <View style={{ flex: 1, backgroundColor: colour.canvas }}>
+      <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={{ paddingBottom: 32 }}
         refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
       >
-        <Hero title="My jobs" sub={summary} back={() => router.replace('/')} />
+        <Hero title="My jobs" sub={summary} left={<MenuButton />} />
         <View style={{ paddingTop: 18, paddingHorizontal: 20, gap: 14 }}>
 
         {/* "Offers will arrive" is only true while they still can. */}

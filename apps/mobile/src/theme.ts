@@ -19,6 +19,10 @@ export const colour = {
   steel: '#4c565e',
   paper: '#faf6ef',
   paper2: '#f2ece1',
+  /** The light grey the customer's screens sit on, with white cards on top, as inDrive does. */
+  canvas: '#f2f1ed',
+  /** A tile's own grey, a step darker than the canvas. */
+  tile: '#e9e7e1',
   brick: '#9e3b22',
   white: '#ffffff',
   rule: 'rgba(20,23,26,0.1)',

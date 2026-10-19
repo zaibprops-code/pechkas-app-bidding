@@ -34,7 +34,13 @@ export type IconName =
   | 'trash'
   | 'phone'
   | 'mail'
-  | 'tool';
+  | 'tool'
+  | 'menu'
+  | 'search'
+  | 'clock'
+  | 'settings'
+  | 'help'
+  | 'whatsapp';
 
 type Props = {
   name: IconName;
@@ -131,6 +137,32 @@ export function Icon({ name, size = 24, color = colour.green, strokeWidth = 1.8,
         </>
       )}
       {name === 'tool' && <Path {...s} d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 0-5-5l2.5 2.5-1.5 1.5z" />}
+      {name === 'menu' && <Path {...s} d="M4 7h16M4 12h16M4 17h16" />}
+      {name === 'search' && (
+        <>
+          <Circle {...s} cx={11} cy={11} r={6.5} />
+          <Path {...s} d="M16 16l4.5 4.5" />
+        </>
+      )}
+      {name === 'clock' && (
+        <>
+          <Circle {...s} cx={12} cy={12} r={8.5} />
+          <Path {...s} d="M12 7.5V12l3 2" />
+        </>
+      )}
+      {name === 'settings' && (
+        <>
+          <Circle {...s} cx={12} cy={12} r={3} />
+          <Path {...s} d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" />
+        </>
+      )}
+      {name === 'help' && (
+        <>
+          <Circle {...s} cx={12} cy={12} r={8.5} />
+          <Path {...s} d="M9.6 9.5a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2-2.4 3.5M12 17v.5" />
+        </>
+      )}
+      {name === 'whatsapp' && <Path {...s} d="M4 20l1.3-3.9A8 8 0 1 1 8 19zM9 9.5c.3 2.3 2.2 4.2 4.5 4.5l1-1.5 2 .8" />}
       {name === 'me' && (
         <>
           <Circle {...s} cx={12} cy={8} r={4} />

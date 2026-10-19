@@ -53,7 +53,10 @@ export function useArrive(delay = 0): Animated.Value {
   return v;
 }
 
-/** The green panel at the top of a screen, the same family as the welcome screen. */
+/**
+ * The top of a screen, as inDrive does it: a round button, then a big bold
+ * title on the screen's own background, with nothing boxed around it.
+ */
 export type HeroProps = {
   title: string;
   sub?: string;
@@ -61,20 +64,25 @@ export type HeroProps = {
   back?: boolean | (() => void);
   /** Something small on the right, such as an avatar. */
   right?: ReactNode;
-  /** Anything that belongs in the panel under the title. */
+  /** In place of the back button: the ☰ menu, on the screens the menu opens. */
+  left?: ReactNode;
+  /** Anything that belongs under the title. */
   children?: ReactNode;
+  /** The technician's side: light words on ink. */
+  dark?: boolean;
 };
 
-export function Hero({ title, sub, back, right, children }: HeroProps) {
+export function Hero({ title, sub, back, right, left, children, dark = false }: HeroProps) {
   const insets = useSafeAreaInsets();
   const goBack = typeof back === 'function' ? back : () => (router.canGoBack() ? router.back() : router.replace('/'));
   return (
     <View style={[s.hero, { paddingTop: insets.top + 12 }]}>
-      {back || right ? (
+      {back || right || left ? (
         <View style={s.heroTop}>
-          {back ? (
-            <Press onPress={goBack} accessibilityRole="button" accessibilityLabel="Back" sink={0.9} style={s.heroBack}>
-              <Icon name="arrowLeft" size={20} color={colour.paper} strokeWidth={2.2} />
+          {left ?? null}
+          {left ? null : back ? (
+            <Press onPress={goBack} accessibilityRole="button" accessibilityLabel="Back" sink={0.9} style={[s.heroBack, dark && s.heroBackDark]}>
+              <Icon name="arrowLeft" size={22} color={dark ? colour.paper : colour.ink} strokeWidth={2.2} />
             </Press>
           ) : (
             <View />
@@ -82,10 +90,10 @@ export function Hero({ title, sub, back, right, children }: HeroProps) {
           {right ?? null}
         </View>
       ) : null}
-      <Text accessibilityRole="header" style={s.heroTitle}>
+      <Text accessibilityRole="header" style={[s.heroTitle, dark && { color: colour.paper }]}>
         {title}
       </Text>
-      {sub ? <Text style={s.heroSub}>{sub}</Text> : null}
+      {sub ? <Text style={[s.heroSub, dark && { color: '#b9c2c9' }]}>{sub}</Text> : null}
       {children}
     </View>
   );
@@ -96,11 +104,11 @@ export function Screen({ children, dark = false, footer, hero }: { children: Rea
   const arrive = useArrive();
   const rise = arrive.interpolate({ inputRange: [0, 1], outputRange: [18, 0] });
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: dark ? colour.ink : colour.paper }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <StatusBar style={dark || hero ? 'light' : 'dark'} />
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: dark ? colour.ink : colour.canvas }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <StatusBar style={dark ? 'light' : 'dark'} />
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
-        {hero ? <Hero {...hero} /> : null}
-        <Animated.View style={{ paddingTop: hero ? 20 : insets.top + 16, paddingHorizontal: 20, gap: 16, transform: [{ translateY: rise }] }}>{children}</Animated.View>
+        {hero ? <Hero dark={dark} {...hero} /> : null}
+        <Animated.View style={{ paddingTop: hero ? 8 : insets.top + 16, paddingHorizontal: 20, gap: 16, transform: [{ translateY: rise }] }}>{children}</Animated.View>
       </ScrollView>
       {footer ? <View style={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: Math.max(insets.bottom, 16) }}>{footer}</View> : null}
     </KeyboardAvoidingView>
@@ -302,15 +310,16 @@ export function Loading({ dark = false }: Tone) {
 }
 
 const s = StyleSheet.create({
-  hero: { backgroundColor: colour.green, paddingHorizontal: 20, paddingBottom: 26, borderBottomLeftRadius: radius.sheet, borderBottomRightRadius: radius.sheet, gap: 6 },
-  heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
-  heroBack: { width: TAP, height: TAP, borderRadius: TAP / 2, backgroundColor: 'rgba(250,246,239,0.14)', alignItems: 'center', justifyContent: 'center' },
-  heroTitle: { fontFamily: font.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.7, color: colour.paper },
-  heroSub: { fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.paper },
+  hero: { paddingHorizontal: 20, paddingBottom: 14, gap: 4 },
+  heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
+  heroBack: { width: 48, height: 48, borderRadius: 24, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.14)' },
+  heroBackDark: { backgroundColor: '#22282d', boxShadow: 'none' },
+  heroTitle: { fontFamily: font.display, fontSize: 32, lineHeight: 36, letterSpacing: -0.8, color: colour.ink },
+  heroSub: { fontFamily: font.body, fontSize: 16, lineHeight: 22, color: colour.steel },
   lifted: { boxShadow: '0px 6px 14px rgba(20, 23, 26, 0.18)' },
   buttonRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
   groupTitle: { fontFamily: font.bodySemi, fontSize: 13, letterSpacing: 0.3, textTransform: 'uppercase', paddingHorizontal: 4 },
-  group: { borderRadius: radius.big, backgroundColor: colour.white, borderWidth: 1, borderColor: colour.rule, overflow: 'hidden' },
+  group: { borderRadius: 22, backgroundColor: colour.white, overflow: 'hidden' },
   groupDark: { backgroundColor: '#22282d', borderColor: '#22282d' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, paddingHorizontal: 14, paddingVertical: 10 },
   rowRule: { borderBottomWidth: 1, borderBottomColor: colour.rule },
