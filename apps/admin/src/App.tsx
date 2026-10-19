@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
 
+import { MARK_PATHS } from '@pechkas/shared/src/mark-paths.ts';
 import { ask, supabase } from './supabase.ts';
 import { loadUnchecked, shown } from './phones.ts';
 import { Alerts } from './Alerts.tsx';
@@ -19,9 +20,6 @@ import { Problems } from './Problems.tsx';
  * database again whether this login is on the staff list and switched on.
  * Hiding a button here is a courtesy; the database is the lock.
  */
-const DISC = 'M32,0 A32,32 0 1 0 32,64 A32,32 0 1 0 32,0 Z';
-const SLOT =
-  'M16.193,33.621 L41.307,19.121 A6.5,6.5 0 0 1 47.807,30.379 L22.693,44.879 A6.5,6.5 0 0 1 16.193,33.621 Z';
 
 type Check = { step: string; method: string; checked_on: string; checked_by: string; notes: string | null };
 type Application = {
@@ -54,8 +52,13 @@ function Logo() {
   return (
     <header className="brand">
       <svg width="36" height="36" viewBox="0 0 64 64" role="img" aria-label="Pechkas logo">
-        <path fill="#ffc53d" d={DISC} />
-        <path fill="#14171a" d={SLOT} />
+        {MARK_PATHS.machined.map((p, i) =>
+          'stroke' in p ? (
+            <path key={i} d={p.d} fill="none" stroke={p.stroke} strokeWidth={p.width} strokeLinecap="round" />
+          ) : (
+            <path key={i} d={p.d} fill={p.fill} />
+          ),
+        )}
       </svg>
       <span>pechkas admin</span>
     </header>

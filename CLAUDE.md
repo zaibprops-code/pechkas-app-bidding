@@ -515,9 +515,16 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   a colour. A control whose text colour changes between states eases no
   colour at all — halfway through, text and background are the same grey.
 - One line-icon set (`Icon.tsx`), no emoji. No stock photos of strangers.
-- The mark's paths in `Mark.tsx` and `scripts/make-icons.mjs` are the
-  website's and must stay identical. Never edit `apps/mobile/assets/` by
-  hand; run `node scripts/make-icons.mjs`.
+- **The logo is the website's machined screw head** (the owner's choice,
+  October 2026): bevel lit from the upper left, a slot with a floor and a
+  bronze wall, one glint. Its shapes live in ONE place, `src/lib/mark.js`
+  in `zaibprops-code/Pechkas`; `node scripts/copy-mark.mjs ../Pechkas`
+  copies them to `packages/shared/src/mark-paths.ts`, which `Mark.tsx`,
+  the admin panel and `scripts/make-icons.mjs` all read. Nobody types a
+  path. Below `machinedFromPx` (28) it is drawn flat — same outline, no
+  mush — and so are the themed, notification and favicon icons. Never edit
+  `apps/mobile/assets/` or `docs/store/graphics/` by hand; run
+  `node scripts/make-icons.mjs`, then `node scripts/make-store.mjs`.
 - No button may do nothing, and nothing says "coming soon": the stores reject
   both. The `/soon` screen was deleted before the first store build; a
   feature that is not built has no button.
