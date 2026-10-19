@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   AccessibilityInfo,
-  ActivityIndicator,
   Animated,
   KeyboardAvoidingView,
   Platform,
@@ -15,6 +14,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { ScrewSpinner } from './ScrewSpinner';
 import { Icon, type IconName } from './Icon';
 import { Press } from './Press';
 import { colour, font, radius, TAP } from '../theme';
@@ -151,7 +151,7 @@ export function Button({ label, onPress, kind = 'yellow', busy = false, disabled
       style={[s.button, kind !== 'outline' && !off && s.lifted, { backgroundColor: bg, borderColor: border, opacity: disabled ? 0.5 : 1 }]}
     >
       {busy ? (
-        <ActivityIndicator color={fg} />
+        <ScrewSpinner size={22} colour={fg} label={`${label}, sending`} />
       ) : (
         <View style={s.buttonRow}>
           {icon && icon !== 'arrowRight' ? <Icon name={icon} size={19} color={fg} strokeWidth={2.2} /> : null}
@@ -303,8 +303,8 @@ export function ListRow({ icon, label, value, onPress, danger = false, last = fa
 
 export function Loading({ dark = false }: Tone) {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: dark ? colour.ink : colour.paper }}>
-      <ActivityIndicator color={dark ? colour.yellow : colour.green} size="large" />
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: dark ? colour.ink : colour.canvas }}>
+      <ScrewSpinner size={56} />
     </View>
   );
 }

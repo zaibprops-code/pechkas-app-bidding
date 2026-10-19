@@ -514,6 +514,19 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - **Only `transform` moves.** `Press` sinks on tap and buzzes; it never eases
   a colour. A control whose text colour changes between states eases no
   colour at all — halfway through, text and background are the same grey.
+- **The screw is the app's one moving picture**, the owner's request. Three
+  places: `LaunchScrew` on opening (it draws the phone's splash again, hides
+  the real one, turns the slot until the gate has decided, then the head
+  seats and the green lifts off — loading is never made longer to show it);
+  `ScrewSpinner` wherever something is working (every `Button busy`,
+  `Loading`, a job waiting for offers) — there is no `ActivityIndicator`
+  any more; and the welcome screen's one turn in. Rules: `Mark turn={…}`
+  turns the **slot only** — the rim is round, so its lit side stays with the
+  light, and spinning the whole drawing would swing the highlight round,
+  which no screw does; it rests only on **whole turns**, because after half
+  a turn the slot's lit wall is on the dark side; and clockwise, because
+  that is the way a screw goes in. Native driver, so it keeps turning while
+  JavaScript is busy loading.
 - One line-icon set (`Icon.tsx`), no emoji. No stock photos of strangers.
 - **The logo is the website's machined screw head** (the owner's choice,
   October 2026): bevel lit from the upper left, a slot with a floor and a

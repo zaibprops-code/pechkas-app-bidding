@@ -4,6 +4,7 @@ import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-rou
 import { StatusBar } from 'expo-status-bar';
 import { rupees, showMobile } from '@pechkas/shared';
 import { MenuButton } from '../src/components/Menu';
+import { ScrewSpinner } from '../src/components/ScrewSpinner';
 import { Button, Field, Hero, Loading, Notice, NotifyCard } from '../src/components/ui';
 import { Icon } from '../src/components/Icon';
 import { Stars } from '../src/components/Stars';
@@ -122,7 +123,11 @@ export default function Jobs() {
         {/* "Offers will arrive" is only true while they still can. */}
         {posted && fresh?.status === 'open' ? (
           <View style={s.posted} accessibilityRole="alert">
-            <Text style={s.postedTitle}>Posted · {posted}</Text>
+            <View style={s.postedHead}>
+              {/* The screw keeps turning while technicians are being found. */}
+              <ScrewSpinner size={26} colour={colour.yellow} label="Looking for technicians" />
+              <Text style={s.postedTitle}>Posted · {posted}</Text>
+            </View>
             {fresh.preferred ? (
               <Text style={s.postedText}>Sent to {fresh.preferred.first_name} first. Offers appear below as they arrive.</Text>
             ) : (
@@ -261,6 +266,7 @@ function JobCard({ job, trade, tick, onChanged }: { job: Job; trade: string; tic
       </Text>
       {files ? <Text style={s.muted}>{files}</Text> : null}
       <View style={[s.badge, { backgroundColor: active || ended ? colour.greenSoft : colour.paper2 }]}>
+        {open && !(job.live_offers > 0) ? <ScrewSpinner size={16} colour={colour.steel} label="Waiting for offers" /> : null}
         <Text style={[s.badgeText, { color: active || ended ? colour.greenDark : colour.steel }]}>
           {job.status === 'done'
             ? 'Done'
@@ -428,6 +434,7 @@ const s = StyleSheet.create({
   emptyIcon: { width: 72, height: 72, borderRadius: 24, backgroundColor: colour.greenSoft, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
   emptyTitle: { fontFamily: font.display, fontSize: 22, color: colour.ink },
   posted: { gap: 6, padding: 16, borderRadius: radius.big, backgroundColor: colour.green },
+  postedHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   postedTitle: { fontFamily: font.display, fontSize: 18, color: colour.yellow },
   postedText: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.paper },
   muted: { fontFamily: font.body, fontSize: 13, color: colour.steel },
@@ -438,7 +445,7 @@ const s = StyleSheet.create({
   jobTitle: { fontFamily: font.bodySemi, fontSize: 16, lineHeight: 21, color: colour.ink },
   price: { fontFamily: font.display, fontSize: 20, color: colour.ink },
   line: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft },
-  badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill },
+  badge: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill },
   badgeText: { fontFamily: font.bodySemi, fontSize: 12 },
   offer: { gap: 8, padding: 12, borderRadius: 16, backgroundColor: colour.paper, borderWidth: 1, borderColor: colour.rule },
   offerTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },

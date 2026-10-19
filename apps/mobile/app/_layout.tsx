@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { router, Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
@@ -14,10 +14,12 @@ import { AccountProvider, useAccount } from '../src/account';
 import { routeFor } from '../src/route';
 import { useNotificationTaps } from '../src/notifications';
 import { colour } from '../src/theme';
+import { LaunchScrew } from '../src/components/LaunchScrew';
 
-// Keep the green splash up until the fonts are ready and the gate below has
-// decided where this person belongs, so the first screen never flashes in a
-// fallback typeface or flashes the wrong screen.
+// Keep the green splash up until the fonts are ready. Then LaunchScrew draws
+// the same picture, hides the phone's, and turns the screw until the gate
+// below has decided where this person belongs — so the first screen never
+// flashes in a fallback typeface or flashes the wrong screen.
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
@@ -33,6 +35,10 @@ export default function RootLayout() {
   // A font that will not load is not a reason to show nobody anything: the
   // system font is ugly, not broken.
   const ready = loaded || Boolean(failed);
+  const [decided, setDecided] = useState(false);
+  const [launched, setLaunched] = useState(false);
+  const onDecided = useCallback(() => setDecided(true), []);
+  const onLaunched = useCallback(() => setLaunched(true), []);
 
   if (!ready) return null;
 
@@ -41,13 +47,14 @@ export default function RootLayout() {
       <AccountProvider>
         <StatusBar style="light" />
         <NotificationTaps />
-        <Gate />
+        <Gate onDecided={onDecided} />
         <Stack
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: colour.paper },
           }}
         />
+        {launched ? null : <LaunchScrew decided={decided} onDone={onLaunched} />}
       </AccountProvider>
     </SafeAreaProvider>
   );
@@ -63,10 +70,10 @@ const SETTING_UP = new Set(['welcome', 'verify', 'auth-callback']);
  * nobody signed in goes to the welcome screen; a signed-in phone that lands
  * on the welcome or sign-in screen goes to its own home; an account that has
  * not finished setting up (no role yet, or an email account with no mobile
- * number) goes to finish it. The green splash stays up until this has been
+ * number) goes to finish it. The green cover stays up until this has been
  * decided, so the home screen never flashes before the welcome screen.
  */
-function Gate() {
+function Gate({ onDecided }: { onDecided: () => void }) {
   const { ready, session, account } = useAccount();
   const first = useSegments()[0] ?? '';
 
@@ -88,10 +95,10 @@ function Gate() {
       router.replace('/welcome');
       moved = true;
     }
-    // Give a redirect a moment to draw before the splash lifts.
-    const t = setTimeout(() => SplashScreen.hideAsync().catch(() => {}), moved ? 150 : 0);
+    // Give a redirect a moment to draw before the green lifts off it.
+    const t = setTimeout(onDecided, moved ? 150 : 0);
     return () => clearTimeout(t);
-  }, [ready, session, account, first]);
+  }, [ready, session, account, first, onDecided]);
 
   return null;
 }

@@ -76,7 +76,9 @@ export default function Start() {
 
   const spin = orbit.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
   const unspin = orbit.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-360deg'] });
-  const screw = turnIn.interpolate({ inputRange: [0, 1], outputRange: ['-160deg', '0deg'] });
+  // One full turn of the slot as the head arrives: the screw driven home. Only
+  // the slot turns (see Mark), so the light on the rim stays where it is.
+  const screw = turnIn.interpolate({ inputRange: [0, 1], outputRange: ['-360deg', '0deg'] });
   const grow = turnIn.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1] });
   const ringGrow = turnIn.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] });
   const rise = (v: Animated.Value, by: number) => v.interpolate({ inputRange: [0, 1], outputRange: [by, 0] });
@@ -112,8 +114,8 @@ export default function Start() {
                 );
               })}
             </Animated.View>
-            <Animated.View style={[s.center, { left: stage / 2 - mark / 2, top: stage / 2 - mark / 2, transform: [{ rotate: screw }, { scale: grow }] }]}>
-              <Mark size={mark} />
+            <Animated.View style={[s.center, { left: stage / 2 - mark / 2, top: stage / 2 - mark / 2, transform: [{ scale: grow }] }]}>
+              <Mark size={mark} turn={screw} />
             </Animated.View>
           </Animated.View>
 
