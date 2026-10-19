@@ -770,8 +770,11 @@ Two more things that look like "missing" but are not:
    should say **Success**.
 2. **Authentication → Sign In / Providers → Email:** make sure it is **on**.
    If there is a box **Email OTP Length**, leave it at **6**.
-3. **Authentication → Emails → Templates** (or **Email Templates**). This is
-   the step that makes the email show a **code**. Supabase's own message
+3. **Authentication → Emails → Templates** (or **Email Templates**).
+   **Supabase only lets you change a template once your own email sender is
+   connected** — it says "Set up custom SMTP to edit templates". So do
+   **"Sending email codes through Resend (once)"** below first, then come
+   back here. This is the step that makes the email show a **code**. Supabase's own message
    holds only a link, and that link opens a web page that does not exist —
    which is what you saw. Open **Magic Link**, set the **Subject** to
    `Your Pechkas code`, delete everything in the message box, paste this,
