@@ -18,16 +18,31 @@ and tapping it opens the job. **My jobs** is the full list; each card
 opens its job. No migration — a new **preview** build from `main`, then
 post a job and watch it.
 
-Two things inDrive has that Pechkas does not, yet, because both are your
-decision:
+**"No thanks" on one offer (new — needs one database step).** Under each
+offer's **Choose** button there is now **No thanks**. It asks first, then:
 
-- **Turning one offer down.** Today a customer simply lets an offer run
-  out or chooses another. A "No thanks" button needs a new database
-  function, and a rule for whether the technician is told.
-- **Raising your price while you wait.** That is money: it needs a rule
-  for how much, how often, and whether offers already sent stay valid.
+- the offer leaves the customer's list straight away;
+- the technician gets one notification — *"Your offer was not taken"*, with
+  the trade, the sector and the job number, nothing else;
+- he cannot offer on that job again, and it leaves his list. Her other jobs
+  still reach him: this is not a block;
+- the office sees it in the job's history: *Turned down an offer · Bilal ·
+  Rs 5,500*.
 
-Say yes to either, with the rule, and it gets built.
+Those were the sensible defaults; say if you want any of them different. To
+switch it on:
+
+1. **Supabase → SQL Editor:** run `20261028000000_declining_an_offer.sql`.
+   It should say **Success**.
+2. **Expo:** a new **preview** build from `main`, and install it.
+3. Post a job, let two technicians offer, tap **No thanks** on one, then
+   **Yes, turn it down**. On that technician's phone the job disappears and
+   the notification arrives. **Me → This copy of the app** should say
+   **Database: up to date**.
+
+Still waiting on you: **raising your price while you wait.** That is money:
+it needs a rule for how much, how often, and whether offers already sent
+stay valid. Say yes, with the rule, and it gets built.
 
 **Maps (new — needs your Google Maps key).** The home screen opens on a map
 of Islamabad with the cards in a sheet over it, as in inDrive; the round

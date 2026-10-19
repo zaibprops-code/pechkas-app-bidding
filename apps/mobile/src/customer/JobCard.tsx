@@ -234,12 +234,31 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
 export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChosen: () => void }) {
   const [offers, setOffers] = useState<Offer[] | null>(null);
   const [picking, setPicking] = useState<string | null>(null);
+  // The offer being turned down, while she confirms it.
+  const [declining, setDeclining] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
   useEffect(() => {
     supabase?.rpc('job_offers', { p_job: job.id }).then(({ data }) => setOffers((data as Offer[]) ?? []));
   }, [job.id, job.live_offers, tick]);
+
+  /**
+   * "No thanks" to one offer. The database checks it is her job, still open,
+   * and the offer still live; he is told it was not taken and cannot offer
+   * on this job again. It leaves the list at once rather than at the next
+   * refresh, so a second tap has nothing to land on.
+   */
+  async function decline(id: string) {
+    setBusy(true);
+    setMsg(null);
+    const r = await ask('decline_offer', { p_offer: id });
+    setBusy(false);
+    setDeclining(null);
+    if (!r.ok) return setMsg(r.why);
+    setOffers((list) => (list ?? []).filter((x) => x.id !== id));
+    onChosen();
+  }
 
   async function choose(id: string) {
     setBusy(true);
@@ -301,7 +320,23 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
                 <Button kind="outline" label="Not yet" onPress={() => setPicking(null)} />
               </View>
             ) : (
-              <Button label={`Choose ${o.pro_first_name} · ${rupees(o.price_paisa)}`} onPress={() => setPicking(o.id)} />
+              <>
+                <Button label={`Choose ${o.pro_first_name} · ${rupees(o.price_paisa)}`} onPress={() => setPicking(o.id)} />
+                {declining === o.id ? (
+                  <View style={{ gap: 8 }}>
+                    <Text style={s.line}>
+                      Turn down {o.pro_first_name}'s offer? He is told it was not taken, and he cannot offer on this job again. Other
+                      technicians can still send offers.
+                    </Text>
+                    <Button kind="danger" label="Yes, turn it down" onPress={() => decline(o.id)} busy={busy} />
+                    <Button kind="outline" label="Keep it" onPress={() => setDeclining(null)} />
+                  </View>
+                ) : (
+                  <Press onPress={() => setDeclining(o.id)} accessibilityRole="button" accessibilityLabel={`No thanks to ${o.pro_first_name}`} style={s.noThanks}>
+                    <Text style={s.noThanksText}>No thanks</Text>
+                  </Press>
+                )}
+              </>
             )}
           </View>
         );
@@ -345,5 +380,7 @@ const s = StyleSheet.create({
   chosen: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.greenSoft },
   held: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.greenSoft },
   link: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
+  noThanks: { alignSelf: 'center', minHeight: 44, minWidth: 120, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
+  noThanksText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.inkSoft, textDecorationLine: 'underline' },
   linkText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, textDecorationLine: 'underline' },
 });

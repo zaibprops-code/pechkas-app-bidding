@@ -319,6 +319,7 @@ const WHAT: Record<string, string> = {
   rated: 'Rated',
   asked_first: 'Sent to the technician she asked for, alone',
   opened_to_all: 'Opened to every technician',
+  offer_declined: 'Turned down an offer',
 };
 const WHO: Record<string, string> = { customer: 'customer', pro: 'technician', office: 'office', system: 'system' };
 const time = (t: string) => new Date(t).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
@@ -346,6 +347,7 @@ function History({ job }: { job: string }) {
         {d.events.map((e, i) => (
           <li key={i}>
             <span className="muted">{time(e.at)}</span> · {WHAT[e.what] ?? e.what} <span className="muted">by the {WHO[e.actor] ?? e.actor}</span>
+            {e.detail && typeof e.detail.pro === 'string' ? ` · ${e.detail.pro}` : ''}
             {e.detail && typeof e.detail.price_paisa === 'number' ? ` · ${rupees(e.detail.price_paisa)}` : ''}
             {e.detail && typeof e.detail.reason === 'string' && e.detail.reason ? ` · “${e.detail.reason}”` : ''}
           </li>

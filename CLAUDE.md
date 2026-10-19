@@ -264,9 +264,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   and step — nothing estimated, no "usually replies in" figure.
 - After posting, `post.tsx` dismisses to home and **pushes** the job, so
   Back from it is home, never the empty form.
-- Not built, both waiting on the owner (`docs/OWNER.md`): a customer
-  declining one offer (needs a function, and a rule for telling him) and
-  raising her price while waiting (money).
+- **"No thanks" is `decline_offer()`** (migration `…_declining_an_offer`):
+  her own job, open, the offer live, behind the same job-row lock as
+  `choose_offer()`. The offer becomes `declined`; `on_offer()` tells him
+  once ("Your offer was not taken", trade, sector and ref only); and
+  `pro_may_see_as()` closes that one job to him — feed, new offer, files,
+  notifications — without blocking him from her other jobs. It is logged
+  as `offer_declined`. `declining.test.mjs` breaks if that rule goes.
+- Not built, waiting on the owner (`docs/OWNER.md`): raising her price
+  while waiting (money).
 
 ### Doing the job (phase 4)
 - **Status and step are separate.** `status` is open → assigned → done |
