@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { AppState, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, explainAuthError, showMobile } from '@pechkas/shared';
 import { Press } from '../src/components/Press';
@@ -9,7 +9,19 @@ import { useAccount, type Account } from '../src/account';
 import { routeFor } from '../src/route';
 import { sendEmailCode, supabase, url } from '../src/supabase';
 
-const WAIT = 30;
+/**
+ * How long before a new code may be asked for. Supabase refuses a second
+ * email to the same address inside 60 seconds by default, so a shorter wait
+ * here only offered a button that then failed. If Supabase names a longer
+ * wait, the screen takes its number instead (see `waitFrom`).
+ */
+const WAIT = 60;
+
+/** "...you can only request this after 42 seconds." → 42. */
+function waitFrom(message: string): number | null {
+  const m = /after (\d+) seconds?/i.exec(message);
+  return m ? Number(m[1]) : null;
+}
 
 export default function Verify() {
   const { phone, email, next } = useLocalSearchParams<{ phone?: string; email?: string; next?: string }>();
@@ -19,18 +31,41 @@ export default function Verify() {
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  // Good news — a new code was sent — is not a warning, so it is not red.
+  const [sent, setSent] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [left, setLeft] = useState(WAIT);
+  // The countdown is worked out from the clock, not counted down a second at
+  // a time. Counting stalled whenever the phone paused the app — which is
+  // exactly what happens while somebody goes to their email to read the
+  // code — and it came back showing the number it had left behind.
+  const [until, setUntil] = useState(() => Date.now() + WAIT * 1000);
+  const [now, setNow] = useState(() => Date.now());
+  const left = Math.max(0, Math.ceil((until - now) / 1000));
 
   useEffect(() => {
     if (left <= 0) return;
-    const t = setTimeout(() => setLeft(left - 1), 1000);
-    return () => clearTimeout(t);
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
   }, [left]);
+
+  // Coming back from Gmail or Messages: catch up at once, not on the next tick.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') setNow(Date.now());
+    });
+    return () => sub.remove();
+  }, []);
+
+  const startWait = (seconds: number) => {
+    const t = Date.now();
+    setNow(t);
+    setUntil(t + seconds * 1000);
+  };
 
   async function check() {
     setError(null);
     setNotice(null);
+    setSent(null);
     const token = code.replace(/\D/g, '');
     if (email ? token.length < 6 || token.length > longest : token.length !== 6) {
       setError(email ? 'Type the numbers from the email.' : 'The code is 6 numbers.');
@@ -58,9 +93,25 @@ export default function Verify() {
   async function resend() {
     if (!supabase || (!phone && !email) || left > 0) return;
     setNotice(null);
+    setSent(null);
     const { error: e } = email ? await sendEmailCode(email) : await supabase.auth.signInWithOtp({ phone: phone! });
-    if (e) setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);
-    else setLeft(WAIT);
+    if (e) {
+      // Too soon for Supabase: wait as long as it says, and say so plainly.
+      const wait = waitFrom(e.message);
+      if (wait) {
+        startWait(wait);
+        setNotice(`Pechkas can send another code in ${wait} seconds.`);
+      } else setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);
+      return;
+    }
+    startWait(WAIT);
+    setCode('');
+    setError(null);
+    setSent(
+      email
+        ? `A new code is on its way to ${email}. Use the newest one: the earlier code stops working.`
+        : `A new code is on its way to ${phone ? showMobile(phone) : 'your phone'}. Use the newest one: the earlier code stops working.`,
+    );
   }
 
   return (
@@ -76,6 +127,11 @@ export default function Verify() {
       {error ? <Text style={s.error}>{error}</Text> : null}
       {email ? <Text style={s.hint}>Or, on this phone, tap the link in the email. Not in your inbox? Look in spam.</Text> : null}
       <Notice text={notice} />
+      {sent ? (
+        <View style={s.sent} accessibilityRole="alert">
+          <Text style={s.sentText}>{sent}</Text>
+        </View>
+      ) : null}
       <Press onPress={left > 0 ? undefined : resend} accessibilityRole="button" accessibilityState={{ disabled: left > 0 }} style={s.resend}>
         <Text style={[s.resendText, left > 0 && { color: colour.steel, textDecorationLine: 'none' }]}>
           {left > 0 ? `Send a new code in ${left}s` : 'Send a new code'}
@@ -156,6 +212,8 @@ const s = StyleSheet.create({
   digit: { fontFamily: font.display, fontSize: 28, color: colour.ink },
   hidden: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, color: 'transparent', backgroundColor: 'transparent', fontSize: 1, borderWidth: 0, outlineWidth: 0 },
   error: { fontFamily: font.bodySemi, fontSize: 14, color: colour.brick, marginTop: -6 },
+  sent: { padding: 14, borderRadius: 14, backgroundColor: colour.greenSoft },
+  sentText: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.greenDark },
   hint: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.steel },
   resend: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   resendText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.green, textDecorationLine: 'underline' },

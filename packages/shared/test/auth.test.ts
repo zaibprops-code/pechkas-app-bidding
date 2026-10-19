@@ -25,7 +25,10 @@ test('each refusal gets its own sentence', () => {
   assert.match(explainAuthError('Email address "x@y" is invalid', 400), /email address was not accepted/);
   assert.match(explainAuthError('Email logins are disabled', 422), /email is switched off/);
   assert.match(explainAuthError('Email rate limit exceeded', 429), /Too many/);
-  assert.match(explainAuthError('For security purposes, you can only request this after 52 seconds. Too many', 429), /Too many/);
+  // Too soon for another code: the real wait, in seconds, and the old code still works.
+  assert.match(explainAuthError('For security purposes, you can only request this after 52 seconds.', 429), /another in 52 seconds/);
+  assert.match(explainAuthError('For security purposes, you can only request this after 52 seconds.', 429), /still works/);
+  assert.match(explainAuthError('For security purposes, you can only request this after 1 second.', 429), /in 1 second\./);
 });
 
 test('only a real network failure is called a connection problem', () => {

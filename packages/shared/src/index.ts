@@ -87,6 +87,14 @@ export function explainAuthError(message: string | null | undefined, status?: nu
   if (status === 0 || /network request failed|failed to fetch|fetch failed|network|timeout|timed out/i.test(m)) {
     return 'Pechkas could not be reached. Check your internet connection, then try again.';
   }
+  // Supabase allows one code a minute per address, and says how long is left.
+  // That is a few seconds, not "a few minutes", and the code already sent
+  // still works — so say both.
+  const soon = /after (\d+) seconds?/i.exec(m);
+  if (soon) {
+    const n = Number(soon[1]);
+    return `A code was sent a moment ago, and it still works. You can ask for another in ${n} ${n === 1 ? 'second' : 'seconds'}.`;
+  }
   if (/rate|too many/i.test(m) || status === 429) return 'Too many codes asked for. Wait a few minutes and try again.';
   if (/sign ?ups? (are |is )?(not allowed|disabled)/i.test(m)) return 'New accounts cannot be made right now. Please try again later.';
   if (/unsupported phone provider|phone (provider|logins?|signups?) (is |are )?disabled/i.test(m)) {
