@@ -156,7 +156,7 @@ and these boxes.
 **Notes:**
 
 ```
-Pechkas connects people in Islamabad who need a home repair with technicians Pechkas has checked. Sign-in is a mobile number and a one-time code. The number in the sign-in boxes is a test number that accepts the code given, with no SMS.
+Pechkas connects people in Islamabad who need a home repair with technicians Pechkas has checked. The app opens on a sign-in screen, because every feature belongs to an account (posting a job, offers, chat, payments owed). Tap "Continue with mobile number". Sign-in is a mobile number and a one-time code. The number in the sign-in boxes is a test number that accepts the code given, with no SMS.
 
 A second test account, an approved technician: [TECHNICIAN REVIEWER NUMBER], code [ITS CODE].
 

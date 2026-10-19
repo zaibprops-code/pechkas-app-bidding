@@ -106,6 +106,16 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   stranger's account, where her address would be posted for him to read.
   Supabase must have `pechkas://auth-callback` under Redirect URLs, or the
   link opens the Site URL instead.
+- **Nothing opens until somebody has signed in**, like every big app. The
+  `Gate` in `app/_layout.tsx` is the one rule: signed out → `/start` (the
+  welcome screen) unless already on `start`, `sign-in`, `verify` or
+  `auth-callback`; signed in on `start` or `sign-in` → `routeFor()`; an
+  account with no role or no number → `/welcome`. The splash stays up until
+  it has decided, so the home screen never flashes first. Sign-up and
+  sign-in are one step: a new number or email becomes a new account. A
+  screen that finds nobody signed in redirects to `/start`, never to
+  `/sign-in`, so it cannot race the gate. Apple accepts a login-first app
+  only because every feature belongs to an account — keep it that way.
 - Every sign-in failure shows `explainAuthError()` plus Supabase's own
   words and the project's host. Never go back to "check your signal" for
   everything: it hid a Supabase refusal for a whole afternoon.

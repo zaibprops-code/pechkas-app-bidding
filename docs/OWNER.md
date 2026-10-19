@@ -7,6 +7,22 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Sign in first, like every big app (new).** The first screen after
+installing — and after signing out — is a green welcome screen: what
+Pechkas is, then **Continue with mobile number** or **Continue with email**.
+Nothing else opens until somebody has signed in; a new number or email
+simply becomes a new account, then the app asks for a first name and
+whether you need something fixed or fix things yourself. Signed in, the
+app opens straight on your own home screen every time. No migration — a
+new **preview** build from `main`:
+
+1. Install it. If you were signed in, you go straight to your home screen.
+2. **Me → Sign out.** The welcome screen appears.
+3. Close the app completely and open it again: still the welcome screen,
+   and nothing behind it.
+4. **Continue with mobile number** → your number → the code. You land on
+   your own home screen.
+
 **Formal English everywhere (new).** The Roman Urdu is gone: every screen,
 button and notification is in formal English, for customers and technicians
 alike, and the technician side has no language switch any more. "Assalam o
@@ -411,7 +427,7 @@ already: `…_foundations.sql`, then `…_accounts_and_technicians.sql`.
 
 ### F. Try it
 
-1. Install the new build. **Me** → **Sign in** → your test number → the code.
+1. Install the new build. **Continue with mobile number** → your test number → the code.
 2. Choose **I fix things**, fill in the form, send it.
 3. Open the admin panel, sign in with your email, find yourself under
    **Waiting**, record the three checks, press **Approve**.
@@ -460,7 +476,7 @@ them to Claude.
 2. **Expo:** start a new **preview** build from GitHub (same settings as
    always) and install it. The app now asks for the **microphone**, **camera**
    and **location** the first time each is used — allow them.
-3. **On the phone:** tap **AC** on the home screen → sign in → choose a job,
+3. **On the phone:** sign in, tap **AC** on the home screen, choose a job,
    record a short voice note, add a photo, fill in F-11, a street and house,
    choose **Tomorrow · Morning**, and press **Post job**.
 4. **My jobs** should show it as **Waiting for a technician**.
@@ -798,7 +814,7 @@ Two more things that look like "missing" but are not:
    - **Redirect URLs → Add URL:** `pechkas://auth-callback` — **Save**.
 5. **Expo:** a new **preview** build from `main`. The code in step 3 works
    with the app you already have; the link needs this new build.
-6. On your phone: **Me → Sign in → Use my email instead**, type **your own
+6. On your phone: sign out (**Me → Sign out**), then **Continue with email**, type **your own
    email address** (until Resend is connected, Supabase's test sender only delivers to it), and
    **Send me a code**. Type the code from the email, then your first name,
    **I need something fixed**, and your mobile number.
@@ -865,8 +881,8 @@ it has seen the DNS records.
 
 ### D. Try it
 
-1. On your phone: **Me → Sign out**, then **Sign in → Use my email
-   instead**, and type an email address that is **not** on your Supabase
+1. On your phone: **Me → Sign out**, then **Continue with email**, and
+   type an email address that is **not** on your Supabase
    team — a family member's, or a second Gmail. **Send me a code**.
 2. The email comes from **Pechkas &lt;codes@pechkas.net&gt;** within a
    minute. Check the spam folder the first time; if it is there, mark it

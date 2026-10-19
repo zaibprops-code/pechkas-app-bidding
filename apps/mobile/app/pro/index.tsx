@@ -40,7 +40,7 @@ export default function ProHome() {
   );
 
   if (!ready) return <Loading dark />;
-  if (!session) return <Redirect href={{ pathname: '/sign-in', params: { next: 'join' } }} />;
+  if (!session) return <Redirect href="/start" />;
   if (!account?.pro) return <Redirect href="/pro/apply" />;
 
   const pro = account.pro;

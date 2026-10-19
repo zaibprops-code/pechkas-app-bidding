@@ -43,7 +43,7 @@ Add the two numbers as two sets of credentials, and put this in **Any
 other information required to access your app**:
 
 ```
-Pechkas connects people in Islamabad who need a home repair with technicians Pechkas has checked. Sign-in is a mobile number and a one-time code; the two numbers above are test numbers that accept the code given, with no SMS.
+Pechkas connects people in Islamabad who need a home repair with technicians Pechkas has checked. The app opens on a sign-in screen: tap "Continue with mobile number". Sign-in is a mobile number and a one-time code; the two numbers above are test numbers that accept the code given, with no SMS.
 
 To try the customer side: sign in with the first number. Tap a trade (e.g. AC), choose a job, write a few words, choose sector F-11, add any street and house, choose "Now", and post. Jobs can only be posted in sectors F-11, E-11 and G-13.
 

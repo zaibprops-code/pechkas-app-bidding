@@ -34,7 +34,7 @@ export default function Apply() {
   }, []);
 
   if (!ready) return <Loading dark />;
-  if (!session) return <Redirect href={{ pathname: '/sign-in', params: { next: 'join' } }} />;
+  if (!session) return <Redirect href="/start" />;
   if (!account?.role) return <Redirect href={{ pathname: '/welcome', params: { next: 'join' } }} />;
   if (account.pro && (account.pro.status === 'approved' || account.pro.status === 'suspended')) return <Redirect href="/pro" />;
 

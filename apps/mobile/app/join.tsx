@@ -4,12 +4,12 @@ import { useAccount } from '../src/account';
 
 /**
  * "Work with Pechkas": the one door for a technician, wherever he is in the
- * sign-in. Not signed in → sign in first; signed in → his application.
+ * sign-in. Not signed in → the welcome screen; signed in → his application.
  */
 export default function Join() {
   const { ready, session, account } = useAccount();
   if (!ready) return <Loading dark />;
-  if (!session) return <Redirect href={{ pathname: '/sign-in', params: { next: 'join' } }} />;
+  if (!session) return <Redirect href="/start" />;
   if (!account?.role) return <Redirect href={{ pathname: '/welcome', params: { next: 'join' } }} />;
   return <Redirect href={account.pro ? '/pro' : '/pro/apply'} />;
 }

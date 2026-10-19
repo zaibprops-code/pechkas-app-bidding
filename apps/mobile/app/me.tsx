@@ -35,7 +35,7 @@ export default function Me() {
       <Screen footer={back}>
         <Title>Your account</Title>
         <Body muted>{connected ? 'Sign in with your mobile number to post jobs and see your offers.' : 'The app is not connected to Pechkas yet.'}</Body>
-        {connected ? <Button label="Sign in" onPress={() => router.push('/sign-in')} /> : null}
+        {connected ? <Button label="Sign in" onPress={() => router.replace('/start')} /> : null}
         <Button kind="outline" label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
         <Button kind="outline" label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} />
         <ThisCopy />
@@ -69,7 +69,7 @@ export default function Me() {
     }
     await signOut();
     setBusy(false);
-    router.replace('/');
+    router.replace('/start');
   }
 
   const number = account?.phone ?? session.user.phone ?? '';
@@ -127,7 +127,7 @@ export default function Me() {
 
       {account?.role === 'customer' ? <Button kind="outline" label="I want to work with Pechkas as a technician" onPress={() => router.push('/pro/apply')} /> : null}
 
-      <Button kind="outline" dark={dark} label="Sign out" onPress={async () => { await signOut(); router.replace('/'); }} />
+      <Button kind="outline" dark={dark} label="Sign out" onPress={async () => { await signOut(); router.replace('/start'); }} />
       <Button kind="outline" dark={dark} label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
       {account?.role === 'pro' ? (
         <Button kind="outline" dark={dark} label="Technician agreement" onPress={() => Linking.openURL(AGREEMENT_URL)} />

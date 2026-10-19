@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Linking, StyleSheet, Text } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, explainAuthError, pakistaniMobile } from '@pechkas/shared';
+import { Icon } from '../src/components/Icon';
 import { Mark } from '../src/components/Mark';
 import { Press } from '../src/components/Press';
 import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
@@ -16,10 +17,10 @@ import { colour, font } from '../src/theme';
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export default function SignIn() {
-  const { next } = useLocalSearchParams<{ next?: string }>();
+  const { next, mode: asked } = useLocalSearchParams<{ next?: string; mode?: string }>();
   // A mobile number by default; an email code for anybody who prefers it,
   // or whose number cannot get an SMS yet.
-  const [mode, setMode] = useState<'phone' | 'email'>('phone');
+  const [mode, setMode] = useState<'phone' | 'email'>(asked === 'email' ? 'email' : 'phone');
   const [typed, setTyped] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +74,14 @@ export default function SignIn() {
 
   return (
     <Screen footer={<Button label="Send me a code" onPress={send} busy={busy} />}>
-      <Mark size={48} />
+      <View style={s.top}>
+        {router.canGoBack() ? (
+          <Press onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" style={s.back}>
+            <Icon name="arrowLeft" size={20} color={colour.ink} strokeWidth={2} />
+          </Press>
+        ) : null}
+        <Mark size={40} />
+      </View>
       {mode === 'phone' ? (
         <>
           <Title>Your mobile number</Title>
@@ -123,6 +131,8 @@ export default function SignIn() {
 }
 
 const s = StyleSheet.create({
+  top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  back: { width: 44, height: 44, borderRadius: 999, backgroundColor: colour.paper2, alignItems: 'center', justifyContent: 'center' },
   switch: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   switchText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.green, textDecorationLine: 'underline' },
 });

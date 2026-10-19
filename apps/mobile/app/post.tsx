@@ -102,7 +102,7 @@ export default function Post() {
   }, [d, session]);
 
   if (!ready || !d) return <Loading />;
-  if (!session) return <Redirect href={{ pathname: '/sign-in', params: { next: 'post' } }} />;
+  if (!session) return <Redirect href="/start" />;
   if (!account?.role) return <Redirect href={{ pathname: '/welcome', params: { next: 'post' } }} />;
   if (account.role === 'pro') return <Redirect href="/pro" />;
 

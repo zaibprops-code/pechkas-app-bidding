@@ -101,7 +101,7 @@ export default function Jobs() {
   );
 
   if (!ready) return <Loading />;
-  if (!session) return <Redirect href={{ pathname: '/sign-in', params: { next: 'post' } }} />;
+  if (!session) return <Redirect href="/start" />;
   if (account?.role === 'pro') return <Redirect href="/pro" />;
 
   const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
