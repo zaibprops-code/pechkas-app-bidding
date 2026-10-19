@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, explainAuthError, showMobile } from '@pechkas/shared';
 import { Press } from '../src/components/Press';
@@ -101,6 +101,7 @@ function CodeBoxes({ value, onChange, longest, email, error, onSubmit }: {
 }) {
   const input = useRef<TextInput>(null);
   const [focused, setFocused] = useState(true);
+  const { width } = useWindowDimensions();
   const digits = value.replace(/\D/g, '').slice(0, longest);
   const boxes = Math.min(longest, Math.max(6, digits.length + (email && digits.length >= 6 && digits.length < longest ? 1 : 0)));
   useEffect(() => {
@@ -108,13 +109,21 @@ function CodeBoxes({ value, onChange, longest, email, error, onSubmit }: {
     // Only when the sixth digit arrives, not on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [digits.length]);
+  // Each box gets a real size in points. They used to share the row with
+  // `flex: 1`, which worked in a browser and on Android collapsed every box to
+  // its own border — six thin lines and nowhere to see a digit. The screen
+  // has 20 points of margin each side; a box is never wider than 56. An email
+  // code can run to 10 digits, so the gaps tighten past 7 boxes, and ten still
+  // fit across a 320-point phone.
+  const gap = boxes > 7 ? 5 : 8;
+  const size = Math.max(22, Math.min(56, Math.floor((width - 40 - gap * (boxes - 1)) / boxes)));
   return (
-    <Press onPress={() => input.current?.focus()} sink={1} accessible={false} style={s.boxes}>
+    <Press onPress={() => input.current?.focus()} sink={1} accessible={false} style={[s.boxes, { gap }]}>
       {Array.from({ length: boxes }, (_, i) => {
         const here = focused && i === Math.min(digits.length, boxes - 1);
         return (
-          <View key={i} style={[s.box, digits[i] ? s.boxFull : null, here ? s.boxHere : null, error ? s.boxError : null]}>
-            <Text style={s.digit}>{digits[i] ?? ''}</Text>
+          <View key={i} style={[s.box, { width: size, height: Math.round(size * 1.12), borderRadius: Math.round(size * 0.25) }, digits[i] ? s.boxFull : null, here ? s.boxHere : null, error ? s.boxError : null]}>
+            <Text style={[s.digit, { fontSize: Math.round(size * 0.5) }]}>{digits[i] ?? ''}</Text>
           </View>
         );
       })}
@@ -139,8 +148,8 @@ function CodeBoxes({ value, onChange, longest, email, error, onSubmit }: {
 }
 
 const s = StyleSheet.create({
-  boxes: { flexDirection: 'row', gap: 8, position: 'relative' },
-  box: { flex: 1, maxWidth: 56, height: 62, borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(20,23,26,0.16)', backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },
+  boxes: { flexDirection: 'row', position: 'relative', alignSelf: 'stretch' },
+  box: { borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(20,23,26,0.16)', backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },
   boxFull: { borderColor: colour.ink },
   boxHere: { borderColor: colour.green, borderWidth: 2.5 },
   boxError: { borderColor: colour.brick, borderWidth: 2 },
