@@ -1,4 +1,5 @@
-import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { AccessibilityInfo, Animated, Easing, Linking, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,100 +10,165 @@ import { ThisCopy } from '../src/components/ThisCopy';
 import { Button } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { PRIVACY_URL, TERMS_URL } from '../src/office';
-import { colour, font, radius, TAP } from '../src/theme';
+import { colour, font, TAP } from '../src/theme';
 
 /**
- * The first screen after installing, and after signing out: who Pechkas is,
- * then sign in or sign up — the same step, since a new number or email
- * simply becomes a new account. Nothing else in the app opens until then
- * (the gate is in app/_layout.tsx).
+ * The first screen after installing, and after signing out. It is where a
+ * person decides whether to sign up, so it says almost nothing and shows the
+ * rest: the Pechkas screw turns into place, and the six trades circle it.
  *
- * Every line here must stay true of the app: checked technicians, a price
- * agreed before he comes, cash after the job.
+ * Motion obeys the app's rule — transform only, never a colour, never a
+ * fade, so no word is ever drawn at reduced contrast. Every word is fully
+ * opaque from the first frame; the entrance only slides it a few points.
+ * With "remove animations" on, everything starts where it ends and stays.
+ *
+ * Sign up and sign in are one step (a new number becomes a new account),
+ * which is why the buttons say "Continue". The gate is in app/_layout.tsx.
  */
+
+const TRADES: IconName[] = ['ac', 'bolt', 'drop', 'cctv', 'wifi', 'ups'];
+
 export default function Start() {
   const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
   const { connected } = useAccount();
   const go = (mode: 'phone' | 'email') => router.push({ pathname: '/sign-in', params: { mode } });
+
+  // The stage fits a small 320 × 568 phone as well as a tall one: on a short
+  // screen everything shrinks rather than the words running into the buttons.
+  const compact = height < 700;
+  const stage = Math.round(Math.min(width - 40, height * (compact ? 0.3 : 0.4), 320));
+  const radiusOrbit = stage * 0.39;
+  const chip = Math.round(stage * 0.16);
+  const mark = Math.round(stage * 0.34);
+
+  const turnIn = useRef(new Animated.Value(0)).current; // the screw tightening, once
+  const words = useRef(new Animated.Value(0)).current; // the name and the line under it
+  const actions = useRef(new Animated.Value(0)).current; // the buttons
+  const orbit = useRef(new Animated.Value(0)).current; // the trades, slowly, for ever
+
+  useEffect(() => {
+    let loop: Animated.CompositeAnimation | null = null;
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then((still) => {
+        if (!alive) return;
+        if (still) {
+          turnIn.setValue(1);
+          words.setValue(1);
+          actions.setValue(1);
+          return;
+        }
+        Animated.stagger(140, [
+          Animated.spring(turnIn, { toValue: 1, friction: 7, tension: 40, useNativeDriver: true }),
+          Animated.spring(words, { toValue: 1, friction: 8, tension: 50, useNativeDriver: true }),
+          Animated.spring(actions, { toValue: 1, friction: 8, tension: 50, useNativeDriver: true }),
+        ]).start();
+        loop = Animated.loop(Animated.timing(orbit, { toValue: 1, duration: 48000, easing: Easing.linear, useNativeDriver: true }));
+        loop.start();
+      });
+    return () => {
+      alive = false;
+      loop?.stop();
+    };
+  }, [turnIn, words, actions, orbit]);
+
+  const spin = orbit.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
+  const unspin = orbit.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-360deg'] });
+  const screw = turnIn.interpolate({ inputRange: [0, 1], outputRange: ['-160deg', '0deg'] });
+  const grow = turnIn.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1] });
+  const ringGrow = turnIn.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] });
+  const rise = (v: Animated.Value, by: number) => v.interpolate({ inputRange: [0, 1], outputRange: [by, 0] });
 
   return (
     <View style={s.screen}>
       <StatusBar style="light" />
-      <ScrollView contentContainerStyle={[s.content, { paddingTop: insets.top + 28, paddingBottom: Math.max(insets.bottom, 20) }]} bounces={false}>
-        <View style={s.brand}>
-          <Mark size={44} />
-          <Text style={s.wordmark}>pechkas</Text>
+      <View style={[s.content, { paddingTop: insets.top + 12, paddingBottom: Math.max(insets.bottom, 18) }]}>
+        <View style={[s.hero, compact && s.heroSmall]}>
+          <Animated.View style={{ width: stage, height: stage, transform: [{ scale: ringGrow }] }} accessible={false}>
+            <View style={[s.ring, { width: radiusOrbit * 2, height: radiusOrbit * 2, borderRadius: radiusOrbit, left: stage / 2 - radiusOrbit, top: stage / 2 - radiusOrbit }]} />
+            <View style={[s.ringInner, { width: radiusOrbit * 1.25, height: radiusOrbit * 1.25, borderRadius: radiusOrbit, left: stage / 2 - radiusOrbit * 0.625, top: stage / 2 - radiusOrbit * 0.625 }]} />
+            <Animated.View style={[StyleSheet.absoluteFill, { transform: [{ rotate: spin }] }]}>
+              {TRADES.map((name, i) => {
+                const a = (i / TRADES.length) * Math.PI * 2 - Math.PI / 2;
+                return (
+                  <Animated.View
+                    key={name}
+                    style={[
+                      s.chip,
+                      {
+                        width: chip,
+                        height: chip,
+                        borderRadius: chip / 2,
+                        left: stage / 2 + radiusOrbit * Math.cos(a) - chip / 2,
+                        top: stage / 2 + radiusOrbit * Math.sin(a) - chip / 2,
+                        transform: [{ rotate: unspin }],
+                      },
+                    ]}
+                  >
+                    <Icon name={name} size={Math.round(chip * 0.48)} color={colour.yellow} strokeWidth={2} />
+                  </Animated.View>
+                );
+              })}
+            </Animated.View>
+            <Animated.View style={[s.center, { left: stage / 2 - mark / 2, top: stage / 2 - mark / 2, transform: [{ rotate: screw }, { scale: grow }] }]}>
+              <Mark size={mark} />
+            </Animated.View>
+          </Animated.View>
+
+          <Animated.View style={[s.words, { transform: [{ translateY: rise(words, 26) }] }]}>
+            <Text style={[s.wordmark, compact && s.wordmarkSmall]} accessibilityRole="header">
+              pechkas
+            </Text>
+            <Text style={s.line}>Checked technicians. A price you agree first.</Text>
+          </Animated.View>
         </View>
 
-        <View style={s.middle}>
-          <Text style={s.kicker}>Home repairs in Islamabad</Text>
-          <Text style={s.title} accessibilityRole="header">
-            Checked technicians, at a price you agree first.
-          </Text>
-          <View style={s.points}>
-            <Point icon="shield" text="Every technician is checked in person before he gets a single job." />
-            <Point icon="lock" text="You name your price. Nothing changes unless you approve it in the app." />
-            <Point icon="jobs" text="Pay in cash when the job is done." />
-          </View>
-        </View>
-
-        <View style={s.bottom}>
+        <Animated.View style={[s.actions, { transform: [{ translateY: rise(actions, 40) }] }]}>
           {connected ? null : (
             <View style={s.offline}>
-              <Text style={s.offlineText}>This copy of the app is not connected to Pechkas yet, so nobody can sign in. Please install the newest version.</Text>
+              <Text style={s.offlineText}>This copy of the app is not connected to Pechkas, so nobody can sign in yet.</Text>
               <ThisCopy dark />
             </View>
           )}
           <Button label="Continue with mobile number" onPress={() => go('phone')} />
           <Button kind="outline" dark label="Continue with email" onPress={() => go('email')} />
-          <Text style={s.small}>New to Pechkas? Continuing creates your account. Customers and technicians use the same sign-in.</Text>
           <View style={s.legal}>
-            <Text style={s.small}>By continuing you agree to the</Text>
-            <View style={s.links}>
-              <Press onPress={() => Linking.openURL(TERMS_URL)} accessibilityRole="link" style={s.link}>
-                <Text style={s.linkText}>Terms of use</Text>
-              </Press>
-              <Text style={s.small}>and the</Text>
-              <Press onPress={() => Linking.openURL(PRIVACY_URL)} accessibilityRole="link" style={s.link}>
-                <Text style={s.linkText}>Privacy policy</Text>
-              </Press>
-            </View>
+            <Text style={s.small}>By continuing you agree to our</Text>
+            <Press onPress={() => Linking.openURL(TERMS_URL)} accessibilityRole="link" style={s.link}>
+              <Text style={s.linkText}>Terms</Text>
+            </Press>
+            <Text style={s.small}>and</Text>
+            <Press onPress={() => Linking.openURL(PRIVACY_URL)} accessibilityRole="link" style={s.link}>
+              <Text style={s.linkText}>Privacy Policy</Text>
+            </Press>
           </View>
-        </View>
-      </ScrollView>
-    </View>
-  );
-}
-
-function Point({ icon, text }: { icon: IconName; text: string }) {
-  return (
-    <View style={s.point}>
-      <View style={s.pointIcon}>
-        <Icon name={icon} size={18} color={colour.ink} strokeWidth={2.2} />
+        </Animated.View>
       </View>
-      <Text style={s.pointText}>{text}</Text>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colour.green },
-  content: { flexGrow: 1, paddingHorizontal: 22, gap: 28, justifyContent: 'space-between' },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  wordmark: { fontFamily: font.display, fontSize: 28, color: colour.paper, letterSpacing: -0.6 },
-  middle: { gap: 14 },
-  kicker: { fontFamily: font.bodySemi, fontSize: 15, color: colour.yellow },
-  title: { fontFamily: font.display, fontSize: 34, lineHeight: 38, color: colour.paper, letterSpacing: -0.8 },
-  points: { gap: 14, marginTop: 8 },
-  point: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  pointIcon: { width: 36, height: 36, borderRadius: radius.card - 4, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
-  pointText: { flex: 1, fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.paper },
-  bottom: { gap: 12 },
-  offline: { gap: 10, padding: 14, borderRadius: radius.big, backgroundColor: colour.ink },
+  // overflow hidden: a rotating box is larger than what it draws, and must never widen the screen.
+  screen: { flex: 1, backgroundColor: colour.green, overflow: 'hidden' },
+  content: { flex: 1, paddingHorizontal: 22, justifyContent: 'space-between' },
+  hero: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18 },
+  ring: { position: 'absolute', borderWidth: 1.5, borderColor: 'rgba(250,246,239,0.16)' },
+  ringInner: { position: 'absolute', borderWidth: 1, borderColor: 'rgba(250,246,239,0.08)' },
+  chip: { position: 'absolute', alignItems: 'center', justifyContent: 'center', backgroundColor: colour.greenDark, borderWidth: 1.5, borderColor: 'rgba(255,197,61,0.35)' },
+  center: { position: 'absolute' },
+  words: { alignItems: 'center', gap: 6 },
+  heroSmall: { gap: 10 },
+  wordmark: { fontFamily: font.display, fontSize: 44, color: colour.paper, letterSpacing: -1.2 },
+  wordmarkSmall: { fontSize: 34 },
+  line: { fontFamily: font.bodyMedium, fontSize: 16, lineHeight: 22, color: colour.paper, textAlign: 'center' },
+  actions: { gap: 12 },
+  offline: { gap: 10, padding: 14, borderRadius: 18, backgroundColor: colour.ink },
   offlineText: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.paper },
-  small: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.paper, textAlign: 'center' },
-  legal: { alignItems: 'center' },
-  links: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', columnGap: 6 },
+  legal: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', columnGap: 5 },
+  small: { fontFamily: font.body, fontSize: 12.5, color: colour.paper },
   link: { minHeight: TAP, justifyContent: 'center' },
-  linkText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.yellow, textDecorationLine: 'underline' },
+  linkText: { fontFamily: font.bodySemi, fontSize: 12.5, color: colour.yellow, textDecorationLine: 'underline' },
 });
