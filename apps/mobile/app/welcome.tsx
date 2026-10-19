@@ -71,7 +71,7 @@ export default function Welcome() {
 
   return (
     <Screen footer={<Button label="Continue" onPress={go} busy={busy} />}>
-      <Title>{known ? 'One more thing' : 'Assalam o Alaikum'}</Title>
+      <Title>{known ? 'One more thing' : 'Welcome'}</Title>
       {needsPhone ? (
         <Field
           label="Your mobile number"

@@ -178,7 +178,7 @@ ok('he cannot finish while she has not answered', (await me(BILAL, `SELECT publi
 {
   const m = await sent();
   const a = to(m, 'ayesha')[0];
-  ok('Ayesha is told, with both prices', a?.title === 'Bilal asks a new price: Rs 7,000' && /instead of Rs 5,500/.test(a?.body ?? ''), JSON.stringify(a));
+  ok('Ayesha is told, with both prices', a?.title === 'Bilal requests a new price: Rs 7,000' && /instead of Rs 5,500/.test(a?.body ?? ''), JSON.stringify(a));
   ok('the price has NOT changed yet', Number((await job(j1.id)).agreed_paisa) === 550000);
   const c = (await mine(AYESHA, j1.id))?.change;
   ok('her screen shows the request, the reason and the photo', c?.price_paisa === 700000 && /capacitor/.test(c?.reason) && c?.photo === receipt);
@@ -190,7 +190,7 @@ ok('he cannot finish while she has not answered', (await me(BILAL, `SELECT publi
   denied('nor approve a request by hand', await as('authenticated', AYESHA, `UPDATE public.job_changes SET status = 'approved' WHERE id = $1`, [c.id]));
   ok('Ayesha approves', (await me(AYESHA, `SELECT public.decide_change($1, true)`, [c.id])).value?.ok === true);
   ok('now it is the agreed price', Number((await job(j1.id)).agreed_paisa) === 700000);
-  ok('Bilal is told, in Roman Urdu', to(await sent(), 'bilal')[0]?.title === 'Nayi price manzoor: Rs 7,000');
+  ok('Bilal is told the price was approved', to(await sent(), 'bilal')[0]?.title === 'New price approved: Rs 7,000');
   ok('answering twice does nothing', (await me(AYESHA, `SELECT public.decide_change($1, false)`, [c.id])).value?.ok === false && (await job(j1.id)).status === 'assigned');
 }
 
@@ -244,7 +244,7 @@ heading('Declined: the job stops, and only the visit fee is owed');
   const row = await job(j2.id);
   ok('the job stops, owing the visit fee of Rs 300', row.status === 'stopped' && Number(row.collect_paisa) === 30000 && Number(row.agreed_paisa) === 550000);
   const b = to(await sent(), 'bilal')[0];
-  ok('Bilal is told to collect only that', b?.title === `Kaam band: ${j2.ref}` && /visit fee Rs 300/.test(b?.body ?? ''), JSON.stringify(b));
+  ok('Bilal is told to collect only that', b?.title === `Job stopped: ${j2.ref}` && /visit fee of Rs 300/.test(b?.body ?? ''), JSON.stringify(b));
   const lists = (await me(AYESHA, `SELECT public.app_lists()`)).value;
   ok('the post screen is told the visit fee range', lists?.visit_fee_min_paisa === 30000 && lists?.visit_fee_max_paisa === 100000);
   await setup(`UPDATE public.jobs SET finished_at = now() - interval '25 hours' WHERE id = $1`, [j2.id]);
@@ -259,7 +259,7 @@ heading('Cancelling while he is on the way');
   await me(BILAL, STEP, [j3.id, 'chosen']);
   await sent();
   ok('Ayesha can still cancel', (await me(AYESHA, `SELECT public.cancel_job($1)`, [j3.id])).value?.ok === true);
-  ok('Bilal is told not to go', /^Mat jayein/.test(to(await sent(), 'bilal')[0]?.body ?? ''));
+  ok('Bilal is told not to go', /^Please do not travel/.test(to(await sent(), 'bilal')[0]?.body ?? ''));
   ok('the step is cleared', (await job(j3.id)).stage === null);
 }
 
@@ -274,7 +274,7 @@ heading('Chat');
   {
     const m = await sent();
     const b = to(m, 'bilal')[0];
-    ok('Bilal is told there is a message, in Roman Urdu', b?.title === 'Naya message: Ayesha', JSON.stringify(b));
+    ok('Bilal is told there is a message', b?.title === 'New message from Ayesha', JSON.stringify(b));
     ok('but not what it says', !/green|House 12|ring/.test(JSON.stringify(m)));
   }
   const c = (await me(BILAL, CHAT, [j4.id])).value;

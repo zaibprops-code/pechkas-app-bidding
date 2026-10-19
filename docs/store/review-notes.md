@@ -47,7 +47,7 @@ Pechkas connects people in Islamabad who need a home repair with technicians Pec
 
 To try the customer side: sign in with the first number. Tap a trade (e.g. AC), choose a job, write a few words, choose sector F-11, add any street and house, choose "Now", and post. Jobs can only be posted in sectors F-11, E-11 and G-13.
 
-To try the technician side: on a second device, sign in with the second number. You land on the technician's screen (in Roman Urdu; tap "English" at the top right for English). Tap "Offline" to go online; the customer's job appears. Press "Qubool" to accept the price. On the customer's device, choose the technician in "My jobs".
+To try the technician side: on a second device, sign in with the second number. You land on the technician's screen. Tap "Offline" to go online; the customer's job appears. Press "Accept" to accept the price. On the customer's device, choose the technician in "My jobs".
 
 The app takes no payments: customers pay technicians in cash. Account deletion is in "Me" → "Delete my account", and at https://pechkas.net/app/delete-account.
 ```

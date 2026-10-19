@@ -18,7 +18,7 @@ type Lists = { trades: { slug: string; name: string }[]; sectors: string[] };
  */
 export default function Apply() {
   const { ready, session, account, refresh } = useAccount();
-  const { w, toggle } = useProWords();
+  const { w } = useProWords();
   const [lists, setLists] = useState<Lists | null>(null);
   const [fullName, setFullName] = useState(account?.pro?.full_name ?? '');
   const [trades, setTrades] = useState<string[]>(account?.pro?.trades ?? []);
@@ -69,9 +69,6 @@ export default function Apply() {
     <Screen dark footer={<Button label={busy ? w.sending : w.send} onPress={send} busy={busy} />}>
       <View style={s.top}>
         <Text style={s.brand}>pechkas pro</Text>
-        <Press onPress={toggle} sink={0.94} accessibilityRole="button" style={s.lang}>
-          <Text style={s.langText}>{w.switchTo}</Text>
-        </Press>
       </View>
       <Title dark>{w.applyTitle}</Title>
       <Body dark muted>{w.applyIntro}</Body>
@@ -124,8 +121,6 @@ function Group({ title, hint, error, children }: { title: string; hint?: string;
 const s = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   brand: { fontFamily: font.display, fontSize: 18, color: colour.paper },
-  lang: { minHeight: 44, paddingHorizontal: 14, justifyContent: 'center', borderRadius: radius.pill, borderWidth: 1.5, borderColor: 'rgba(250,246,239,0.3)' },
-  langText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.paper },
   label: { fontFamily: font.bodySemi, fontSize: 14, color: colour.paper },
   hint: { fontFamily: font.body, fontSize: 12, color: '#b9c2c9', marginTop: -4 },
   error: { fontFamily: font.bodySemi, fontSize: 13, color: '#ffb4a3' },

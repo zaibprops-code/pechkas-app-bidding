@@ -137,7 +137,7 @@ let all = [];
   ok('it goes to Expo\'s push service', m.every((x) => x.url === 'https://exp.host/--/api/v2/push/send'));
   const b = to(m, 'bilal')[0];
   const a = to(m, 'asad')[0];
-  ok('Bilal reads it in Roman Urdu', b?.title === 'Naya kaam: AC · F-11' && /Rs 5,500 · Abhi/.test(b.body), JSON.stringify(b));
+  ok('Bilal reads it in English, though his old app asked for Roman Urdu', b?.title === 'New job: AC · F-11' && /Rs 5,500 · As soon as possible\. Open the app to send your offer\./.test(b.body), JSON.stringify(b));
   ok('Asad reads it in English', a?.title === 'New job: AC · F-11' && /Ayesha · Rs 5,500 · As soon as possible/.test(a.body), JSON.stringify(a));
   ok('tapping it opens the technician\'s screen', b?.data?.url === '/pro' && b?.channelId === 'jobs');
 }
@@ -155,7 +155,7 @@ let all = [];
   const r = (await call('authenticated', AYESHA, POST, ['ac', 'Third one, booked', 300000, 'tomorrow', 'evening'])).value;
   const m = await sentSince();
   all.push(...m);
-  ok('a job booked for later says when', /Kal shaam/.test(to(m, 'bilal')[0]?.body ?? '') && /Tomorrow evening/.test(to(m, 'asad')[0]?.body ?? ''), JSON.stringify(m.map((x) => x.body)));
+  ok('a job booked for later says when', /Tomorrow evening/.test(to(m, 'bilal')[0]?.body ?? '') && /Tomorrow evening/.test(to(m, 'asad')[0]?.body ?? ''), JSON.stringify(m.map((x) => x.body)));
   await call('authenticated', AYESHA, `SELECT public.cancel_job($1)`, [r.job_id ?? r.id]);
   ok('cancelling an open job herself tells nobody', (await sentSince()).length === 0);
 }
@@ -196,7 +196,7 @@ ok('Asad asks Rs 6,000', (await call('authenticated', ASAD, `SELECT public.make_
 {
   const m = await sentSince();
   all.push(...m);
-  ok('his counter says so', /^Asad asks Rs 6,000 and can be there in 45 minutes/.test(to(m, 'ayesha')[0]?.body ?? ''), JSON.stringify(m));
+  ok('his counter says so', /^Asad offers Rs 6,000 and can be there in 45 minutes/.test(to(m, 'ayesha')[0]?.body ?? ''), JSON.stringify(m));
 }
 {
   await setup(`UPDATE public.offers SET expires_at = now() - interval '1 minute' WHERE pro_id = $1 AND job_id = $2`, [ASAD, jobId]);
@@ -213,9 +213,9 @@ heading('Choosing');
   const m = await sentSince();
   all.push(...m);
   const b = to(m, 'bilal')[0];
-  ok('Bilal is told, in Roman Urdu', b?.title === `Aap chun liye gaye: ${ref}` && /Ayesha ne Rs 5,500 par aap ko chuna/.test(b?.body ?? ''), JSON.stringify(b));
+  ok('Bilal is told he was chosen', b?.title === `You have been chosen: ${ref}` && /Ayesha accepted your offer of Rs 5,500/.test(b?.body ?? ''), JSON.stringify(b));
   const a = to(m, 'asad')[0];
-  ok('Asad, whose offer was live, is told she chose someone else', a?.title === `The customer chose someone else: ${ref}` && /^Not this time/.test(a?.body ?? ''), JSON.stringify(a));
+  ok('Asad, whose offer was live, is told she chose someone else', a?.title === `Another technician was chosen: ${ref}` && /^The customer chose another offer/.test(a?.body ?? ''), JSON.stringify(a));
   ok('nobody else (Ayesha chose, so she knows)', m.length === 2, JSON.stringify(m.map((x) => x.to)));
 }
 
@@ -227,7 +227,7 @@ ok('Ayesha cancels the job Bilal is on', (await call('authenticated', AYESHA, `S
   const m = await sentSince();
   all.push(...m);
   const b = to(m, 'bilal')[0];
-  ok('Bilal is told not to go', b?.title === `Kaam cancel: ${ref}` && /^Mat jayein/.test(b?.body ?? ''), JSON.stringify(b));
+  ok('Bilal is told not to go', b?.title === `Job cancelled: ${ref}` && /^Please do not travel/.test(b?.body ?? ''), JSON.stringify(b));
   ok('only Bilal', m.length === 1);
 }
 
@@ -239,7 +239,7 @@ heading('The office');
   ok('the office places Sara\'s job with Asad', (await call('authenticated', OWNER, `SELECT public.admin_assign($1, $2, 450000)`, [sara.id, ASAD])).value?.ok === true);
   let m = await sentSince();
   all.push(...m);
-  ok('Asad is told the office gave it to him', to(m, 'asad')[0]?.title === `Pechkas gave you a job: ${sara.ref}`, JSON.stringify(m));
+  ok('Asad is told the office gave it to him', to(m, 'asad')[0]?.title === `Pechkas has assigned you a job: ${sara.ref}`, JSON.stringify(m));
   ok('Sara is told who is coming, since she did not choose', to(m, 'sara')[0]?.title === `Asad is your technician for ${sara.ref}`, JSON.stringify(m));
   ok('those two only', m.length === 2);
 
@@ -267,7 +267,7 @@ heading('Offers on a job that is called off');
   ok('Ayesha cancels it while Bilal\'s offer is live', (await call('authenticated', AYESHA, `SELECT public.cancel_job($1)`, [j.id])).value?.ok === true);
   const m = await sentSince();
   all.push(...m);
-  ok('Bilal is told his offer is closed', to(m, 'bilal')[0]?.title === `Kaam cancel: ${j.ref}` && /offer band/.test(to(m, 'bilal')[0]?.body ?? ''), JSON.stringify(m));
+  ok('Bilal is told his offer is closed', to(m, 'bilal')[0]?.title === `Job cancelled: ${j.ref}` && /your offer is closed/.test(to(m, 'bilal')[0]?.body ?? ''), JSON.stringify(m));
   ok('Asad, who had taken his back, is not', to(m, 'asad').length === 0 && m.length === 1);
 }
 {
@@ -338,14 +338,17 @@ nothing('nobody can read the words table directly', await as('authenticated', AY
 ok('nobody can make the database say something', Boolean((await as('authenticated', AYESHA, `SELECT public.say('new_job.title', 'en')`)).error));
 ok('every slot in every message was filled', all.every((m) => !/\{[a-z_]+\}/.test(`${m.title} ${m.body}`)), JSON.stringify(all.find((m) => /\{/.test(`${m.title} ${m.body}`))));
 {
-  const urdu = all.filter((m) => m.to === token('bilal'));
-  ok('Bilal, who reads Roman Urdu, never got an English line', urdu.length >= 4 && urdu.every((m) => !/ the | you |Open it|Do not go/i.test(` ${m.title} ${m.body} `)), JSON.stringify(urdu.map((m) => m.title)));
+  const bilal = all.filter((m) => m.to === token('bilal'));
+  ok('Bilal, whose old app asked for Roman Urdu, only ever got English', bilal.length >= 4 && bilal.every((m) => !/\b(kaam|aap|nahi|kholein|chuna|jayein|baqaya|shukriya|Abhi|Kal)\b/i.test(`${m.title} ${m.body}`)), JSON.stringify(bilal.map((m) => m.title)));
 }
 {
-  const { rows } = await setup(`SELECT key FROM public.push_words WHERE who IN ('technician', 'both') AND ur IS NULL`);
-  ok('every message a technician can get has a Roman Urdu line', rows.length === 0, JSON.stringify(rows));
+  const { rows } = await setup(`SELECT count(*)::int AS n FROM public.push_tokens WHERE lang <> 'en'`);
+  ok('every phone is stored as English, whatever it asked for', rows[0].n === 0);
+  await setup(`UPDATE public.push_tokens SET lang = 'ur'`);
+  ok('and cannot be switched back to Roman Urdu', (await setup(`SELECT count(*)::int AS n FROM public.push_tokens WHERE lang <> 'en'`)).rows[0].n === 0);
   const r = await setup(`INSERT INTO public.push_words (key, sort, ur, en, who) VALUES ('test.title', 999, NULL, 'Only English', 'technician')`).then(() => 'allowed', (e) => e.message);
-  ok('and the database refuses one without it', /push_words_urdu/.test(r), r);
+  ok('a technician\'s message no longer needs a Roman Urdu line', r === 'allowed', r);
+  await setup(`DELETE FROM public.push_words WHERE key = 'test.title'`);
 }
 
 // =============================================================================

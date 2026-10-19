@@ -20,7 +20,7 @@ import { Work } from '../../src/pro/Work';
  */
 export default function ProHome() {
   const { ready, session, account, refresh } = useAccount();
-  const { w, toggle } = useProWords();
+  const { w } = useProWords();
   const insets = useSafeAreaInsets();
   const [names, setNames] = useState<Record<string, string>>({});
 
@@ -67,9 +67,6 @@ export default function ProHome() {
               <Text style={s.who}>{pro.full_name.split(' ')[0]}</Text>
             </View>
           </View>
-          <Press onPress={toggle} sink={0.94} accessibilityRole="button" style={s.pill}>
-            <Text style={s.pillText}>{w.switchTo}</Text>
-          </Press>
         </View>
 
         <View style={s.card}>
@@ -103,8 +100,6 @@ const s = StyleSheet.create({
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   brandText: { fontFamily: font.display, fontSize: 18, color: colour.paper },
   who: { fontFamily: font.body, fontSize: 12, color: '#b9c2c9' },
-  pill: { minHeight: 44, paddingHorizontal: 14, justifyContent: 'center', borderRadius: radius.pill, borderWidth: 1.5, borderColor: 'rgba(250,246,239,0.3)' },
-  pillText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.paper },
   card: { gap: 10, padding: 18, borderRadius: 24, backgroundColor: '#22282d' },
   badge: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   title: { fontFamily: font.display, fontSize: 26, lineHeight: 30, color: colour.paper, letterSpacing: -0.5 },

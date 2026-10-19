@@ -5,7 +5,6 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { ask } from './supabase';
-import type { Lang } from './words';
 
 /**
  * Notifications, from the phone's side. The database decides who is told
@@ -67,13 +66,13 @@ async function state(): Promise<NotifyState> {
  * quietly: a build without Firebase set up still works, it just cannot be
  * told anything, and the office sees that in the technician list.
  */
-export async function register(lang: Lang): Promise<NotifyState> {
+export async function register(): Promise<NotifyState> {
   const now = await state().catch(() => 'unavailable' as const);
   if (now !== 'on') return now;
   try {
     await channel();
     const { data } = await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined);
-    const r = await ask('save_push_token', { p_token: data, p_platform: Platform.OS, p_lang: lang });
+    const r = await ask('save_push_token', { p_token: data, p_platform: Platform.OS, p_lang: 'en' });
     if (r.ok) await AsyncStorage.setItem(KEY, data);
     return 'on';
   } catch {
@@ -82,7 +81,7 @@ export async function register(lang: Lang): Promise<NotifyState> {
 }
 
 /** Asks the person, then registers. Only ever from a button they pressed or a switch they flipped. */
-export async function turnOn(lang: Lang): Promise<NotifyState> {
+export async function turnOn(): Promise<NotifyState> {
   if (!SUPPORTED) return 'unavailable';
   try {
     await channel();
@@ -91,7 +90,7 @@ export async function turnOn(lang: Lang): Promise<NotifyState> {
   } catch {
     return 'unavailable';
   }
-  return register(lang);
+  return register();
 }
 
 /**
@@ -113,13 +112,13 @@ export async function forget(): Promise<void> {
  * Checked again whenever the app comes back to the front, because "turn it
  * on in Settings" means the person leaves and comes back.
  */
-export function useNotify(lang: Lang | null) {
+export function useNotify(ready: boolean) {
   const [notify, setNotify] = useState<NotifyState | null>(null);
 
-  // `null` means "not yet": nobody signed in, or the language still loading.
+  // `false` means "not yet": nobody is signed in.
   const check = useCallback(() => {
-    if (lang) register(lang).then(setNotify);
-  }, [lang]);
+    if (ready) register().then(setNotify);
+  }, [ready]);
 
   useEffect(() => {
     check();
@@ -130,8 +129,8 @@ export function useNotify(lang: Lang | null) {
   }, [check]);
 
   const ask = useCallback(async () => {
-    if (lang) setNotify(await turnOn(lang));
-  }, [lang]);
+    if (ready) setNotify(await turnOn());
+  }, [ready]);
 
   return { notify, ask };
 }

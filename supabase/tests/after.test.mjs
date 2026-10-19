@@ -189,7 +189,7 @@ const ASK = `SELECT public.ask_again($1)`;
   ok('for ten minutes', Math.abs(new Date(row.preferred_until) - new Date(row.created_at) - 600000) < 2000);
   ok('the request is used up', (await setup(`SELECT count(*)::int AS n FROM public.asked_for WHERE customer_id = $1`, [AYESHA])).rows[0].n === 0);
   let m = await sent();
-  ok('Bilal is told, in Roman Urdu, that she asked for him', to(m, 'bilal').some((x) => /dobara aap ko bulaya/.test(x.title) && /10 minute/.test(x.body)), JSON.stringify(to(m, 'bilal')));
+  ok('Bilal is told that she asked for him', to(m, 'bilal').some((x) => /asked for you again/.test(x.title) && /reserved for you for 10 minutes/.test(x.body)), JSON.stringify(to(m, 'bilal')));
   ok('nobody else is told', to(m, 'asad').length === 0 && to(m, 'kamran').length === 0);
   const bilalFeed = (await me(BILAL, `SELECT public.pro_feed()`)).value?.jobs ?? [];
   ok('it is at the top of his feed, marked as asked for him', bilalFeed[0]?.id === held.id && bilalFeed[0]?.asked_you === true && bilalFeed[0]?.asked_until);
@@ -428,7 +428,7 @@ heading('Nothing private ever leaves');
 
 {
   const { rows } = await setup(`SELECT key, ur, who FROM public.push_words WHERE key LIKE 'asked_again.%' OR key LIKE 'pref_passed.%'`);
-  ok('the technician\'s new message has Roman Urdu', rows.filter((r) => r.who === 'technician').length === 2 && rows.every((r) => r.who !== 'technician' || r.ur));
+  ok('the technician\'s new messages are there', rows.filter((r) => r.who === 'technician').length === 2);
   ok('a fair number of messages were looked at', all.length > 30, String(all.length));
   for (const [what, re] of [['street', /Street 34/], ['house', /House 12/], ['landmark', /markaz/], ['gate note', /Rafiq/], ['phone number', /\b0?3\d{9}\b|923\d{9}/]]) {
     ok(`no notification names a ${what}`, !all.some((x) => re.test(`${x.title} ${x.body}`)));

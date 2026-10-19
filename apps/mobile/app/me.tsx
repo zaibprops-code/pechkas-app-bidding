@@ -8,7 +8,6 @@ import { useAccount } from '../src/account';
 import { useNotify } from '../src/notifications';
 import { AGREEMENT_URL, PRIVACY_URL, TERMS_URL } from '../src/office';
 import { ask, supabase } from '../src/supabase';
-import { useProWords } from '../src/words';
 import { colour, font, radius } from '../src/theme';
 
 /**
@@ -27,8 +26,7 @@ export default function Me() {
   // A technician's notifications are in the language he chose; everyone
   // else's are English. Saved again from here, so whoever is on this screen
   // — the owner included, for the office's alerts — can turn them on.
-  const { lang, known } = useProWords();
-  const { notify, ask: askNotify } = useNotify(!session || !account ? null : dark ? (known ? lang : null) : 'en');
+  const { notify, ask: askNotify } = useNotify(Boolean(session && account));
 
   const back = <Button kind="outline" dark={dark} label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />;
 

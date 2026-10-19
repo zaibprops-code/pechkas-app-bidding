@@ -69,7 +69,7 @@ export default function Jobs() {
   const { posted, asked } = useLocalSearchParams<{ posted?: string; asked?: string }>();
   const { ready, session, account } = useAccount();
   const lists = useLists();
-  const { notify, ask: askNotify } = useNotify('en');
+  const { notify, ask: askNotify } = useNotify(true);
   const insets = useSafeAreaInsets();
   const [jobs, setJobs] = useState<Job[] | null>(null);
   const [problem, setProblem] = useState<string | null>(null);

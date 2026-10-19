@@ -172,11 +172,11 @@ heading('The credit limit');
   }
   ok('he owes Rs 3,000: at the limit, not over it', (await owed(BILAL)) === 300000);
   const m0 = await sent();
-  ok('not told yet: he has not crossed it', to(m0, 'bilal').every((x) => !/baqaya/.test(x.title)));
+  ok('not told yet: he has not crossed it', to(m0, 'bilal').every((x) => !/Balance due/.test(x.title)));
   const j = await working(BILAL, 100000, await stranger());
   await me(BILAL, FINISH, [j.id, JSON.stringify([await upload(BILAL)]), 0, null]);
   ok('one more job puts him over: Rs 3,100', (await owed(BILAL)) === 310000);
-  ok('and he is told, once, in Roman Urdu', to(await sent(), 'bilal').some((x) => x.title === 'Pechkas ka baqaya: Rs 3,100'));
+  ok('and he is told, once', to(await sent(), 'bilal').some((x) => x.title === 'Balance due to Pechkas: Rs 3,100'));
   const feed = (await me(BILAL, `SELECT public.pro_feed()`)).value;
   ok('his screen knows he is stopped', feed?.blocked === true && feed?.owed_paisa === 310000);
   const open = (await me(SARA, `SELECT public.post_job(p_trade => 'ac', p_job_type => NULL, p_description => 'Sara needs an AC service',
@@ -199,7 +199,7 @@ const SETTLE = `SELECT public.admin_settle($1, $2, $3, $4, $5)`;
   ok('the office records Rs 2,000 by JazzCash', (await me(OWNER, SETTLE, [BILAL, 200000, 'jazzcash', 'TID 88123', 'key-bilal-0005'])).value?.ok === true);
   ok('pressed again — the same form — nothing more is recorded', (await me(OWNER, SETTLE, [BILAL, 200000, 'jazzcash', 'TID 88123', 'key-bilal-0005'])).value?.already === true);
   ok('he now owes Rs 1,100', (await owed(BILAL)) === 110000);
-  ok('he is told, in Roman Urdu', to(await sent(), 'bilal').some((x) => x.title === 'Pechkas ko Rs 2,000 mil gaye' && /Rs 1,100/.test(x.body)));
+  ok('he is told', to(await sent(), 'bilal').some((x) => x.title === 'Payment received: Rs 2,000' && /Rs 1,100/.test(x.body)));
   ok('and can offer again', (await me(BILAL, `SELECT public.make_offer($1, 300000, 20, NULL)`, [globalThis.openJob.id])).value?.ok === true);
   ok('the ledger still adds up to nothing', await balanced());
 

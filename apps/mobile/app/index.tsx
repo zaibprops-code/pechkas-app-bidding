@@ -48,7 +48,7 @@ export default function Home() {
             </View>
           </View>
 
-          <Text style={styles.salaam}>Assalam o Alaikum</Text>
+          <Text style={styles.salaam}>Welcome to Pechkas</Text>
           <Text style={styles.title} accessibilityRole="header">
             What needs fixing today?
           </Text>

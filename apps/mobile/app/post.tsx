@@ -427,10 +427,10 @@ export default function Post() {
           </View>
         ) : null}
         <View style={s.wrap}>
-          <Chip label="He brings parts, I pay the shop receipt" on={d.parts === 'pro_buys'} onPress={() => update({ parts: d.parts === 'pro_buys' ? null : 'pro_buys' })} />
+          <Chip label="The technician brings parts; I pay the shop receipt" on={d.parts === 'pro_buys'} onPress={() => update({ parts: d.parts === 'pro_buys' ? null : 'pro_buys' })} />
           <Chip label="I already have the part" on={d.parts === 'customer_has'} onPress={() => update({ parts: d.parts === 'customer_has' ? null : 'customer_has' })} />
         </View>
-        <Field label="Note for the gate (optional)" value={d.gateNote} onChangeText={(v) => update({ gateNote: v })} placeholder="Chowkidar will open. Ring twice." maxLength={120} error={errors.gate_note} />
+        <Field label="Note for the gate (optional)" value={d.gateNote} onChangeText={(v) => update({ gateNote: v })} placeholder="The guard will open the gate. Please ring twice." maxLength={120} error={errors.gate_note} />
       </Section>
 
       <View style={s.offer}>

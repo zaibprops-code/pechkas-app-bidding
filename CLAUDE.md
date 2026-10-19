@@ -121,8 +121,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   it is then the owner's record. He can never set his own status.
 - `delete_my_account()` deletes the `auth.users` row and everything cascades.
   Both stores require it inside the app.
-- Database refusals are English. On the technician side `proError()` turns
-  the `field` into his language — put the words in `words.ts`, not the SQL.
+- Database refusals are English. On the technician side `proError()` picks
+  the matching line for the `field` — put the words in `words.ts`, not the SQL.
 - The `EXPO_PUBLIC_*` and `VITE_*` values are baked in **at build time**.
   Without them the app says it is not connected and the admin panel says so
   too; Vite even drops the code that would use them. Set them in Expo and
@@ -206,13 +206,18 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   minute by `pg_cron`, marks `needs_you_told_at` first. It goes to the app
   signed in as each active staff member's `alert_phone`, set in the admin
   panel. Jobs older than a day are never announced.
-- **Every word is in `push_words`** (key, `ur`, `en`), filled by `say()`
-  with `{slots}`; a slot can be per language as `name_ur` / `name_en`. `ur`
-  is NULL only for customer and office messages, and a test fails if a
-  technician's message lacks it. Change wording with a migration that
-  updates the table. **`docs/ROMAN_URDU.md` is generated** by `npm run
-  words` from `words.ts` and the migrated table; `npm run check` fails if it
-  is stale, so the owner never reviews an old list.
+- **Every word is in `push_words.en`**, filled by `say()` with `{slots}`.
+  Change wording with a migration that updates the table.
+- **English only, everywhere — the owner's decision.** Roman Urdu read as
+  informal and unofficial, so the screens, the notifications and the store
+  copy are formal English for customers and technicians alike. There is no
+  language switch. The `push_tokens_english` trigger stores every phone as
+  `'en'` whatever it asks, so an older app cannot bring Roman Urdu back;
+  `push_words.ur` still holds the old lines, unused, only so the older
+  migrations can be run a second time. Do not add a translation without
+  being asked; a real Urdu version would need Urdu script and a native
+  speaker to check every line. Customers may still send a voice note in
+  Urdu — that is how they describe a fault, not how the app speaks.
 - `push_tokens` is keyed by token, so a phone signed in as somebody else
   moves to them. `signOut()` calls `forget()` **before** signing out, while
   the database still knows who is asking. Five phones per person at most.
@@ -274,8 +279,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - **`job_events` is the record**: `on_job_logged` writes posting, every
   status and step, the functions add codes, prices and problems, each with
   who did it. Nobody can write or read it directly.
-- `push_words.who` says who reads each message; the database refuses a
-  technician's message without Roman Urdu (`push_words_urdu`).
+- `push_words.who` says who reads each message.
 - The office number in the app is `src/office.ts`, copied from the
   website's `site.js` — never invent one.
 
@@ -457,8 +461,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - **No decoration.** The owner rejected truck-art and ajrak as unprofessional.
   The app is Pakistani in how it works: voice notes in Urdu, landmarks beside
   the pin, load-shedding asked about, parts with a shop receipt, the
-  chowkidar at the gate, family told who is coming, Roman Urdu on the
-  technician side (the owner checks every line).
+  guard at the gate, family told who is coming. The words are formal
+  English throughout.
 - Customer side light, technician side dark.
 - **Only `transform` moves.** `Press` sinks on tap and buzzes; it never eases
   a colour. A control whose text colour changes between states eases no

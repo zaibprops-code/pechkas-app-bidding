@@ -7,6 +7,20 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Formal English everywhere (new).** The Roman Urdu is gone: every screen,
+button and notification is in formal English, for customers and technicians
+alike, and the technician side has no language switch any more. "Assalam o
+Alaikum" is now "Welcome", and the gate note talks about the guard. The store
+screenshots were taken again. To get it:
+
+1. **Supabase → SQL Editor:** run `20261027000000_english_only.sql`. It
+   should say **Success**. From then on every notification is in English —
+   even on a technician's phone that still has the old app.
+2. **Expo:** a new **preview** build from `main`, and install it.
+3. Go online as a technician: no **English** button at the top, and every
+   line is English. **Me → This copy of the app** should say **Database:
+   up to date**.
+
 **Signing in with an email code (new).** On the sign-in screen, **Use my
 email instead** sends a code by email — no Twilio needed. Somebody who signs
 in by email types their mobile number next, because the technician they
@@ -45,7 +59,7 @@ below.
 - **"Ask Bilal again."** On a finished job the customer has an **Ask Bilal
   again** button. Her next job in that trade goes to **him alone for 10
   minutes**, with a yellow-edged card at the top of his screen, then to
-  every checked technician. He can tap **Is dafa nahi aa sakta** and it
+  every checked technician. He can tap **I am unavailable this time** and it
   goes to everyone at once (she is told); she can tap **Ask everyone now**.
   If he is offline, over the credit limit, or does not work in her sector,
   it is never held — it goes to everyone straight away and her screen says
@@ -115,7 +129,7 @@ version comes after Android is live.
 
 **Phase 5 — money and trust.**
 
-- **Parts and commission.** At **Kaam mukammal** the technician says what he
+- **Parts and commission.** At **Mark job as done** the technician says what he
   spent on parts and photographs the shop receipt. Pechkas' fee is 10% of the
   rest — his labour — rounded down. The customer sees the split and the
   receipt.
@@ -131,8 +145,7 @@ version comes after Android is live.
   you record it in **Admin → Money → Record a payment** with the
   transaction ID. His phone is told. You type, once, where technicians
   should send money; until you do, the app tells them to ask the office.
-- **His account.** The technician taps **Pechkas ka baqaya** for **Mera
-  hisaab**: what he owes, this month's jobs, parts and fees, his stars, what
+- **His account.** The technician taps **You owe Pechkas** for **My account**: what he owes, this month's jobs, parts and fees, his stars, what
   customers said, and every line.
 - **Ratings.** Both rate each other, 1 to 5 stars. Neither sees the other's
   until both have rated or two days pass. Customers see a technician's
@@ -150,8 +163,7 @@ version comes after Android is live.
 **Phase 4 — doing the job.** Once a customer has chosen a technician, the
 job goes step by step, and every step is written down for you:
 
-1. He taps **Rasta pakar liya** (on my way) and then **Pohanch gaya**
-   (arrived). Her phone buzzes at each.
+1. He taps **I am on my way** and then **I have arrived**. Her phone buzzes at each.
 2. Her app shows a **4-digit start code**. He types it in at the gate with a
    **photo of how it was** before he can start. It proves the man at the
    door is the one the app sent. Five wrong codes lock it, your phone is
@@ -308,15 +320,9 @@ not a new app.
   will still see jobs and can still offer — nobody is sent anywhere without
   the customer choosing him, so the harm is small. Say if you want it to
   switch off by itself after some hours.
-- **Every Roman Urdu line is in one list: `docs/ROMAN_URDU.md`** —
-  notifications first, then the screens, each beside its English. Open it
-  on GitHub on your phone, read it as a technician would, and send Claude
-  the name in the first column and what it should say.
 - **Price guidance.** Within 20% of the website price the app says "Fair";
   below that "Low"; above "Generous". Say if you want different words or
   limits.
-- **The Roman Urdu on the technician screens.** Read every line on your phone
-  and send corrections. The words are all in `apps/mobile/src/words.ts`.
 - **Who sends the real sign-in codes** (an SMS company, or WhatsApp). Until
   then, only the test numbers you add in Supabase can sign in.
 - Launch sectors (where your first technicians live).
@@ -409,8 +415,7 @@ already: `…_foundations.sql`, then `…_accounts_and_technicians.sql`.
 2. Choose **I fix things**, fill in the form, send it.
 3. Open the admin panel, sign in with your email, find yourself under
    **Waiting**, record the three checks, press **Approve**.
-4. On the phone, pull the technician screen down to refresh: it should say
-   **Mubarak ho, aap approve ho gaye**.
+4. On the phone, pull the technician screen down to refresh: it should open the technician work screen, with the **Offline / Online** switch at the top.
 5. **Me → Delete my account** should remove you completely. If it says
    "Something went wrong", tell Claude — Supabase sometimes needs one extra
    permission for this.
@@ -490,9 +495,7 @@ one is an approved technician. Each needs its own test number in Supabase
    to ask Rs 200 more, choose **30 min**, and send it.
 6. **The customer phone:** within 10 seconds **My jobs** shows the offer with
    "His price" under it. Press **Choose …** and then **Yes**.
-7. **The technician phone:** the job moves to **Mere kaam** with the full
-   address, the customer's number, **Call karein** and **Naqsha kholein**
-   (the map).
+7. **The technician phone:** the job moves to **My jobs** with the full address, the customer's number, **Call customer** and **Open the map**.
 8. **The customer phone:** shows the technician's name, **Call**, and **Send
    his name to family on WhatsApp**.
 9. **Admin panel → Jobs → Technician chosen:** the job is there with both
@@ -597,23 +600,19 @@ Two phones again: one customer, one approved technician.
    green card says **Know when offers arrive** — press **Turn on
    notifications** → **Allow**.
 3. **Lock the technician's phone.** On the customer phone, post a second
-   job. Within a few seconds the technician's phone should buzz: **Naya
-   kaam: AC · F-11** (or the trade and sector you used). Tap it: the app
+   job. Within a few seconds the technician's phone should buzz: **New job: AC · F-11** (or the trade and sector you used). Tap it: the app
    opens on his work screen, with the job on it.
 4. **Lock the customer's phone.** On the technician phone, send an offer.
    The customer's phone buzzes: **New offer on PK-…**. Tap it.
-5. Choose the technician. His phone buzzes: **Aap chun liye gaye**.
-6. Cancel the job from the customer phone. His phone buzzes: **Kaam
-   cancel … Mat jayein**.
+5. Choose the technician. His phone buzzes: **You have been chosen**.
+6. Cancel the job from the customer phone. His phone buzzes: **Job cancelled … Please do not travel**.
 7. **Two technicians:** if you have a third phone, let both technicians
-   offer, choose one, and check the other's phone says **Customer ne kisi
-   aur ko chuna**.
+   offer, choose one, and check the other's phone says **Another technician was chosen**.
 8. **Your alert:** post a job and let nobody offer. About 15 minutes later
    your phone says **No offers yet on PK-…**, once.
 9. **Admin panel → Jobs → Open → Place it by hand:** a technician who has
    not allowed notifications says **no notifications, ring him** beside his
    name.
-10. Read `docs/ROMAN_URDU.md` and tell Claude what to change.
 
 **If nothing arrives:**
 - Supabase → **Table Editor** → `push_log` shows every notification the
@@ -633,23 +632,22 @@ Two phones again: one customer, one approved technician.
 say **Success**. Then start a new **preview** build and install it on both
 phones. Use one customer phone and one approved technician phone.
 
-1. **Customer:** post a job. **Technician:** go Online and press **Qubool**.
+1. **Customer:** post a job. **Technician:** go Online and press **Accept**.
    **Customer:** choose him.
-2. **Technician:** **Mere kaam** shows the job with a yellow **Rasta pakar
-   liya** button. Tap it. The customer's phone buzzes "… is on his way" and
+2. **Technician:** **My jobs** shows the job with a yellow **I am on my way** button. Tap it. The customer's phone buzzes "… is on his way" and
    her **My jobs** shows a big **start code**.
-3. **Technician:** tap **Pohanch gaya**. Her phone buzzes "… has arrived".
+3. **Technician:** tap **I have arrived**. Her phone buzzes "… has arrived".
 4. **Technician:** type a **wrong** code, take a photo with **+**, press
-   **Kaam shuru karein**. It says the code is wrong and how many tries are
+   **Start the job**. It says the code is wrong and how many tries are
    left. Now type the right code from her screen and press it again.
-5. **Technician:** **Nayi price bhejein** → type a higher price, a reason
-   and take a photo → **Customer ko bhejein**. Her phone buzzes. On her
+5. **Technician:** **Request a new price** → type a higher price, a reason
+   and take a photo → **Send to the customer**. Her phone buzzes. On her
    screen: the new price, the reason and the photo, with **Approve Rs …**
    and **Decline**. Press **Approve**.
 6. **Both:** press **Message** and send each other a line.
-7. **Technician:** take an **after** photo and press **Kaam mukammal**. Her
+7. **Technician:** take an **after** photo and press **Mark job as done**. Her
    screen says **Done. Pay … in cash**, with the before and after photos.
-   His shows it under **Pichle 24 ghante** with what to collect — and the
+   His shows it under **Last 24 hours** with what to collect — and the
    address is gone from his phone.
 8. **Customer:** **Something is wrong** → write a line → **Send to
    Pechkas**. Your phone is told.
@@ -670,28 +668,27 @@ say **Success**. Then a new **preview** build on both phones.
 
 1. **Admin panel → Money → Where technicians pay:** type your JazzCash (or
    bank) details as technicians should see them, and **Save**.
-2. Run a job as in phase 4 up to **Kaam shuru karein**.
+2. Run a job as in phase 4 up to **Start the job**.
 3. **Customer:** press **Emergency**. Your phone buzzes **EMERGENCY on
    PK-…** at once. The screen shows the four numbers. Press **Pressed by
    mistake** — your phone is told that too.
-4. **Technician:** take the after photo, type **1500** in **Parts par
-   kharcha**, photograph a receipt, and see the fee change to 10% of the
-   rest. Press **Kaam mukammal**.
+4. **Technician:** take the after photo, type **1500** in **Spent on parts**, photograph a receipt, and see the fee change to 10% of the
+   rest. Press **Mark job as done**.
 5. **Customer:** the card says what was parts and what was his work, with
    the receipt photo. Give him stars and a line.
-6. **Technician:** under **Pichle 24 ghante**, rate the customer. Then tap
-   **Pechkas ka baqaya** at the top: **Mera hisaab** shows what he owes,
+6. **Technician:** under **Last 24 hours**, rate the customer. Then tap
+   **You owe Pechkas** at the top: **My account** shows what he owes,
    the month, and — now both have rated — her stars and words.
 7. **Admin → Problems:** the emergency is there, with both numbers and the
    address. Write what you did and **Close it**.
 8. **Admin → Money:** **Record a payment** for him — amount, **JazzCash**,
-   a transaction ID — and save. His phone says **Pechkas ko … mil gaye**.
+   a transaction ID — and save. His phone says **Payment received: …**.
    **Account, line by line** shows the fee and the payment. Try **Undo** on
    the payment with a reason: it is struck through, not deleted, and he owes
    it again.
 9. **The credit limit:** jobs worth about Rs 31,000 of labour take a
    technician past Rs 3,000. His phone says so, his work screen turns red,
-   and **Qubool** is refused until you record a payment.
+   and **Accept** is refused until you record a payment.
 10. **Guarantee:** a day after a job is done, the customer's card shows
     **It has failed again (guarantee)**. A claim lands in Problems.
 
@@ -708,11 +705,11 @@ panel redeploys by itself on Vercel.
 2. **Customer → My jobs:** the finished job has **Ask Bilal again** (his
    name). Tap it. The post screen says **Asking Bilal first**. Fill it in
    and **Post job**. The green box says it was sent to him first.
-3. **Technician:** his phone buzzes **Customer ne dobara aap ko bulaya**.
+3. **Technician:** his phone buzzes **A customer has asked for you again**.
    The job is at the top with a yellow edge, and under the price it says
-   the Pechkas fee is **only 7%** — **Aap ko milenge** is 93% of the price.
+   the Pechkas fee is **only 7%** — **You keep** is 93% of the price.
 4. **A second technician phone, if you have one:** the job is **not** there.
-5. **Technician:** tap **Is dafa nahi aa sakta**. The customer's phone
+5. **Technician:** tap **I am unavailable this time**. The customer's phone
    buzzes **Bilal cannot take PK-…**, and the second technician now sees the
    job, at 10%.
 6. Post another, ask for him again, and this time **wait 10 minutes**: it
@@ -1146,6 +1143,7 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | `20261024000000_settings_and_blocks.sql` | The settings screen with its safe ranges and record of changes, opening and closing sectors, customers blocking a technician | Tenth — **run it for phase 8** |
 | `20261025000000_email_sign_in.sql` | Signing in with an email code: the mobile number an email account types, marked not checked | Eleventh — **run it for email sign-in** |
 | `20261026000000_what_has_run.sql` | Lets the app's Me screen say whether the database is up to date | Twelfth |
+| `20261027000000_english_only.sql` | Every notification in formal English, for technicians too, even on a phone with an older app | Thirteenth |
 
 ---
 
@@ -1159,7 +1157,7 @@ To see which have been run: **Table Editor** → `applied_migrations`.
 | Your admin login | Supabase → Authentication → Users (your email); the office list is the `staff` table |
 | The admin panel | Vercel → pechkas-app-bidding (Root Directory `apps/admin`) |
 | Words on the technician screens | `apps/mobile/src/words.ts` |
-| Every Roman Urdu line, beside its English | `docs/ROMAN_URDU.md` (written by `npm run words`) |
+| Every word on the technician's screens | `apps/mobile/src/words.ts` |
 | Words in the notifications | the `push_words` table, set in `supabase/migrations/20261020000000_who_else_hears.sql` and `…21000000_doing_the_job.sql` |
 | Who owes what, and payments | Admin panel → **Money** (the ledger is the tables `ledger_txns` and `ledger_entries`; they refuse any edit) |
 | Problems, claims, emergencies | Admin panel → **Problems** |

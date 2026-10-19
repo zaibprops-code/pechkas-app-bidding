@@ -66,8 +66,8 @@ const EVERY = 15000;
 const ETAS = [15, 30, 45, 60, 90];
 
 export function Work({ firstName }: { firstName: string }) {
-  const { w, lang, known, toggle } = useProWords();
-  const { notify, ask: askNotify } = useNotify(known ? lang : null);
+  const { w } = useProWords();
+  const { notify, ask: askNotify } = useNotify(true);
   const lists = useLists();
   const insets = useSafeAreaInsets();
   const [feed, setFeed] = useState<Feed | null>(null);
@@ -127,11 +127,6 @@ export function Work({ firstName }: { firstName: string }) {
               <Text style={s.brandText}>pechkas pro</Text>
               <Text style={s.who}>{firstName}</Text>
             </View>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Press onPress={toggle} sink={0.94} accessibilityRole="button" style={s.pill}>
-              <Text style={s.pillText}>{w.switchTo}</Text>
-            </Press>
           </View>
         </View>
 
@@ -396,8 +391,6 @@ const s = StyleSheet.create({
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   brandText: { fontFamily: font.display, fontSize: 18, color: colour.paper },
   who: { fontFamily: font.body, fontSize: 12, color: '#b9c2c9' },
-  pill: { minHeight: 44, paddingHorizontal: 14, justifyContent: 'center', borderRadius: radius.pill, borderWidth: 1.5, borderColor: 'rgba(250,246,239,0.3)' },
-  pillText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.paper },
   toggle: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, padding: 14, borderRadius: radius.big },
   toggleTitle: { fontFamily: font.display, fontSize: 20 },
   toggleSub: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: '#b9c2c9', marginTop: 2 },

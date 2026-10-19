@@ -162,7 +162,7 @@ A second test account, an approved technician: [TECHNICIAN REVIEWER NUMBER], cod
 
 Customer: sign in with the first number, tap a trade (e.g. AC), choose a job, write a few words, choose sector F-11, add any street and house, choose "Now", and post. Jobs can only be posted in sectors F-11, E-11 and G-13.
 
-Technician: on a second device, sign in with the second number. The technician's screen is in Roman Urdu; tap "English" at the top right for English. Tap "Offline" to go online; the customer's job appears. Press "Qubool" to accept the price. Back on the customer's device, choose the technician in "My jobs".
+Technician: on a second device, sign in with the second number. Tap "Offline" to go online; the customer's job appears. Press "Accept" to accept the price. Back on the customer's device, choose the technician in "My jobs".
 
 The app sells no digital goods and takes no payments: it arranges repairs done in person at the customer's home, paid for in cash to the technician (guideline 3.1.3(e)).
 
