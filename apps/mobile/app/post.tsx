@@ -227,7 +227,7 @@ export default function Post() {
     }
 
     setProgress('Posting…');
-    const r = await ask<{ ref: string }>('post_job', {
+    const r = await ask<{ id: string; ref: string }>('post_job', {
       p_trade: d.trade,
       p_job_type: d.jobType,
       p_description: d.description,
@@ -257,8 +257,13 @@ export default function Post() {
       JSON.stringify({ sector: d.sector, street: d.street, house: d.house, landmark: d.landmark, gateNote: d.gateNote }),
     ).catch(() => {});
     clearDraft();
-    if (router.canDismiss()) router.dismissAll();
-    router.replace({ pathname: '/jobs', params: d.askFor ? { posted: r.ref, asked: d.askFor.name } : { posted: r.ref } });
+    // Straight to the job's own live screen, the way a ride app goes to the
+    // search — on top of home, so Back from it is home, not the empty form.
+    const live = { pathname: '/job/[id]', params: d.askFor ? { id: r.id, asked: d.askFor.name } : { id: r.id } } as const;
+    if (router.canDismiss()) {
+      router.dismissAll();
+      router.push(live);
+    } else router.replace(live);
   }
 
   const zone = !chosen?.list_paisa

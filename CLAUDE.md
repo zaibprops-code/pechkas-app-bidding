@@ -251,6 +251,23 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `useNotify(null)` waits: a technician's language must be read from the
   phone before his token is saved, or it is saved in the wrong one.
 
+### A job, live (`app/job/[id].tsx`)
+- **Posting lands on the job's own screen**, the way a ride app lands on
+  the search: `Searching` (the screw turning in rings that only grow) while
+  it is open, the offers right under it, then the same screen follows the
+  visit. It renders `JobCard` from `src/customer/JobCard.tsx`, which My
+  jobs uses too, so the two can never disagree. It asks `my_jobs()` every
+  5 s while open and 10 s after, only while in front.
+- **Home shows what is still happening** (`LiveCard` in `app/index.tsx`),
+  from `my_jobs()` every 10 s while focused; finished jobs are the recent
+  list under the question. Every headline is read from the job's own status
+  and step — nothing estimated, no "usually replies in" figure.
+- After posting, `post.tsx` dismisses to home and **pushes** the job, so
+  Back from it is home, never the empty form.
+- Not built, both waiting on the owner (`docs/OWNER.md`): a customer
+  declining one offer (needs a function, and a rule for telling him) and
+  raising her price while waiting (money).
+
 ### Doing the job (phase 4)
 - **Status and step are separate.** `status` is open → assigned → done |
   stopped | cancelled; while `assigned`, `stage` is chosen → on_way →

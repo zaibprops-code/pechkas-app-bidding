@@ -8,6 +8,8 @@ import { Icon, type IconName } from '../src/components/Icon';
 import { askPosition, ISLAMABAD, knownPosition, MapBox, mapsReady, type Point } from '../src/components/Map';
 import { MenuButton } from '../src/components/Menu';
 import { Press } from '../src/components/Press';
+import { ScrewSpinner } from '../src/components/ScrewSpinner';
+import { rupees } from '@pechkas/shared';
 import { useArrive } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { supabase } from '../src/supabase';
@@ -23,7 +25,22 @@ import { colour, font, radius, TAP } from '../src/theme';
  * this person's own, from my_jobs(); with none, the list is simply absent.
  */
 
-type Recent = { id: string; ref: string; title: string; trade: string; status: string; live_offers: number };
+type Recent = {
+  id: string;
+  ref: string;
+  title: string;
+  trade: string;
+  status: string;
+  live_offers: number;
+  offered_paisa: number;
+  stage: 'chosen' | 'on_way' | 'arrived' | 'working' | null;
+  pro: { first_name: string } | null;
+};
+
+const LIVE_EVERY = 10000;
+
+/** A job still happening: the one the home screen puts on top, as inDrive puts the ride. */
+const isLive = (j: Recent) => j.status === 'open' || j.status === 'assigned';
 
 const post = (params: { trade?: string; start?: string } = {}) => router.push({ pathname: '/post', params });
 
@@ -39,7 +56,10 @@ export default function Home() {
   const insets = useSafeAreaInsets();
   const { account } = useAccount();
   const { height } = useWindowDimensions();
-  const [recent, setRecent] = useState<Recent[]>([]);
+  const [jobs, setJobs] = useState<Recent[]>([]);
+  const live = jobs.filter(isLive).slice(0, 2);
+  // The last two that are over; the ones still happening are in the live cards.
+  const recent = jobs.filter((j) => !isLive(j)).slice(0, 2);
   // The map shows where the phone is only if the person has already allowed
   // it; otherwise Islamabad. It asks only when the locate button is pressed.
   const withMap = mapsReady();
@@ -62,11 +82,16 @@ export default function Home() {
     useCallback(() => {
       if (!supabase || account?.role !== 'customer') return;
       let alive = true;
-      supabase.rpc('my_jobs').then(({ data }) => {
-        if (alive && Array.isArray(data)) setRecent((data as Recent[]).slice(0, 2));
-      });
+      const load = () =>
+        supabase?.rpc('my_jobs').then(({ data }) => {
+          if (alive && Array.isArray(data)) setJobs(data as Recent[]);
+        });
+      load();
+      // Offers arrive while she is looking at home, as they do on inDrive's.
+      const t = setInterval(load, LIVE_EVERY);
       return () => {
         alive = false;
+        clearInterval(t);
       };
     }, [account?.role]),
   );
@@ -75,6 +100,13 @@ export default function Home() {
 
   const body = (
     <>
+        {live.length ? (
+          <View style={s.liveStack}>
+            {live.map((j) => (
+              <LiveCard key={j.id} job={j} />
+            ))}
+          </View>
+        ) : null}
         <View style={s.greeting}>
           <Text style={s.hello}>{account?.first_name ? `Hello, ${account.first_name}` : 'Hello'}</Text>
           <Text style={s.title} accessibilityRole="header">
@@ -101,7 +133,7 @@ export default function Home() {
               <Text style={s.searchText}>What needs fixing & for how much?</Text>
             </Press>
             {recent.map((j) => (
-              <Press key={j.id} onPress={() => router.push('/jobs')} accessibilityRole="button" sink={0.98} style={s.recent}>
+              <Press key={j.id} onPress={() => router.push(`/job/${j.id}`)} accessibilityRole="button" sink={0.98} style={s.recent}>
                 <Icon name="clock" size={22} color={colour.steel} strokeWidth={2} />
                 <View style={{ flex: 1 }}>
                   <Text style={s.recentTitle} numberOfLines={1}>
@@ -244,7 +276,68 @@ function Promise({ icon, text }: { icon: IconName; text: string }) {
   );
 }
 
+/**
+ * A job in progress, on top of home. Open: the screw turning, and how many
+ * offers there are — yellow, the one highlight, once there is something to
+ * choose. Chosen: who is coming and where he has got to. Tapping it opens
+ * the job's live screen.
+ */
+function LiveCard({ job }: { job: Recent }) {
+  const name = job.pro?.first_name;
+  const offers = job.live_offers;
+  const title =
+    job.status === 'open'
+      ? offers
+        ? 'Choose a technician'
+        : 'Finding a technician'
+      : !name
+        ? 'Technician chosen'
+        : job.stage === 'on_way'
+          ? `${name} is on his way`
+          : job.stage === 'arrived'
+            ? `${name} has arrived`
+            : job.stage === 'working'
+              ? `${name} is working on it`
+              : `${name} is your technician`;
+  return (
+    <Press onPress={() => router.push(`/job/${job.id}`)} accessibilityRole="button" accessibilityLabel={`${title}. ${job.title}`} sink={0.98} style={s.live}>
+      {job.status === 'open' ? (
+        <ScrewSpinner size={40} label={title} />
+      ) : (
+        <View style={s.liveAvatar}>
+          <Text style={s.liveAvatarText}>{name?.charAt(0) ?? '·'}</Text>
+        </View>
+      )}
+      <View style={{ flex: 1, gap: 1 }}>
+        <Text style={s.liveTitle} numberOfLines={1}>
+          {title}
+        </Text>
+        <Text style={s.liveSub} numberOfLines={1}>
+          {job.title} · {rupees(job.offered_paisa)}
+        </Text>
+      </View>
+      {job.status === 'open' && offers ? (
+        <View style={s.livePill}>
+          <Text style={s.livePillText}>
+            {offers} {offers === 1 ? 'offer' : 'offers'}
+          </Text>
+        </View>
+      ) : (
+        <Icon name="chevronRight" size={20} color={colour.ink} strokeWidth={2.2} />
+      )}
+    </Press>
+  );
+}
+
 const s = StyleSheet.create({
+  liveStack: { gap: 8, paddingHorizontal: 10, paddingTop: 12 },
+  live: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 72, paddingHorizontal: 14, paddingVertical: 12, borderRadius: 22, backgroundColor: colour.white, borderWidth: 2, borderColor: colour.green },
+  liveAvatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },
+  liveAvatarText: { fontFamily: font.display, fontSize: 18, color: colour.yellow },
+  liveTitle: { fontFamily: font.display, fontSize: 17, color: colour.ink },
+  liveSub: { fontFamily: font.body, fontSize: 13, color: colour.steel },
+  livePill: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colour.yellow },
+  livePillText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
   screen: { flex: 1, backgroundColor: colour.canvas },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
   city: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: TAP, paddingHorizontal: 14, borderRadius: radius.pill, backgroundColor: colour.white, boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.10)' },

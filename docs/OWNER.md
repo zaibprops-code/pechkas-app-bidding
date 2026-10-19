@@ -7,6 +7,28 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**A job is followed live, like a ride on inDrive (new).** Posting a job
+now opens that job's own screen: the Pechkas screw turning inside rings
+while technicians are found, then **Choose your technician** with the
+offers as cards, each with its time left and its own button. After you
+choose, the same screen follows the visit to the end. The **home screen**
+shows any job still happening in a card at the top — *Finding a
+technician*, *Choose a technician · 2 offers*, *Bilal is on his way* —
+and tapping it opens the job. **My jobs** is the full list; each card
+opens its job. No migration — a new **preview** build from `main`, then
+post a job and watch it.
+
+Two things inDrive has that Pechkas does not, yet, because both are your
+decision:
+
+- **Turning one offer down.** Today a customer simply lets an offer run
+  out or chooses another. A "No thanks" button needs a new database
+  function, and a rule for whether the technician is told.
+- **Raising your price while you wait.** That is money: it needs a rule
+  for how much, how often, and whether offers already sent stay valid.
+
+Say yes to either, with the rule, and it gets built.
+
 **Maps (new — needs your Google Maps key).** The home screen opens on a map
 of Islamabad with the cards in a sheet over it, as in inDrive; the round
 arrow button shows where you are. **Post a job → Pin my house on the map**
