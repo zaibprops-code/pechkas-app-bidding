@@ -474,7 +474,11 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the pin, load-shedding asked about, parts with a shop receipt, the
   guard at the gate, family told who is coming. The words are formal
   English throughout.
-- Customer side light, technician side dark.
+- **Both sides are light, like inDrive** — the owner's decision, replacing the
+  original dark technician side. Technician screens sit on the same
+  `colour.canvas` with white cards; nothing passes `dark` any more (the
+  components still accept it). On a light screen yellow is a background,
+  never text: amounts a technician keeps or owes are green or ink.
 - **Laid out the way inDrive is — the owner's reference.** No tab bar: the
   ☰ `MenuButton` (`src/components/Menu.tsx`) opens a side menu with the
   profile on top and line-icon rows; every item goes to a real screen

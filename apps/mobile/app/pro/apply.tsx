@@ -33,7 +33,7 @@ export default function Apply() {
     supabase?.rpc('app_lists').then(({ data }) => setLists((data as Lists) ?? null));
   }, []);
 
-  if (!ready) return <Loading dark />;
+  if (!ready) return <Loading />;
   if (!session) return <Redirect href="/start" />;
   if (!account?.role) return <Redirect href={{ pathname: '/welcome', params: { next: 'join' } }} />;
   if (account.pro && (account.pro.status === 'approved' || account.pro.status === 'suspended')) return <Redirect href="/pro" />;
@@ -66,18 +66,18 @@ export default function Apply() {
   }
 
   return (
-    <Screen dark footer={<Button label={busy ? w.sending : w.send} onPress={send} busy={busy} />}>
+    <Screen footer={<Button label={busy ? w.sending : w.send} onPress={send} busy={busy} />}>
       <View style={s.top}>
         <Text style={s.brand}>pechkas pro</Text>
       </View>
-      <Title dark>{w.applyTitle}</Title>
-      <Body dark muted>{w.applyIntro}</Body>
-      <Button kind="outline" dark label={w.agreement} onPress={() => Linking.openURL(AGREEMENT_URL)} />
+      <Title>{w.applyTitle}</Title>
+      <Body muted>{w.applyIntro}</Body>
+      <Button kind="outline" label={w.agreement} onPress={() => Linking.openURL(AGREEMENT_URL)} />
 
-      <Field dark label={w.fullName} value={fullName} onChangeText={setFullName} autoCapitalize="words" autoComplete="name" textContentType="name" error={errors.full_name} hint={w.noCnic} />
+      <Field label={w.fullName} value={fullName} onChangeText={setFullName} autoCapitalize="words" autoComplete="name" textContentType="name" error={errors.full_name} hint={w.noCnic} />
 
       <Group title={w.trades} hint={w.tradesHint} error={errors.trades}>
-        {lists ? lists.trades.map((t) => <Chip dark key={t.slug} label={t.name} on={trades.includes(t.slug)} onPress={() => flip(trades, setTrades, t.slug)} />) : <Body dark muted>…</Body>}
+        {lists ? lists.trades.map((t) => <Chip key={t.slug} label={t.name} on={trades.includes(t.slug)} onPress={() => flip(trades, setTrades, t.slug)} />) : <Body muted>…</Body>}
       </Group>
 
       <View style={{ gap: 8 }}>
@@ -97,12 +97,12 @@ export default function Apply() {
       </View>
 
       <Group title={w.sectors} error={errors.sectors}>
-        {lists ? lists.sectors.map((name) => <Chip dark key={name} label={name} on={sectors.includes(name)} onPress={() => flip(sectors, setSectors, name)} />) : <Body dark muted>…</Body>}
+        {lists ? lists.sectors.map((name) => <Chip key={name} label={name} on={sectors.includes(name)} onPress={() => flip(sectors, setSectors, name)} />) : <Body muted>…</Body>}
       </Group>
 
-      <Field dark label={w.about} value={about} onChangeText={setAbout} multiline maxLength={300} style={{ minHeight: 96, textAlignVertical: 'top', paddingTop: 12 }} error={errors.about} hint={w.aboutHint} />
+      <Field label={w.about} value={about} onChangeText={setAbout} multiline maxLength={300} style={{ minHeight: 96, textAlignVertical: 'top', paddingTop: 12 }} error={errors.about} hint={w.aboutHint} />
 
-      <Notice dark text={notice} />
+      <Notice text={notice} />
     </Screen>
   );
 }
@@ -120,15 +120,15 @@ function Group({ title, hint, error, children }: { title: string; hint?: string;
 
 const s = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  brand: { fontFamily: font.display, fontSize: 18, color: colour.paper },
-  label: { fontFamily: font.bodySemi, fontSize: 14, color: colour.paper },
-  hint: { fontFamily: font.body, fontSize: 12, color: '#b9c2c9', marginTop: -4 },
-  error: { fontFamily: font.bodySemi, fontSize: 13, color: '#ffb4a3' },
+  brand: { fontFamily: font.display, fontSize: 18, color: colour.ink },
+  label: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
+  hint: { fontFamily: font.body, fontSize: 12, color: colour.steel, marginTop: -4 },
+  error: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 8, borderRadius: radius.big, backgroundColor: '#22282d' },
-  step: { width: 52, height: 52, borderRadius: 999, borderWidth: 2, borderColor: 'rgba(250,246,239,0.4)', alignItems: 'center', justifyContent: 'center' },
+  stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 8, borderRadius: radius.big, backgroundColor: colour.white },
+  step: { width: 52, height: 52, borderRadius: 999, borderWidth: 2, borderColor: 'rgba(20,23,26,0.25)', alignItems: 'center', justifyContent: 'center' },
   stepPlus: { backgroundColor: colour.yellow, borderColor: colour.yellow },
-  stepText: { fontFamily: font.display, fontSize: 26, color: colour.paper, marginTop: -2 },
-  years: { fontFamily: font.display, fontSize: 34, color: colour.paper },
-  yearsUnit: { fontFamily: font.bodyMedium, fontSize: 15, color: '#b9c2c9' },
+  stepText: { fontFamily: font.display, fontSize: 26, color: colour.ink, marginTop: -2 },
+  years: { fontFamily: font.display, fontSize: 34, color: colour.ink },
+  yearsUnit: { fontFamily: font.bodyMedium, fontSize: 15, color: colour.steel },
 });

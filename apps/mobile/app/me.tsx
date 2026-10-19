@@ -22,13 +22,12 @@ export default function Me() {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const dark = account?.role === 'pro';
   // A technician's notifications are in the language he chose; everyone
   // else's are English. Saved again from here, so whoever is on this screen
   // — the owner included, for the office's alerts — can turn them on.
   const { notify, ask: askNotify } = useNotify(Boolean(session && account));
 
-  const back = <Button kind="outline" dark={dark} label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />;
+  const back = <Button kind="outline" label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />;
 
   if (!session) {
     return (
@@ -91,7 +90,7 @@ export default function Me() {
 
   return (
     <Screen
-      dark={dark}
+     
       hero={{
         title: account?.first_name || 'Your account',
         sub: role,
@@ -99,15 +98,15 @@ export default function Me() {
         right: <Avatar name={account?.first_name} size={44} dark />,
       }}
     >
-      <ListGroup title="Contact" dark={dark}>
-        <ListRow dark={dark} icon="phone" label="Mobile number" value={phone} onPress={account?.phone_checked === false && !editing ? () => setEditing(true) : undefined} last={!account?.email} />
-        {account?.email ? <ListRow dark={dark} icon="mail" label="Email" value={account.email} last /> : null}
+      <ListGroup title="Contact">
+        <ListRow icon="phone" label="Mobile number" value={phone} onPress={account?.phone_checked === false && !editing ? () => setEditing(true) : undefined} last={!account?.email} />
+        {account?.email ? <ListRow icon="mail" label="Email" value={account.email} last /> : null}
       </ListGroup>
 
       {editing ? (
         <View style={{ gap: 8 }}>
           <Field
-            dark={dark}
+           
             label="Your mobile number"
             value={newPhone}
             onChangeText={setNewPhone}
@@ -117,53 +116,52 @@ export default function Me() {
             error={phoneError ?? undefined}
             hint="The person you are working with calls you on this."
           />
-          <Button dark={dark} label="Save number" onPress={savePhone} busy={busy} />
-          <Button kind="outline" dark={dark} label="Cancel" onPress={() => { setEditing(false); setPhoneError(null); }} />
+          <Button label="Save number" onPress={savePhone} busy={busy} />
+          <Button kind="outline" label="Cancel" onPress={() => { setEditing(false); setPhoneError(null); }} />
         </View>
       ) : null}
 
-      <ListGroup title="Settings" dark={dark}>
+      <ListGroup title="Settings">
         {notifyValue ? (
           <ListRow
-            dark={dark}
+           
             icon="bell"
             label="Notifications"
             value={notifyValue}
             onPress={notify === 'ask' ? askNotify : notify === 'off' ? () => Linking.openSettings() : undefined}
           />
         ) : null}
-        {account?.role === 'customer' ? <ListRow dark={dark} icon="tool" label="Work with Pechkas as a technician" onPress={() => router.push('/pro/apply')} /> : null}
-        <ListRow dark={dark} icon="lock" label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
+        {account?.role === 'customer' ? <ListRow icon="tool" label="Work with Pechkas as a technician" onPress={() => router.push('/pro/apply')} /> : null}
+        <ListRow icon="lock" label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
         {account?.role === 'pro' ? (
-          <ListRow dark={dark} icon="doc" label="Technician agreement" onPress={() => Linking.openURL(AGREEMENT_URL)} last />
+          <ListRow icon="doc" label="Technician agreement" onPress={() => Linking.openURL(AGREEMENT_URL)} last />
         ) : (
-          <ListRow dark={dark} icon="doc" label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} last />
+          <ListRow icon="doc" label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} last />
         )}
       </ListGroup>
 
-      <ListGroup dark={dark}>
-        <ListRow dark={dark} icon="logout" label="Sign out" onPress={async () => { await signOut(); router.replace('/start'); }} />
-        <ListRow dark={dark} icon="trash" label="Delete my account" danger onPress={() => setConfirming(true)} last />
+      <ListGroup>
+        <ListRow icon="logout" label="Sign out" onPress={async () => { await signOut(); router.replace('/start'); }} />
+        <ListRow icon="trash" label="Delete my account" danger onPress={() => setConfirming(true)} last />
       </ListGroup>
 
       {confirming ? (
-        <View style={[s.danger, dark && s.dangerDark]}>
-          <Text style={[s.dangerText, dark && { color: colour.paper }]}>
+        <View style={s.danger}>
+          <Text style={s.dangerText}>
             This deletes your account and everything in it: your name, your number, {account?.role === 'pro' ? 'your application, ' : ''}{account?.role === 'customer' ? 'your jobs, voice notes, videos and photos, ' : ''}all of it. It cannot be undone.
           </Text>
           <Button kind="danger" label="Yes, delete it" onPress={remove} busy={busy} />
-          <Button kind="outline" dark={dark} label="No, keep it" onPress={() => setConfirming(false)} />
+          <Button kind="outline" label="No, keep it" onPress={() => setConfirming(false)} />
         </View>
       ) : null}
-      <Notice dark={dark} text={notice} />
+      <Notice text={notice} />
 
-      <ThisCopy dark={dark} />
+      <ThisCopy />
     </Screen>
   );
 }
 
 const s = StyleSheet.create({
   danger: { gap: 10, padding: 14, borderRadius: radius.big, backgroundColor: '#f6e3dc' },
-  dangerDark: { backgroundColor: '#3a2019' },
   dangerText: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.ink },
 });

@@ -430,7 +430,7 @@ export function Finished({ items, w, tradeName, onChanged }: { items: FinishedJo
           {f.my_rating ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, width: '100%' }}>
               <Text style={s.doneSub}>{w.rated}</Text>
-              <Stars value={f.my_rating} size={14} dark />
+              <Stars value={f.my_rating} size={14} />
             </View>
           ) : null}
         </View>
@@ -458,15 +458,15 @@ function RateCustomer({ f, w, onDone }: { f: FinishedJob; w: ProWords; onDone: (
   return (
     <View style={{ width: '100%', gap: 6 }}>
       <Text style={s.doneSub}>{fill(w.rateCustomer, { name: f.customer_first_name })}</Text>
-      <Stars value={stars} onPick={setStars} size={26} dark label={fill(w.rateCustomer, { name: f.customer_first_name })} />
+      <Stars value={stars} onPick={setStars} size={26} label={fill(w.rateCustomer, { name: f.customer_first_name })} />
       {stars ? (
         <>
           <TextInput value={words} onChangeText={setWords} maxLength={300} placeholder={w.rateWords} placeholderTextColor={colour.steel} accessibilityLabel={w.rateWords} style={s.input} />
           <Text style={s.doneSub}>{w.rateNote}</Text>
-          <Button kind="yellow" dark label={w.rateSend} busy={busy} onPress={send} />
+          <Button kind="yellow" label={w.rateSend} busy={busy} onPress={send} />
         </>
       ) : null}
-      {msg ? <Text style={[s.error, { color: '#ffb4a3' }]}>{msg}</Text> : null}
+      {msg ? <Text style={[s.error, { color: colour.brick }]}>{msg}</Text> : null}
     </View>
   );
 }
@@ -475,7 +475,7 @@ const s = StyleSheet.create({
   map: { height: 160, borderRadius: 16 },
   card: { gap: 10, padding: 14, borderRadius: 22 },
   feeLine: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green },
-  chosen: { backgroundColor: colour.paper },
+  chosen: { backgroundColor: colour.white },
   cardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill, backgroundColor: colour.ink },
   badgeText: { fontFamily: font.bodySemi, fontSize: 12, color: colour.yellow },
@@ -515,9 +515,9 @@ const s = StyleSheet.create({
   addPhotoText: { fontFamily: font.display, fontSize: 28, color: colour.ink },
   form: { padding: 12, borderRadius: radius.card, backgroundColor: colour.paper2 },
   formTitle: { fontFamily: font.display, fontSize: 18, color: colour.ink },
-  section: { fontFamily: font.bodySemi, fontSize: 14, color: '#b9c2c9', marginTop: 4 },
-  done: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.card, backgroundColor: '#22282d' },
-  doneTitle: { fontFamily: font.bodySemi, fontSize: 14, color: colour.paper },
-  doneSub: { fontFamily: font.body, fontSize: 13, color: '#b9c2c9' },
-  doneMoney: { fontFamily: font.display, fontSize: 15, color: colour.yellow },
+  section: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, marginTop: 4 },
+  done: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.card, backgroundColor: colour.white },
+  doneTitle: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
+  doneSub: { fontFamily: font.body, fontSize: 13, color: colour.steel },
+  doneMoney: { fontFamily: font.display, fontSize: 15, color: colour.green },
 });

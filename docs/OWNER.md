@@ -25,7 +25,7 @@ rounded cards, bold black headings and drawn pictures on the trade tiles.
 Home asks **"What needs fixing & for how much?"** with your last two jobs
 under it. Two new screens: **Safety** (the emergency numbers and what
 Pechkas checks) and **Help** (WhatsApp or call the office). The technician
-side keeps its dark look and gets the same ☰ menu. No migration — a new
+side is now light too, the same as the customer's, with its own ☰ menu. No migration — a new
 **preview** build from `main`, then open the ☰ menu and try each item.
 
 **Sign in first, like every big app (new).** The first screen after
@@ -523,7 +523,7 @@ one is an approved technician. Each needs its own test number in Supabase
 3. **The technician phone:** sign in with a number you have **approved** in
    the admin panel. His application must include **AC** and **F-11** (or
    use the trade and sector he did choose in steps 4 and 5). You land on the
-   dark work screen. Tap **Offline** — it turns yellow and says **Online**.
+   technician's work screen. Tap **Offline** — it turns yellow and says **Online**.
 4. **The customer phone:** sign in with the other number, tap **AC**, choose
    **Gas top-up**, sector **F-11**, any street and house, **As soon as
    possible**, and press **Post job**.

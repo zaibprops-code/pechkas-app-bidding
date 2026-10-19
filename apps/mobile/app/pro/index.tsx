@@ -40,7 +40,7 @@ export default function ProHome() {
     }, [refresh]),
   );
 
-  if (!ready) return <Loading dark />;
+  if (!ready) return <Loading />;
   if (!session) return <Redirect href="/start" />;
   if (!account?.pro) return <Redirect href="/pro/apply" />;
 
@@ -49,19 +49,19 @@ export default function ProHome() {
 
   const state = {
     applied: { title: w.appliedTitle, text: w.appliedText, tone: colour.yellow },
-    rejected: { title: w.rejectedTitle, text: w.rejectedText, tone: '#ffb4a3' },
-    suspended: { title: w.suspendedTitle, text: w.suspendedText, tone: '#ffb4a3' },
+    rejected: { title: w.rejectedTitle, text: w.rejectedText, tone: colour.brick },
+    suspended: { title: w.suspendedTitle, text: w.suspendedText, tone: colour.brick },
   }[pro.status];
 
   return (
-    <View style={{ flex: 1, backgroundColor: colour.ink }}>
-      <StatusBar style="light" />
+    <View style={{ flex: 1, backgroundColor: colour.canvas }}>
+      <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={{ paddingTop: insets.top + 14, paddingHorizontal: 18, paddingBottom: 32, gap: 16 }}
-        refreshControl={<RefreshControl refreshing={false} onRefresh={refresh} tintColor={colour.yellow} />}
+        refreshControl={<RefreshControl refreshing={false} onRefresh={refresh} tintColor={colour.green} />}
       >
         <View style={s.top}>
-          <MenuButton dark />
+          <MenuButton />
           <View style={s.brand}>
             <Mark size={30} />
             <View>
@@ -81,7 +81,7 @@ export default function ProHome() {
           {pro.status === 'applied' ? <Text style={s.steps}>{w.appliedSteps}</Text> : null}
         </View>
 
-        {pro.status === 'applied' ? <Button dark kind="outline" label={w.editForm} onPress={() => router.push('/pro/apply')} /> : null}
+        {pro.status === 'applied' ? <Button kind="outline" label={w.editForm} onPress={() => router.push('/pro/apply')} /> : null}
         {pro.status === 'rejected' ? <Button label={w.applyAgain} onPress={() => router.push('/pro/apply')} /> : null}
 
         <View style={s.details}>
@@ -99,16 +99,16 @@ export default function ProHome() {
 const s = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  brandText: { fontFamily: font.display, fontSize: 18, color: colour.paper },
-  who: { fontFamily: font.body, fontSize: 12, color: '#b9c2c9' },
-  card: { gap: 10, padding: 18, borderRadius: 24, backgroundColor: '#22282d' },
+  brandText: { fontFamily: font.display, fontSize: 18, color: colour.ink },
+  who: { fontFamily: font.body, fontSize: 12, color: colour.steel },
+  card: { gap: 10, padding: 18, borderRadius: 24, backgroundColor: colour.white },
   badge: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  title: { fontFamily: font.display, fontSize: 26, lineHeight: 30, color: colour.paper, letterSpacing: -0.5 },
-  text: { fontFamily: font.body, fontSize: 15, lineHeight: 22, color: colour.paper },
-  reason: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 22, color: colour.yellow },
-  steps: { fontFamily: font.body, fontSize: 13, lineHeight: 19, color: '#b9c2c9' },
-  details: { gap: 4, padding: 16, borderRadius: radius.big, borderWidth: 1, borderColor: 'rgba(250,246,239,0.15)' },
-  detailsTitle: { fontFamily: font.bodySemi, fontSize: 13, color: '#b9c2c9', marginBottom: 4 },
-  detail: { fontFamily: font.bodySemi, fontSize: 15, color: colour.paper },
-  detailMuted: { fontFamily: font.body, fontSize: 13, color: '#b9c2c9' },
+  title: { fontFamily: font.display, fontSize: 26, lineHeight: 30, color: colour.ink, letterSpacing: -0.5 },
+  text: { fontFamily: font.body, fontSize: 15, lineHeight: 22, color: colour.ink },
+  reason: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 22, color: colour.green },
+  steps: { fontFamily: font.body, fontSize: 13, lineHeight: 19, color: colour.steel },
+  details: { gap: 4, padding: 16, borderRadius: radius.big, borderWidth: 1, borderColor: colour.rule },
+  detailsTitle: { fontFamily: font.bodySemi, fontSize: 13, color: colour.steel, marginBottom: 4 },
+  detail: { fontFamily: font.bodySemi, fontSize: 15, color: colour.ink },
+  detailMuted: { fontFamily: font.body, fontSize: 13, color: colour.steel },
 });

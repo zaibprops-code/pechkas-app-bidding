@@ -115,14 +115,14 @@ export function Work({ firstName }: { firstName: string }) {
   const online = feed?.online ?? false;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colour.ink }}>
-      <StatusBar style="light" />
+    <View style={{ flex: 1, backgroundColor: colour.canvas }}>
+      <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: 14, paddingBottom: 32, gap: 14 }}
-        refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.yellow} />}
+        refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
       >
         <View style={s.top}>
-          <MenuButton dark />
+          <MenuButton />
           <View style={s.brand}>
             <Mark size={30} />
             <View>
@@ -136,16 +136,16 @@ export function Work({ firstName }: { firstName: string }) {
           onPress={() => setOnline(!online)}
           accessibilityRole="switch"
           accessibilityState={{ checked: online, busy: switching }}
-          style={[s.toggle, { backgroundColor: online ? colour.yellow : '#2a3036' }]}
+          style={[s.toggle, { backgroundColor: online ? colour.yellow : colour.tile }]}
         >
           <View style={{ flex: 1 }}>
-            <Text style={[s.toggleTitle, { color: online ? colour.ink : colour.paper }]}>{online ? w.online : w.offline}</Text>
+            <Text style={[s.toggleTitle, { color: colour.ink }]}>{online ? w.online : w.offline}</Text>
             {!online ? <Text style={s.toggleSub}>{w.offlineText}</Text> : null}
           </View>
           <View style={[s.knob, { backgroundColor: online ? colour.green : '#4c565e', alignSelf: online ? 'flex-end' : 'flex-start' }]} />
         </Press>
 
-        <Notice dark text={problem} />
+        <Notice text={problem} />
 
         {/* What he owes Pechkas, always one tap from the details. */}
         {feed?.approved && feed.owed_paisa !== undefined ? (
@@ -160,8 +160,8 @@ export function Work({ firstName }: { firstName: string }) {
           </Press>
         ) : null}
 
-        {online && notify === 'ask' ? <NotifyCard dark title={w.notifyAsk} text={w.notifyAskText} action={w.notifyTurnOn} onPress={askNotify} /> : null}
-        {online && notify === 'off' ? <NotifyCard dark title={w.notifyOff} text={w.notifyOffText} action={w.openSettings} onPress={() => Linking.openSettings()} /> : null}
+        {online && notify === 'ask' ? <NotifyCard title={w.notifyAsk} text={w.notifyAskText} action={w.notifyTurnOn} onPress={askNotify} /> : null}
+        {online && notify === 'off' ? <NotifyCard title={w.notifyOff} text={w.notifyOffText} action={w.openSettings} onPress={() => Linking.openSettings()} /> : null}
 
         {mine.length ? (
           <View style={{ gap: 10 }}>
@@ -282,7 +282,7 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
           <Text style={s.asked}>
             {fill(w.askedYou, { name: j.customer_first_name, time: new Date(j.asked_until).toLocaleTimeString('en-PK', { hour: 'numeric', minute: '2-digit' }) })}
           </Text>
-          {!live ? <Button dark kind="outline" label={w.passAsked} onPress={pass} busy={busy} /> : null}
+          {!live ? <Button kind="outline" label={w.passAsked} onPress={pass} busy={busy} /> : null}
         </View>
       ) : null}
       <View style={s.cardTop}>
@@ -296,7 +296,7 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
       <Text style={s.title}>{j.title}</Text>
       {j.description ? <Text style={s.desc}>“{j.description}”</Text> : null}
       <Text style={s.cust}>{j.customer_first_name}</Text>
-      <RemoteMedia items={j.media} voiceLabel={w.playVoice} videoLabel={w.watchVideo} dark />
+      <RemoteMedia items={j.media} voiceLabel={w.playVoice} videoLabel={w.watchVideo} />
       <Facts j={j} w={w} />
 
       <View style={s.money}>
@@ -330,7 +330,7 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
           {j.my_offer && !j.my_offer.live && j.my_offer.status === 'pending' ? <Text style={s.expired}>{w.expired}</Text> : null}
           <View style={s.stepper}>
             <Press onPress={() => setPrice(Math.max(min, price - 10000))} sink={0.9} accessibilityRole="button" accessibilityLabel="−100" style={s.step}>
-              <Text style={[s.stepText, { color: colour.paper }]}>−</Text>
+              <Text style={[s.stepText, { color: colour.ink }]}>−</Text>
             </Press>
             <Text style={s.stepPrice}>{rupees(price)}</Text>
             <Press onPress={() => setPrice(Math.min(max, price + 10000))} sink={0.9} accessibilityRole="button" accessibilityLabel="+100" style={[s.step, s.stepPlus]}>
@@ -364,7 +364,7 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
               placeholderTextColor="#8f9aa3"
               maxLength={200}
               accessibilityLabel={w.noteLabel}
-              style={[s.input, errors.note && { borderColor: '#ffb4a3', borderWidth: 2 }]}
+              style={[s.input, errors.note && { borderColor: colour.brick, borderWidth: 2 }]}
             />
             {errors.note ? <Text style={s.error}>{errors.note}</Text> : null}
           </View>
@@ -377,59 +377,59 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
           />
         </View>
       )}
-      <Notice dark text={msg} />
+      <Notice text={msg} />
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  owed: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, padding: 14, borderRadius: radius.big, backgroundColor: '#22282d' },
+  owed: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, padding: 14, borderRadius: radius.big, backgroundColor: colour.white },
   owedBlocked: { backgroundColor: colour.brick },
-  owedLabel: { fontFamily: font.bodySemi, fontSize: 14, color: '#b9c2c9' },
+  owedLabel: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel },
   owedText: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.white, marginTop: 2 },
-  owedAmount: { fontFamily: font.display, fontSize: 20, color: colour.yellow },
+  owedAmount: { fontFamily: font.display, fontSize: 20, color: colour.green },
   top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  brandText: { fontFamily: font.display, fontSize: 18, color: colour.paper },
-  who: { fontFamily: font.body, fontSize: 12, color: '#b9c2c9' },
+  brandText: { fontFamily: font.display, fontSize: 18, color: colour.ink },
+  who: { fontFamily: font.body, fontSize: 12, color: colour.steel },
   toggle: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, padding: 14, borderRadius: radius.big },
   toggleTitle: { fontFamily: font.display, fontSize: 20 },
-  toggleSub: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: '#b9c2c9', marginTop: 2 },
+  toggleSub: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel, marginTop: 2 },
   knob: { width: 34, height: 34, borderRadius: 999 },
-  section: { fontFamily: font.bodySemi, fontSize: 14, color: '#b9c2c9', marginTop: 4 },
-  empty: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: '#b9c2c9' },
-  card: { gap: 10, padding: 14, borderRadius: 22, backgroundColor: '#22282d' },
+  section: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, marginTop: 4 },
+  empty: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.steel },
+  card: { gap: 10, padding: 14, borderRadius: 22, backgroundColor: colour.white },
   cardAsked: { borderWidth: 2, borderColor: colour.yellow },
-  asked: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.yellow },
-  chosen: { backgroundColor: colour.paper },
+  asked: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.green },
+  chosen: { backgroundColor: colour.white },
   cardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill, backgroundColor: colour.yellow },
   badgeText: { fontFamily: font.bodySemi, fontSize: 12, color: colour.ink },
-  when: { fontFamily: font.bodySemi, fontSize: 13, color: colour.paper },
-  title: { fontFamily: font.displayBold, fontSize: 19, lineHeight: 24, color: colour.paper },
-  desc: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.paper },
-  cust: { fontFamily: font.body, fontSize: 13, color: '#b9c2c9' },
-  fact: { fontFamily: font.bodyMedium, fontSize: 13, color: '#e8ecef' },
+  when: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
+  title: { fontFamily: font.displayBold, fontSize: 19, lineHeight: 24, color: colour.ink },
+  desc: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.ink },
+  cust: { fontFamily: font.body, fontSize: 13, color: colour.steel },
+  fact: { fontFamily: font.bodyMedium, fontSize: 13, color: colour.inkSoft },
   money: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
-  moneyLabel: { fontFamily: font.body, fontSize: 12, color: '#b9c2c9' },
-  moneyBig: { fontFamily: font.display, fontSize: 26, color: colour.paper },
-  keep: { fontFamily: font.display, fontSize: 20, color: colour.yellow },
-  fee: { fontFamily: font.body, fontSize: 12, color: '#b9c2c9', marginTop: -6 },
-  waiting: { fontFamily: font.bodySemi, fontSize: 14, color: colour.yellow },
-  expired: { fontFamily: font.bodySemi, fontSize: 13, color: '#ffb4a3' },
+  moneyLabel: { fontFamily: font.body, fontSize: 12, color: colour.steel },
+  moneyBig: { fontFamily: font.display, fontSize: 26, color: colour.ink },
+  keep: { fontFamily: font.display, fontSize: 20, color: colour.green },
+  fee: { fontFamily: font.body, fontSize: 12, color: colour.steel, marginTop: -6 },
+  waiting: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green },
+  expired: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
   row: { flexDirection: 'row', gap: 8 },
-  stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 6, borderRadius: radius.big, backgroundColor: colour.ink },
-  step: { width: 48, height: 48, borderRadius: 999, borderWidth: 2, borderColor: 'rgba(250,246,239,0.4)', alignItems: 'center', justifyContent: 'center' },
+  stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 6, borderRadius: radius.big, backgroundColor: colour.canvas },
+  step: { width: 48, height: 48, borderRadius: 999, borderWidth: 2, borderColor: 'rgba(20,23,26,0.25)', alignItems: 'center', justifyContent: 'center' },
   stepPlus: { backgroundColor: colour.yellow, borderColor: colour.yellow },
   stepText: { fontFamily: font.display, fontSize: 24, color: colour.ink, marginTop: -2 },
-  stepPrice: { fontFamily: font.display, fontSize: 24, color: colour.paper },
-  label: { fontFamily: font.bodySemi, fontSize: 13, color: colour.paper },
+  stepPrice: { fontFamily: font.display, fontSize: 24, color: colour.ink },
+  label: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { minHeight: 44, minWidth: 64, paddingHorizontal: 12, borderRadius: radius.pill, borderWidth: 1.5, borderColor: 'rgba(250,246,239,0.3)', alignItems: 'center', justifyContent: 'center' },
+  chip: { minHeight: 44, minWidth: 64, paddingHorizontal: 12, borderRadius: radius.pill, borderWidth: 1.5, borderColor: 'rgba(20,23,26,0.2)', alignItems: 'center', justifyContent: 'center' },
   chipOn: { backgroundColor: colour.yellow, borderColor: colour.yellow },
-  chipText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.paper },
+  chipText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   input: { minHeight: 48, borderRadius: 14, paddingHorizontal: 12, backgroundColor: colour.white, color: colour.ink, fontFamily: font.bodyMedium, fontSize: 15, borderWidth: 1, borderColor: 'transparent' },
-  error: { fontFamily: font.bodySemi, fontSize: 13, lineHeight: 18, color: '#ffb4a3' },
+  error: { fontFamily: font.bodySemi, fontSize: 13, lineHeight: 18, color: colour.brick },
   addr: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
   addrSub: { fontFamily: font.body, fontSize: 14, color: colour.inkSoft },
 });

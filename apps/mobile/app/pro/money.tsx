@@ -56,18 +56,18 @@ export default function MoneyScreen() {
     }, [load]),
   );
 
-  if (!m && !problem) return <Loading dark />;
+  if (!m && !problem) return <Loading />;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colour.ink }}>
-      <StatusBar style="light" />
+    <View style={{ flex: 1, backgroundColor: colour.canvas }}>
+      <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 16) + 8 }}
-        refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.yellow} />}
+        refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
       >
-        <Hero dark title={w.moneyTitle} left={<MenuButton dark />} />
+        <Hero title={w.moneyTitle} left={<MenuButton />} />
         <View style={{ paddingTop: 18, paddingHorizontal: 16, gap: 14 }}>
-        <Notice dark text={problem} />
+        <Notice text={problem} />
 
         {m ? (
           <>
@@ -103,7 +103,7 @@ export default function MoneyScreen() {
               <Text style={s.cardTitle}>{w.myRating}</Text>
               {m.rating.avg !== null ? (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <Stars value={Math.round(m.rating.avg)} size={22} dark />
+                  <Stars value={Math.round(m.rating.avg)} size={22} />
                   <Text style={s.big}>{Number(m.rating.avg).toFixed(1)}</Text>
                   <Text style={s.note}>{fill(w.ratingFrom, { n: m.rating.count })}</Text>
                 </View>
@@ -113,7 +113,7 @@ export default function MoneyScreen() {
               {m.comments.length ? <Text style={[s.cardTitle, { marginTop: 6 }]}>{w.comments}</Text> : null}
               {m.comments.map((c, i) => (
                 <View key={i} style={s.comment}>
-                  <Stars value={c.stars} size={14} dark />
+                  <Stars value={c.stars} size={14} />
                   {c.words ? <Text style={s.commentText}>“{c.words}”</Text> : null}
                   <Text style={s.note}>{c.ref}</Text>
                 </View>
@@ -139,7 +139,7 @@ export default function MoneyScreen() {
                     </Text>
                   </View>
                   {/* + is what he came to owe, − what he paid off. */}
-                  <Text style={[s.lineAmount, { color: l.amount_paisa > 0 ? colour.paper : colour.yellow }]}>
+                  <Text style={[s.lineAmount, { color: l.amount_paisa > 0 ? colour.ink : colour.green }]}>
                     {l.amount_paisa > 0 ? '+' : '−'} {rupees(Math.abs(l.amount_paisa))}
                   </Text>
                 </View>
@@ -169,17 +169,17 @@ const s = StyleSheet.create({
   owedLabel: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   owedBig: { fontFamily: font.display, fontSize: 34, color: colour.ink },
   blockedText: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.white },
-  card: { gap: 8, padding: 14, borderRadius: radius.big, backgroundColor: '#22282d' },
-  cardTitle: { fontFamily: font.bodySemi, fontSize: 14, color: '#b9c2c9' },
-  payTo: { fontFamily: font.bodySemi, fontSize: 17, lineHeight: 24, color: colour.paper },
-  big: { fontFamily: font.display, fontSize: 20, color: colour.paper },
-  note: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: '#b9c2c9' },
+  card: { gap: 8, padding: 14, borderRadius: radius.big, backgroundColor: colour.white },
+  cardTitle: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel },
+  payTo: { fontFamily: font.bodySemi, fontSize: 17, lineHeight: 24, color: colour.ink },
+  big: { fontFamily: font.display, fontSize: 20, color: colour.ink },
+  note: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
-  k: { fontFamily: font.body, fontSize: 14, color: '#b9c2c9' },
-  v: { fontFamily: font.bodySemi, fontSize: 14, color: colour.paper },
-  comment: { gap: 2, paddingVertical: 6, borderTopWidth: 1, borderTopColor: '#2f363c' },
-  commentText: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.paper },
-  line: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, borderTopWidth: 1, borderTopColor: '#2f363c' },
-  lineText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.paper },
+  k: { fontFamily: font.body, fontSize: 14, color: colour.steel },
+  v: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
+  comment: { gap: 2, paddingVertical: 6, borderTopWidth: 1, borderTopColor: colour.rule },
+  commentText: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.ink },
+  line: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, borderTopWidth: 1, borderTopColor: colour.rule },
+  lineText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   lineAmount: { fontFamily: font.display, fontSize: 15 },
 });

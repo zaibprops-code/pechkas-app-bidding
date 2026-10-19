@@ -85,8 +85,8 @@ export default function Emergency() {
   const status = state === 'sending' ? w.emSending : state === 'sent' ? w.emSent : w.emNotSent;
 
   return (
-    <View style={{ flex: 1, backgroundColor: pro ? colour.ink : colour.paper }}>
-      <StatusBar style={pro ? 'light' : 'dark'} />
+    <View style={{ flex: 1, backgroundColor: colour.canvas }}>
+      <StatusBar style="dark" />
       <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: 20, paddingBottom: Math.max(insets.bottom, 20) + 8, gap: 14 }}>
         <View style={s.head}>
           <Icon name="alert" size={30} color={colour.white} strokeWidth={2.2} />
@@ -99,14 +99,14 @@ export default function Emergency() {
           {state === 'failed' && why ? <Text style={s.why}>{why}</Text> : null}
         </View>
 
-        <Text style={[s.lead, { color: pro ? colour.paper : colour.ink }]}>{w.emCallFirst}</Text>
+        <Text style={[s.lead, { color: colour.ink }]}>{w.emCallFirst}</Text>
         {EMERGENCY_NUMBERS.map((e) => (
           <Button key={e.number} kind="danger" label={`${w[e.key]} · ${e.number}`} onPress={() => Linking.openURL(`tel:${e.number}`)} />
         ))}
         <Button kind="green" label={`${w.emOffice} · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
 
-        {state === 'sent' && !mistake ? <Button kind="outline" dark={pro} label={w.emMistake} onPress={takeBack} /> : null}
-        <Button kind="outline" dark={pro} label={w.back} onPress={() => (router.canGoBack() ? router.back() : router.replace(pro ? '/pro' : '/jobs'))} />
+        {state === 'sent' && !mistake ? <Button kind="outline" label={w.emMistake} onPress={takeBack} /> : null}
+        <Button kind="outline" label={w.back} onPress={() => (router.canGoBack() ? router.back() : router.replace(pro ? '/pro' : '/jobs'))} />
       </ScrollView>
     </View>
   );

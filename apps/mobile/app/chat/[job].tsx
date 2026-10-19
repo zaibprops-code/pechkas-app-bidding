@@ -76,33 +76,33 @@ export default function ChatScreen() {
     load();
   }
 
-  const bg = pro ? colour.ink : colour.paper;
-  const fg = pro ? colour.paper : colour.ink;
-  if (!chat) return <Loading dark={pro} />;
+  const bg = colour.canvas;
+  const fg = colour.ink;
+  if (!chat) return <Loading />;
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <StatusBar style={pro ? 'light' : 'dark'} />
+      <StatusBar style="dark" />
       <View style={[s.top, { paddingTop: insets.top + 12 }]}>
-        <Press onPress={() => (router.canGoBack() ? router.back() : router.replace(pro ? '/pro' : '/jobs'))} accessibilityRole="button" accessibilityLabel={w.back} style={[s.back, { backgroundColor: pro ? '#22282d' : colour.paper2 }]}>
+        <Press onPress={() => (router.canGoBack() ? router.back() : router.replace(pro ? '/pro' : '/jobs'))} accessibilityRole="button" accessibilityLabel={w.back} style={[s.back, { backgroundColor: colour.white }]}>
           <Icon name="arrowLeft" size={20} color={fg} strokeWidth={2.2} />
         </Press>
         <View style={{ flex: 1 }}>
           <Text style={[s.title, { color: fg }]} accessibilityRole="header" numberOfLines={1}>
             {chat.ok ? fill(w.chatWith, { name: chat.other_name }) : w.chatClosed}
           </Text>
-          {chat.ok ? <Text style={[s.sub, { color: pro ? '#b9c2c9' : colour.steel }]}>{chat.ref}</Text> : null}
+          {chat.ok ? <Text style={[s.sub, { color: colour.steel }]}>{chat.ref}</Text> : null}
         </View>
       </View>
 
       <ScrollView ref={scroll} contentContainerStyle={{ padding: 16, gap: 8, flexGrow: 1 }}>
-        <Text style={[s.note, { color: pro ? '#b9c2c9' : colour.steel }]}>{w.chatNote}</Text>
-        {chat.ok && chat.messages.length === 0 ? <Text style={[s.note, { color: pro ? '#b9c2c9' : colour.steel }]}>{w.chatEmpty}</Text> : null}
+        <Text style={[s.note, { color: colour.steel }]}>{w.chatNote}</Text>
+        {chat.ok && chat.messages.length === 0 ? <Text style={[s.note, { color: colour.steel }]}>{w.chatEmpty}</Text> : null}
         {chat.ok
           ? chat.messages.map((m) => (
-              <View key={m.id} style={[s.bubble, m.mine ? s.mine : pro ? s.theirsDark : s.theirs]}>
+              <View key={m.id} style={[s.bubble, m.mine ? s.mine : s.theirs]}>
                 <Text style={[s.body, { color: m.mine ? colour.ink : fg }]}>{m.body}</Text>
-                <Text style={[s.time, { color: m.mine ? colour.inkSoft : pro ? '#b9c2c9' : colour.steel }]}>
+                <Text style={[s.time, { color: m.mine ? colour.inkSoft : colour.steel }]}>
                   {new Date(m.at).toLocaleTimeString('en-PK', { hour: 'numeric', minute: '2-digit' })}
                 </Text>
               </View>
@@ -111,7 +111,7 @@ export default function ChatScreen() {
       </ScrollView>
 
       {chat.ok && chat.can_send ? (
-        <View style={[s.bar, { paddingBottom: Math.max(insets.bottom, 12), borderTopColor: pro ? '#22282d' : colour.rule }]}>
+        <View style={[s.bar, { paddingBottom: Math.max(insets.bottom, 12), borderTopColor: colour.rule }]}>
           {problem ? <Text style={s.error}>{problem}</Text> : null}
           <View style={s.row}>
             <TextInput
@@ -125,13 +125,13 @@ export default function ChatScreen() {
               style={s.input}
             />
             <View style={{ width: 96 }}>
-              <Button kind="yellow" dark={pro} label={w.sendMessage} busy={busy} onPress={send} />
+              <Button kind="yellow" label={w.sendMessage} busy={busy} onPress={send} />
             </View>
           </View>
         </View>
       ) : (
         <View style={{ padding: 16, paddingBottom: Math.max(insets.bottom, 16) }}>
-          <Text style={[s.note, { color: pro ? '#b9c2c9' : colour.steel }]}>{w.chatClosed}</Text>
+          <Text style={[s.note, { color: colour.steel }]}>{w.chatClosed}</Text>
         </View>
       )}
     </KeyboardAvoidingView>
@@ -147,7 +147,6 @@ const s = StyleSheet.create({
   bubble: { maxWidth: '82%', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, gap: 2 },
   mine: { alignSelf: 'flex-end', backgroundColor: colour.yellow, borderBottomRightRadius: 4 },
   theirs: { alignSelf: 'flex-start', backgroundColor: colour.white, borderBottomLeftRadius: 4, borderWidth: 1, borderColor: colour.rule },
-  theirsDark: { alignSelf: 'flex-start', backgroundColor: '#22282d', borderBottomLeftRadius: 4 },
   body: { fontFamily: font.body, fontSize: 15, lineHeight: 21 },
   time: { fontFamily: font.body, fontSize: 11, alignSelf: 'flex-end' },
   bar: { paddingHorizontal: 12, paddingTop: 8, borderTopWidth: 1, gap: 6 },
