@@ -1,10 +1,11 @@
-import { useCallback, useState } from 'react';
-import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Art, type ArtName } from '../src/components/Art';
 import { Icon, type IconName } from '../src/components/Icon';
+import { askPosition, ISLAMABAD, knownPosition, MapBox, mapsReady, type Point } from '../src/components/Map';
 import { MenuButton } from '../src/components/Menu';
 import { Press } from '../src/components/Press';
 import { useArrive } from '../src/components/ui';
@@ -37,7 +38,23 @@ function statusLine(j: Recent): string {
 export default function Home() {
   const insets = useSafeAreaInsets();
   const { account } = useAccount();
+  const { height } = useWindowDimensions();
   const [recent, setRecent] = useState<Recent[]>([]);
+  // The map shows where the phone is only if the person has already allowed
+  // it; otherwise Islamabad. It asks only when the locate button is pressed.
+  const withMap = mapsReady();
+  const [me, setMe] = useState<Point | null>(null);
+  useEffect(() => {
+    if (withMap) knownPosition().then((p) => p && setMe(p));
+  }, [withMap]);
+  const locate = async () => {
+    const p = await askPosition();
+    if (p && p !== 'refused') setMe(p);
+  };
+  const mapHeight = Math.round(height * 0.4);
+  // The buttons over the map scroll away with it, rather than sitting on the cards.
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const lift = scrollY.interpolate({ inputRange: [0, 1000], outputRange: [0, -1000], extrapolateLeft: 'clamp' });
   const arrive = useArrive();
   const rise = arrive.interpolate({ inputRange: [0, 1], outputRange: [24, 0] });
 
@@ -56,19 +73,8 @@ export default function Home() {
 
   if (account?.role === 'pro') return <Redirect href="/pro" />;
 
-  return (
-    <View style={s.screen}>
-      <StatusBar style="dark" />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 10, paddingBottom: Math.max(insets.bottom, 16) + 8 }} bounces={false}>
-        <View style={s.top}>
-          <MenuButton />
-          {/* Islamabad is the only city, so this says where, and is not a button. */}
-          <View style={s.city} accessibilityLabel="Pechkas works in Islamabad">
-            <Icon name="pin" size={16} color={colour.green} strokeWidth={2.2} />
-            <Text style={s.cityText}>Islamabad</Text>
-          </View>
-        </View>
-
+  const body = (
+    <>
         <View style={s.greeting}>
           <Text style={s.hello}>{account?.first_name ? `Hello, ${account.first_name}` : 'Hello'}</Text>
           <Text style={s.title} accessibilityRole="header">
@@ -138,6 +144,55 @@ export default function Home() {
             <Promise icon="lock" text="The price is agreed in the app before he comes. It changes only if you approve it." />
           </View>
         </Animated.View>
+    </>
+  );
+
+  if (withMap) {
+    return (
+      <View style={s.screen}>
+        <StatusBar style="dark" />
+        <MapBox center={me ?? ISLAMABAD} zoom={me ? 0.012 : 0.09} pin={me} showsUser={Boolean(me)} style={[s.map, { height: mapHeight + 40 }]} />
+        <Animated.ScrollView
+          contentContainerStyle={{ paddingTop: mapHeight - 28, paddingBottom: Math.max(insets.bottom, 16) + 8 }}
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+        >
+          <View style={s.sheetBase}>
+            <View style={s.handle} />
+            {body}
+          </View>
+        </Animated.ScrollView>
+        <Animated.View style={[s.top, s.floating, { top: insets.top + 10, transform: [{ translateY: lift }] }]} pointerEvents="box-none">
+          <MenuButton />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={s.city} accessibilityLabel="Pechkas works in Islamabad">
+              <Icon name="pin" size={16} color={colour.green} strokeWidth={2.2} />
+              <Text style={s.cityText}>Islamabad</Text>
+            </View>
+            <Press onPress={locate} accessibilityRole="button" accessibilityLabel="Show where I am" sink={0.9} style={s.locate}>
+              <Icon name="locate" size={20} color={colour.ink} strokeWidth={2.2} />
+            </Press>
+          </View>
+        </Animated.View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={s.screen}>
+      <StatusBar style="dark" />
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 10, paddingBottom: Math.max(insets.bottom, 16) + 8 }} bounces={false}>
+        <View style={s.top}>
+          <MenuButton />
+          {/* Islamabad is the only city, so this says where, and is not a button. */}
+          <View style={s.city} accessibilityLabel="Pechkas works in Islamabad">
+            <Icon name="pin" size={16} color={colour.green} strokeWidth={2.2} />
+            <Text style={s.cityText}>Islamabad</Text>
+          </View>
+        </View>
+
+        {body}
       </ScrollView>
     </View>
   );
@@ -194,6 +249,11 @@ const s = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
   city: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: TAP, paddingHorizontal: 14, borderRadius: radius.pill, backgroundColor: colour.white, boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.10)' },
   cityText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
+  map: { position: 'absolute', top: 0, left: 0, right: 0 },
+  floating: { position: 'absolute', left: 0, right: 0 },
+  sheetBase: { backgroundColor: colour.canvas, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingTop: 8, minHeight: 600 },
+  handle: { alignSelf: 'center', width: 40, height: 5, borderRadius: 3, backgroundColor: 'rgba(20, 23, 26, 0.18)' },
+  locate: { width: 44, height: 44, borderRadius: 22, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.10)' },
   greeting: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 14, gap: 2 },
   hello: { fontFamily: font.bodyMedium, fontSize: 16, color: colour.steel },
   title: { fontFamily: font.display, fontSize: 32, lineHeight: 36, color: colour.ink, letterSpacing: -0.8 },

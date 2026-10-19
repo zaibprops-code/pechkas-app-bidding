@@ -40,7 +40,8 @@ export type IconName =
   | 'clock'
   | 'settings'
   | 'help'
-  | 'whatsapp';
+  | 'whatsapp'
+  | 'locate';
 
 type Props = {
   name: IconName;
@@ -163,6 +164,7 @@ export function Icon({ name, size = 24, color = colour.green, strokeWidth = 1.8,
         </>
       )}
       {name === 'whatsapp' && <Path {...s} d="M4 20l1.3-3.9A8 8 0 1 1 8 19zM9 9.5c.3 2.3 2.2 4.2 4.5 4.5l1-1.5 2 .8" />}
+      {name === 'locate' && <Path {...s} d="M20 4L4 11l7 2 2 7z" />}
       {name === 'me' && (
         <>
           <Circle {...s} cx={12} cy={8} r={4} />

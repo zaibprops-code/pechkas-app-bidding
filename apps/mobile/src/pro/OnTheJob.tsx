@@ -9,6 +9,7 @@ import { OFFICE_PHONE } from '../office';
 import { RemoteMedia, useSignedUrls, type StoredMedia } from '../post/RemoteMedia';
 import { takePhoto, upload } from '../post/media';
 import { ask } from '../supabase';
+import { MapBox, mapsReady } from '../components/Map';
 import { fill, proError, type ProWords } from '../words';
 import { colour, font, radius } from '../theme';
 
@@ -180,6 +181,12 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
           <Button kind="outline" label={w.message} onPress={() => router.push({ pathname: '/chat/[job]', params: { job: j.id } })} />
         </View>
       </View>
+      {/* The customer's own pin, once he is the one chosen; tapping it opens directions. */}
+      {(j.stage === 'chosen' || j.stage === 'on_way') && j.lat !== null && j.lng !== null && mapsReady() ? (
+        <Press onPress={() => Linking.openURL(map)} accessibilityRole="button" accessibilityLabel={w.openMap} sink={0.98}>
+          <MapBox center={{ latitude: j.lat, longitude: j.lng }} pin={{ latitude: j.lat, longitude: j.lng }} zoom={0.006} style={s.map} />
+        </Press>
+      ) : null}
       {j.stage === 'chosen' || j.stage === 'on_way' ? <Button kind="outline" label={w.openMap} onPress={() => Linking.openURL(map)} /> : null}
       <View style={s.row}>
         <View style={{ flex: 1 }}>
@@ -465,6 +472,7 @@ function RateCustomer({ f, w, onDone }: { f: FinishedJob; w: ProWords; onDone: (
 }
 
 const s = StyleSheet.create({
+  map: { height: 160, borderRadius: 16 },
   card: { gap: 10, padding: 14, borderRadius: 22 },
   feeLine: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green },
   chosen: { backgroundColor: colour.paper },

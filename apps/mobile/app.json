@@ -99,7 +99,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Pechkas uses your location only while the app is open: to pin your house to a job if you choose, and to tell Pechkas where you are if you press the emergency button.",
+          "locationWhenInUsePermission": "Pechkas uses your location only while the app is open: to show where you are on the map when you ask, to pin your house to a job if you choose, and to tell Pechkas where you are if you press the emergency button.",
           "isAndroidBackgroundLocationEnabled": false,
           "isIosBackgroundLocationEnabled": false,
           "locationAlwaysAndWhenInUsePermission": false,

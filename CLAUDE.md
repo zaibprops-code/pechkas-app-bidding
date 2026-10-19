@@ -460,7 +460,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 ### Secrets
 - Nothing secret is ever committed (`.gitignore` blocks keystores). Only
   `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be in the
-  app; they are set in Expo's environment variables, not in a file here.
+  app's code, and `GOOGLE_MAPS_API_KEY` in its Android manifest; all three
+  are set in Expo's environment variables, not in a file here.
 - The Android upload keystore lives in Expo's credentials and in the owner's
   private storage. Never in the repository.
 
@@ -483,6 +484,20 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   question "What needs fixing & for how much?", the last two jobs, then
   more trades side by side. The tile drawings are `src/components/Art.tsx`
   — objects, never people, over a yellow sweep.
+- **Maps are `src/components/Map.tsx`, and only there.** Android draws
+  Google's map, which stops the app the moment it opens without a key, so
+  `mapsReady()` is false unless the build has `GOOGLE_MAPS_API_KEY` (read in
+  `app.config.js`, which also adds the key to Android through the
+  `react-native-maps` plugin); every screen keeps its map-free layout then.
+  The iPhone uses Apple's maps and needs no key. `Map.web.tsx` is a drawn
+  stand-in for the browser click-throughs only — never shipped. Location is
+  asked for only when a button is pressed (`askPosition()`); the home map
+  uses `knownPosition()`, which never asks. The pin a customer places is
+  the same `lat`/`lng` the job always had; nothing new is collected. The
+  Maps key is inside the app on purpose, as every Android map key is,
+  protected by its restriction to `net.pechkas.app` and the signing SHA-1.
+  The visit fee does not use distance yet: that is money, and waits on the
+  owner (`docs/OWNER.md`).
 - **Every screen is built from the same few pieces in `src/components/ui.tsx`**
   so they look like one app: `Screen` with a `hero` (a round back or menu
   button, then a big bold title on the screen's own background), `useArrive()` for the gentle

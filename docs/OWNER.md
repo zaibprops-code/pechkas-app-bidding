@@ -7,6 +7,16 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Maps (new — needs your Google Maps key).** The home screen opens on a map
+of Islamabad with the cards in a sheet over it, as in inDrive; the round
+arrow button shows where you are. **Post a job → Pin my house on the map**
+lets the customer move the map until the pin is on the house, and the
+technician she chooses sees that pin on a small map (tap it for
+directions). **iPhone needs nothing** — it uses Apple's maps. **Android
+needs a Google Maps key**: until you add one, Android builds simply show no
+maps and work as before. Steps: **"Maps: the Google Maps key (once)"**
+below.
+
 **The inDrive look (new).** As you asked, the app is now laid out the way
 inDrive is: no bar of tabs along the bottom, a **☰ button** at the top left
 that opens a side menu (your name and number, then Home, My jobs, Safety,
@@ -332,12 +342,12 @@ not a new app.
   Until then they are told to ask the office.
 - **No commission on a visit fee.** That was taken as the default — it is
   petrol, not work. Say if you want commission on it.
-- **The visit fee needs Google Maps** to measure each trip. When you are
-  ready, Claude will tell you how to make a Google Maps key (it needs a
-  billing card on Google Cloud, with a free monthly allowance), and then
-  one more thing to decide: **how many km per litre** to assume, and where
-  the **petrol price** comes from — you set it, and update it when the
-  government changes it.
+- **The visit fee by distance.** The maps are built, but the fee is money,
+  so it waits for your decisions: **how many km per litre** to assume,
+  where the **petrol price** comes from (you set it, and update it when the
+  government changes it), and **straight-line or road distance** — road
+  distance means turning on Google's paid Distance Matrix service as well.
+  Until then the fee stays Rs 300, your rule for "no distance".
 - **Cancelling once he has arrived.** For now a customer can cancel free
   until he reaches the house; after that the app tells her to call you.
   Say if cancelling after he has set off should cost her the visit fee.
@@ -903,6 +913,54 @@ it has seen the DNS records.
    send a screenshot to Claude. The usual ones: *"Error sending magic link
    email"* — the SMTP password or domain is wrong (C4, A4); *"email rate
    limit exceeded"* — C5.
+
+---
+
+## Maps: the Google Maps key (once)
+
+Only Android needs this; iPhones use Apple's maps. Without it, Android
+builds show no maps and everything else works.
+
+### A. Make the key in Google Cloud
+
+1. Go to **console.cloud.google.com** and sign in with your Google account.
+2. At the top, **Select a project → New project**, name it `Pechkas`,
+   **Create**, then make sure `Pechkas` is selected.
+3. **Billing** (left menu): link a billing account and card. Google insists
+   on one, but maps shown inside a phone app are free; nothing is charged
+   for them.
+4. **APIs & Services → Library**: search **Maps SDK for Android**, open it,
+   press **Enable**.
+5. **APIs & Services → Credentials → Create credentials → API key.** Google
+   shows the key — keep that page open, and never paste the key into a chat.
+6. On the key, press **Edit API key**:
+   - **Application restrictions → Android apps → Add an item**:
+     package name `net.pechkas.app`, and the **SHA-1** fingerprint from
+     **expo.dev → Pechkas App → Credentials → Android → net.pechkas.app**
+     (the "SHA-1 Fingerprint" line). Add a second item with the same package
+     name and the SHA-1 from **Play Console → Test and release → Setup → App
+     signing → App signing key certificate**, once the app is on Play.
+   - **API restrictions → Restrict key → Maps SDK for Android.**
+   - **Save.** The key now works only inside Pechkas.
+
+### B. Give the key to Expo
+
+1. **expo.dev → Pechkas App → Environment variables → Add variable.**
+2. Name: `GOOGLE_MAPS_API_KEY`. Value: the key. Visibility: **Sensitive**.
+   Environments: tick **preview** and **production**. **Save.**
+
+### C. Try it
+
+1. A new **preview** build from `main`, and install it.
+2. The home screen opens on a map. Tap the round arrow top right: the phone
+   asks once for your location, then the map moves to you.
+3. **Post a job → Pin my house on the map**: move the map until the pin is
+   on your house, **Confirm this spot**; a small map with your pin appears.
+4. With a technician chosen, his job card shows the same pin; tapping it
+   opens Google Maps with directions.
+
+If the home screen still has no map, the build was made before the key was
+added: build again.
 
 ---
 

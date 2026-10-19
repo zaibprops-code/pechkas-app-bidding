@@ -3,6 +3,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
+import { ISLAMABAD, MapBox, mapsReady, PinPicker } from '../src/components/Map';
 import { rupees } from '@pechkas/shared';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
@@ -45,6 +46,9 @@ export default function Post() {
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
+  // The map, when this build has one (src/components/Map.tsx says when).
+  const withMap = mapsReady();
+  const [picking, setPicking] = useState(false);
   const [elsewhere, setElsewhere] = useState(false);
   const [asking, setAsking] = useState<string | null>(null);
   const [asked, setAsked] = useState<string | null>(null);
@@ -365,12 +369,27 @@ export default function Post() {
           hint="Only the technician you choose will see this."
         />
         <Field label="Landmark (optional)" value={d.landmark} onChangeText={(v) => update({ landmark: v })} placeholder="Behind the markaz mosque" maxLength={120} error={errors.landmark} />
-        {d.lat !== null ? (
+        {/* With a map: pin the house by moving the map. Without one: the phone's own position. */}
+        {d.lat !== null && d.lng !== null && withMap ? (
+          <View style={{ gap: 8 }}>
+            <MapBox center={{ latitude: d.lat, longitude: d.lng }} pin={{ latitude: d.lat, longitude: d.lng }} zoom={0.004} style={s.mapPreview} />
+            <View style={s.fileRow}>
+              <Icon name="pin" size={20} strokeWidth={2} />
+              <Text style={s.fileText}>Your house is pinned on the map</Text>
+              <Press onPress={() => setPicking(true)} accessibilityRole="button" style={s.change}>
+                <Text style={s.changeText}>Change</Text>
+              </Press>
+              <Remove label="Remove the pin" onPress={() => update({ lat: null, lng: null, accuracy: null })} />
+            </View>
+          </View>
+        ) : d.lat !== null ? (
           <View style={s.fileRow}>
             <Icon name="pin" size={20} strokeWidth={2} />
             <Text style={s.fileText}>Your location is added{d.accuracy ? ` (within ${Math.round(d.accuracy)} m)` : ''}</Text>
             <Remove label="Remove the location" onPress={() => update({ lat: null, lng: null, accuracy: null })} />
           </View>
+        ) : withMap ? (
+          <Button kind="outline" icon="pin" label="Pin my house on the map" onPress={() => setPicking(true)} />
         ) : (
           <Button kind="outline" label={locating ? 'Finding you…' : 'Add my exact location'} onPress={locate} busy={locating} />
         )}
@@ -464,6 +483,16 @@ export default function Post() {
 
       <Body muted>You pay the technician after the job, in cash or by JazzCash or Easypaisa. Nothing in advance.</Body>
       <Notice text={notice} />
+      {picking ? (
+        <PinPicker
+          start={d.lat !== null && d.lng !== null ? { latitude: d.lat, longitude: d.lng } : ISLAMABAD}
+          onCancel={() => setPicking(false)}
+          onConfirm={(p) => {
+            update({ lat: p.latitude, lng: p.longitude, accuracy: null });
+            setPicking(false);
+          }}
+        />
+      ) : null}
     </Screen>
   );
 }
@@ -509,6 +538,9 @@ function Remove({ label, onPress }: { label: string; onPress: () => void }) {
 }
 
 const s = StyleSheet.create({
+  mapPreview: { height: 150, borderRadius: 18 },
+  change: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 },
+  changeText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green, textDecorationLine: 'underline' },
   section: { gap: 10, paddingTop: 6 },
   sectionTitle: { fontFamily: font.displayBold, fontSize: 18, color: colour.ink },
   hint: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel, marginTop: -4 },
