@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mark } from '../../src/components/Mark';
 import { Icon } from '../../src/components/Icon';
 import { Press } from '../../src/components/Press';
-import { Button, Loading } from '../../src/components/ui';
+import { Avatar, Button, Loading } from '../../src/components/ui';
 import { useAccount } from '../../src/account';
 import { supabase } from '../../src/supabase';
 import { useProWords } from '../../src/words';
@@ -67,6 +67,9 @@ export default function ProHome() {
               <Text style={s.who}>{pro.full_name.split(' ')[0]}</Text>
             </View>
           </View>
+          <Press onPress={() => router.push('/me')} accessibilityRole="button" accessibilityLabel={w.account} sink={0.92} style={s.avatar}>
+            <Avatar name={pro.full_name.split(' ')[0]} size={40} dark />
+          </Press>
         </View>
 
         <View style={s.card}>
@@ -89,7 +92,6 @@ export default function ProHome() {
           <Text style={s.detailMuted}>{pro.sectors.join(' · ')}</Text>
         </View>
 
-        <Button dark kind="outline" label={w.account} onPress={() => router.push('/me')} />
       </ScrollView>
     </View>
   );
@@ -97,6 +99,7 @@ export default function ProHome() {
 
 const s = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  avatar: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   brandText: { fontFamily: font.display, fontSize: 18, color: colour.paper },
   who: { fontFamily: font.body, fontSize: 12, color: '#b9c2c9' },

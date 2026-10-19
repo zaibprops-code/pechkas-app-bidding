@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { Linking, StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, explainAuthError, pakistaniMobile } from '@pechkas/shared';
-import { Icon } from '../src/components/Icon';
 import { Mark } from '../src/components/Mark';
 import { Press } from '../src/components/Press';
-import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
-import { PRIVACY_URL, TERMS_URL } from '../src/office';
+import { Button, Field, Notice, Screen } from '../src/components/ui';
+import { PRIVACY_URL } from '../src/office';
 import { sendEmailCode, supabase, url } from '../src/supabase';
 import { colour, font } from '../src/theme';
 
@@ -73,19 +72,17 @@ export default function SignIn() {
   }
 
   return (
-    <Screen footer={<Button label="Send me a code" onPress={send} busy={busy} />}>
-      <View style={s.top}>
-        {router.canGoBack() ? (
-          <Press onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" style={s.back}>
-            <Icon name="arrowLeft" size={20} color={colour.ink} strokeWidth={2} />
-          </Press>
-        ) : null}
-        <Mark size={40} />
-      </View>
+    <Screen
+      hero={{
+        title: mode === 'phone' ? 'Your mobile number' : 'Your email',
+        sub: mode === 'phone' ? 'We will text you a code. No password needed.' : 'We will email you a code. No password needed.',
+        back: router.canGoBack(),
+        right: <Mark size={36} />,
+      }}
+      footer={<Button label="Send me a code" icon="arrowRight" onPress={send} busy={busy} />}
+    >
       {mode === 'phone' ? (
         <>
-          <Title>Your mobile number</Title>
-          <Body muted>We send a code to this number. No password, nothing to remember.</Body>
           <Field
             label="Mobile number"
             value={typed}
@@ -102,8 +99,6 @@ export default function SignIn() {
         </>
       ) : (
         <>
-          <Title>Your email</Title>
-          <Body muted>We email you a code. No password, nothing to remember. You will be asked for your mobile number next, so the technician you choose can ring you.</Body>
           <Field
             label="Email address"
             value={email}
@@ -117,6 +112,7 @@ export default function SignIn() {
             returnKeyType="send"
             onSubmitEditing={send}
             error={error}
+            hint="You will be asked for your mobile number next, so the technician you choose can call you."
           />
         </>
       )}
@@ -124,15 +120,15 @@ export default function SignIn() {
       <Press onPress={() => switchTo(mode === 'phone' ? 'email' : 'phone')} accessibilityRole="button" style={s.switch}>
         <Text style={s.switchText}>{mode === 'phone' ? 'Use my email instead' : 'Use my mobile number instead'}</Text>
       </Press>
-      <Button kind="outline" label="How Pechkas uses your number" onPress={() => Linking.openURL(PRIVACY_URL)} />
-      <Button kind="outline" label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} />
+      <Press onPress={() => Linking.openURL(PRIVACY_URL)} accessibilityRole="link" style={s.switch}>
+        <Text style={s.quiet}>How Pechkas uses your number</Text>
+      </Press>
     </Screen>
   );
 }
 
 const s = StyleSheet.create({
-  top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  back: { width: 44, height: 44, borderRadius: 999, backgroundColor: colour.paper2, alignItems: 'center', justifyContent: 'center' },
+  quiet: { fontFamily: font.bodyMedium, fontSize: 14, color: colour.steel, textDecorationLine: 'underline' },
   switch: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   switchText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.green, textDecorationLine: 'underline' },
 });

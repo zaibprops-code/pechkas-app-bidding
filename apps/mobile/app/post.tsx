@@ -269,14 +269,10 @@ export default function Post() {
   const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
 
   return (
-    <Screen footer={<Button label={progress ?? 'Post job'} onPress={post} busy={busy && !progress} disabled={busy} />}>
-      <View style={s.top}>
-        <Press onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} accessibilityRole="button" accessibilityLabel="Back" style={s.back}>
-          <Icon name="arrowLeft" size={20} color={colour.ink} strokeWidth={2.2} />
-        </Press>
-        <Text style={s.saved}>Saved on your phone as you go</Text>
-      </View>
-      <Title>Post a job</Title>
+    <Screen
+      hero={{ title: 'Post a job', sub: 'Six short steps. Saved on your phone as you go.', back: true }}
+      footer={<Button label={progress ?? 'Post job'} onPress={post} busy={busy && !progress} disabled={busy} />}
+    >
 
       {d.askFor ? (
         <View style={s.askFor}>
@@ -513,9 +509,6 @@ function Remove({ label, onPress }: { label: string; onPress: () => void }) {
 }
 
 const s = StyleSheet.create({
-  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  back: { width: 44, height: 44, borderRadius: 999, backgroundColor: colour.paper2, alignItems: 'center', justifyContent: 'center' },
-  saved: { fontFamily: font.body, fontSize: 12, color: colour.steel },
   section: { gap: 10, paddingTop: 6 },
   sectionTitle: { fontFamily: font.displayBold, fontSize: 18, color: colour.ink },
   hint: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel, marginTop: -4 },

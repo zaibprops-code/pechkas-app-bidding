@@ -474,6 +474,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   guard at the gate, family told who is coming. The words are formal
   English throughout.
 - Customer side light, technician side dark.
+- **Every screen is built from the same few pieces in `src/components/ui.tsx`**
+  so they look like one app: `Screen` with a `hero` (the green panel at the
+  top, the same family as the welcome screen), `useArrive()` for the gentle
+  slide-in, `Button` with an optional icon (an arrow always after the
+  words), `Field` (green outline while typing, snapped), `ListGroup` and
+  `ListRow` for settings-style lists, `Avatar` for a first letter in a
+  circle. A new screen uses them rather than inventing its own header.
+  The welcome screen (`app/start.tsx`) says almost nothing on purpose: the
+  name, one line, two buttons. Keep it that way.
 - **Only `transform` moves.** `Press` sinks on tap and buzzes; it never eases
   a colour. A control whose text colour changes between states eases no
   colour at all — halfway through, text and background are the same grey.

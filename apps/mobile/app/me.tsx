@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { showMobile } from '@pechkas/shared';
-import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
+import { Avatar, Body, Button, Field, ListGroup, ListRow, Notice, Screen, Title } from '../src/components/ui';
 import { ThisCopy } from '../src/components/ThisCopy';
 import { useAccount } from '../src/account';
 import { useNotify } from '../src/notifications';
@@ -86,19 +86,24 @@ export default function Me() {
     await refresh();
   }
 
-  return (
-    <Screen dark={dark} footer={back}>
-      <Title dark={dark}>{account?.first_name ? `${account.first_name}` : 'Your account'}</Title>
-      <View style={[s.card, dark && s.cardDark]}>
-        <Row dark={dark} k="Mobile" v={phone} />
-        {account?.email ? <Row dark={dark} k="Email" v={account.email} /> : null}
-        <Row dark={dark} k="Account" v={account?.role === 'pro' ? 'Technician' : account?.role === 'customer' ? 'Customer' : 'Not finished'} />
-        {notify && notify !== 'unavailable' ? <Row dark={dark} k="Notifications" v={notify === 'on' ? 'On' : 'Off'} /> : null}
-      </View>
+  const role = account?.role === 'pro' ? 'Technician' : account?.role === 'customer' ? 'Customer' : 'Account not finished';
+  const notifyValue = notify === 'on' ? 'On' : notify === 'ask' ? 'Off — tap to turn on' : notify === 'off' ? 'Off — turn on in phone settings' : undefined;
 
-      {account?.phone_checked === false && !editing ? (
-        <Button kind="outline" dark={dark} label="Change my mobile number" onPress={() => setEditing(true)} />
-      ) : null}
+  return (
+    <Screen
+      dark={dark}
+      hero={{
+        title: account?.first_name || 'Your account',
+        sub: role,
+        back: () => (router.canGoBack() ? router.back() : router.replace('/')),
+        right: <Avatar name={account?.first_name} size={44} dark />,
+      }}
+    >
+      <ListGroup title="Contact" dark={dark}>
+        <ListRow dark={dark} icon="phone" label="Mobile number" value={phone} onPress={account?.phone_checked === false && !editing ? () => setEditing(true) : undefined} last={!account?.email} />
+        {account?.email ? <ListRow dark={dark} icon="mail" label="Email" value={account.email} last /> : null}
+      </ListGroup>
+
       {editing ? (
         <View style={{ gap: 8 }}>
           <Field
@@ -110,65 +115,54 @@ export default function Me() {
             keyboardType="phone-pad"
             autoComplete="tel"
             error={phoneError ?? undefined}
-            hint="The person you are working with rings you on this."
+            hint="The person you are working with calls you on this."
           />
           <Button dark={dark} label="Save number" onPress={savePhone} busy={busy} />
           <Button kind="outline" dark={dark} label="Cancel" onPress={() => { setEditing(false); setPhoneError(null); }} />
         </View>
       ) : null}
 
-      {notify === 'ask' ? <Button kind={dark ? 'yellow' : 'green'} dark={dark} label="Turn on notifications" onPress={askNotify} /> : null}
-      {notify === 'off' ? (
-        <View style={{ gap: 8 }}>
-          <Body dark={dark} muted>Notifications are switched off for Pechkas in your phone's settings.</Body>
-          <Button kind="outline" dark={dark} label="Open settings" onPress={() => Linking.openSettings()} />
+      <ListGroup title="Settings" dark={dark}>
+        {notifyValue ? (
+          <ListRow
+            dark={dark}
+            icon="bell"
+            label="Notifications"
+            value={notifyValue}
+            onPress={notify === 'ask' ? askNotify : notify === 'off' ? () => Linking.openSettings() : undefined}
+          />
+        ) : null}
+        {account?.role === 'customer' ? <ListRow dark={dark} icon="tool" label="Work with Pechkas as a technician" onPress={() => router.push('/pro/apply')} /> : null}
+        <ListRow dark={dark} icon="lock" label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
+        {account?.role === 'pro' ? (
+          <ListRow dark={dark} icon="doc" label="Technician agreement" onPress={() => Linking.openURL(AGREEMENT_URL)} last />
+        ) : (
+          <ListRow dark={dark} icon="doc" label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} last />
+        )}
+      </ListGroup>
+
+      <ListGroup dark={dark}>
+        <ListRow dark={dark} icon="logout" label="Sign out" onPress={async () => { await signOut(); router.replace('/start'); }} />
+        <ListRow dark={dark} icon="trash" label="Delete my account" danger onPress={() => setConfirming(true)} last />
+      </ListGroup>
+
+      {confirming ? (
+        <View style={[s.danger, dark && s.dangerDark]}>
+          <Text style={[s.dangerText, dark && { color: colour.paper }]}>
+            This deletes your account and everything in it: your name, your number, {account?.role === 'pro' ? 'your application, ' : ''}{account?.role === 'customer' ? 'your jobs, voice notes, videos and photos, ' : ''}all of it. It cannot be undone.
+          </Text>
+          <Button kind="danger" label="Yes, delete it" onPress={remove} busy={busy} />
+          <Button kind="outline" dark={dark} label="No, keep it" onPress={() => setConfirming(false)} />
         </View>
       ) : null}
+      <Notice dark={dark} text={notice} />
 
-      {account?.role === 'customer' ? <Button kind="outline" label="I want to work with Pechkas as a technician" onPress={() => router.push('/pro/apply')} /> : null}
-
-      <Button kind="outline" dark={dark} label="Sign out" onPress={async () => { await signOut(); router.replace('/start'); }} />
-      <Button kind="outline" dark={dark} label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
-      {account?.role === 'pro' ? (
-        <Button kind="outline" dark={dark} label="Technician agreement" onPress={() => Linking.openURL(AGREEMENT_URL)} />
-      ) : (
-        <Button kind="outline" dark={dark} label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} />
-      )}
       <ThisCopy dark={dark} />
-
-      <View style={{ gap: 10, marginTop: 12 }}>
-        {!confirming ? (
-          <Button kind="outline" dark={dark} label="Delete my account" onPress={() => setConfirming(true)} />
-        ) : (
-          <View style={[s.danger, dark && s.dangerDark]}>
-            <Text style={[s.dangerText, dark && { color: colour.paper }]}>
-              This deletes your account and everything in it: your name, your number, {account?.role === 'pro' ? 'your application, ' : ''}{account?.role === 'customer' ? 'your jobs, voice notes, videos and photos, ' : ''}all of it. It cannot be undone.
-            </Text>
-            <Button kind="danger" label="Yes, delete it" onPress={remove} busy={busy} />
-            <Button kind="outline" dark={dark} label="No, keep it" onPress={() => setConfirming(false)} />
-          </View>
-        )}
-        <Notice dark={dark} text={notice} />
-      </View>
     </Screen>
   );
 }
 
-function Row({ k, v, dark }: { k: string; v: string; dark: boolean }) {
-  return (
-    <View style={s.row}>
-      <Text style={[s.k, dark && { color: '#b9c2c9' }]}>{k}</Text>
-      <Text style={[s.v, dark && { color: colour.paper }]}>{v}</Text>
-    </View>
-  );
-}
-
 const s = StyleSheet.create({
-  card: { borderRadius: radius.big, backgroundColor: colour.white, borderWidth: 1, borderColor: colour.rule, padding: 16, gap: 10 },
-  cardDark: { backgroundColor: '#22282d', borderColor: '#22282d' },
-  row: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
-  k: { fontFamily: font.body, fontSize: 14, color: colour.steel },
-  v: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   danger: { gap: 10, padding: 14, borderRadius: radius.big, backgroundColor: '#f6e3dc' },
   dangerDark: { backgroundColor: '#3a2019' },
   dangerText: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.ink },

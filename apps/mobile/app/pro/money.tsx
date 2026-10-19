@@ -4,7 +4,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { rupees } from '@pechkas/shared';
-import { Button, Loading, Notice } from '../../src/components/ui';
+import { Hero, Loading, Notice } from '../../src/components/ui';
 import { Stars } from '../../src/components/Stars';
 import { supabase } from '../../src/supabase';
 import { fill, useProWords } from '../../src/words';
@@ -61,12 +61,11 @@ export default function MoneyScreen() {
     <View style={{ flex: 1, backgroundColor: colour.ink }}>
       <StatusBar style="light" />
       <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: 16, paddingBottom: Math.max(insets.bottom, 16) + 8, gap: 14 }}
+        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 16) + 8 }}
         refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.yellow} />}
       >
-        <Text style={s.title} accessibilityRole="header">
-          {w.moneyTitle}
-        </Text>
+        <Hero title={w.moneyTitle} back={() => (router.canGoBack() ? router.back() : router.replace('/pro'))} />
+        <View style={{ paddingTop: 18, paddingHorizontal: 16, gap: 14 }}>
         <Notice dark text={problem} />
 
         {m ? (
@@ -89,7 +88,7 @@ export default function MoneyScreen() {
 
             <View style={s.card}>
               <Text style={s.cardTitle}>{w.thisMonth}</Text>
-              <Text style={s.big}>{fill(w.jobsDone, { n: m.month.jobs })}</Text>
+              <Text style={s.big}>{m.month.jobs === 1 ? w.jobDone : fill(w.jobsDone, { n: m.month.jobs })}</Text>
               <Row k={w.collected} v={rupees(m.month.collected_paisa)} />
               <Row k={w.partsSpent} v={rupees(m.month.parts_paisa)} />
               <Row k={w.feeTotal} v={rupees(m.month.commission_paisa)} />
@@ -148,7 +147,7 @@ export default function MoneyScreen() {
           </>
         ) : null}
 
-        <Button dark kind="outline" label={w.back} onPress={() => (router.canGoBack() ? router.back() : router.replace('/pro'))} />
+        </View>
       </ScrollView>
     </View>
   );
@@ -164,7 +163,6 @@ function Row({ k, v }: { k: string; v: string }) {
 }
 
 const s = StyleSheet.create({
-  title: { fontFamily: font.display, fontSize: 28, color: colour.paper },
   owed: { gap: 4, padding: 16, borderRadius: radius.big, backgroundColor: colour.yellow },
   owedBlocked: { backgroundColor: colour.brick },
   owedLabel: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },

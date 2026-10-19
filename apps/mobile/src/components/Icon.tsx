@@ -26,7 +26,15 @@ export type IconName =
   | 'chat'
   | 'me'
   | 'star'
-  | 'alert';
+  | 'alert'
+  | 'chevronRight'
+  | 'bell'
+  | 'logout'
+  | 'doc'
+  | 'trash'
+  | 'phone'
+  | 'mail'
+  | 'tool';
 
 type Props = {
   name: IconName;
@@ -110,6 +118,19 @@ export function Icon({ name, size = 24, color = colour.green, strokeWidth = 1.8,
         />
       )}
       {name === 'alert' && <Path {...s} d="M12 3L2 20h20zM12 10v4M12 17v.5" />}
+      {name === 'chevronRight' && <Path {...s} d="M9 6l6 6-6 6" />}
+      {name === 'bell' && <Path {...s} d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0" />}
+      {name === 'logout' && <Path {...s} d="M14 4h5a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-5M10 8l-4 4 4 4M6 12h10" />}
+      {name === 'doc' && <Path {...s} d="M6 2h8l4 4v16H6zM14 2v4h4M9 12h6M9 16h6" />}
+      {name === 'trash' && <Path {...s} d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3" />}
+      {name === 'phone' && <Path {...s} d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />}
+      {name === 'mail' && (
+        <>
+          <Rect {...s} x={3} y={5} width={18} height={14} rx={2} />
+          <Path {...s} d="M3 7l9 6 9-6" />
+        </>
+      )}
+      {name === 'tool' && <Path {...s} d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 0-5-5l2.5 2.5-1.5 1.5z" />}
       {name === 'me' && (
         <>
           <Circle {...s} cx={12} cy={8} r={4} />

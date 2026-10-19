@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, explainAuthError, showMobile } from '@pechkas/shared';
-import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
+import { Press } from '../src/components/Press';
+import { Button, Notice, Screen } from '../src/components/ui';
+import { colour, font } from '../src/theme';
 import { useAccount, type Account } from '../src/account';
 import { routeFor } from '../src/route';
 import { sendEmailCode, supabase, url } from '../src/supabase';
@@ -61,32 +64,90 @@ export default function Verify() {
   }
 
   return (
-    <Screen footer={<Button label="Continue" onPress={check} busy={busy} />}>
-      <Title>Enter the code</Title>
-      <Body muted>
-        {email ? `We emailed a code to ${email}. Type it here — or, on this phone, tap the link in the email. If it is not in your inbox, look in spam.` : `We sent a 6-number code to ${phone ? showMobile(phone) : 'your phone'}.`}
-      </Body>
-      <Field
-        label="Code"
-        value={code}
-        onChangeText={setCode}
-        placeholder="123456"
+    <Screen
+      hero={{
+        title: 'Enter the code',
+        sub: email ? `Sent to ${email}` : `Sent to ${phone ? showMobile(phone) : 'your phone'}`,
+        back: true,
+      }}
+      footer={<Button label="Continue" onPress={check} busy={busy} />}
+    >
+      <CodeBoxes value={code} onChange={setCode} longest={longest} email={Boolean(email)} error={error} onSubmit={check} />
+      {error ? <Text style={s.error}>{error}</Text> : null}
+      {email ? <Text style={s.hint}>Or, on this phone, tap the link in the email. Not in your inbox? Look in spam.</Text> : null}
+      <Notice text={notice} />
+      <Press onPress={left > 0 ? undefined : resend} accessibilityRole="button" accessibilityState={{ disabled: left > 0 }} style={s.resend}>
+        <Text style={[s.resendText, left > 0 && { color: colour.steel, textDecorationLine: 'none' }]}>
+          {left > 0 ? `Send a new code in ${left}s` : 'Send a new code'}
+        </Text>
+      </Press>
+    </Screen>
+  );
+}
+
+/**
+ * One box per digit, like every banking app. A single real text box sits on
+ * top of them, invisible, so the keyboard, paste and the phone's own "fill
+ * in the code from the SMS" all work as normal. A text message's code is
+ * always 6 digits, so it carries on by itself once the sixth is in.
+ */
+function CodeBoxes({ value, onChange, longest, email, error, onSubmit }: {
+  value: string;
+  onChange: (v: string) => void;
+  longest: number;
+  email: boolean;
+  error: string | null;
+  onSubmit: () => void;
+}) {
+  const input = useRef<TextInput>(null);
+  const [focused, setFocused] = useState(true);
+  const digits = value.replace(/\D/g, '').slice(0, longest);
+  const boxes = Math.min(longest, Math.max(6, digits.length + (email && digits.length >= 6 && digits.length < longest ? 1 : 0)));
+  useEffect(() => {
+    if (!email && digits.length === 6) onSubmit();
+    // Only when the sixth digit arrives, not on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [digits.length]);
+  return (
+    <Press onPress={() => input.current?.focus()} sink={1} accessible={false} style={s.boxes}>
+      {Array.from({ length: boxes }, (_, i) => {
+        const here = focused && i === Math.min(digits.length, boxes - 1);
+        return (
+          <View key={i} style={[s.box, digits[i] ? s.boxFull : null, here ? s.boxHere : null, error ? s.boxError : null]}>
+            <Text style={s.digit}>{digits[i] ?? ''}</Text>
+          </View>
+        );
+      })}
+      <TextInput
+        ref={input}
+        value={digits}
+        onChangeText={(t) => onChange(t.replace(/\D/g, '').slice(0, longest))}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        onSubmitEditing={onSubmit}
+        accessibilityLabel="Code"
         keyboardType="number-pad"
         textContentType="oneTimeCode"
         autoComplete={email ? 'one-time-code' : 'sms-otp'}
         maxLength={longest}
         autoFocus
-        onSubmitEditing={check}
-        error={error}
-        style={{ fontSize: 26, letterSpacing: 8 }}
+        caretHidden
+        style={s.hidden}
       />
-      <Notice text={notice} />
-      <Button
-        kind="outline"
-        label={left > 0 ? `Send a new code in ${left}s` : 'Send a new code'}
-        onPress={resend}
-        disabled={left > 0}
-      />
-    </Screen>
+    </Press>
   );
 }
+
+const s = StyleSheet.create({
+  boxes: { flexDirection: 'row', gap: 8, position: 'relative' },
+  box: { flex: 1, maxWidth: 56, height: 62, borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(20,23,26,0.16)', backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },
+  boxFull: { borderColor: colour.ink },
+  boxHere: { borderColor: colour.green, borderWidth: 2.5 },
+  boxError: { borderColor: colour.brick, borderWidth: 2 },
+  digit: { fontFamily: font.display, fontSize: 28, color: colour.ink },
+  hidden: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, color: 'transparent', backgroundColor: 'transparent', fontSize: 1, borderWidth: 0, outlineWidth: 0 },
+  error: { fontFamily: font.bodySemi, fontSize: 14, color: colour.brick, marginTop: -6 },
+  hint: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.steel },
+  resend: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
+  resendText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.green, textDecorationLine: 'underline' },
+});

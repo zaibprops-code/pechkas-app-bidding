@@ -145,6 +145,7 @@ const PRO = {
   payNote: 'After paying, give the office the transaction ID. The office will record it here.',
   thisMonth: 'This month',
   jobsDone: '{n} jobs done',
+  jobDone: '1 job done',
   collected: 'Collected from customers',
   partsSpent: 'Parts',
   feeTotal: 'Pechkas fee',

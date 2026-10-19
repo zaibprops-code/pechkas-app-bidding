@@ -2,9 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { rupees, showMobile } from '@pechkas/shared';
-import { Button, Field, Loading, Notice, NotifyCard } from '../src/components/ui';
+import { Button, Field, Hero, Loading, Notice, NotifyCard } from '../src/components/ui';
 import { Icon } from '../src/components/Icon';
 import { Stars } from '../src/components/Stars';
 import { Press } from '../src/components/Press';
@@ -70,7 +69,6 @@ export default function Jobs() {
   const { ready, session, account } = useAccount();
   const lists = useLists();
   const { notify, ask: askNotify } = useNotify(true);
-  const insets = useSafeAreaInsets();
   const [jobs, setJobs] = useState<Job[] | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
 
@@ -106,20 +104,19 @@ export default function Jobs() {
 
   const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
   const fresh = posted ? jobs?.find((j) => j.ref === posted) : undefined;
+  // Counted from the list itself, never estimated.
+  const going = jobs?.filter((j) => j.status === 'open' || j.status === 'assigned').length ?? 0;
+  const summary = jobs === null ? undefined : going ? `${going} in progress` : jobs.length ? 'Nothing in progress' : undefined;
 
   return (
     <View style={{ flex: 1, backgroundColor: colour.paper }}>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: 20, paddingBottom: 32, gap: 14 }}
+        contentContainerStyle={{ paddingBottom: 32 }}
         refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
       >
-        <View style={s.top}>
-          <Press onPress={() => router.replace('/')} accessibilityRole="button" accessibilityLabel="Home" style={s.back}>
-            <Icon name="arrowLeft" size={20} color={colour.ink} strokeWidth={2.2} />
-          </Press>
-          <Text style={s.title} accessibilityRole="header">My jobs</Text>
-        </View>
+        <Hero title="My jobs" sub={summary} back={() => router.replace('/')} />
+        <View style={{ paddingTop: 18, paddingHorizontal: 20, gap: 14 }}>
 
         {/* "Offers will arrive" is only true while they still can. */}
         {posted && fresh?.status === 'open' ? (
@@ -162,15 +159,20 @@ export default function Jobs() {
         ) : null}
         {jobs === null && !problem ? <Text style={s.muted}>Loading…</Text> : null}
         {jobs?.length === 0 ? (
-          <View style={{ gap: 12 }}>
-            <Text style={s.muted}>No jobs yet.</Text>
-            <Button label="Post a job" onPress={() => router.push('/post')} />
+          <View style={s.empty}>
+            <View style={s.emptyIcon}>
+              <Icon name="jobs" size={30} color={colour.green} strokeWidth={1.8} />
+            </View>
+            <Text style={s.emptyTitle}>No jobs yet</Text>
+            <Text style={s.muted}>Tell us what is broken and checked technicians send you offers.</Text>
+            <Button label="Post a job" icon="arrowRight" onPress={() => router.push('/post')} />
           </View>
         ) : null}
 
         {jobs?.map((j) => <JobCard key={j.id} job={j} trade={tradeName(j.trade)} tick={tick} onChanged={load} />)}
 
         {jobs?.length ? <Button kind="outline" label="Post another job" onPress={() => router.push('/post')} /> : null}
+        </View>
       </ScrollView>
     </View>
   );
@@ -421,9 +423,9 @@ function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChosen: () 
 
 /** Once chosen: who is coming, what was agreed, and how to reach him. */
 const s = StyleSheet.create({
-  top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  back: { width: 44, height: 44, borderRadius: 999, backgroundColor: colour.paper2, alignItems: 'center', justifyContent: 'center' },
-  title: { fontFamily: font.display, fontSize: 30, color: colour.ink, letterSpacing: -0.7 },
+  empty: { alignItems: 'center', gap: 10, paddingVertical: 28, paddingHorizontal: 12 },
+  emptyIcon: { width: 72, height: 72, borderRadius: 24, backgroundColor: colour.greenSoft, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  emptyTitle: { fontFamily: font.display, fontSize: 22, color: colour.ink },
   posted: { gap: 6, padding: 16, borderRadius: radius.big, backgroundColor: colour.green },
   postedTitle: { fontFamily: font.display, fontSize: 18, color: colour.yellow },
   postedText: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.paper },

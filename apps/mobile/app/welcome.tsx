@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Icon, type IconName } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
-import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
+import { Button, Field, Notice, Screen } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { ask } from '../src/supabase';
 import { colour, font, radius } from '../src/theme';
@@ -70,8 +70,13 @@ export default function Welcome() {
   }
 
   return (
-    <Screen footer={<Button label="Continue" onPress={go} busy={busy} />}>
-      <Title>{known ? 'One more thing' : 'Welcome'}</Title>
+    <Screen
+      hero={{
+        title: known ? 'One more thing' : 'Welcome',
+        sub: known ? 'Your mobile number, so the other side can call you.' : 'Two quick questions and you are in.',
+      }}
+      footer={<Button label="Continue" onPress={go} busy={busy} />}
+    >
       {needsPhone ? (
         <Field
           label="Your mobile number"
@@ -108,7 +113,6 @@ export default function Welcome() {
         {errors.role ? <Text style={s.error}>{errors.role}</Text> : null}
       </View>
       )}
-      <Body muted>Your number stays private. A technician only gets it after you choose him.</Body>
       <Notice text={notice} />
     </Screen>
   );
