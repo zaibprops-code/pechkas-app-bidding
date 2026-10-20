@@ -116,6 +116,13 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   screen that finds nobody signed in redirects to `/start`, never to
   `/sign-in`, so it cannot race the gate. Apple accepts a login-first app
   only because every feature belongs to an account — keep it that way.
+- **A code is `CODE_DIGITS` (6) digits, email and SMS alike**, and the
+  code screen always draws exactly that many boxes; the sixth digit sends
+  it. Supabase decides the real length ("Email OTP Length", "SMS OTP
+  Length") and must say 6 — set to 8, the old screen grew a box per digit.
+  `readCode()` reports a longer paste instead of cutting it short, and the
+  screen never sends the first six of a longer code. Do not go back to
+  guessing the length from what arrives.
 - Every sign-in failure shows `explainAuthError()` plus Supabase's own
   words and the project's host. Never go back to "check your signal" for
   everything: it hid a Supabase refusal for a whole afternoon.

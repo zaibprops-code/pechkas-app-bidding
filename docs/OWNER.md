@@ -7,6 +7,25 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The code is always 6 boxes (new — one Supabase setting, do it first).**
+The *Enter the code* screen used to start with six boxes and add more as
+numbers arrived, because your Supabase is sending **8-digit** email codes.
+Now there are always exactly **6 boxes**, for email and text message alike,
+and the sixth number signs you in by itself — no need to press Continue. If
+somebody pastes a longer code, the screen says *"That is 8 numbers, but a
+Pechkas code is always 6"* instead of cutting it short. So Supabase must
+send 6:
+
+1. **Supabase → Authentication → Sign In / Providers → Email.** Find
+   **Email OTP Length**, set it to **6**, and **Save**.
+2. Same page, **Phone** (only if you have switched it on): if there is an
+   **SMS OTP Length**, make sure it says **6**, and **Save**.
+3. Ask for a new code on your phone. The email should now show 6 numbers.
+   The app you have installed already accepts 6, so do this step before
+   the new build.
+4. **Expo:** a new **preview** build from `main`, install it, and sign in
+   once with email to see the six boxes fill and carry on by themselves.
+
 **A job is followed live, like a ride on inDrive (new).** Posting a job
 now opens that job's own screen: the Pechkas screw turning inside rings
 while technicians are found, then **Choose your technician** with the
@@ -840,7 +859,8 @@ Two more things that look like "missing" but are not:
 1. **Supabase → SQL Editor:** run `20261025000000_email_sign_in.sql`. It
    should say **Success**.
 2. **Authentication → Sign In / Providers → Email:** make sure it is **on**.
-   If there is a box **Email OTP Length**, leave it at **6**.
+   Set **Email OTP Length** to **6** and **Save** — the app shows exactly
+   six boxes, so a longer code cannot be typed in.
 3. **Authentication → Emails → Templates** (or **Email Templates**).
    **Supabase only lets you change a template once your own email sender is
    connected** — it says "Set up custom SMTP to edit templates". So do
@@ -1107,7 +1127,8 @@ and nothing on the website changes.
 3. Note the **Messaging Service SID**.
 4. **Supabase → Authentication → Sign In / Providers → Phone →** SMS
    provider **Twilio**. Paste the Account SID, Auth Token and Messaging
-   Service SID **there**, never in a chat. **Save**.
+   Service SID **there**, never in a chat. Check **SMS OTP Length** says
+   **6**. **Save**.
 5. Try it from a number that is **not** a test number. Keep the reviewer
    test numbers: Google's reviewers still need them.
 

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { authErrorDetails, explainAuthError } from '../src/index.ts';
+import { authErrorDetails, CODE_DIGITS, explainAuthError, readCode } from '../src/index.ts';
 
 test('a refusal from Supabase is never blamed on the signal', () => {
   for (const [message, status] of [
@@ -40,4 +40,15 @@ test('the details name what Supabase said and which project the app is talking t
   assert.equal(authErrorDetails('Signups not allowed for otp', 422, 'https://abcd.supabase.co'), 'Details: Signups not allowed for otp (422) · abcd.supabase.co');
   assert.equal(authErrorDetails('', 0, ''), 'Details: no message · no address');
   assert.match(authErrorDetails('x', 400, 'abcd.supabase.co'), /not a web address/);
+});
+
+test('a sign-in code is always 6 digits, and a longer one is noticed rather than cut short', () => {
+  assert.equal(CODE_DIGITS, 6);
+  assert.deepEqual(readCode('123456'), { digits: '123456', extra: null });
+  assert.deepEqual(readCode(' 12 34-56 '), { digits: '123456', extra: null });
+  assert.deepEqual(readCode('123'), { digits: '123', extra: null });
+  assert.deepEqual(readCode(''), { digits: '', extra: null });
+  assert.deepEqual(readCode(null), { digits: '', extra: null });
+  // An 8-digit email code: kept to six, and the 8 is reported.
+  assert.deepEqual(readCode('29216021'), { digits: '292160', extra: 8 });
 });

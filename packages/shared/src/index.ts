@@ -162,3 +162,27 @@ export function authErrorDetails(message: string | null | undefined, status: num
   }
   return `Details: ${message || 'no message'}${status ? ` (${status})` : ''} · ${host}`;
 }
+
+/**
+ * How many digits a sign-in code has: the same for email and for a text
+ * message, so the code screen always shows the same row of boxes.
+ *
+ * Supabase decides the real length — Authentication → Sign In / Providers →
+ * Email → "Email OTP Length", and the same under Phone for text messages.
+ * Both must say 6. The code screen used to guess, starting with six boxes and
+ * adding more as digits arrived, up to ten; with Supabase set to 8 that meant
+ * a row that grew while somebody typed. docs/OWNER.md has the steps.
+ */
+export const CODE_DIGITS = 6;
+
+/**
+ * What was typed or pasted into the code boxes: the digits only, never more
+ * than CODE_DIGITS. If there were more — an email from a Supabase still set
+ * to a longer code, or a code pasted with something else stuck to it —
+ * `extra` says how many digits arrived, so the screen can say so rather than
+ * quietly cut a code short and then call it wrong.
+ */
+export function readCode(text: string | null | undefined): { digits: string; extra: number | null } {
+  const all = (text ?? '').replace(/\D/g, '');
+  return { digits: all.slice(0, CODE_DIGITS), extra: all.length > CODE_DIGITS ? all.length : null };
+}
