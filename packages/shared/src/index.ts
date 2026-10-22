@@ -164,27 +164,40 @@ export function authErrorDetails(message: string | null | undefined, status: num
 }
 
 /**
- * How many digits a sign-in code has: the same for email and for a text
- * message, so the code screen always shows the same row of boxes.
+ * How many digits a sign-in code should have, email and text message alike,
+ * and how many boxes the code screen draws until it learns otherwise.
  *
  * Supabase decides the real length — Authentication → Sign In / Providers →
  * Email → "Email OTP Length", and the same under Phone for text messages.
- * Both must say 6. The code screen used to guess, starting with six boxes and
- * adding more as digits arrived, up to ten; with Supabase set to 8 that meant
- * a row that grew while somebody typed. docs/OWNER.md has the steps.
+ * Both should say 6; docs/OWNER.md has the steps. If one does not, the app
+ * still signs people in (CODE_MAX).
  */
 export const CODE_DIGITS = 6;
 
 /**
+ * The longest code Supabase can be set to send. Supabase allows 6 to 10, and
+ * the setting cannot be read from the phone, so the app accepts the whole of
+ * that range rather than lock everybody out over a box in a dashboard: an
+ * 8-digit code from a Supabase still set to 8 once stopped the owner signing
+ * in at all. The row of boxes still never grows one digit at a time while
+ * somebody types — see verify.tsx.
+ */
+export const CODE_MAX = 10;
+
+/** A length Supabase could really have sent: 6 to 10. */
+export function codeLengthOk(n: number): boolean {
+  return Number.isInteger(n) && n >= CODE_DIGITS && n <= CODE_MAX;
+}
+
+/**
  * What was typed or pasted into the code boxes: the digits only, never more
- * than CODE_DIGITS. If there were more — an email from a Supabase still set
- * to a longer code, or a code pasted with something else stuck to it —
- * `extra` says how many digits arrived, so the screen can say so rather than
- * quietly cut a code short and then call it wrong.
+ * than CODE_MAX. If there were more — a code pasted with something else stuck
+ * to it — `extra` says how many digits arrived, so the screen can say so
+ * rather than quietly cut a code short and then call it wrong.
  */
 export function readCode(text: string | null | undefined): { digits: string; extra: number | null } {
   const all = (text ?? '').replace(/\D/g, '');
-  return { digits: all.slice(0, CODE_DIGITS), extra: all.length > CODE_DIGITS ? all.length : null };
+  return { digits: all.slice(0, CODE_MAX), extra: all.length > CODE_MAX ? all.length : null };
 }
 
 /**

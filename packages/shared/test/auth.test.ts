@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { authErrorDetails, CODE_DIGITS, explainAuthError, readCode } from '../src/index.ts';
+import { authErrorDetails, CODE_DIGITS, CODE_MAX, codeLengthOk, explainAuthError, readCode } from '../src/index.ts';
 
 test('a refusal from Supabase is never blamed on the signal', () => {
   for (const [message, status] of [
@@ -42,15 +42,22 @@ test('the details name what Supabase said and which project the app is talking t
   assert.match(authErrorDetails('x', 400, 'abcd.supabase.co'), /not a web address/);
 });
 
-test('a sign-in code is always 6 digits, and a longer one is noticed rather than cut short', () => {
+test('a sign-in code is 6 to 10 digits, the range Supabase allows, and a longer paste is noticed rather than cut short', () => {
   assert.equal(CODE_DIGITS, 6);
+  assert.equal(CODE_MAX, 10);
   assert.deepEqual(readCode('123456'), { digits: '123456', extra: null });
   assert.deepEqual(readCode(' 12 34-56 '), { digits: '123456', extra: null });
   assert.deepEqual(readCode('123'), { digits: '123', extra: null });
   assert.deepEqual(readCode(''), { digits: '', extra: null });
   assert.deepEqual(readCode(null), { digits: '', extra: null });
-  // An 8-digit email code: kept to six, and the 8 is reported.
-  assert.deepEqual(readCode('29216021'), { digits: '292160', extra: 8 });
+  // The owner's 8-digit email code: taken whole, because it is a real code.
+  assert.deepEqual(readCode('34441291'), { digits: '34441291', extra: null });
+  assert.deepEqual(readCode('Your code: 3444 1291'), { digits: '34441291', extra: null });
+  assert.deepEqual(readCode('1234567890'), { digits: '1234567890', extra: null });
+  // Past ten it is no code Supabase sends: kept to ten, and the count reported.
+  assert.deepEqual(readCode('123456789012'), { digits: '1234567890', extra: 12 });
+  for (const n of [6, 7, 8, 9, 10]) assert.equal(codeLengthOk(n), true, String(n));
+  for (const n of [0, 5, 11, 6.5, NaN]) assert.equal(codeLengthOk(n), false, String(n));
 });
 
 test('a first name from Google fills the box only when it is plainly a name', async () => {
