@@ -568,8 +568,18 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   words), `Field` (green outline while typing, snapped), `ListGroup` and
   `ListRow` for settings-style lists, `Avatar` for a first letter in a
   circle. A new screen uses them rather than inventing its own header.
-  The welcome screen (`app/start.tsx`) says almost nothing on purpose: the
-  name, one line, two buttons. Keep it that way.
+  **The first two screens are inDrive's, the owner's reference.** The
+  welcome screen (`app/start.tsx`) is white: the name at the top, three
+  pages to swipe (a `WelcomeArt` drawing — objects, never people — a
+  headline and one line each), dots, then **Continue with phone** (black)
+  and **Continue with email** (light grey) and the terms line. Every page
+  says only what is true today: no numbers, no ratings, and the pages never
+  turn by themselves. The number screen (`sign-in.tsx`) is one big
+  `PhoneBox` with the flag and **+92** fixed in front — a label, not a
+  menu, since only Pakistani numbers work — and **Next** at the foot. No
+  "Continue with Google" or passkey until they are actually built: each
+  needs the owner's Google and Supabase set-up and changes the privacy
+  page and both stores' answers.
 - **Only `transform` moves.** `Press` sinks on tap and buzzes; it never eases
   a colour. A control whose text colour changes between states eases no
   colour at all — halfway through, text and background are the same grey.

@@ -2,16 +2,16 @@ import { useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, explainAuthError, pakistaniMobile } from '@pechkas/shared';
-import { Mark } from '../src/components/Mark';
+import { PhoneBox } from '../src/components/PhoneBox';
 import { Press } from '../src/components/Press';
 import { Button, Field, Notice, Screen } from '../src/components/ui';
-import { openLegal } from '../src/legal';
 import { sendEmailCode, supabase, url } from '../src/supabase';
 import { colour, font } from '../src/theme';
 
 /**
- * Sign in with a mobile number. A code is sent to it; nothing else is asked
- * for, and there is no password to forget.
+ * Sign in with a mobile number — or an email — laid out as inDrive's is:
+ * one big box with the country already in it, and Next at the foot. A code
+ * is sent; nothing else is asked for, and there is no password to forget.
  */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -57,7 +57,7 @@ export default function SignIn() {
     }
     const phone = pakistaniMobile(typed);
     if (!phone) {
-      setError('Write a Pakistani mobile number, like 0300 1234567.');
+      setError('Write your mobile number after +92, like 300 1234567.');
       return;
     }
     setBusy(true);
@@ -74,29 +74,25 @@ export default function SignIn() {
   return (
     <Screen
       hero={{
-        title: mode === 'phone' ? 'Your mobile number' : 'Your email',
-        sub: mode === 'phone' ? 'We will text you a code. No password needed.' : 'We will email you a code. No password needed.',
+        title: mode === 'phone' ? 'Join with your mobile number' : 'Join with your email',
+        sub: mode === 'phone' ? 'We will text you a code to check your number.' : 'We will email you a code. No password needed.',
         back: router.canGoBack(),
-        right: <Mark size={36} />,
       }}
-      footer={<Button label="Send me a code" icon="arrowRight" onPress={send} busy={busy} />}
+      footer={<Button label="Next" onPress={send} busy={busy} />}
     >
       {mode === 'phone' ? (
-        <>
-          <Field
-            label="Mobile number"
-            value={typed}
-            onChangeText={setTyped}
-            placeholder="0300 1234567"
-            keyboardType="phone-pad"
-            textContentType="telephoneNumber"
-            autoComplete="tel"
-            returnKeyType="send"
-            onSubmitEditing={send}
-            error={error}
-            hint="We never show your number to anyone until you choose a technician."
-          />
-        </>
+        <PhoneBox
+          value={typed}
+          onChangeText={(t) => {
+            setTyped(t);
+            if (error) setError(null);
+          }}
+          returnKeyType="send"
+          onSubmitEditing={send}
+          autoFocus
+          error={error}
+          hint="Your number goes only to the person you end up working with, and to the Pechkas office."
+        />
       ) : (
         <>
           <Field
@@ -120,15 +116,11 @@ export default function SignIn() {
       <Press onPress={() => switchTo(mode === 'phone' ? 'email' : 'phone')} accessibilityRole="button" style={s.switch}>
         <Text style={s.switchText}>{mode === 'phone' ? 'Use my email instead' : 'Use my mobile number instead'}</Text>
       </Press>
-      <Press onPress={() => openLegal('privacy')} accessibilityRole="link" style={s.switch}>
-        <Text style={s.quiet}>How Pechkas uses your number</Text>
-      </Press>
     </Screen>
   );
 }
 
 const s = StyleSheet.create({
-  quiet: { fontFamily: font.bodyMedium, fontSize: 14, color: colour.steel, textDecorationLine: 'underline' },
   switch: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   switchText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.green, textDecorationLine: 'underline' },
 });

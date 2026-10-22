@@ -131,7 +131,8 @@ export function Body({ children, dark = false, muted = false }: { children: Reac
 type ButtonProps = {
   label: string;
   onPress?: () => void;
-  kind?: 'yellow' | 'green' | 'danger' | 'outline';
+  /** `ink` and `soft` are the welcome screen's pair, as inDrive's: one black, one light grey. */
+  kind?: 'yellow' | 'green' | 'danger' | 'outline' | 'ink' | 'soft';
   busy?: boolean;
   disabled?: boolean;
   /** A small line icon before the words. */
@@ -139,8 +140,8 @@ type ButtonProps = {
 } & Tone;
 
 export function Button({ label, onPress, kind = 'yellow', busy = false, disabled = false, dark = false, icon }: ButtonProps) {
-  const bg = kind === 'yellow' ? colour.yellow : kind === 'green' ? colour.green : kind === 'danger' ? colour.brick : 'transparent';
-  const fg = kind === 'yellow' ? colour.ink : kind === 'green' || kind === 'danger' ? colour.paper : dark ? colour.paper : colour.ink;
+  const bg = { yellow: colour.yellow, green: colour.green, danger: colour.brick, ink: colour.ink, soft: colour.tile, outline: 'transparent' }[kind];
+  const fg = kind === 'yellow' || kind === 'soft' ? colour.ink : kind === 'outline' && !dark ? colour.ink : colour.paper;
   const border = kind === 'outline' ? (dark ? 'rgba(250,246,239,0.35)' : 'rgba(20,23,26,0.2)') : 'transparent';
   const off = disabled || busy;
   return (
@@ -148,7 +149,7 @@ export function Button({ label, onPress, kind = 'yellow', busy = false, disabled
       onPress={off ? undefined : onPress}
       accessibilityRole="button"
       accessibilityState={{ disabled: off, busy }}
-      style={[s.button, kind !== 'outline' && !off && s.lifted, { backgroundColor: bg, borderColor: border, opacity: disabled ? 0.5 : 1 }]}
+      style={[s.button, kind !== 'outline' && kind !== 'soft' && !off && s.lifted, { backgroundColor: bg, borderColor: border, opacity: disabled ? 0.5 : 1 }]}
     >
       {busy ? (
         <ScrewSpinner size={22} colour={fg} label={`${label}, sending`} />

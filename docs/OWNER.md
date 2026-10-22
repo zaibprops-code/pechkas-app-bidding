@@ -7,6 +7,27 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The first screens look like inDrive's (new — no database step).** The
+welcome screen is now white, with **pechkas** at the top and three pages
+to swipe through, each with a drawing and one line: *Name your price for
+home repairs*, *Technicians Pechkas has checked*, *Pay in cash when the
+work is done*. Under them are the dots, a black **Continue with phone**, a
+grey **Continue with email**, and the line about the Terms of Use and
+Privacy Policy. **Continue with phone** opens *Join with your mobile
+number*: one big box with the Pakistan flag and **+92** already in it, and
+**Next** at the bottom.
+
+**Not built, waiting on you:** inDrive also has **Continue with Google**
+and **Passkey**. Google sign-in is possible, but it needs a Google Cloud
+sign-in key made by you, a switch turned on in Supabase, and a change to
+the privacy policy and both stores' answers, because the app would then
+receive your Google name and email. Say yes and it gets built with the
+steps for your part. A passkey is newer and less supported on Android
+phones in Pakistan; not recommended yet.
+
+To see it: a new **preview** build from `main`, then sign out
+(**☰ → Settings → Sign out**).
+
 **The privacy policy and the rules open inside the app (new — no
 database step).** **Privacy policy**, **Terms of use**, the **Technician
 agreement** and **Delete your account** used to open the website in the

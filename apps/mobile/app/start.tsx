@@ -1,176 +1,171 @@
-import { useEffect, useRef } from 'react';
-import { AccessibilityInfo, Animated, Easing, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Animated, ScrollView, StyleSheet, Text, useWindowDimensions, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mark } from '../src/components/Mark';
-import { Icon, type IconName } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { ThisCopy } from '../src/components/ThisCopy';
+import { WelcomeArt, type WelcomeArtName } from '../src/components/WelcomeArt';
 import { Button } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { openLegal } from '../src/legal';
 import { colour, font, TAP } from '../src/theme';
 
 /**
- * The first screen after installing, and after signing out. It is where a
- * person decides whether to sign up, so it says almost nothing and shows the
- * rest: the Pechkas screw turns into place, and the six trades circle it.
+ * The first screen after installing, and after signing out — laid out as
+ * inDrive's is, the owner's reference: the name at the top, a drawing with
+ * one line under it, pages to swipe with dots to say where you are, and the
+ * ways in stacked at the foot with the terms beneath them.
  *
- * Motion obeys the app's rule — transform only, never a colour, never a
- * fade, so no word is ever drawn at reduced contrast. Every word is fully
- * opaque from the first frame; the entrance only slides it a few points.
- * With "remove animations" on, everything starts where it ends and stays.
+ * Every page says something true of Pechkas today, and nothing more: no
+ * numbers, no ratings, no "thousands of customers".
+ *
+ * Motion obeys the app's rule: only the screw's slot turns, once, as the
+ * screen opens. The pages move only when a finger moves them; they never
+ * turn by themselves, because text that slides away while somebody is
+ * reading it is text they did not finish.
  *
  * Sign up and sign in are one step (a new number becomes a new account),
  * which is why the buttons say "Continue". The gate is in app/_layout.tsx.
  */
 
-const TRADES: IconName[] = ['ac', 'bolt', 'drop', 'cctv', 'wifi', 'ups'];
+/** The two links are one short line of text; the finger gets the full 44 points around each. */
+const HIT = { top: 13, bottom: 13, left: 6, right: 6 };
+
+const PAGES: { art: WelcomeArtName; title: string; line: string }[] = [
+  {
+    art: 'price',
+    title: 'Name your price for home repairs',
+    line: 'Say what is broken and what you want to pay. Technicians make offers, and you choose.',
+  },
+  {
+    art: 'checked',
+    title: 'Technicians Pechkas has checked',
+    line: 'Identity, a trial job and the rules, checked before anybody comes to your door.',
+  },
+  {
+    art: 'cash',
+    title: 'Pay in cash when the work is done',
+    line: 'No card and no wallet. The price is agreed before anybody sets off.',
+  },
+];
 
 export default function Start() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const { connected } = useAccount();
+  const [page, setPage] = useState(0);
+  // The pages fill whatever height is left between the name and the buttons.
+  const [pageHeight, setPageHeight] = useState(0);
   const go = (mode: 'phone' | 'email') => router.push({ pathname: '/sign-in', params: { mode } });
 
-  // The stage fits a small 320 × 568 phone as well as a tall one: on a short
-  // screen everything shrinks rather than the words running into the buttons.
+  // On a short phone the drawing shrinks before anything else does.
   const compact = height < 700;
-  const stage = Math.round(Math.min(width - 40, height * (compact ? 0.3 : 0.4), 320));
-  const radiusOrbit = stage * 0.39;
-  const chip = Math.round(stage * 0.16);
-  const mark = Math.round(stage * 0.34);
+  const artWidth = Math.round(Math.min(width - 64, compact ? 220 : 300));
+  const artHeight = Math.round(artWidth * 0.75);
 
-  const turnIn = useRef(new Animated.Value(0)).current; // the screw tightening, once
-  const words = useRef(new Animated.Value(0)).current; // the name and the line under it
-  const actions = useRef(new Animated.Value(0)).current; // the buttons
-  const orbit = useRef(new Animated.Value(0)).current; // the trades, slowly, for ever
-
+  // One turn of the slot as the screen opens: the screw driven home. Only
+  // the slot turns (see Mark), so the light on the rim stays where it is.
+  const turnIn = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    let loop: Animated.CompositeAnimation | null = null;
     let alive = true;
     AccessibilityInfo.isReduceMotionEnabled()
       .catch(() => false)
       .then((still) => {
         if (!alive) return;
-        if (still) {
-          turnIn.setValue(1);
-          words.setValue(1);
-          actions.setValue(1);
-          return;
-        }
-        Animated.stagger(140, [
-          Animated.spring(turnIn, { toValue: 1, friction: 7, tension: 40, useNativeDriver: true }),
-          Animated.spring(words, { toValue: 1, friction: 8, tension: 50, useNativeDriver: true }),
-          Animated.spring(actions, { toValue: 1, friction: 8, tension: 50, useNativeDriver: true }),
-        ]).start();
-        loop = Animated.loop(Animated.timing(orbit, { toValue: 1, duration: 48000, easing: Easing.linear, useNativeDriver: true }));
-        loop.start();
+        if (still) return turnIn.setValue(1);
+        Animated.spring(turnIn, { toValue: 1, friction: 7, tension: 40, useNativeDriver: true }).start();
       });
     return () => {
       alive = false;
-      loop?.stop();
     };
-  }, [turnIn, words, actions, orbit]);
-
-  const spin = orbit.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
-  const unspin = orbit.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-360deg'] });
-  // One full turn of the slot as the head arrives: the screw driven home. Only
-  // the slot turns (see Mark), so the light on the rim stays where it is.
+  }, [turnIn]);
   const screw = turnIn.interpolate({ inputRange: [0, 1], outputRange: ['-360deg', '0deg'] });
-  const grow = turnIn.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1] });
-  const ringGrow = turnIn.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] });
-  const rise = (v: Animated.Value, by: number) => v.interpolate({ inputRange: [0, 1], outputRange: [by, 0] });
+
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const i = Math.round(e.nativeEvent.contentOffset.x / Math.max(1, width));
+    if (i !== page) setPage(Math.max(0, Math.min(PAGES.length - 1, i)));
+  };
 
   return (
     <View style={s.screen}>
-      <StatusBar style="light" />
-      <View style={[s.content, { paddingTop: insets.top + 12, paddingBottom: Math.max(insets.bottom, 18) }]}>
-        <View style={[s.hero, compact && s.heroSmall]}>
-          <Animated.View style={{ width: stage, height: stage, transform: [{ scale: ringGrow }] }} accessible={false}>
-            <View style={[s.ring, { width: radiusOrbit * 2, height: radiusOrbit * 2, borderRadius: radiusOrbit, left: stage / 2 - radiusOrbit, top: stage / 2 - radiusOrbit }]} />
-            <View style={[s.ringInner, { width: radiusOrbit * 1.25, height: radiusOrbit * 1.25, borderRadius: radiusOrbit, left: stage / 2 - radiusOrbit * 0.625, top: stage / 2 - radiusOrbit * 0.625 }]} />
-            <Animated.View style={[StyleSheet.absoluteFill, { transform: [{ rotate: spin }] }]}>
-              {TRADES.map((name, i) => {
-                const a = (i / TRADES.length) * Math.PI * 2 - Math.PI / 2;
-                return (
-                  <Animated.View
-                    key={name}
-                    style={[
-                      s.chip,
-                      {
-                        width: chip,
-                        height: chip,
-                        borderRadius: chip / 2,
-                        left: stage / 2 + radiusOrbit * Math.cos(a) - chip / 2,
-                        top: stage / 2 + radiusOrbit * Math.sin(a) - chip / 2,
-                        transform: [{ rotate: unspin }],
-                      },
-                    ]}
-                  >
-                    <Icon name={name} size={Math.round(chip * 0.48)} color={colour.yellow} strokeWidth={2} />
-                  </Animated.View>
-                );
-              })}
-            </Animated.View>
-            <Animated.View style={[s.center, { left: stage / 2 - mark / 2, top: stage / 2 - mark / 2, transform: [{ scale: grow }] }]}>
-              <Mark size={mark} turn={screw} />
-            </Animated.View>
-          </Animated.View>
+      <StatusBar style="dark" />
+      <View style={[s.top, { paddingTop: insets.top + (compact ? 10 : 18) }]} accessibilityRole="header" accessibilityLabel="Pechkas">
+        <Mark size={compact ? 30 : 36} turn={screw} />
+        <Text style={[s.name, compact && s.nameSmall]}>pechkas</Text>
+      </View>
 
-          <Animated.View style={[s.words, { transform: [{ translateY: rise(words, 26) }] }]}>
-            <Text style={[s.wordmark, compact && s.wordmarkSmall]} accessibilityRole="header">
-              pechkas
-            </Text>
-            <Text style={s.line}>Checked technicians. A price you agree first.</Text>
-          </Animated.View>
-        </View>
-
-        <Animated.View style={[s.actions, { transform: [{ translateY: rise(actions, 40) }] }]}>
-          {connected ? null : (
-            <View style={s.offline}>
-              <Text style={s.offlineText}>This copy of the app is not connected to Pechkas, so nobody can sign in yet.</Text>
-              <ThisCopy dark />
+      <ScrollView
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={32}
+        style={{ flex: 1 }}
+        onLayout={(e) => setPageHeight(e.nativeEvent.layout.height)}
+        accessibilityLabel="What Pechkas is"
+      >
+        {PAGES.map((p, i) => (
+          <View key={p.art} style={[s.page, { width, height: pageHeight || undefined }]} accessible accessibilityLabel={`${p.title}. ${p.line} Page ${i + 1} of ${PAGES.length}.`}>
+            <WelcomeArt name={p.art} width={artWidth} height={artHeight} />
+            <View style={s.words}>
+              <Text style={[s.title, compact && s.titleSmall]}>{p.title}</Text>
+              <Text style={s.line}>{p.line}</Text>
             </View>
-          )}
-          <Button label="Continue with mobile number" onPress={() => go('phone')} />
-          <Button kind="outline" dark label="Continue with email" onPress={() => go('email')} />
-          <View style={s.legal}>
-            <Text style={s.small}>By continuing you agree to our</Text>
-            <Press onPress={() => openLegal('terms')} accessibilityRole="link" style={s.link}>
-              <Text style={s.linkText}>Terms</Text>
-            </Press>
-            <Text style={s.small}>and</Text>
-            <Press onPress={() => openLegal('privacy')} accessibilityRole="link" style={s.link}>
-              <Text style={s.linkText}>Privacy Policy</Text>
-            </Press>
           </View>
-        </Animated.View>
+        ))}
+      </ScrollView>
+
+      {/* Where you are among the pages. Not buttons: swiping is the way. */}
+      <View style={s.dots} accessible={false}>
+        {PAGES.map((p, i) => (
+          <View key={p.art} style={[s.dot, i === page && s.dotOn]} />
+        ))}
+      </View>
+
+      <View style={[s.actions, { paddingBottom: Math.max(insets.bottom, 14) }]}>
+        {connected ? null : (
+          <View style={s.offline}>
+            <Text style={s.offlineText}>This copy of the app is not connected to Pechkas, so nobody can sign in yet.</Text>
+            <ThisCopy dark />
+          </View>
+        )}
+        <Button kind="ink" label="Continue with phone" icon="phone" onPress={() => go('phone')} />
+        <Button kind="soft" label="Continue with email" icon="mail" onPress={() => go('email')} />
+        <View style={s.legal}>
+          <Text style={s.small}>Joining Pechkas means you agree to our</Text>
+          <Press onPress={() => openLegal('terms')} accessibilityRole="link" hitSlop={HIT} style={s.link}>
+            <Text style={s.linkText}>Terms of Use</Text>
+          </Press>
+          <Text style={s.small}>and</Text>
+          <Press onPress={() => openLegal('privacy')} accessibilityRole="link" hitSlop={HIT} style={s.link}>
+            <Text style={s.linkText}>Privacy Policy</Text>
+          </Press>
+        </View>
       </View>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  // overflow hidden: a rotating box is larger than what it draws, and must never widen the screen.
-  screen: { flex: 1, backgroundColor: colour.green, overflow: 'hidden' },
-  content: { flex: 1, paddingHorizontal: 22, justifyContent: 'space-between' },
-  hero: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18 },
-  ring: { position: 'absolute', borderWidth: 1.5, borderColor: 'rgba(250,246,239,0.16)' },
-  ringInner: { position: 'absolute', borderWidth: 1, borderColor: 'rgba(250,246,239,0.08)' },
-  chip: { position: 'absolute', alignItems: 'center', justifyContent: 'center', backgroundColor: colour.greenDark, borderWidth: 1.5, borderColor: 'rgba(255,197,61,0.35)' },
-  center: { position: 'absolute' },
-  words: { alignItems: 'center', gap: 6 },
-  heroSmall: { gap: 10 },
-  wordmark: { fontFamily: font.display, fontSize: 44, color: colour.paper, letterSpacing: -1.2 },
-  wordmarkSmall: { fontSize: 34 },
-  line: { fontFamily: font.bodyMedium, fontSize: 16, lineHeight: 22, color: colour.paper, textAlign: 'center' },
-  actions: { gap: 12 },
+  screen: { flex: 1, backgroundColor: colour.white },
+  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingBottom: 6 },
+  name: { fontFamily: font.display, fontSize: 28, color: colour.ink, letterSpacing: -0.6 },
+  nameSmall: { fontSize: 24 },
+  page: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28, gap: 22 },
+  words: { alignItems: 'center', gap: 8, maxWidth: 360 },
+  title: { fontFamily: font.display, fontSize: 28, lineHeight: 33, color: colour.ink, textAlign: 'center', letterSpacing: -0.4 },
+  titleSmall: { fontSize: 23, lineHeight: 28 },
+  line: { fontFamily: font.body, fontSize: 16, lineHeight: 23, color: colour.ink, textAlign: 'center' },
+  dots: { flexDirection: 'row', justifyContent: 'center', gap: 8, paddingVertical: 14 },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colour.tile },
+  dotOn: { backgroundColor: colour.ink },
+  actions: { paddingHorizontal: 20, gap: 10 },
   offline: { gap: 10, padding: 14, borderRadius: 18, backgroundColor: colour.ink },
   offlineText: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.paper },
-  legal: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', columnGap: 5 },
-  small: { fontFamily: font.body, fontSize: 12.5, color: colour.paper },
-  link: { minHeight: TAP, justifyContent: 'center' },
-  linkText: { fontFamily: font.bodySemi, fontSize: 12.5, color: colour.yellow, textDecorationLine: 'underline' },
+  legal: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', columnGap: 4, rowGap: 2, paddingVertical: 10 },
+  small: { fontFamily: font.body, fontSize: 13, color: colour.ink },
+  link: { minHeight: TAP - 2 * HIT.top, justifyContent: 'center' },
+  linkText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink, textDecorationLine: 'underline' },
 });
