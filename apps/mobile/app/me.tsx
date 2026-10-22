@@ -3,6 +3,7 @@ import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { showMobile } from '@pechkas/shared';
 import { Avatar, Body, Button, Field, ListGroup, ListRow, Notice, Screen, Title } from '../src/components/ui';
+import { ModeSwitch } from '../src/components/ModeSwitch';
 import { ThisCopy } from '../src/components/ThisCopy';
 import { useAccount } from '../src/account';
 import { useNotify } from '../src/notifications';
@@ -121,6 +122,13 @@ export default function Me() {
         </View>
       ) : null}
 
+      {account?.role ? (
+        <View style={{ gap: 8 }}>
+          <Text style={s.modeNow}>You are using Pechkas {account.role === 'pro' ? 'as a technician' : 'as a customer'}.</Text>
+          <ModeSwitch />
+        </View>
+      ) : null}
+
       <ListGroup title="Settings">
         {notifyValue ? (
           <ListRow
@@ -131,7 +139,6 @@ export default function Me() {
             onPress={notify === 'ask' ? askNotify : notify === 'off' ? () => Linking.openSettings() : undefined}
           />
         ) : null}
-        {account?.role === 'customer' ? <ListRow icon="tool" label="Work with Pechkas as a technician" onPress={() => router.push('/pro/apply')} /> : null}
         <ListRow icon="lock" label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
         {account?.role === 'pro' ? (
           <ListRow icon="doc" label="Technician agreement" onPress={() => Linking.openURL(AGREEMENT_URL)} last />
@@ -162,6 +169,7 @@ export default function Me() {
 }
 
 const s = StyleSheet.create({
+  modeNow: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, paddingHorizontal: 4 },
   danger: { gap: 10, padding: 14, borderRadius: radius.big, backgroundColor: '#f6e3dc' },
   dangerText: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.ink },
 });

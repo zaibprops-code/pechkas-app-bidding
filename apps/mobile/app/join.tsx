@@ -10,6 +10,6 @@ export default function Join() {
   const { ready, session, account } = useAccount();
   if (!ready) return <Loading dark />;
   if (!session) return <Redirect href="/start" />;
-  if (!account?.role) return <Redirect href={{ pathname: '/welcome', params: { next: 'join' } }} />;
+  if (!account?.role) return <Redirect href={{ pathname: '/welcome', params: { as: 'pro', next: 'join' } }} />;
   return <Redirect href={account.pro ? '/pro' : '/pro/apply'} />;
 }

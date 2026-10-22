@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { Icon, type IconName } from '../src/components/Icon';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { Button, Field, Notice, Screen } from '../src/components/ui';
 import { useAccount } from '../src/account';
@@ -11,20 +11,23 @@ import { colour, font, radius } from '../src/theme';
 type Role = 'customer' | 'pro';
 
 /**
- * First sign-in: a first name, and which side of Pechkas this person is on.
- * Somebody who signed in with an email also gives a mobile number here:
- * the technician they choose, or the customer who chooses them, has to be
- * able to ring. A number Supabase checked by SMS is never asked for again.
+ * First sign-in, after "How will you use Pechkas?" (app/choose.tsx): a first
+ * name. Somebody who signed in with an email also gives a mobile number
+ * here: the technician they choose, or the customer who chooses them, has to
+ * be able to ring. A number Supabase checked by SMS is never asked for again.
+ *
+ * The choice arrives as `as`; the top of the screen repeats it, with a way
+ * back to change it, so nobody fills in a name on the wrong side.
  */
 export default function Welcome() {
-  const { next } = useLocalSearchParams<{ next?: string }>();
+  const { next, as } = useLocalSearchParams<{ next?: string; as?: string }>();
   const { refresh, account } = useAccount();
-  // Back here only for the number: name and role are already known.
+  // Back here only for the number: name and mode are already known.
   const known = Boolean(account?.role);
   const needsPhone = account?.needs_phone ?? false;
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState<Role | null>(next === 'join' ? 'pro' : null);
+  const role: Role | null = as === 'pro' || as === 'customer' ? as : next === 'join' ? 'pro' : null;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -32,10 +35,6 @@ export default function Welcome() {
   async function go() {
     setErrors({});
     setNotice(null);
-    if (!known && !role) {
-      setErrors({ role: 'Choose one of the two.' });
-      return;
-    }
     if (needsPhone && !phone.trim()) {
       setErrors({ phone: 'Write your mobile number, like 0300 1234567.' });
       return;
@@ -69,14 +68,41 @@ export default function Welcome() {
     else router.replace(next === 'post' ? '/post' : '/');
   }
 
+  // Not chosen yet: that question comes first, on its own screen.
+  if (!known && !role) return <Redirect href={{ pathname: '/choose', params: { next: next ?? '' } }} />;
+  const side = account?.role ?? role;
+  // Back to the choice already underneath, rather than a second copy of it.
+  const change = () => router.dismissTo({ pathname: '/choose', params: { next: next ?? '' } });
+
   return (
     <Screen
       hero={{
-        title: known ? 'One more thing' : 'Welcome',
-        sub: known ? 'Your mobile number, so the other side can call you.' : 'Two quick questions and you are in.',
+        title: known ? 'One more thing' : side === 'pro' ? 'About you' : 'Welcome',
+        sub: known
+          ? 'Your mobile number, so the other side can call you.'
+          : side === 'pro'
+            ? 'Your first name, then a short application.'
+            : needsPhone
+              ? 'Your name and number, and you are in.'
+              : 'Your first name, and you are in.',
+        back: known ? undefined : change,
       }}
-      footer={<Button label="Continue" onPress={go} busy={busy} />}
+      footer={<Button label={!known && side === 'pro' ? 'Continue to the application' : 'Continue'} onPress={go} busy={busy} icon={!known && side === 'pro' ? 'arrowRight' : undefined} />}
     >
+      {known ? null : (
+        <View style={s.chosen}>
+          <View style={s.chosenIcon}>
+            <Icon name={side === 'pro' ? 'tool' : 'home'} size={20} color={colour.yellow} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.chosenLabel}>You are here to</Text>
+            <Text style={s.chosenText}>{side === 'pro' ? 'Fix things for customers' : 'Get something fixed'}</Text>
+          </View>
+          <Press onPress={change} accessibilityRole="button" accessibilityLabel="Change how you will use Pechkas" style={s.changeButton}>
+            <Text style={s.change}>Change</Text>
+          </Press>
+        </View>
+      )}
       {needsPhone ? (
         <Field
           label="Your mobile number"
@@ -87,7 +113,7 @@ export default function Welcome() {
           textContentType="telephoneNumber"
           autoComplete="tel"
           error={errors.phone}
-          hint={(account?.role ?? role) === 'pro'
+          hint={side === 'pro'
             ? 'The customer who chooses you rings you on this number. Nobody else sees it.'
             : 'The technician you choose rings you on this number. Nobody else sees it.'}
         />
@@ -102,46 +128,21 @@ export default function Welcome() {
         textContentType="givenName"
         autoComplete="name-given"
         error={errors.first_name}
-        hint={role === 'pro' ? 'Customers will see this name.' : 'This is the only name a technician sees.'}
+        hint={side === 'pro' ? 'Customers will see this name.' : 'This is the only name a technician sees.'}
       />
       )}
-      {known ? null : (
-      <View style={{ gap: 10 }} accessibilityRole="radiogroup">
-        <Text style={s.label}>Why are you here?</Text>
-        <Choice icon="ac" title="I need something fixed" sub="Post a job, get offers, pick a technician." on={role === 'customer'} onPress={() => setRole('customer')} />
-        <Choice icon="bolt" title="I fix things" sub="Apply to get jobs from Pechkas customers." on={role === 'pro'} onPress={() => setRole('pro')} />
-        {errors.role ? <Text style={s.error}>{errors.role}</Text> : null}
-      </View>
-      )}
+      {errors.role ? <Text style={s.error}>{errors.role}</Text> : null}
       <Notice text={notice} />
     </Screen>
   );
 }
 
-function Choice({ icon, title, sub, on, onPress }: { icon: IconName; title: string; sub: string; on: boolean; onPress: () => void }) {
-  return (
-    <Press
-      onPress={onPress}
-      accessibilityRole="radio"
-      accessibilityState={{ selected: on }}
-      style={[s.choice, { borderColor: on ? colour.green : 'rgba(20,23,26,0.14)', borderWidth: on ? 2.5 : 1 }]}
-    >
-      <View style={[s.choiceIcon, { backgroundColor: on ? colour.green : colour.paper2 }]}>
-        <Icon name={icon} size={22} color={on ? colour.yellow : colour.green} />
-      </View>
-      <View style={{ flex: 1, gap: 2 }}>
-        <Text style={s.choiceTitle}>{title}</Text>
-        <Text style={s.choiceSub}>{sub}</Text>
-      </View>
-    </Press>
-  );
-}
-
 const s = StyleSheet.create({
-  label: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   error: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
-  choice: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.big, backgroundColor: colour.white },
-  choiceIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  choiceTitle: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
-  choiceSub: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
+  chosen: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, paddingRight: 4, borderRadius: radius.big, backgroundColor: colour.white },
+  chosenIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },
+  chosenLabel: { fontFamily: font.body, fontSize: 13, color: colour.steel },
+  chosenText: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
+  changeButton: { minHeight: 44, minWidth: 44, paddingHorizontal: 12, justifyContent: 'center' },
+  change: { fontFamily: font.bodySemi, fontSize: 15, color: colour.green, textDecorationLine: 'underline' },
 });

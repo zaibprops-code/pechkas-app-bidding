@@ -107,7 +107,7 @@ export default function Post() {
 
   if (!ready || !d) return <Loading />;
   if (!session) return <Redirect href="/start" />;
-  if (!account?.role) return <Redirect href={{ pathname: '/welcome', params: { next: 'post' } }} />;
+  if (!account?.role) return <Redirect href={{ pathname: '/welcome', params: { as: 'customer', next: 'post' } }} />;
   if (account.role === 'pro') return <Redirect href="/pro" />;
 
   const voice = d.media.find((m) => m.kind === 'voice') ?? null;

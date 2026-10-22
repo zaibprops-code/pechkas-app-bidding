@@ -7,6 +7,44 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Customer or technician — chosen, and switchable (new — needs one
+database step).** Like inDrive, one account can be both:
+
+- **The first question.** After signing in for the first time, the app
+  asks **How will you use Pechkas?** with two big cards: **I need
+  something fixed** and **I fix things**. Then comes only the first name
+  (and the mobile number for an email account), with the choice shown at
+  the top and a **Change** link.
+- **The switch.** At the bottom of the **☰ menu**, where inDrive keeps
+  "Driver mode", there is a green button: **Technician mode** for a
+  customer, **Customer mode** for a technician. It is on the **Settings**
+  screen too.
+- A customer who has never applied is taken to the application. One who
+  has applied goes straight to the technician screens; your approval
+  still decides whether he gets jobs.
+- A technician who switches to **Customer mode** is asked first, because
+  he goes **offline**, any offer still waiting for an answer is **taken
+  back**, and a job a customer asked for him by name goes to everyone.
+  He stays approved: switching changes the screen, not your record of him.
+- **Nobody switches in the middle of a job.** A customer whose job is
+  still waiting for offers or has a technician coming, and a technician
+  who has been chosen for a job, are told which job and asked to finish
+  or cancel it first.
+- A technician can now book a repair for himself. Before this, he was
+  told to sign up again with another number. He can never offer on his
+  own job.
+
+These were the sensible defaults; say if you want any of them different.
+To switch it on:
+
+1. **Supabase → SQL Editor:** run `20261029000000_two_modes.sql`. It should
+   say **Success**.
+2. **Expo:** a new **preview** build from `main`, and install it.
+3. Sign in with a new test number or email: the first screen asks **How
+   will you use Pechkas?** On an approved technician's phone, open **☰** →
+   **Customer mode** → **Switch**, and the customer home opens. **☰** →
+   **Technician mode** switches back.
+
 **The code is always 6 boxes (new — one Supabase setting, do it first).**
 The *Enter the code* screen used to start with six boxes and add more as
 numbers arrived, because your Supabase is sending **8-digit** email codes.

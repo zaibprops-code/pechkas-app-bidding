@@ -62,15 +62,16 @@ export default function RootLayout() {
 
 /** Screens anybody may see without an account: the welcome screen and the steps of signing in. */
 const OPEN = new Set(['start', 'sign-in', 'verify', 'auth-callback']);
-/** Screens a signed-in account may be on before it has a role and a number. */
-const SETTING_UP = new Set(['welcome', 'verify', 'auth-callback']);
+/** Screens a signed-in account may be on before it has a mode and a number. */
+const SETTING_UP = new Set(['choose', 'welcome', 'verify', 'auth-callback']);
 
 /**
  * Like every big app: nothing opens until you have signed in. A phone with
  * nobody signed in goes to the welcome screen; a signed-in phone that lands
  * on the welcome or sign-in screen goes to its own home; an account that has
- * not finished setting up (no role yet, or an email account with no mobile
- * number) goes to finish it. The green cover stays up until this has been
+ * not finished setting up goes to finish it: "How will you use Pechkas?"
+ * when it has no mode yet, the welcome screen when an email account still
+ * has no mobile number. The green cover stays up until this has been
  * decided, so the home screen never flashes before the welcome screen.
  */
 function Gate({ onDecided }: { onDecided: () => void }) {
@@ -92,7 +93,7 @@ function Gate({ onDecided }: { onDecided: () => void }) {
         moved = true;
       }
     } else if (account && (!account.role || account.needs_phone) && !SETTING_UP.has(first)) {
-      router.replace('/welcome');
+      router.replace(account.role ? '/welcome' : '/choose');
       moved = true;
     }
     // Give a redirect a moment to draw before the green lifts off it.

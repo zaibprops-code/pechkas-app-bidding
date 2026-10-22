@@ -110,12 +110,28 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `Gate` in `app/_layout.tsx` is the one rule: signed out → `/start` (the
   welcome screen) unless already on `start`, `sign-in`, `verify` or
   `auth-callback`; signed in on `start` or `sign-in` → `routeFor()`; an
-  account with no role or no number → `/welcome`. The splash stays up until
+  account with no mode yet → `/choose`; an email account with no number →
+  `/welcome`. The splash stays up until
   it has decided, so the home screen never flashes first. Sign-up and
   sign-in are one step: a new number or email becomes a new account. A
   screen that finds nobody signed in redirects to `/start`, never to
   `/sign-in`, so it cannot race the gate. Apple accepts a login-first app
   only because every feature belongs to an account — keep it that way.
+- **One account, two modes, like inDrive's passenger and driver.**
+  `profiles.role` is the mode in use — which side of the app this phone
+  shows — and nothing about a job reads it: every job function works out
+  the asker's side from the job's own `customer_id` and `pro_id`. The first
+  question is `app/choose.tsx` (two big cards), then `welcome.tsx` takes
+  the name with the choice as `as`. Changing it later is only
+  `switch_mode()` (`src/mode.ts`, `ModeSwitch` at the foot of the menu and
+  on Me), never `start_as()`, which refuses a different mode. Technician
+  mode needs an application on record (`field: 'apply'` opens one).
+  **Nobody switches out of the middle of a job**: open or assigned as the
+  customer, assigned as the technician. Leaving technician mode is going
+  off duty — offline, waiting offers withdrawn, a job held for him by name
+  released through `pass_asked()` — and never touches his approval. The
+  office's flags count a customer by the jobs they posted, not the mode
+  they are in. `modes.test.mjs` breaks if any of that goes.
 - **A code is `CODE_DIGITS` (6) digits, email and SMS alike**, and the
   code screen always draws exactly that many boxes; the sixth digit sends
   it. Supabase decides the real length ("Email OTP Length", "SMS OTP

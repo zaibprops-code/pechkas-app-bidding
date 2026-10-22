@@ -9,8 +9,10 @@ export function routeFor(account: Account | null, next?: string) {
   // Signing in is a fresh start: drop the screens stacked up on the way here
   // (account, sign-in, code), so Back cannot land on a stale signed-out page.
   if (router.canDismiss()) router.dismissAll();
-  // An email account must give a number to ring before anything else.
-  if (!account?.role || account.needs_phone) return router.replace({ pathname: '/welcome', params: { next: next ?? '' } });
+  // First: how will this person use Pechkas? Then an email account must
+  // give a number to ring before anything else.
+  if (!account?.role) return router.replace({ pathname: '/choose', params: { next: next ?? '' } });
+  if (account.needs_phone) return router.replace({ pathname: '/welcome', params: { next: next ?? '' } });
   if (account.role === 'pro') return router.replace(account.pro ? '/pro' : '/pro/apply');
   if (next === 'join') return router.replace('/pro/apply');
   if (next === 'post') return router.replace('/post');

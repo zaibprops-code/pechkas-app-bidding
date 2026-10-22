@@ -42,6 +42,9 @@ export default function ProHome() {
 
   if (!ready) return <Loading />;
   if (!session) return <Redirect href="/start" />;
+  // In customer mode the technician's screens are put away, whoever opens
+  // this address — a tapped notification included. The menu switches back.
+  if (account?.role === 'customer' && account.pro) return <Redirect href="/" />;
   if (!account?.pro) return <Redirect href="/pro/apply" />;
 
   const pro = account.pro;

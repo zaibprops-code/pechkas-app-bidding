@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showMobile } from '@pechkas/shared';
 import { Icon, type IconName } from './Icon';
 import { Mark } from './Mark';
+import { ModeSwitch } from './ModeSwitch';
 import { Press } from './Press';
 import { Avatar } from './ui';
 import { useAccount } from '../account';
@@ -18,6 +19,9 @@ import { colour, font, radius, TAP } from '../theme';
  *
  * Every item goes somewhere real. The stores reject a menu item that does
  * nothing, and so should we.
+ *
+ * At the foot, always in view, is the switch between customer and technician
+ * mode (ModeSwitch), where inDrive keeps "Driver mode".
  */
 
 type Item = { icon: IconName; label: string; to: Href };
@@ -28,7 +32,6 @@ const CUSTOMER: Item[] = [
   { icon: 'shield', label: 'Safety', to: '/safety' },
   { icon: 'help', label: 'Help', to: '/help' },
   { icon: 'settings', label: 'Settings', to: '/me' },
-  { icon: 'tool', label: 'Work with Pechkas', to: '/pro/apply' },
 ];
 
 const TECHNICIAN: Item[] = [
@@ -82,7 +85,7 @@ function Drawer({ onClose }: { onClose: () => void }) {
       <View style={s.root}>
         <Pressable style={s.backdrop} onPress={onClose} accessibilityLabel="Close the menu" accessibilityRole="button" />
         <Animated.View style={[s.panel, { width: panel, paddingTop: insets.top + 16, paddingBottom: Math.max(insets.bottom, 16), transform: [{ translateX: x }] }]}>
-          <ScrollView contentContainerStyle={{ gap: 4 }} bounces={false}>
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 4 }} bounces={false}>
             <Press onPress={() => go('/me')} accessibilityRole="button" style={s.profile} sink={0.98}>
               <Avatar name={account?.first_name} size={52} />
               <View style={{ flex: 1 }}>
@@ -106,9 +109,12 @@ function Drawer({ onClose }: { onClose: () => void }) {
               );
             })}
           </ScrollView>
-          <View style={s.foot}>
-            <Mark size={22} />
-            <Text style={s.footText}>pechkas</Text>
+          <View style={s.bottom}>
+            <ModeSwitch onSwitched={onClose} />
+            <View style={s.foot}>
+              <Mark size={22} />
+              <Text style={s.footText}>pechkas</Text>
+            </View>
           </View>
         </Animated.View>
       </View>
@@ -129,6 +135,7 @@ const s = StyleSheet.create({
   item: { flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 52, paddingHorizontal: 12, borderRadius: radius.card },
   itemOn: { backgroundColor: colour.canvas },
   itemText: { fontFamily: font.bodyMedium, fontSize: 17, color: colour.ink },
+  bottom: { gap: 8, paddingTop: 12 },
   foot: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, minHeight: TAP },
   footText: { fontFamily: font.display, fontSize: 16, color: colour.ink },
 });

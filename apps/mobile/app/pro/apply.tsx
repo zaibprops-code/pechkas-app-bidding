@@ -35,7 +35,7 @@ export default function Apply() {
 
   if (!ready) return <Loading />;
   if (!session) return <Redirect href="/start" />;
-  if (!account?.role) return <Redirect href={{ pathname: '/welcome', params: { next: 'join' } }} />;
+  if (!account?.role) return <Redirect href={{ pathname: '/welcome', params: { as: 'pro', next: 'join' } }} />;
   if (account.pro && (account.pro.status === 'approved' || account.pro.status === 'suspended')) return <Redirect href="/pro" />;
 
   const flip = (list: string[], set: (v: string[]) => void, item: string) =>
