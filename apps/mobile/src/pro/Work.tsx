@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Linking, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Linking, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,6 +7,7 @@ import { rupees, showMobile, technicianKeeps } from '@pechkas/shared';
 import { MenuButton } from '../components/Menu';
 import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
+import { Icon } from '../components/Icon';
 import { Button, Notice, NotifyCard } from '../components/ui';
 import { RemoteMedia, type StoredMedia } from '../post/RemoteMedia';
 import { Chosen, Finished, type ActiveJob, type FinishedJob } from './OnTheJob';
@@ -18,11 +19,14 @@ import { fill, useProWords, type ProWords } from '../words';
 import { colour, font, radius } from '../theme';
 
 /**
- * An approved technician's work: online or not, new jobs in his trades and
- * sectors, and the jobs he has been chosen for.
+ * An approved technician's work, laid out as inDrive's driver side (the
+ * owner's reference): the ☰ menu, the Online / Offline switch in the middle
+ * and what he owes on the right; offline, one big "Go online"; online, a
+ * list of short request cards — who, what, where, when, and the price large
+ * — and a tap opens the job in a sheet from the bottom, with "Accept for
+ * Rs …", steps to ask for more, and how soon he can come.
  *
- * Board 6 of the approved design. Nothing here arrives by notification yet:
- * while he is online and on this screen it asks again every 15 seconds.
+ * While he is online and on this screen it asks again every 15 seconds.
  * The database decides everything shown — which jobs, whose address, what
  * he keeps — and checks every offer again when it arrives.
  */
@@ -44,6 +48,7 @@ type FeedJob = {
   customer_first_name: string;
   media: StoredMedia[];
   my_offer: Offer | null;
+  created_at?: string;
   /** The customer asked for him by name: his alone until `asked_until`. */
   asked_you?: boolean;
   asked_until?: string | null;
@@ -65,6 +70,8 @@ type Feed = {
 
 const EVERY = 15000;
 const ETAS = [15, 30, 45, 60, 90];
+/** Asking for more is in plain steps above her price, never a price we suggest. */
+const STEPS = [20000, 50000, 100000];
 
 export function Work({ firstName }: { firstName: string }) {
   const { w } = useProWords();
@@ -77,6 +84,7 @@ export function Work({ firstName }: { firstName: string }) {
   const { session } = useAccount();
   const [problem, setProblem] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -113,50 +121,53 @@ export function Work({ firstName }: { firstName: string }) {
 
   const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
   const online = feed?.online ?? false;
+  const opened = feed?.jobs.find((j) => j.id === open) ?? null;
 
   return (
     <View style={{ flex: 1, backgroundColor: colour.canvas }}>
       <StatusBar style="dark" />
-      <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: 14, paddingBottom: 32, gap: 14 }}
-        refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
-      >
-        <View style={s.top}>
-          <MenuButton />
-          <View style={s.brand}>
-            <Mark size={30} />
-            <View>
-              <Text style={s.brandText}>pechkas pro</Text>
-              <Text style={s.who}>{firstName}</Text>
-            </View>
-          </View>
-        </View>
-
+      {/* inDrive's driver bar: menu, the switch in the middle, money on the right. */}
+      <View style={[s.bar, { paddingTop: insets.top + 10 }]}>
+        <MenuButton />
         <Press
           onPress={() => setOnline(!online)}
           accessibilityRole="switch"
+          accessibilityLabel={online ? w.online : w.offline}
           accessibilityState={{ checked: online, busy: switching }}
-          style={[s.toggle, { backgroundColor: online ? colour.yellow : colour.tile }]}
+          sink={0.96}
+          style={[s.switch, online && s.switchOn]}
         >
-          <View style={{ flex: 1 }}>
-            <Text style={[s.toggleTitle, { color: colour.ink }]}>{online ? w.online : w.offline}</Text>
-            {!online ? <Text style={s.toggleSub}>{w.offlineText}</Text> : null}
+          <Text style={s.switchText}>{online ? w.online : w.offline}</Text>
+          <View style={[s.track, online && s.trackOn]}>
+            <View style={[s.knob, online && s.knobOn]} />
           </View>
-          <View style={[s.knob, { backgroundColor: online ? colour.green : '#4c565e', alignSelf: online ? 'flex-end' : 'flex-start' }]} />
         </Press>
+        {feed?.approved && feed.owed_paisa !== undefined ? (
+          <Press
+            onPress={() => router.push('/pro/money')}
+            accessibilityRole="button"
+            accessibilityLabel={`${w.owe}: ${rupees(feed.owed_paisa)}`}
+            sink={0.94}
+            style={[s.owedPill, feed.blocked && s.owedPillBlocked]}
+          >
+            <Text style={[s.owedPillLabel, feed.blocked && { color: colour.white }]}>{w.owedShort}</Text>
+            <Text style={[s.owedPillAmount, feed.blocked && { color: colour.white }]}>{rupees(feed.owed_paisa)}</Text>
+          </Press>
+        ) : (
+          <View style={{ width: 48 }} />
+        )}
+      </View>
 
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 12, paddingTop: 4, paddingBottom: Math.max(insets.bottom, 16) + 16, gap: 12 }}
+        refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
+      >
         <Notice text={problem} />
 
-        {/* What he owes Pechkas, always one tap from the details. */}
-        {feed?.approved && feed.owed_paisa !== undefined ? (
-          <Press onPress={() => router.push('/pro/money')} accessibilityRole="button" style={[s.owed, feed.blocked && s.owedBlocked]}>
-            <View style={{ flex: 1 }}>
-              <Text style={[s.owedLabel, feed.blocked && { color: colour.white }]}>{feed.blocked ? w.blockedTitle : w.owe}</Text>
-              {feed.blocked ? (
-                <Text style={s.owedText}>{fill(w.blockedText, { owed: rupees(feed.owed_paisa), limit: rupees(feed.credit_limit_paisa ?? 0) })}</Text>
-              ) : null}
-            </View>
-            <Text style={[s.owedAmount, feed.blocked && { color: colour.white }]}>{rupees(feed.owed_paisa)}</Text>
+        {feed?.blocked ? (
+          <Press onPress={() => router.push('/pro/money')} accessibilityRole="button" style={s.blocked}>
+            <Text style={s.blockedTitle}>{w.blockedTitle}</Text>
+            <Text style={s.blockedText}>{fill(w.blockedText, { owed: rupees(feed.owed_paisa ?? 0), limit: rupees(feed.credit_limit_paisa ?? 0) })}</Text>
           </Press>
         ) : null}
 
@@ -181,20 +192,155 @@ export function Work({ firstName }: { firstName: string }) {
           </View>
         ) : null}
 
+        {feed && !online ? (
+          <View style={s.offline}>
+            <Mark size={72} />
+            <Text style={s.offlineTitle}>{w.offlineTitle}</Text>
+            <Text style={s.offlineText}>{w.offlineText}</Text>
+            <View style={{ alignSelf: 'stretch' }}>
+              <Button label={w.goOnline} onPress={() => setOnline(true)} busy={switching} />
+            </View>
+          </View>
+        ) : null}
+
         {online ? (
-          <View style={{ gap: 10 }}>
-            <Text style={s.section}>{w.newJob}</Text>
+          <View style={{ gap: 8 }}>
+            <View style={s.listHead}>
+              <Text style={s.listTitle}>{w.requestsTitle}</Text>
+              {feed?.jobs.length ? (
+                <View style={s.count}>
+                  <Text style={s.countText}>{feed.jobs.length}</Text>
+                </View>
+              ) : null}
+            </View>
             {feed && feed.jobs.length === 0 ? <Text style={s.empty}>{w.noJobs}</Text> : null}
             {feed?.jobs.map((j) => (
-              <JobCard key={j.id} j={j} feed={feed} w={w} trade={tradeName(j.trade)} onChanged={load} />
+              <RequestRow key={j.id} j={j} w={w} trade={tradeName(j.trade)} onOpen={() => setOpen(j.id)} />
             ))}
           </View>
         ) : null}
 
         <Finished items={finished} w={w} tradeName={tradeName} onChanged={load} />
-
       </ScrollView>
+
+      {opened && feed ? (
+        <Sheet onClose={() => setOpen(null)} closeLabel={w.closeJob}>
+          <JobCard j={opened} feed={feed} w={w} trade={tradeName(opened.trade)} onChanged={load} />
+        </Sheet>
+      ) : null}
     </View>
+  );
+}
+
+function ago(iso: string | undefined, w: ProWords): string | null {
+  if (!iso) return null;
+  const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (min < 1) return w.justNow;
+  if (min < 60) return fill(w.minAgo, { n: min });
+  return fill(w.hoursAgo, { n: Math.floor(min / 60) });
+}
+
+function mediaLine(media: StoredMedia[], w: ProWords): string | null {
+  const photos = media.filter((m) => m.kind === 'photo').length;
+  const parts = [
+    media.some((m) => m.kind === 'voice') ? w.voiceNote : null,
+    media.some((m) => m.kind === 'video') ? w.videoOne : null,
+    photos === 1 ? w.photoOne : photos > 1 ? fill(w.photosN, { n: photos }) : null,
+  ].filter(Boolean);
+  return parts.length ? parts.join(' · ') : null;
+}
+
+/**
+ * One request in the list, as inDrive shows a ride: who and when on top, the
+ * price large on the right, then what and where. A tap opens the job.
+ */
+function RequestRow({ j, w, trade, onOpen }: { j: FeedJob; w: ProWords; trade: string; onOpen: () => void }) {
+  const live = j.my_offer?.live ? j.my_offer : null;
+  const media = mediaLine(j.media, w);
+  const when = ago(j.created_at, w);
+  return (
+    <Press onPress={onOpen} accessibilityRole="button" accessibilityLabel={`${j.title}, ${j.sector}, ${rupees(j.offered_paisa)}`} sink={0.98} style={[s.req, (j.asked_you || live) && s.reqMarked]}>
+      <View style={s.reqTop}>
+        <View style={s.avatar}>
+          <Text style={s.avatarText}>{j.customer_first_name.charAt(0)}</Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={s.reqName} numberOfLines={1}>
+            {j.customer_first_name}
+          </Text>
+          <Text style={s.reqWhen} numberOfLines={1}>
+            {[whenText(j, w), when].filter(Boolean).join(' · ')}
+          </Text>
+        </View>
+        <Text style={s.reqPrice}>{rupees(j.offered_paisa)}</Text>
+      </View>
+      <View style={s.reqBody}>
+        <Icon name="pin" size={18} color={colour.green} strokeWidth={2.2} />
+        <View style={{ flex: 1 }}>
+          <Text style={s.reqTitle} numberOfLines={2}>
+            {j.title}
+          </Text>
+          <Text style={s.reqSub} numberOfLines={1}>
+            {trade} · {j.sector}
+          </Text>
+        </View>
+      </View>
+      {media || j.asked_you || live ? (
+        <View style={s.reqTags}>
+          {j.asked_you ? (
+            <View style={[s.tag, s.tagYellow]}>
+              <Text style={s.tagText}>{w.askedBadge}</Text>
+            </View>
+          ) : null}
+          {live ? (
+            <View style={[s.tag, s.tagGreen]}>
+              <Text style={[s.tagText, { color: colour.white }]}>{fill(w.offerSent, { price: rupees(live.price_paisa) })}</Text>
+            </View>
+          ) : null}
+          {media ? (
+            <View style={s.tag}>
+              <Text style={s.tagText}>{media}</Text>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+    </Press>
+  );
+}
+
+/**
+ * The job, opened from the list: a sheet that rises from the bottom over a
+ * dimmed screen, as inDrive's ride request does. It moves by transform only;
+ * the words never fade. Tapping outside or Close puts it away.
+ */
+function Sheet({ children, onClose, closeLabel }: { children: React.ReactNode; onClose: () => void; closeLabel: string }) {
+  const insets = useSafeAreaInsets();
+  const y = useRef(new Animated.Value(600)).current;
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then((still) => {
+        if (still) return y.setValue(0);
+        Animated.timing(y, { toValue: 0, duration: 240, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+      });
+  }, [y]);
+  return (
+    <Modal transparent visible onRequestClose={onClose} statusBarTranslucent animationType="none">
+      <View style={s.sheetRoot}>
+        <Pressable style={s.sheetBackdrop} onPress={onClose} accessibilityRole="button" accessibilityLabel={closeLabel} />
+        <Animated.View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 12), transform: [{ translateY: y }] }]}>
+          <View style={s.sheetHead}>
+            <View style={s.grab} />
+            <Press onPress={onClose} accessibilityRole="button" accessibilityLabel={closeLabel} sink={0.9} style={s.sheetClose}>
+              <Icon name="cross" size={20} color={colour.ink} strokeWidth={2.4} />
+            </Press>
+          </View>
+          <ScrollView contentContainerStyle={{ paddingHorizontal: 4, paddingBottom: 8 }} keyboardShouldPersistTaps="handled">
+            {children}
+          </ScrollView>
+        </Animated.View>
+      </View>
+    </Modal>
   );
 }
 
@@ -277,6 +423,7 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
 
   return (
     <View style={[s.card, j.asked_you && s.cardAsked]}>
+      {/* The price she named, large, first: the thing a driver reads first on inDrive. */}
       {j.asked_you && j.asked_until ? (
         <View style={{ gap: 8 }}>
           <Text style={s.asked}>
@@ -337,6 +484,19 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
               <Text style={s.stepText}>+</Text>
             </Press>
           </View>
+          {/* Ask for more in plain steps above her price, as inDrive's drivers do. */}
+          <View style={s.steps}>
+            {STEPS.filter((d) => j.offered_paisa + d <= max).map((d) => {
+              const on = price === j.offered_paisa + d;
+              return (
+                <Press key={d} onPress={() => setPrice(on ? j.offered_paisa : j.offered_paisa + d)} sink={0.94} accessibilityRole="radio" accessibilityState={{ selected: on }} style={[s.chip, s.stepChip, on && s.chipOn]}>
+                  <Text style={[s.chipText, on && { color: colour.ink }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>
+                    +{rupees(d)}
+                  </Text>
+                </Press>
+              );
+            })}
+          </View>
           {errors.price ? <Text style={s.error}>{errors.price}</Text> : null}
 
           {j.when_kind === 'now' ? (
@@ -371,7 +531,7 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
 
           <Button
             kind={price === j.offered_paisa ? 'yellow' : 'green'}
-            label={`${price === j.offered_paisa ? w.accept : w.sendOffer} · ${rupees(price)}`}
+            label={price === j.offered_paisa ? fill(w.acceptFor, { price: rupees(price) }) : fill(w.offerFor, { price: rupees(price) })}
             onPress={() => send(price)}
             busy={busy}
           />
@@ -383,19 +543,52 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
 }
 
 const s = StyleSheet.create({
-  owed: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, padding: 14, borderRadius: radius.big, backgroundColor: colour.white },
-  owedBlocked: { backgroundColor: colour.brick },
-  owedLabel: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel },
-  owedText: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.white, marginTop: 2 },
-  owedAmount: { fontFamily: font.display, fontSize: 20, color: colour.green },
-  top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  brandText: { fontFamily: font.display, fontSize: 18, color: colour.ink },
-  who: { fontFamily: font.body, fontSize: 12, color: colour.steel },
-  toggle: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, padding: 14, borderRadius: radius.big },
-  toggleTitle: { fontFamily: font.display, fontSize: 20 },
-  toggleSub: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel, marginTop: 2 },
-  knob: { width: 34, height: 34, borderRadius: 999 },
+  bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingHorizontal: 12, paddingBottom: 10 },
+  switch: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingLeft: 16, paddingRight: 8, borderRadius: radius.pill, backgroundColor: colour.white, boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.12)' },
+  switchOn: { backgroundColor: colour.yellow },
+  switchText: { fontFamily: font.display, fontSize: 17, color: colour.ink },
+  track: { width: 44, height: 28, borderRadius: 14, backgroundColor: colour.tile, padding: 3, justifyContent: 'center' },
+  trackOn: { backgroundColor: colour.green },
+  knob: { width: 22, height: 22, borderRadius: 11, backgroundColor: colour.steel },
+  knobOn: { backgroundColor: colour.white, alignSelf: 'flex-end' },
+  owedPill: { minHeight: 48, minWidth: 48, paddingHorizontal: 12, borderRadius: radius.pill, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.12)' },
+  owedPillBlocked: { backgroundColor: colour.brick },
+  owedPillLabel: { fontFamily: font.body, fontSize: 11, color: colour.steel },
+  owedPillAmount: { fontFamily: font.display, fontSize: 15, color: colour.green },
+  blocked: { gap: 4, padding: 14, borderRadius: radius.big, backgroundColor: colour.brick },
+  blockedTitle: { fontFamily: font.display, fontSize: 17, color: colour.white },
+  blockedText: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.white },
+  offline: { alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingTop: 36, paddingBottom: 24, borderRadius: 28, backgroundColor: colour.white },
+  offlineTitle: { fontFamily: font.display, fontSize: 24, color: colour.ink, marginTop: 6 },
+  offlineText: { fontFamily: font.body, fontSize: 15, lineHeight: 22, color: colour.steel, textAlign: 'center', marginBottom: 8 },
+  listHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4, paddingTop: 4 },
+  listTitle: { fontFamily: font.display, fontSize: 20, color: colour.ink },
+  count: { minWidth: 26, height: 26, paddingHorizontal: 8, borderRadius: 13, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
+  countText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
+  req: { gap: 12, padding: 14, borderRadius: 22, backgroundColor: colour.white },
+  reqMarked: { borderWidth: 2, borderColor: colour.yellow },
+  reqTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  avatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: colour.tile, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontFamily: font.display, fontSize: 18, color: colour.ink },
+  reqName: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
+  reqWhen: { fontFamily: font.body, fontSize: 13, color: colour.steel },
+  reqPrice: { fontFamily: font.display, fontSize: 22, color: colour.ink },
+  reqBody: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  reqTitle: { fontFamily: font.bodySemi, fontSize: 16, lineHeight: 21, color: colour.ink },
+  reqSub: { fontFamily: font.body, fontSize: 14, color: colour.steel },
+  reqTags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  tag: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill, backgroundColor: colour.canvas },
+  tagYellow: { backgroundColor: colour.yellow },
+  tagGreen: { backgroundColor: colour.green },
+  tagText: { fontFamily: font.bodySemi, fontSize: 12, color: colour.ink },
+  sheetRoot: { flex: 1, justifyContent: 'flex-end' },
+  sheetBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(20, 23, 26, 0.45)' },
+  sheet: { maxHeight: '92%', backgroundColor: colour.white, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 10 },
+  sheetHead: { alignItems: 'center', justifyContent: 'center', minHeight: 52 },
+  grab: { width: 40, height: 5, borderRadius: 3, backgroundColor: 'rgba(20, 23, 26, 0.18)' },
+  sheetClose: { position: 'absolute', right: 4, top: 4, width: 44, height: 44, borderRadius: 22, backgroundColor: colour.canvas, alignItems: 'center', justifyContent: 'center' },
+  steps: { flexDirection: 'row', gap: 8 },
+  stepChip: { flex: 1, minWidth: 0, paddingHorizontal: 4 },
   section: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, marginTop: 4 },
   empty: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.steel },
   card: { gap: 10, padding: 14, borderRadius: 22, backgroundColor: colour.white },
@@ -428,7 +621,7 @@ const s = StyleSheet.create({
   chip: { minHeight: 44, minWidth: 64, paddingHorizontal: 12, borderRadius: radius.pill, borderWidth: 1.5, borderColor: 'rgba(20,23,26,0.2)', alignItems: 'center', justifyContent: 'center' },
   chipOn: { backgroundColor: colour.yellow, borderColor: colour.yellow },
   chipText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
-  input: { minHeight: 48, borderRadius: 14, paddingHorizontal: 12, backgroundColor: colour.white, color: colour.ink, fontFamily: font.bodyMedium, fontSize: 15, borderWidth: 1, borderColor: 'transparent' },
+  input: { minHeight: 48, borderRadius: 14, paddingHorizontal: 12, backgroundColor: colour.canvas, color: colour.ink, fontFamily: font.bodyMedium, fontSize: 15, borderWidth: 1, borderColor: 'transparent' },
   error: { fontFamily: font.bodySemi, fontSize: 13, lineHeight: 18, color: colour.brick },
   addr: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
   addrSub: { fontFamily: font.body, fontSize: 14, color: colour.inkSoft },

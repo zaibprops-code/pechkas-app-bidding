@@ -569,6 +569,18 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   fixing & for how much?" and the last two jobs. No discount or count on any
   tile. The drawings are `src/components/Art.tsx` — objects, never people,
   over a yellow sweep; every trade in `public.trades` has one.
+- **The technician side is inDrive's driver side** (`src/pro/Work.tsx`):
+  the ☰ menu, the **Online / Offline switch** in the middle of the top bar
+  and what he owes on the right (tap: his account); offline, one card with
+  a big **Go online**; online, **"Jobs in your areas"** as short request
+  cards — first name, when, how long ago (`created_at`), the price large,
+  the job and the sector, tags for "Asked for you", his live offer and the
+  media — and a tap opens the job in a **sheet from the bottom** with
+  **"Accept for Rs …"**, steps to ask for more (+Rs 200 / 500 / 1,000 above
+  her price, within `max_counter_bps`: plain steps, never a price we
+  suggest), the − / + stepper, how soon, and the note. The switch's colours
+  snap; only the sheet moves, by transform. Every rule in the offer is the
+  database's, unchanged.
 - **Maps are `src/components/Map.tsx`, and only there.** Android draws
   Google's map, which stops the app the moment it opens without a key, so
   `mapsReady()` is false unless the build has `GOOGLE_MAPS_API_KEY` (read in

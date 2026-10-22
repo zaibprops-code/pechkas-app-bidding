@@ -194,6 +194,23 @@ const PRO = {
   notifyOff: 'Notifications are off',
   notifyOffText: "New jobs cannot reach you while the app is closed. Turn on Pechkas notifications in your phone's settings.",
   openSettings: 'Open settings',
+  // The work screen, laid out as inDrive's driver side.
+  goOnline: 'Go online',
+  requestsTitle: 'Jobs in your areas',
+  justNow: 'Just now',
+  minAgo: '{n} min ago',
+  hoursAgo: '{n} h ago',
+  askedBadge: 'Asked for you',
+  offerSent: 'Your offer: {price}',
+  acceptFor: 'Accept for {price}',
+  offerFor: 'Offer {price}',
+  orChange: 'Or ask for more',
+  closeJob: 'Close',
+  owedShort: 'Owed',
+  voiceNote: 'Voice note',
+  videoOne: 'Video',
+  photosN: '{n} photos',
+  photoOne: '1 photo',
 } as const;
 
 export type ProWords = { [K in keyof typeof PRO]: string };

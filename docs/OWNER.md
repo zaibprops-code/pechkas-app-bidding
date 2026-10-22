@@ -7,6 +7,19 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The technician side looks like inDrive's driver side (new — no
+database step).** At the top: the ☰ menu, an **Online / Offline** switch
+in the middle, and what he owes Pechkas on the right (tap it for his
+account). Offline, the screen says so and has one big **Go online**
+button. Online, **Jobs in your areas** lists each job as a short card: the
+customer's first name, when, how long ago it was posted, the price large,
+the job and the sector. Tapping a job opens it from the bottom: the
+details, voice note and photos, **Accept for Rs …**, buttons to ask for
+**+Rs 200 / +Rs 500 / +Rs 1,000** more, how soon he can come, and a line
+for the customer. After sending, the card shows **Your offer: Rs …**.
+The Play Store screenshot `6-technician.png` shows the old screen; take a
+new one from a technician's phone.
+
 **The home screen is laid out like inDrive's (new — no database step).**
 Over the map: the ☰ button; a yellow bar **"We could not find you — Tap
 to turn on location"** while the phone's location is off; a pin in the
