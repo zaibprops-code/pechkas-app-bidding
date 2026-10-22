@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Linking from 'expo-linking';
-import { explainLinkError, readSignInLink } from '@pechkas/shared';
+import { readSignInLink } from '@pechkas/shared';
 import { Body, Button, Loading, Screen, Title } from '../src/components/ui';
 import { useAccount, type Account } from '../src/account';
 import { routeFor } from '../src/route';
-import { supabase } from '../src/supabase';
+import { supabase, tradeCode } from '../src/supabase';
 
 /**
- * Where the link in a sign-in email lands: pechkas://auth-callback?code=…
+ * Where the link in a sign-in email lands, and where Google sends the phone
+ * back after "Continue with Google": pechkas://auth-callback?code=…
  *
  * The code is traded for a session on this phone, which only works on the
  * phone that asked for the email (readSignInLink() says why). Then the same
@@ -33,8 +34,8 @@ export default function AuthCallback() {
     if (!supabase) return setProblem('The app is not connected to Pechkas yet.');
     const code = link.code;
     (async () => {
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (error) return setProblem(explainLinkError(error.message));
+      const { error } = await tradeCode(code);
+      if (error) return setProblem(error);
       const { data } = await supabase.rpc('my_account');
       await refresh();
       routeFor((data as Account | null) ?? null);

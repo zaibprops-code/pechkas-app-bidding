@@ -52,6 +52,11 @@ same each time:
 | --- | --- |
 | Contact Info → **Name** | First name; a technician's full name |
 | Contact Info → **Email Address** | Only for somebody who signs in with an email code instead of a mobile number |
+
+"Continue with Google" is **not** offered on iPhone, so it adds nothing to
+this label. Apple's rule 4.8 requires "Sign in with Apple" beside any
+Google sign-in on iPhone; if Google is ever shown there, that comes with
+it, and this label gains User ID and the profile picture link, as on Play.
 | Contact Info → **Phone Number** | Sign-in, and given to the other side once a technician is chosen |
 | Contact Info → **Physical Address** | Where the job is: sector, street, house, landmark, gate note; a sector a customer says Pechkas does not serve yet |
 | Location → **Precise Location** | The map pin a customer may add; where the phone was when the emergency button was pressed. Only while the app is open |

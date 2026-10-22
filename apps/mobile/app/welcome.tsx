@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { firstNameFrom } from '@pechkas/shared';
 import { StyleSheet, Text, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { Icon } from '../src/components/Icon';
+import { PhoneBox } from '../src/components/PhoneBox';
 import { Press } from '../src/components/Press';
 import { Button, Field, Notice, Screen } from '../src/components/ui';
 import { useAccount } from '../src/account';
@@ -21,12 +23,13 @@ type Role = 'customer' | 'pro';
  */
 export default function Welcome() {
   const { next, as } = useLocalSearchParams<{ next?: string; as?: string }>();
-  const { refresh, account } = useAccount();
+  const { refresh, account, session } = useAccount();
   // Back here only for the number: name and mode are already known.
   const known = Boolean(account?.role);
   const needsPhone = account?.needs_phone ?? false;
   const [phone, setPhone] = useState('');
-  const [name, setName] = useState('');
+  // Signed in with Google: the box starts with the first name Google gave, which they can change.
+  const [name, setName] = useState(() => firstNameFrom(session?.user.user_metadata));
   const role: Role | null = as === 'pro' || as === 'customer' ? as : next === 'join' ? 'pro' : null;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState<string | null>(null);
@@ -36,7 +39,7 @@ export default function Welcome() {
     setErrors({});
     setNotice(null);
     if (needsPhone && !phone.trim()) {
-      setErrors({ phone: 'Write your mobile number, like 0300 1234567.' });
+      setErrors({ phone: 'Write your mobile number after +92, like 300 1234567.' });
       return;
     }
     setBusy(true);
@@ -104,19 +107,17 @@ export default function Welcome() {
         </View>
       )}
       {needsPhone ? (
-        <Field
-          label="Your mobile number"
-          value={phone}
-          onChangeText={setPhone}
-          placeholder="0300 1234567"
-          keyboardType="phone-pad"
-          textContentType="telephoneNumber"
-          autoComplete="tel"
-          error={errors.phone}
-          hint={side === 'pro'
-            ? 'The customer who chooses you rings you on this number. Nobody else sees it.'
-            : 'The technician you choose rings you on this number. Nobody else sees it.'}
-        />
+        <View style={{ gap: 6 }}>
+          <Text style={s.label}>Your mobile number</Text>
+          <PhoneBox
+            value={phone}
+            onChangeText={setPhone}
+            error={errors.phone}
+            hint={side === 'pro'
+              ? 'The customer who chooses you rings you on this number. Only they and the Pechkas office see it.'
+              : 'The technician you choose rings you on this number. Only they and the Pechkas office see it.'}
+          />
+        </View>
       ) : null}
       {known ? null : (
       <Field
@@ -138,6 +139,7 @@ export default function Welcome() {
 }
 
 const s = StyleSheet.create({
+  label: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   error: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
   chosen: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, paddingRight: 4, borderRadius: radius.big, backgroundColor: colour.white },
   chosenIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },

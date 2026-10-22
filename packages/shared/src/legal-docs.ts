@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "c1f5506";
+export const LEGAL_FROM = "b6f6c71";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -81,6 +81,22 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": ", only if you choose to sign in with it instead: a code is emailed to you. You then type your mobile number yourself, and the Pechkas office can see that it has not been checked by SMS."
+            }
+          ],
+          [
+            {
+              "t": "From your Google account",
+              "b": true
+            },
+            {
+              "t": ", only if you choose "
+            },
+            {
+              "t": "Continue with Google",
+              "i": true
+            },
+            {
+              "t": "(on Android): Google tells us your email address, your name, the link to your Google profile picture, and a number for your Google account, so that the same Google account always opens the same Pechkas account. Your first name fills in the box on the welcome screen, and you can change it. The app never shows the picture. You then type your mobile number yourself, as with an email."
             }
           ],
           [
@@ -377,6 +393,15 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": " sends the sign-in code to your email, if you sign in with an email instead of a mobile number. It receives your email address and the code, nothing else."
+            }
+          ],
+          [
+            {
+              "t": "Google",
+              "b": true
+            },
+            {
+              "t": " signs you in, if you choose Continue with Google. It sends Pechkas what is listed above, and it knows that you signed in to Pechkas."
             }
           ],
           [

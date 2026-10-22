@@ -139,6 +139,20 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `readCode()` reports a longer paste instead of cutting it short, and the
   screen never sends the first six of a longer code. Do not go back to
   guessing the length from what arrives.
+- **Continue with Google is Supabase's Google provider through the same
+  door as the email link**: `signInWithGoogle()` opens Google in
+  `expo-web-browser`'s secure sheet with `redirectTo` `pechkas://auth-callback`
+  (PKCE), and the one-time code is traded by `tradeCode()`, which the
+  auth-callback screen uses too — Android hands the code to both, only the
+  first trade can work, and a refusal while a session exists is that, not a
+  failure. The button is drawn **only when `googleReady()` reads
+  `/auth/v1/settings` and Google is on**, so no copy of the app shows a
+  button that does nothing, and never on iOS (Apple 4.8 wants Sign in with
+  Apple beside it; not built). A Google account is an email account with no
+  checked number: the welcome screen asks for one, with the first name
+  prefilled by `firstNameFrom()`. What Google sends (email, name, picture
+  link, account number) is in the privacy page and the Play answers;
+  change all three together.
 - Every sign-in failure shows `explainAuthError()` plus Supabase's own
   words and the project's host. Never go back to "check your signal" for
   everything: it hid a Supabase refusal for a whole afternoon.
@@ -576,10 +590,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   says only what is true today: no numbers, no ratings, and the pages never
   turn by themselves. The number screen (`sign-in.tsx`) is one big
   `PhoneBox` with the flag and **+92** fixed in front — a label, not a
-  menu, since only Pakistani numbers work — and **Next** at the foot. No
-  "Continue with Google" or passkey until they are actually built: each
-  needs the owner's Google and Supabase set-up and changes the privacy
-  page and both stores' answers.
+  menu, since only Pakistani numbers work — and **Next** at the foot. The
+  welcome screen's number box is the same `PhoneBox`. No passkey: it needs
+  its own set-up and is not well supported on the phones customers have.
 - **Only `transform` moves.** `Press` sinks on tap and buzzes; it never eases
   a colour. A control whose text colour changes between states eases no
   colour at all — halfway through, text and background are the same grey.

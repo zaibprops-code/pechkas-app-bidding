@@ -186,3 +186,18 @@ export function readCode(text: string | null | undefined): { digits: string; ext
   const all = (text ?? '').replace(/\D/g, '');
   return { digits: all.slice(0, CODE_DIGITS), extra: all.length > CODE_DIGITS ? all.length : null };
 }
+
+/**
+ * The first name Google gave, to fill in the welcome screen's box — which
+ * the person can still change. Google sends `given_name` and the whole
+ * `full_name`/`name`; nothing is guessed beyond the first word, and anything
+ * that is not plainly a name (empty, or longer than the box allows) gives
+ * nothing, so the box is simply empty as before.
+ */
+export function firstNameFrom(meta: Record<string, unknown> | null | undefined): string {
+  const pick = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+  const given = pick(meta?.given_name);
+  const whole = pick(meta?.full_name) || pick(meta?.name);
+  const name = given || whole.split(/\s+/)[0] || '';
+  return name.length >= 1 && name.length <= 40 && !/[@\d]/.test(name) ? name : '';
+}

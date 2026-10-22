@@ -137,9 +137,11 @@ type ButtonProps = {
   disabled?: boolean;
   /** A small line icon before the words. */
   icon?: IconName;
+  /** Something drawn before the words in place of an icon: Google's G, which is not a line icon. */
+  leading?: ReactNode;
 } & Tone;
 
-export function Button({ label, onPress, kind = 'yellow', busy = false, disabled = false, dark = false, icon }: ButtonProps) {
+export function Button({ label, onPress, kind = 'yellow', busy = false, disabled = false, dark = false, icon, leading }: ButtonProps) {
   const bg = { yellow: colour.yellow, green: colour.green, danger: colour.brick, ink: colour.ink, soft: colour.tile, outline: 'transparent' }[kind];
   const fg = kind === 'yellow' || kind === 'soft' ? colour.ink : kind === 'outline' && !dark ? colour.ink : colour.paper;
   const border = kind === 'outline' ? (dark ? 'rgba(250,246,239,0.35)' : 'rgba(20,23,26,0.2)') : 'transparent';
@@ -155,6 +157,7 @@ export function Button({ label, onPress, kind = 'yellow', busy = false, disabled
         <ScrewSpinner size={22} colour={fg} label={`${label}, sending`} />
       ) : (
         <View style={s.buttonRow}>
+          {leading ?? null}
           {icon && icon !== 'arrowRight' ? <Icon name={icon} size={19} color={fg} strokeWidth={2.2} /> : null}
           <Text style={[s.buttonText, { color: fg }]}>{label}</Text>
           {/* An arrow says "onwards", so it comes after the words. */}

@@ -17,13 +17,19 @@ Privacy Policy. **Continue with phone** opens *Join with your mobile
 number*: one big box with the Pakistan flag and **+92** already in it, and
 **Next** at the bottom.
 
-**Not built, waiting on you:** inDrive also has **Continue with Google**
-and **Passkey**. Google sign-in is possible, but it needs a Google Cloud
-sign-in key made by you, a switch turned on in Supabase, and a change to
-the privacy policy and both stores' answers, because the app would then
-receive your Google name and email. Say yes and it gets built with the
-steps for your part. A passkey is newer and less supported on Android
-phones in Pakistan; not recommended yet.
+**Continue with Google (new — needs your Google set-up, below).** On
+Android, the welcome screen shows a black **Continue with Google** above the
+other two, as on inDrive. It appears **by itself** the moment Google is
+switched on in Supabase; until then the screen looks exactly as before, so
+the new build can go out first. Google's own account chooser opens over the
+app, then the person comes back signed in, is asked *How will you use
+Pechkas?*, finds their first name already filled in, and types their mobile
+number, as with an email. Not on iPhone: Apple then requires "Sign in with
+Apple" as well, which is not built. Passkey: not recommended yet.
+
+The privacy policy (website and app) and the Google Play answers in
+`docs/store/data-safety.md` already say what Google sends. Steps:
+**"Continue with Google (once)"** below.
 
 To see it: a new **preview** build from `main`, then sign out
 (**☰ → Settings → Sign out**).
@@ -933,6 +939,65 @@ Two more things that look like "missing" but are not:
   for an approved technician who is **Online**.
 
 ---
+
+## Continue with Google (once)
+
+Do it in this order; the Supabase page gives you an address the Google page
+needs. Nothing here is ever pasted into a chat.
+
+### A. Supabase: open the Google switch
+
+1. **Supabase → Authentication → Sign In / Providers → Google.**
+2. Find **Callback URL (for OAuth)** — it looks like
+   `https://abcd.supabase.co/auth/v1/callback`. Copy it. Leave this page open.
+
+### B. Google Cloud: make the sign-in key
+
+1. Go to **console.cloud.google.com** and sign in with the Pechkas Google
+   account (the store email). At the top, open the project list →
+   **New project** → name it `Pechkas` → **Create**, and make sure it is
+   selected.
+2. **☰ → APIs & Services → OAuth consent screen** (Google may call it
+   **Google Auth Platform**) → **Get started**. App name `Pechkas`; support
+   email: the store email; audience **External**; contact email: the store
+   email. Agree and **Create**.
+3. **Branding**: home page `https://pechkas.net`, privacy policy
+   `https://pechkas.net/app/privacy`, terms `https://pechkas.net/app/terms`.
+   Under **Authorized domains** add `pechkas.net` and `supabase.co`.
+   **Leave the logo empty** — adding one sends the app to Google for a
+   review that takes weeks. **Save**.
+4. **Audience → Publish app → Confirm.** Without this, only "test users"
+   can sign in. The app asks only for name and email, which Google does not
+   review.
+5. **Clients → Create client** → type **Web application**, name
+   `Pechkas via Supabase`. Under **Authorized redirect URIs → Add URI**,
+   paste the address from A2. **Create**.
+6. A box shows a **Client ID** and a **Client secret**. Keep it open.
+
+### C. Supabase: switch it on
+
+1. Back on the Supabase Google page from A: turn on **Enable Sign in with
+   Google**. Paste the **Client ID** (into **Client IDs**) and the **Client
+   secret** — there, never in a chat. **Save**.
+2. **Authentication → URL Configuration → Redirect URLs** must still list
+   `pechkas://auth-callback` (it does, from the email set-up).
+
+### D. Try it
+
+1. Install a **preview** build from `main` made after this change.
+2. Sign out (**☰ → Settings → Sign out**). The welcome screen now shows
+   **Continue with Google** at the top. Tap it, choose an account, and you
+   come back to *How will you use Pechkas?* with your first name filled in.
+3. If the button is not there: Google is not switched on in C1, or the
+   phone had no signal when the screen opened — close the app and open it.
+4. If Google says **Error 400: redirect_uri_mismatch**: the address in B5 is
+   not exactly the one from A2. If it says **Access blocked** or mentions
+   test users: do B4.
+
+Good to know: somebody who joined with their **mobile number** and later
+taps Continue with Google gets a **new, separate** account — the two have
+nothing in common for Supabase to match. Tell people to keep using the way
+they joined.
 
 ## Setting up email sign-in (once)
 

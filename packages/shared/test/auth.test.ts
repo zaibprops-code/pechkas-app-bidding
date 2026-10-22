@@ -52,3 +52,14 @@ test('a sign-in code is always 6 digits, and a longer one is noticed rather than
   // An 8-digit email code: kept to six, and the 8 is reported.
   assert.deepEqual(readCode('29216021'), { digits: '292160', extra: 8 });
 });
+
+test('a first name from Google fills the box only when it is plainly a name', async () => {
+  const { firstNameFrom } = await import('../src/index.ts');
+  assert.equal(firstNameFrom({ given_name: 'Nida', full_name: 'Nida Khan' }), 'Nida');
+  assert.equal(firstNameFrom({ full_name: 'Zohaib Khan' }), 'Zohaib');
+  assert.equal(firstNameFrom({ name: '  Ayesha  ' }), 'Ayesha');
+  assert.equal(firstNameFrom({ email: 'someone@gmail.com' }), '');
+  assert.equal(firstNameFrom({ name: 'someone@gmail.com' }), '');
+  assert.equal(firstNameFrom({ given_name: 'x'.repeat(41) }), '');
+  assert.equal(firstNameFrom(null), '');
+});

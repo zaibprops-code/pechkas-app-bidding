@@ -62,15 +62,15 @@ No health features.
 | --- | --- |
 | Does your app collect or share any of the required user data types? | **Yes** |
 | Is all of the user data collected by your app encrypted in transit? | **Yes** — everything goes over HTTPS |
-| Which account creation methods does your app support? | **Username and other authentication** → phone number with a one-time code |
+| Which account creation methods does your app support? | **Username and other authentication** → phone number or email with a one-time code; and **OAuth** → Google ("Continue with Google", Android) |
 | Do you provide a way for users to request that their data is deleted? | **Yes** |
 | Delete account URL | `https://pechkas.net/app/delete-account` |
 
 ### Shared?
 
 For every type below, **Shared: No.** Google does not count as "sharing":
-data handled for us by service providers (Supabase, Twilio, Expo, Google
-Firebase), and data a user deliberately sends to another user — a customer's
+data handled for us by service providers (Supabase, Twilio, Resend, Expo,
+Google Firebase, and Google for "Continue with Google"), and data a user deliberately sends to another user — a customer's
 address going to the technician she chose is exactly that. Nothing is sold
 and nobody receives anything for their own use.
 
@@ -82,10 +82,11 @@ For each: **Collected: Yes · Shared: No · Processed ephemerally: No.**
 | --- | --- | --- | --- |
 | **Location → Precise location** | Optional | App functionality | The map pin a customer may add to a job; where the phone was when the emergency button was pressed. Only while the app is open, never in the background. |
 | **Personal info → Name** | Required | App functionality, Account management, Fraud prevention, security and compliance | First name; a technician's full name. |
-| **Personal info → Email address** | Optional | App functionality, Account management | Only for somebody who signs in with an email code instead of a mobile number. |
+| **Personal info → Email address** | Optional | App functionality, Account management | Only for somebody who signs in with an email code, or continues with Google, instead of a mobile number. |
+| **Personal info → User IDs** | Optional | Account management | Only for somebody who continues with Google: the number Google gives their Google account, so the same Google account always opens the same Pechkas account. |
 | **Personal info → Phone number** | Required | App functionality, Account management, Fraud prevention, security and compliance | Sign-in, and passed to the other side once a technician is chosen. |
 | **Personal info → Address** | Required | App functionality | Where the job is: sector, street, house, landmark, gate note. If a customer says Pechkas does not serve her sector yet: that sector and the kind of work. |
-| **Personal info → Other info** | Required (technicians) | App functionality, Account management | A technician's trades, years in the trade, sectors, and that his identity was checked. Never a CNIC number. |
+| **Personal info → Other info** | Required (technicians) | App functionality, Account management | A technician's trades, years in the trade, sectors, and that his identity was checked. Never a CNIC number. For somebody who continues with Google, also the link to their Google profile picture, which Google sends and the app never shows. |
 | **Financial info → Other financial info** | Required (technicians) | App functionality, Account management, Fraud prevention, security and compliance | What a technician owes Pechkas in fees and what he has paid, with the payment reference. |
 | **Messages → Other in-app messages** | Optional | App functionality | The chat between a customer and her chosen technician. |
 | **Photos and videos → Photos** | Optional (customers), required (technicians, to start and finish a job) | App functionality | What is wrong; before and after photos; receipts for parts. |

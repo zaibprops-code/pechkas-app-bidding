@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, ScrollView, StyleSheet, Text, useWindowDimensions, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { AccessibilityInfo, Animated, Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { GoogleG } from '../src/components/GoogleG';
 import { Mark } from '../src/components/Mark';
 import { Press } from '../src/components/Press';
 import { ThisCopy } from '../src/components/ThisCopy';
@@ -10,6 +11,7 @@ import { WelcomeArt, type WelcomeArtName } from '../src/components/WelcomeArt';
 import { Button } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { openLegal } from '../src/legal';
+import { googleReady, signInWithGoogle } from '../src/supabase';
 import { colour, font, TAP } from '../src/theme';
 
 /**
@@ -28,7 +30,13 @@ import { colour, font, TAP } from '../src/theme';
  *
  * Sign up and sign in are one step (a new number becomes a new account),
  * which is why the buttons say "Continue". The gate is in app/_layout.tsx.
+ *
+ * "Continue with Google" is drawn only when Supabase says Google is switched
+ * on (googleReady), and never on an iPhone: Apple requires "Sign in with
+ * Apple" beside it there, which is not built. With it, Google is the black
+ * button and the other two are grey, as on inDrive; without it, the phone is.
  */
+const GOOGLE_HERE = Platform.OS !== 'ios';
 
 /** The two links are one short line of text; the finger gets the full 44 points around each. */
 const HIT = { top: 13, bottom: 13, left: 6, right: 6 };
@@ -56,6 +64,27 @@ export default function Start() {
   const { width, height } = useWindowDimensions();
   const { connected } = useAccount();
   const [page, setPage] = useState(0);
+  const [google, setGoogle] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!GOOGLE_HERE || !connected) return;
+    let alive = true;
+    googleReady().then((on) => alive && setGoogle(on));
+    return () => {
+      alive = false;
+    };
+  }, [connected]);
+
+  async function withGoogle() {
+    setProblem(null);
+    setGoogleBusy(true);
+    const r = await signInWithGoogle();
+    setGoogleBusy(false);
+    // Signed in: the gate takes it from here, to "How will you use Pechkas?" for somebody new.
+    if (r.error) setProblem(r.error);
+  }
   // The pages fill whatever height is left between the name and the buttons.
   const [pageHeight, setPageHeight] = useState(0);
   const go = (mode: 'phone' | 'email') => router.push({ pathname: '/sign-in', params: { mode } });
@@ -131,7 +160,13 @@ export default function Start() {
             <ThisCopy dark />
           </View>
         )}
-        <Button kind="ink" label="Continue with phone" icon="phone" onPress={() => go('phone')} />
+        {problem ? (
+          <View style={s.problem} accessibilityRole="alert">
+            <Text style={s.problemText}>{problem}</Text>
+          </View>
+        ) : null}
+        {google ? <Button kind="ink" label="Continue with Google" leading={<GoogleG size={20} />} onPress={withGoogle} busy={googleBusy} /> : null}
+        <Button kind={google ? 'soft' : 'ink'} label="Continue with phone" icon="phone" onPress={() => go('phone')} />
         <Button kind="soft" label="Continue with email" icon="mail" onPress={() => go('email')} />
         <View style={s.legal}>
           <Text style={s.small}>Joining Pechkas means you agree to our</Text>
@@ -162,6 +197,8 @@ const s = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colour.tile },
   dotOn: { backgroundColor: colour.ink },
   actions: { paddingHorizontal: 20, gap: 10 },
+  problem: { padding: 12, borderRadius: 14, backgroundColor: '#f6e3dc' },
+  problemText: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.brick },
   offline: { gap: 10, padding: 14, borderRadius: 18, backgroundColor: colour.ink },
   offlineText: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.paper },
   legal: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', columnGap: 4, rowGap: 2, paddingVertical: 10 },
