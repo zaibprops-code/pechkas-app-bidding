@@ -557,10 +557,18 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   profile on top and line-icon rows; every item goes to a real screen
   (`/safety` and `/help` exist for that). Customer screens are a light grey
   `colour.canvas` with white rounded cards, bold black headings, yellow as
-  the one highlight. Home is one big trade tile and two beside it, the
-  question "What needs fixing & for how much?", the last two jobs, then
-  more trades side by side. The tile drawings are `src/components/Art.tsx`
-  — objects, never people, over a yellow sweep.
+  the one highlight. **Home is inDrive's home** (the owner's screenshot):
+  over the map, the ☰ button, a yellow **"We could not find you — Tap to
+  turn on location"** bar while the phone's location is off (a tap asks;
+  once refused, it opens the phone's settings), a pin in the middle with
+  **"Set the job's address ›"** (opens the post screen straight on the
+  pin, starting where the map was), and the locate button at the map's
+  lower right. Then the sheet: one big tile (AC), one wide (Electrician),
+  two small (Plumber, UPS), a row of small square tiles with their names
+  under them (every other trade, then All trades), the question "What needs
+  fixing & for how much?" and the last two jobs. No discount or count on any
+  tile. The drawings are `src/components/Art.tsx` — objects, never people,
+  over a yellow sweep; every trade in `public.trades` has one.
 - **Maps are `src/components/Map.tsx`, and only there.** Android draws
   Google's map, which stops the app the moment it opens without a key, so
   `mapsReady()` is false unless the build has `GOOGLE_MAPS_API_KEY` (read in

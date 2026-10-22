@@ -37,7 +37,7 @@ const PARTS_OF_DAY = [
 ] as const;
 
 export default function Post() {
-  const params = useLocalSearchParams<{ trade?: string; start?: string; ask?: string; minutes?: string }>();
+  const params = useLocalSearchParams<{ trade?: string; start?: string; ask?: string; minutes?: string; lat?: string; lng?: string }>();
   const { ready, session, account } = useAccount();
   const lists = useLists();
   const [d, setD] = useState<Draft | null>(null);
@@ -49,6 +49,10 @@ export default function Post() {
   // The map, when this build has one (src/components/Map.tsx says when).
   const withMap = mapsReady();
   const [picking, setPicking] = useState(false);
+  // Where the home map was when "Set the job's address" was tapped, if the phone had been found.
+  const fromHome = Number.isFinite(Number(params.lat)) && Number.isFinite(Number(params.lng)) && params.lat && params.lng
+    ? { latitude: Number(params.lat), longitude: Number(params.lng) }
+    : null;
   const [elsewhere, setElsewhere] = useState(false);
   const [asking, setAsking] = useState<string | null>(null);
   const [asked, setAsked] = useState<string | null>(null);
@@ -102,6 +106,8 @@ export default function Post() {
     if (!d || opened.current || !session) return;
     opened.current = true;
     if (params.start === 'video' && !d.media.some((m) => m.kind === 'video')) addVideo(true);
+    // "Set the job's address" on the home map: straight to the pin, where the map was.
+    if (params.start === 'pin' && mapsReady()) setPicking(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [d, session]);
 
@@ -490,7 +496,7 @@ export default function Post() {
       <Notice text={notice} />
       {picking ? (
         <PinPicker
-          start={d.lat !== null && d.lng !== null ? { latitude: d.lat, longitude: d.lng } : ISLAMABAD}
+          start={d.lat !== null && d.lng !== null ? { latitude: d.lat, longitude: d.lng } : fromHome ?? ISLAMABAD}
           onCancel={() => setPicking(false)}
           onConfirm={(p) => {
             update({ lat: p.latitude, lng: p.longitude, accuracy: null });

@@ -7,6 +7,29 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The home screen is laid out like inDrive's (new — no database step).**
+Over the map: the ☰ button; a yellow bar **"We could not find you — Tap
+to turn on location"** while the phone's location is off; a pin in the
+middle with **"Set the job's address ›"**, which opens *Post a job*
+straight on the map pin; and the locate button at the bottom right of the
+map. Under it: one big tile (AC), one wide (Electrician), two small
+(Plumber, UPS), then a row of small square tiles with their names under
+them — CCTV, Wi-Fi, Solar, Appliances, Carpentry, Painting, Computers and
+All trades, each with its own drawing — and then *What needs fixing & for
+how much?* with your last jobs. inDrive's "10% off" badges are left out on
+purpose: Pechkas has no discounts to show.
+
+The map, the pin and the yellow bar need the **Google Maps key** (see
+"Maps: the Google Maps key (once)"); without it the screen starts at the
+tiles. The Play Store screenshot `docs/store/screenshots/1-home.png` shows
+the old home: take a new one from your phone once the map is on.
+
+The third welcome page now says **Pay when the work is done — Cash,
+JazzCash or Easypaisa, straight to the technician. Nothing in advance.**
+It said "cash, no wallet", which did not match the post screen. The app's
+privacy policy still says customers pay "in cash"; that is a sentence for
+you and the lawyer to settle, not one I changed.
+
 **The first screens look like inDrive's (new — no database step).** The
 welcome screen is now white, with **pechkas** at the top and three pages
 to swipe through, each with a drawing and one line: *Name your price for

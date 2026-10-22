@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Animated, Linking, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Art, type ArtName } from '../src/components/Art';
 import { Icon, type IconName } from '../src/components/Icon';
-import { askPosition, ISLAMABAD, knownPosition, MapBox, mapsReady, type Point } from '../src/components/Map';
+import { askPosition, ISLAMABAD, knownPosition, MapBox, mapsReady, Pin, type Point } from '../src/components/Map';
 import { MenuButton } from '../src/components/Menu';
 import { Press } from '../src/components/Press';
 import { ScrewSpinner } from '../src/components/ScrewSpinner';
@@ -16,14 +16,30 @@ import { supabase } from '../src/supabase';
 import { colour, font, radius, TAP } from '../src/theme';
 
 /**
- * The customer's home, laid out the way inDrive lays out its own: the ☰
- * menu top left (there is no tab bar), one big tile for the commonest job
- * with smaller ones beside it, then the one question Pechkas asks — what
- * needs fixing, and for how much — with the last jobs under it.
+ * The customer's home, laid out the way inDrive lays out its own (the
+ * owner's reference): the map with the ☰ menu over it and a pin in the
+ * middle saying "Set the job's address", a yellow bar when the phone's
+ * location is off, the locate button at the map's lower right; then the
+ * sheet — one big tile, one wide and two small, a row of small square tiles
+ * with their names under them, and the one question Pechkas asks, what
+ * needs fixing and for how much, with the last jobs under it.
  *
  * Every tile opens the post screen with its trade chosen. Recent jobs are
  * this person's own, from my_jobs(); with none, the list is simply absent.
+ * No tile carries a discount or a count: there are none to show.
  */
+
+/** The row of small tiles: every other trade, then all of them. */
+const MORE: { slug: string | null; label: string; art: ArtName }[] = [
+  { slug: 'cctv', label: 'CCTV', art: 'cctv' },
+  { slug: 'wifi', label: 'Wi-Fi', art: 'wifi' },
+  { slug: 'solar', label: 'Solar', art: 'solar' },
+  { slug: 'appliances', label: 'Appliances', art: 'appliances' },
+  { slug: 'carpentry', label: 'Carpentry', art: 'carpentry' },
+  { slug: 'painting', label: 'Painting', art: 'painting' },
+  { slug: 'computers', label: 'Computers', art: 'computers' },
+  { slug: null, label: 'All trades', art: 'more' },
+];
 
 type Recent = {
   id: string;
@@ -42,7 +58,7 @@ const LIVE_EVERY = 10000;
 /** A job still happening: the one the home screen puts on top, as inDrive puts the ride. */
 const isLive = (j: Recent) => j.status === 'open' || j.status === 'assigned';
 
-const post = (params: { trade?: string; start?: string } = {}) => router.push({ pathname: '/post', params });
+const post = (params: { trade?: string; start?: string; lat?: string; lng?: string } = {}) => router.push({ pathname: '/post', params });
 
 function statusLine(j: Recent): string {
   if (j.status === 'open') return j.live_offers ? `${j.live_offers} ${j.live_offers === 1 ? 'offer' : 'offers'} to choose from` : 'Waiting for offers';
@@ -55,7 +71,7 @@ function statusLine(j: Recent): string {
 export default function Home() {
   const insets = useSafeAreaInsets();
   const { account } = useAccount();
-  const { height } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [jobs, setJobs] = useState<Recent[]>([]);
   const live = jobs.filter(isLive).slice(0, 2);
   // The last two that are over; the ones still happening are in the live cards.
@@ -64,14 +80,29 @@ export default function Home() {
   // it; otherwise Islamabad. It asks only when the locate button is pressed.
   const withMap = mapsReady();
   const [me, setMe] = useState<Point | null>(null);
+  // Whether the phone could be found: 'off' until it is, 'refused' once the
+  // person has said no, when only the phone's settings can change it.
+  const [where, setWhere] = useState<'looking' | 'found' | 'off' | 'refused'>('looking');
   useEffect(() => {
-    if (withMap) knownPosition().then((p) => p && setMe(p));
+    if (!withMap) return;
+    knownPosition().then((p) => {
+      if (p) setMe(p);
+      setWhere(p ? 'found' : 'off');
+    });
   }, [withMap]);
   const locate = async () => {
+    if (where === 'refused') return Linking.openSettings();
     const p = await askPosition();
-    if (p && p !== 'refused') setMe(p);
+    if (p && p !== 'refused') {
+      setMe(p);
+      setWhere('found');
+    } else setWhere(p === 'refused' ? 'refused' : 'off');
   };
-  const mapHeight = Math.round(height * 0.4);
+  // "Set the job's address": the post screen opens on the pin, starting here.
+  const setAddress = () =>
+    post(me ? { start: 'pin', lat: String(me.latitude), lng: String(me.longitude) } : { start: 'pin' });
+  // Never so short that the pin and its bubble have no room under the menu.
+  const mapHeight = Math.max(Math.round(height * 0.42), 330);
   // The buttons over the map scroll away with it, rather than sitting on the cards.
   const scrollY = useRef(new Animated.Value(0)).current;
   const lift = scrollY.interpolate({ inputRange: [0, 1000], outputRange: [0, -1000], extrapolateLeft: 'clamp' });
@@ -107,23 +138,25 @@ export default function Home() {
             ))}
           </View>
         ) : null}
-        <View style={s.greeting}>
-          <Text style={s.hello}>{account?.first_name ? `Hello, ${account.first_name}` : 'Hello'}</Text>
-          <Text style={s.title} accessibilityRole="header">
-            What needs fixing?
-          </Text>
-        </View>
-
-        <Animated.View style={{ gap: 12, transform: [{ translateY: rise }] }}>
-          {/* The tiles: one big and two beside it, as inDrive's are. */}
-          <View style={s.sheet}>
+        <Animated.View style={{ gap: 12, paddingTop: 12, transform: [{ translateY: rise }] }}>
+          {/* One big tile, one wide and two small, then a row of small ones: inDrive's sheet. */}
+          <View style={[s.sheet, { gap: 14 }]} accessibilityLabel="What needs fixing?">
             <View style={s.tiles}>
               <Tile big label="AC" art="ac" onPress={() => post({ trade: 'ac' })} />
-              <View style={s.column}>
+              {/* On a narrow phone the right-hand column takes a little more, so "Plumber" fits its tile. */}
+              <View style={[s.column, width < 360 && { flex: 1.45 }]}>
                 <Tile wide label="Electrician" art="electrician" onPress={() => post({ trade: 'electrician' })} />
-                <Tile wide label="Plumber" art="plumber" onPress={() => post({ trade: 'plumber' })} />
+                <View style={s.row}>
+                  <Tile small label="Plumber" art="plumber" onPress={() => post({ trade: 'plumber' })} />
+                  <Tile small label="UPS" art="ups" onPress={() => post({ trade: 'ups' })} />
+                </View>
               </View>
             </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.smallRow}>
+              {MORE.map((m) => (
+                <Small key={m.label} label={m.label} art={m.art} onPress={() => post(m.slug ? { trade: m.slug } : {})} />
+              ))}
+            </ScrollView>
           </View>
 
           {/* The one question, and the last two jobs under it. */}
@@ -147,22 +180,6 @@ export default function Home() {
             ))}
           </View>
 
-          {/* More trades, side by side, like inDrive's ride types. */}
-          <View style={s.sheet}>
-            <Press onPress={() => post()} accessibilityRole="link" style={s.sectionHead} sink={0.98}>
-              <Text style={s.h2}>More trades</Text>
-              <View style={s.chev}>
-                <Icon name="chevronRight" size={14} color={colour.ink} strokeWidth={2.6} />
-              </View>
-            </Press>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 4 }}>
-              <Card label="UPS" art="ups" onPress={() => post({ trade: 'ups' })} />
-              <Card label="CCTV" art="cctv" onPress={() => post({ trade: 'cctv' })} />
-              <Card label="Wi-Fi" art="wifi" onPress={() => post({ trade: 'wifi' })} />
-              <Card label="All trades" art="more" onPress={() => post()} />
-            </ScrollView>
-          </View>
-
           {/* Two ways to say what is wrong without typing. */}
           <View style={s.sheet}>
             <Text style={s.h2}>Describe it your way</Text>
@@ -180,10 +197,12 @@ export default function Home() {
   );
 
   if (withMap) {
+    // Under the yellow bar when it shows, as the menu button is on inDrive.
+    const top = where === 'off' || where === 'refused' ? insets.top + 58 : insets.top;
     return (
       <View style={s.screen}>
         <StatusBar style="dark" />
-        <MapBox center={me ?? ISLAMABAD} zoom={me ? 0.012 : 0.09} pin={me} showsUser={Boolean(me)} style={[s.map, { height: mapHeight + 40 }]} />
+        <MapBox center={me ?? ISLAMABAD} zoom={me ? 0.012 : 0.09} showsUser={Boolean(me)} style={[s.map, { height: mapHeight + 40 }]} />
         <Animated.ScrollView
           contentContainerStyle={{ paddingTop: mapHeight - 28, paddingBottom: Math.max(insets.bottom, 16) + 8 }}
           showsVerticalScrollIndicator={false}
@@ -195,18 +214,32 @@ export default function Home() {
             {body}
           </View>
         </Animated.ScrollView>
-        <Animated.View style={[s.top, s.floating, { top: insets.top + 10, transform: [{ translateY: lift }] }]} pointerEvents="box-none">
-          <MenuButton />
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <View style={s.city} accessibilityLabel="Pechkas works in Islamabad">
-              <Icon name="pin" size={16} color={colour.green} strokeWidth={2.2} />
-              <Text style={s.cityText}>Islamabad</Text>
-            </View>
-            <Press onPress={locate} accessibilityRole="button" accessibilityLabel="Show where I am" sink={0.9} style={s.locate}>
-              <Icon name="locate" size={20} color={colour.ink} strokeWidth={2.2} />
-            </Press>
-          </View>
+        {/* The pin stays in the middle of what can be seen of the map, with the one thing to do above it. */}
+        <Animated.View
+          pointerEvents="box-none"
+          style={[s.centre, { top: Math.max(top + 66, top + (mapHeight - 28 - top) / 2 - 92), transform: [{ translateY: lift }] }]}
+        >
+          <Press onPress={setAddress} accessibilityRole="button" sink={0.96} style={s.bubble}>
+            <Text style={s.bubbleText}>Set the job's address</Text>
+            <Icon name="chevronRight" size={18} color={colour.ink} strokeWidth={2.4} />
+          </Press>
+          <Pin />
         </Animated.View>
+        <Animated.View style={[s.top, s.floating, { top: top + 10, transform: [{ translateY: lift }] }]} pointerEvents="box-none">
+          <MenuButton />
+        </Animated.View>
+        <Animated.View style={[s.floating, { top: mapHeight - 28 - 64, alignItems: 'flex-end', paddingRight: 16, transform: [{ translateY: lift }] }]} pointerEvents="box-none">
+          <Press onPress={locate} accessibilityRole="button" accessibilityLabel="Show where I am" sink={0.9} style={s.locate}>
+            <Icon name="locate" size={22} color={colour.ink} strokeWidth={2.2} />
+          </Press>
+        </Animated.View>
+        {/* The phone could not be found: say so across the top, as inDrive does, and let a tap fix it. */}
+        {where === 'off' || where === 'refused' ? (
+          <Press onPress={locate} accessibilityRole="button" sink={1} style={[s.banner, { paddingTop: insets.top + 6 }]}>
+            <Text style={s.bannerTitle}>We could not find you</Text>
+            <Text style={s.bannerText}>{where === 'refused' ? 'Tap to allow location in the phone settings' : 'Tap to turn on location'}</Text>
+          </Press>
+        ) : null}
       </View>
     );
   }
@@ -231,9 +264,13 @@ export default function Home() {
 }
 
 function Tile({ label, art, onPress, big = false, wide = false, small = false }: { label: string; art: ArtName; onPress: () => void; big?: boolean; wide?: boolean; small?: boolean }) {
+  // On a narrow phone the two small tiles are about 70 points wide: "Plumber" fits at 12.
+  const { width } = useWindowDimensions();
   return (
     <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={label} sink={0.97} style={[s.tile, big && s.tileBig, wide && s.tileWide, small && s.tileSmall]}>
-      <Text style={[s.tileText, big && s.tileTextBig]}>{label}</Text>
+      <Text style={[s.tileText, big && s.tileTextBig, small && { fontSize: width < 360 ? 12 : 14 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+        {label}
+      </Text>
       <View style={[s.tileArt, small && s.tileArtSmall]}>
         <Art name={art} width={big ? 150 : small ? 78 : 112} height={big ? 112 : small ? 58 : 84} />
       </View>
@@ -241,13 +278,16 @@ function Tile({ label, art, onPress, big = false, wide = false, small = false }:
   );
 }
 
-function Card({ label, art, onPress }: { label: string; art: ArtName; onPress: () => void }) {
+/** A small square tile with its name under it: the row under the big tiles. */
+function Small({ label, art, onPress }: { label: string; art: ArtName; onPress: () => void }) {
   return (
-    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={label} sink={0.97} style={s.card}>
-      <View style={s.cardArt}>
-        <Art name={art} width={112} height={84} />
+    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={label} sink={0.95} style={s.small}>
+      <View style={s.smallArt}>
+        <Art name={art} width={70} height={53} />
       </View>
-      <Text style={s.cardText}>{label}</Text>
+      <Text style={s.smallText} numberOfLines={1}>
+        {label}
+      </Text>
     </Press>
   );
 }
@@ -346,19 +386,22 @@ const s = StyleSheet.create({
   floating: { position: 'absolute', left: 0, right: 0 },
   sheetBase: { backgroundColor: colour.canvas, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingTop: 8, minHeight: 600 },
   handle: { alignSelf: 'center', width: 40, height: 5, borderRadius: 3, backgroundColor: 'rgba(20, 23, 26, 0.18)' },
-  locate: { width: 44, height: 44, borderRadius: 22, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.10)' },
-  greeting: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 14, gap: 2 },
-  hello: { fontFamily: font.bodyMedium, fontSize: 16, color: colour.steel },
-  title: { fontFamily: font.display, fontSize: 32, lineHeight: 36, color: colour.ink, letterSpacing: -0.8 },
+  locate: { width: 52, height: 52, borderRadius: 26, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.10)' },
+  centre: { position: 'absolute', left: 0, right: 0, alignItems: 'center', gap: 6 },
+  bubble: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 48, paddingLeft: 18, paddingRight: 12, borderRadius: radius.pill, backgroundColor: colour.white, boxShadow: '0px 4px 14px rgba(20, 23, 26, 0.18)' },
+  bubbleText: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
+  banner: { position: 'absolute', top: 0, left: 0, right: 0, alignItems: 'center', paddingBottom: 10, backgroundColor: colour.yellow },
+  bannerTitle: { fontFamily: font.display, fontSize: 17, color: colour.ink },
+  bannerText: { fontFamily: font.bodyMedium, fontSize: 14, color: colour.ink },
 
   sheet: { marginHorizontal: 10, padding: 12, borderRadius: 28, backgroundColor: colour.white, gap: 6 },
   tiles: { flexDirection: 'row', gap: 8 },
-  column: { flex: 1, gap: 8 },
+  column: { flex: 1.2, gap: 8 },
   row: { flexDirection: 'row', gap: 8 },
   tile: { borderRadius: 20, backgroundColor: colour.tile, padding: 12, overflow: 'hidden' },
-  tileBig: { flex: 1.1, minHeight: 208 },
+  tileBig: { flex: 1, minHeight: 208 },
   tileWide: { flex: 1, minHeight: 100 },
-  tileSmall: { flex: 1, minHeight: 100, padding: 10 },
+  tileSmall: { flex: 1, minHeight: 100, paddingHorizontal: 8, paddingVertical: 10 },
   tileText: { fontFamily: font.displayBold, fontSize: 15, color: colour.ink },
   tileTextBig: { fontFamily: font.display, fontSize: 22 },
   tileArt: { position: 'absolute', right: -6, bottom: -4 },
@@ -370,12 +413,11 @@ const s = StyleSheet.create({
   recentTitle: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
   recentSub: { fontFamily: font.body, fontSize: 13, color: colour.steel },
 
-  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: TAP, paddingHorizontal: 4 },
   h2: { fontFamily: font.display, fontSize: 20, color: colour.ink, paddingHorizontal: 4, paddingVertical: 6 },
-  chev: { width: 22, height: 22, borderRadius: 11, backgroundColor: colour.canvas, alignItems: 'center', justifyContent: 'center' },
-  card: { width: 132, gap: 8 },
-  cardArt: { height: 112, borderRadius: 20, backgroundColor: colour.tile, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  cardText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.ink, paddingHorizontal: 4 },
+  smallRow: { gap: 10, paddingHorizontal: 2 },
+  small: { width: 76, alignItems: 'center', gap: 6 },
+  smallArt: { width: 76, height: 72, borderRadius: 18, backgroundColor: colour.tile, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  smallText: { fontFamily: font.bodyMedium, fontSize: 13, color: colour.ink },
 
   way: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 64, paddingHorizontal: 4 },
   wayRule: { borderBottomWidth: 1, borderBottomColor: colour.rule },

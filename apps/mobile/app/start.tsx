@@ -54,8 +54,8 @@ const PAGES: { art: WelcomeArtName; title: string; line: string }[] = [
   },
   {
     art: 'cash',
-    title: 'Pay in cash when the work is done',
-    line: 'No card and no wallet. The price is agreed before anybody sets off.',
+    title: 'Pay when the work is done',
+    line: 'Cash, JazzCash or Easypaisa, straight to the technician. Nothing in advance.',
   },
 ];
 

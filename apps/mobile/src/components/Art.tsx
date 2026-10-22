@@ -11,7 +11,7 @@ import { colour } from '../theme';
  * words, so each one is hidden from screen readers.
  */
 
-export type ArtName = 'ac' | 'electrician' | 'plumber' | 'cctv' | 'wifi' | 'ups' | 'more';
+export type ArtName = 'ac' | 'electrician' | 'plumber' | 'cctv' | 'wifi' | 'ups' | 'solar' | 'appliances' | 'carpentry' | 'painting' | 'computers' | 'more';
 
 const SHADE = '#d9d5cc';
 const WHITE = colour.white;
@@ -82,6 +82,62 @@ export function Art({ name, width = 120, height = 90 }: { name: ArtName; width?:
           <Rect x={40} y={20} width={36} height={12} rx={3} fill={INK} />
           <Rect x={44} y={24} width={18} height={4} rx={2} fill={colour.green} />
           <Path d="M60 40l-7 14h7l-3 12 11-17h-7l3-9z" fill={colour.yellow} stroke={INK} strokeWidth={2} strokeLinejoin="round" />
+        </G>
+      )}
+      {name === 'solar' && (
+        <G>
+          {/* A panel on its stand, under the sun. */}
+          <Circle cx={92} cy={20} r={9} fill={WHITE} />
+          <Path d="M92 4v4M92 32v4M76 20h4M104 20h4M81 9l3 3M100 28l3 3M81 31l3-3M100 12l3-3" stroke={INK} strokeWidth={2.4} strokeLinecap="round" />
+          <Path d="M22 62 L40 30 H84 L66 62 Z" fill={INK} />
+          <Path d="M31 46 H75 M53 30 L35 62 M68 30 L50 62" stroke={SHADE} strokeWidth={2} />
+          <Rect x={48} y={62} width={6} height={16} fill={SHADE} />
+          <Rect x={36} y={76} width={30} height={5} rx={2} fill={INK} />
+        </G>
+      )}
+      {name === 'appliances' && (
+        <G>
+          {/* A washing machine. */}
+          <Rect x={38} y={14} width={50} height={66} rx={7} fill={SHADE} />
+          <Rect x={34} y={10} width={50} height={66} rx={7} fill={WHITE} />
+          <Rect x={34} y={10} width={50} height={12} rx={6} fill={INK} />
+          <Circle cx={74} cy={16} r={2.5} fill={colour.green} />
+          <Circle cx={59} cy={48} r={17} fill={SHADE} />
+          <Circle cx={59} cy={48} r={11} fill={colour.green} />
+          <Path d="M52 46a8 8 0 0 1 9-6" stroke={WHITE} strokeWidth={2.5} strokeLinecap="round" fill="none" />
+        </G>
+      )}
+      {name === 'carpentry' && (
+        <G>
+          {/* A hammer across a plank. */}
+          <Rect x={16} y={58} width={88} height={14} rx={3} fill={WHITE} />
+          <Path d="M24 62h20M54 66h26" stroke={SHADE} strokeWidth={2} strokeLinecap="round" />
+          <G transform="rotate(-35 60 40)">
+            <Rect x={56} y={22} width={9} height={52} rx={4} fill={colour.green} />
+            <Path d="M44 12 H78 V24 H44 Z" fill={INK} />
+            <Path d="M78 12 L88 8 L86 20 L78 24 Z" fill={INK} />
+          </G>
+        </G>
+      )}
+      {name === 'painting' && (
+        <G>
+          {/* A paint roller and the stripe it has just laid. */}
+          <Rect x={14} y={64} width={70} height={10} rx={5} fill={colour.green} />
+          <Rect x={30} y={14} width={56} height={22} rx={8} fill={WHITE} />
+          <Rect x={30} y={28} width={56} height={8} rx={4} fill={colour.green} />
+          <Path d="M86 25 H96 V46 H62 V56" stroke={INK} strokeWidth={4} strokeLinejoin="round" fill="none" />
+          <Rect x={57} y={54} width={10} height={24} rx={4} fill={INK} />
+        </G>
+      )}
+      {name === 'computers' && (
+        <G>
+          {/* A laptop. */}
+          <Rect x={30} y={14} width={62} height={42} rx={5} fill={INK} />
+          <Rect x={35} y={19} width={52} height={32} rx={2} fill={WHITE} />
+          <Rect x={41} y={26} width={26} height={5} rx={2.5} fill={colour.green} />
+          <Rect x={41} y={36} width={36} height={4} rx={2} fill={SHADE} />
+          <Path d="M20 60 H102 L96 70 H26 Z" fill={SHADE} />
+          <Rect x={52} y={60} width={18} height={3} rx={1.5} fill={INK} />
         </G>
       )}
       {name === 'more' && (
