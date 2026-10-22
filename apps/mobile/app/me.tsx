@@ -7,7 +7,7 @@ import { ModeSwitch } from '../src/components/ModeSwitch';
 import { ThisCopy } from '../src/components/ThisCopy';
 import { useAccount } from '../src/account';
 import { useNotify } from '../src/notifications';
-import { AGREEMENT_URL, PRIVACY_URL, TERMS_URL } from '../src/office';
+import { openLegal } from '../src/legal';
 import { ask, supabase } from '../src/supabase';
 import { colour, font, radius } from '../src/theme';
 
@@ -36,8 +36,8 @@ export default function Me() {
         <Title>Your account</Title>
         <Body muted>{connected ? 'Sign in with your mobile number to post jobs and see your offers.' : 'The app is not connected to Pechkas yet.'}</Body>
         {connected ? <Button label="Sign in" onPress={() => router.replace('/start')} /> : null}
-        <Button kind="outline" label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
-        <Button kind="outline" label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} />
+        <Button kind="outline" label="Privacy policy" onPress={() => openLegal('privacy')} />
+        <Button kind="outline" label="Terms of use" onPress={() => openLegal('terms')} />
         <ThisCopy />
       </Screen>
     );
@@ -139,11 +139,11 @@ export default function Me() {
             onPress={notify === 'ask' ? askNotify : notify === 'off' ? () => Linking.openSettings() : undefined}
           />
         ) : null}
-        <ListRow icon="lock" label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
+        <ListRow icon="lock" label="Privacy policy" onPress={() => openLegal('privacy')} />
         {account?.role === 'pro' ? (
-          <ListRow icon="doc" label="Technician agreement" onPress={() => Linking.openURL(AGREEMENT_URL)} last />
+          <ListRow icon="doc" label="Technician agreement" onPress={() => openLegal('technician-agreement')} last />
         ) : (
-          <ListRow icon="doc" label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} last />
+          <ListRow icon="doc" label="Terms of use" onPress={() => openLegal('terms')} last />
         )}
       </ListGroup>
 

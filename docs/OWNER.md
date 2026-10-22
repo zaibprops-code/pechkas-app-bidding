@@ -7,6 +7,27 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The privacy policy and the rules open inside the app (new — no
+database step).** **Privacy policy**, **Terms of use**, the **Technician
+agreement** and **Delete your account** used to open the website in the
+phone's browser. Now each opens on its own screen in the app, the same way
+everywhere: the welcome screen, Settings, Help and the technician
+application. A link inside one (say, from the terms to the privacy
+policy) opens the other in the app too.
+
+The words still live on the website, and must: Google Play and the App
+Store ask for the privacy policy and the delete-account page at a web
+address. So there is still one place to change them: the website's
+`src/pages/app/` pages. After any change there, ask Claude to copy them
+into the app; the app and the stores' links then say the same thing.
+
+On the way, three of those pages still told people to tap **Me**, which
+the app no longer has since the menu layout. They now say **open the menu,
+tap Settings**, on the website and in the app.
+
+To see it: a new **preview** build from `main`, then on the welcome screen
+tap **Terms** or **Privacy Policy**.
+
 **Customer or technician — chosen, and switchable (new — needs one
 database step).** Like inDrive, one account can be both:
 

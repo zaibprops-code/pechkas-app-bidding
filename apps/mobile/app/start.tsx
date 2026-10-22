@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { AccessibilityInfo, Animated, Easing, Linking, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,7 +9,7 @@ import { Press } from '../src/components/Press';
 import { ThisCopy } from '../src/components/ThisCopy';
 import { Button } from '../src/components/ui';
 import { useAccount } from '../src/account';
-import { PRIVACY_URL, TERMS_URL } from '../src/office';
+import { openLegal } from '../src/legal';
 import { colour, font, TAP } from '../src/theme';
 
 /**
@@ -138,11 +138,11 @@ export default function Start() {
           <Button kind="outline" dark label="Continue with email" onPress={() => go('email')} />
           <View style={s.legal}>
             <Text style={s.small}>By continuing you agree to our</Text>
-            <Press onPress={() => Linking.openURL(TERMS_URL)} accessibilityRole="link" style={s.link}>
+            <Press onPress={() => openLegal('terms')} accessibilityRole="link" style={s.link}>
               <Text style={s.linkText}>Terms</Text>
             </Press>
             <Text style={s.small}>and</Text>
-            <Press onPress={() => Linking.openURL(PRIVACY_URL)} accessibilityRole="link" style={s.link}>
+            <Press onPress={() => openLegal('privacy')} accessibilityRole="link" style={s.link}>
               <Text style={s.linkText}>Privacy Policy</Text>
             </Press>
           </View>

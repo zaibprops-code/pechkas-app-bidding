@@ -386,6 +386,19 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   sitemap, run that repo's checks before pushing). They, the Data safety
   answers in `docs/store/data-safety.md` and the app must say the same
   thing: a change to what the app collects changes all three.
+- **The app shows those pages itself, and never opens a browser for
+  them.** Privacy policy, terms, technician agreement and deleting an
+  account are `app/legal/[doc].tsx`, open to people not signed in (the
+  welcome screen asks them to agree to two). The words are the website's:
+  `node scripts/copy-legal.mjs ../Pechkas` reads the website's BUILT
+  pages and writes `packages/shared/src/legal-docs.ts`, so the store's link
+  and the app cannot disagree. Never edit that file or type legal words in
+  a screen; change the website's page, build it, copy, commit both. The
+  script refuses an element it does not know rather than dropping it, and
+  leaves out only the draft box's "Edit this page at …" note to the owner.
+  A link to another of the four opens it in the app (`legalLink()`);
+  `legal.test.ts` checks every link goes somewhere real and that the pages
+  name screens the app really has. `openLegal()` is the only way in.
 - **Permissions are only what is used.** `app.json` blocks storage, media,
   overlay and background-location permissions; the gallery uses the
   system photo picker, which needs none, so `media.ts` asks only for the

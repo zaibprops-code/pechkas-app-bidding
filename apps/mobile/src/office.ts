@@ -12,8 +12,9 @@ export const OFFICE_WHATSAPP = 'https://wa.me/923358855076';
 
 /**
  * The app's privacy policy and how to delete an account, on the website
- * (zaibprops-code/Pechkas, src/pages/app/). The stores link to the same two
- * addresses; they must stay true of what this app does.
+ * (zaibprops-code/Pechkas, src/pages/app/). The stores link to these two
+ * addresses. The app itself never opens them: it shows the same words on its
+ * own screen (openLegal() in src/legal.ts, copied by scripts/copy-legal.mjs).
  */
 export const PRIVACY_URL = 'https://pechkas.net/app/privacy';
 export const DELETE_ACCOUNT_URL = 'https://pechkas.net/app/delete-account';

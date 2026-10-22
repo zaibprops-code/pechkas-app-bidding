@@ -61,9 +61,9 @@ export default function RootLayout() {
 }
 
 /** Screens anybody may see without an account: the welcome screen and the steps of signing in. */
-const OPEN = new Set(['start', 'sign-in', 'verify', 'auth-callback']);
+const OPEN = new Set(['start', 'sign-in', 'verify', 'auth-callback', 'legal']);
 /** Screens a signed-in account may be on before it has a mode and a number. */
-const SETTING_UP = new Set(['choose', 'welcome', 'verify', 'auth-callback']);
+const SETTING_UP = new Set(['choose', 'welcome', 'verify', 'auth-callback', 'legal']);
 
 /**
  * Like every big app: nothing opens until you have signed in. A phone with

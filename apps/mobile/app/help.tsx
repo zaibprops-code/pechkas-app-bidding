@@ -2,7 +2,8 @@ import { Linking } from 'react-native';
 import { router } from 'expo-router';
 import { ListGroup, ListRow, Screen } from '../src/components/ui';
 import { useAccount } from '../src/account';
-import { AGREEMENT_URL, OFFICE_PHONE, OFFICE_PHONE_SHOWN, OFFICE_WHATSAPP, PRIVACY_URL, TERMS_URL } from '../src/office';
+import { openLegal } from '../src/legal';
+import { OFFICE_PHONE, OFFICE_PHONE_SHOWN, OFFICE_WHATSAPP } from '../src/office';
 
 /** Help, from the menu: the Pechkas office, by phone or WhatsApp, and the written rules. */
 export default function Help() {
@@ -16,11 +17,11 @@ export default function Help() {
       </ListGroup>
       <ListGroup title="The rules">
         {pro ? (
-          <ListRow icon="doc" label="Technician agreement" onPress={() => Linking.openURL(AGREEMENT_URL)} />
+          <ListRow icon="doc" label="Technician agreement" onPress={() => openLegal('technician-agreement')} />
         ) : (
-          <ListRow icon="doc" label="Terms of use" onPress={() => Linking.openURL(TERMS_URL)} />
+          <ListRow icon="doc" label="Terms of use" onPress={() => openLegal('terms')} />
         )}
-        <ListRow icon="lock" label="Privacy policy" onPress={() => Linking.openURL(PRIVACY_URL)} />
+        <ListRow icon="lock" label="Privacy policy" onPress={() => openLegal('privacy')} />
         <ListRow icon="shield" label="Safety" onPress={() => router.push('/safety')} last />
       </ListGroup>
     </Screen>

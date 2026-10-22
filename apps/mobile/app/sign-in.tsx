@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Linking, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, explainAuthError, pakistaniMobile } from '@pechkas/shared';
 import { Mark } from '../src/components/Mark';
 import { Press } from '../src/components/Press';
 import { Button, Field, Notice, Screen } from '../src/components/ui';
-import { PRIVACY_URL } from '../src/office';
+import { openLegal } from '../src/legal';
 import { sendEmailCode, supabase, url } from '../src/supabase';
 import { colour, font } from '../src/theme';
 
@@ -120,7 +120,7 @@ export default function SignIn() {
       <Press onPress={() => switchTo(mode === 'phone' ? 'email' : 'phone')} accessibilityRole="button" style={s.switch}>
         <Text style={s.switchText}>{mode === 'phone' ? 'Use my email instead' : 'Use my mobile number instead'}</Text>
       </Press>
-      <Press onPress={() => Linking.openURL(PRIVACY_URL)} accessibilityRole="link" style={s.switch}>
+      <Press onPress={() => openLegal('privacy')} accessibilityRole="link" style={s.switch}>
         <Text style={s.quiet}>How Pechkas uses your number</Text>
       </Press>
     </Screen>

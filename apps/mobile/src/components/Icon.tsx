@@ -41,7 +41,8 @@ export type IconName =
   | 'settings'
   | 'help'
   | 'whatsapp'
-  | 'locate';
+  | 'locate'
+  | 'cross';
 
 type Props = {
   name: IconName;
@@ -125,6 +126,7 @@ export function Icon({ name, size = 24, color = colour.green, strokeWidth = 1.8,
         />
       )}
       {name === 'alert' && <Path {...s} d="M12 3L2 20h20zM12 10v4M12 17v.5" />}
+      {name === 'cross' && <Path {...s} d="M6 6l12 12M18 6L6 18" />}
       {name === 'chevronRight' && <Path {...s} d="M9 6l6 6-6 6" />}
       {name === 'bell' && <Path {...s} d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0" />}
       {name === 'logout' && <Path {...s} d="M14 4h5a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-5M10 8l-4 4 4 4M6 12h10" />}

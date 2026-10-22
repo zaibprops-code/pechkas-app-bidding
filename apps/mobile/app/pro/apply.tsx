@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Linking, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Redirect, router } from 'expo-router';
 import { Press } from '../../src/components/Press';
 import { Body, Button, Chip, Field, Loading, Notice, Screen, Title } from '../../src/components/ui';
 import { useAccount } from '../../src/account';
-import { AGREEMENT_URL } from '../../src/office';
+import { openLegal } from '../../src/legal';
 import { ask, supabase } from '../../src/supabase';
 import { proError, useProWords } from '../../src/words';
 import { colour, font, radius } from '../../src/theme';
@@ -72,7 +72,7 @@ export default function Apply() {
       </View>
       <Title>{w.applyTitle}</Title>
       <Body muted>{w.applyIntro}</Body>
-      <Button kind="outline" label={w.agreement} onPress={() => Linking.openURL(AGREEMENT_URL)} />
+      <Button kind="outline" label={w.agreement} onPress={() => openLegal('technician-agreement')} />
 
       <Field label={w.fullName} value={fullName} onChangeText={setFullName} autoCapitalize="words" autoComplete="name" textContentType="name" error={errors.full_name} hint={w.noCnic} />
 
