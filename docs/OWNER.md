@@ -129,28 +129,27 @@ To switch it on:
    **Customer mode** → **Switch**, and the customer home opens. **☰** →
    **Technician mode** switches back.
 
-**Sign-in codes: 6 boxes, but any real code works (new).** Your Supabase
-is still sending **8-digit** email codes, and the last app refused them
-(*"That is 8 numbers, but a Pechkas code is always 6"*). That was wrong of
-the app: a setting you cannot see from the phone should never stop anybody
-signing in. Now:
+**Codes are 6 numbers, always (do this first — until you do, nobody can
+sign in with email).** The app takes exactly **6 numbers**, for email and
+text message alike, and the sixth number signs you in by itself. That is
+your decision and it is final in the app: a longer code is refused with
+*"That is 8 numbers, but a Pechkas code is always 6"*.
 
-- The screen shows **6 boxes**. Paste the code, or let the phone fill it in,
-  and the whole code is used whatever its length (6 to 10 numbers) — the row
-  redraws once to fit it, and you are signed in.
-- Typing it one number at a time, the sixth number sends it. If your code
-  is longer, the screen says so: type the rest and press **Continue**.
-- The phone remembers the length that worked, so next time the row is the
-  right size from the start.
-
-Still set Supabase to 6, because six boxes is what everybody expects:
+How many numbers go in the email is **not** in the app or the database. It
+is one setting inside Supabase, and only you can change it. Your Supabase
+is still set to **8**, which is why your email showed 34441291. Set it to 6:
 
 1. **Supabase → Authentication → Sign In / Providers → Email.** Find
    **Email OTP Length**, set it to **6**, and **Save**.
 2. Same page, **Phone** (only if you have switched it on): if there is an
    **SMS OTP Length**, make sure it says **6**, and **Save**.
-3. **Expo:** a new **preview** build from `main`, install it, and sign in
-   with email. Either length works, before or after step 1.
+3. On your phone, open the app, go back to the code screen and tap
+   **Send a new code**. The new email shows **6 numbers**; type them and
+   you are in. Every code from now on is 6, for everybody.
+
+If an email ever shows anything other than 6 numbers, somebody has
+changed that setting: put it back to 6. The app you have installed already
+works this way, so no new build is needed for this.
 
 **A job is followed live, like a ride on inDrive (new).** Posting a job
 now opens that job's own screen: the Pechkas screw turning inside rings
@@ -1044,9 +1043,8 @@ they joined.
 1. **Supabase → SQL Editor:** run `20261025000000_email_sign_in.sql`. It
    should say **Success**.
 2. **Authentication → Sign In / Providers → Email:** make sure it is **on**.
-   Set **Email OTP Length** to **6** and **Save** — the app starts with
-   six boxes. (It still accepts a longer code, up to 10, so a wrong setting
-   never locks anybody out.)
+   Set **Email OTP Length** to **6** and **Save** — the app shows exactly
+   six boxes, so a longer code cannot be typed in.
 3. **Authentication → Emails → Templates** (or **Email Templates**).
    **Supabase only lets you change a template once your own email sender is
    connected** — it says "Set up custom SMTP to edit templates". So do

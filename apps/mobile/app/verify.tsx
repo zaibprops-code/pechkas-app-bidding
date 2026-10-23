@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AppState, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams } from 'expo-router';
-import { authErrorDetails, CODE_DIGITS, CODE_MAX, codeLengthOk, explainAuthError, readCode, showMobile } from '@pechkas/shared';
+import { authErrorDetails, CODE_DIGITS, explainAuthError, readCode, showMobile } from '@pechkas/shared';
 import { Press } from '../src/components/Press';
 import { Button, Notice, Screen } from '../src/components/ui';
 import { colour, font } from '../src/theme';
@@ -23,9 +22,6 @@ function waitFrom(message: string): number | null {
   const m = /after (\d+) seconds?/i.exec(message);
   return m ? Number(m[1]) : null;
 }
-
-/** Where the phone remembers how long the last code that worked was, per channel. */
-const LENGTH_KEY = { email: 'pechkas.codeLength.email', sms: 'pechkas.codeLength.sms' } as const;
 
 export default function Verify() {
   const { phone, email, next } = useLocalSearchParams<{ phone?: string; email?: string; next?: string }>();
@@ -69,48 +65,19 @@ export default function Verify() {
   const checking = useRef(false);
 
   const tooLong = (extra: number) =>
-    `That is ${extra} numbers, which is longer than any sign-in code. Copy only the code from the ${email ? 'email' : 'message'}.`;
+    `That is ${extra} numbers, but a Pechkas code is always ${CODE_DIGITS}. Copy only the code. ` +
+    `If the ${email ? 'email' : 'message'} really shows ${extra}, please tell Pechkas.`;
   // How many digits the last paste really had, while it was too many.
   const [extra, setExtra] = useState<number | null>(null);
 
   /**
-   * How many boxes the row has. Six, unless this phone has signed in before
-   * with a longer code, or a whole longer code has just arrived at once. The
-   * length is Supabase's setting, which the phone cannot read; guessing it
-   * wrong once locked the owner out with a real 8-digit code in his hand.
-   */
-  const channel = email ? 'email' : 'sms';
-  const [base, setBase] = useState(CODE_DIGITS);
-  const touched = useRef(false);
-  useEffect(() => {
-    AsyncStorage.getItem(LENGTH_KEY[channel])
-      .then((v) => {
-        const n = Number(v);
-        // Never redraw the row under somebody who has already started typing.
-        if (!touched.current && codeLengthOk(n)) setBase(n);
-      })
-      .catch(() => {});
-  }, [channel]);
-  // Typing past a full row (a longer code than expected) shows every digit
-  // typed; it never hides one.
-  const length = Math.max(base, code.length);
-
-  /**
-   * Every change to the boxes comes through here.
-   *
-   * - A whole code arriving at once — pasted, or filled in by the phone from
-   *   the message — is sent as it is, 6 to 10 digits, and the row takes its
-   *   length.
-   * - Typed a digit at a time, the code is sent when the row is full.
-   * - Typed past a full row, the row shows the extra digits and Continue
-   *   sends them; it does not guess when a longer code is finished.
-   * - More than ten digits is no code Supabase sends, and is never sent.
+   * Every change to the boxes comes through here. The sixth digit sends the
+   * code by itself, for email and text message alike. More than six digits is
+   * never sent: it is not a Pechkas code, and cutting it short would only be
+   * called wrong by Supabase.
    */
   function typed(text: string) {
-    touched.current = true;
     const read = readCode(text);
-    // After a paste that was too long, whatever comes next is a fresh start.
-    const before = extra ? 0 : code.length;
     setCode(read.digits);
     setExtra(read.extra);
     if (read.extra) {
@@ -119,18 +86,12 @@ export default function Verify() {
     }
     setError(null);
     const digits = read.digits;
-    if (digits.length - before >= CODE_DIGITS && codeLengthOk(digits.length)) {
-      setBase(digits.length);
-      check(digits, 'whole');
-    } else if (digits.length === base && before < base) check(digits, 'typed');
+    // Sent when the sixth digit arrives — or when six replace a code that was too long.
+    if (digits.length === CODE_DIGITS && (code.length < CODE_DIGITS || extra)) check(digits);
   }
 
-  /**
-   * `token` comes from the boxes; without it, this is the Continue button.
-   * `how` says whether the code was typed a digit at a time, so a refusal can
-   * say that a longer code needs its remaining digits typed.
-   */
-  async function check(token?: string, how?: 'whole' | 'typed') {
+  /** `token` comes from typing; without it, this is the Continue button. */
+  async function check(token?: string) {
     if (checking.current) return;
     if (token === undefined && extra) {
       // The boxes hold the first six of a longer code: not a code to send.
@@ -141,8 +102,8 @@ export default function Verify() {
     setError(null);
     setNotice(null);
     setSent(null);
-    if (!codeLengthOk(token.length)) {
-      setError(`Type all ${length} numbers of the code.`);
+    if (token.length !== CODE_DIGITS) {
+      setError(`The code is ${CODE_DIGITS} numbers.`);
       return;
     }
     if (!supabase || (!phone && !email)) return;
@@ -156,20 +117,13 @@ export default function Verify() {
       setBusy(false);
       // Supabase says "Token has expired or is invalid" for both, so this one
       // cannot tell which it was and does not pretend to.
-      if (/expired or is invalid/i.test(e.message))
-        setError(
-          how === 'typed' && token.length < CODE_MAX
-            ? `That code is not right, or it has expired. If the ${email ? 'email' : 'message'} shows more than ${token.length} numbers, type the rest. Otherwise check it, or ask for a new one.`
-            : 'That code is not right, or it has expired. Check it, or ask for a new one.',
-        );
+      if (/expired or is invalid/i.test(e.message)) setError('That code is not right, or it has expired. Check it, or ask for a new one.');
       else if (/expired/i.test(e.message)) setError('That code has expired. Ask for a new one.');
       else if (/invalid|token|otp/i.test(e.message)) setError('That code is not right. Check it and try again.');
       // Anything else is not the code's fault: say what Supabase said.
       else setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);
       return;
     }
-    // Next time this phone draws the row this long from the start.
-    AsyncStorage.setItem(LENGTH_KEY[channel], String(token.length)).catch(() => {});
     const { data } = await supabase.rpc('my_account');
     await refresh();
     setBusy(false);
@@ -210,7 +164,7 @@ export default function Verify() {
       }}
       footer={<Button label="Continue" onPress={() => check()} busy={busy} />}
     >
-      <CodeBoxes length={length} value={code} onChange={typed} email={Boolean(email)} error={error} onSubmit={() => check()} />
+      <CodeBoxes value={code} onChange={typed} email={Boolean(email)} error={error} onSubmit={() => check()} />
       {error ? <Text style={s.error}>{error}</Text> : null}
       {email ? <Text style={s.hint}>Or, on this phone, tap the link in the email. Not in your inbox? Look in spam.</Text> : null}
       <Notice text={notice} />
@@ -229,17 +183,16 @@ export default function Verify() {
 }
 
 /**
- * One box per digit, like every banking app: `length` of them, six unless a
- * longer code has been seen. The row keeps its shape while the code fits it.
- * A single real text box sits on top, invisible, so the keyboard, paste and
- * the phone's own "fill in the code" all work as normal.
+ * One box per digit, like every banking app, and always CODE_DIGITS of them:
+ * the row is drawn once and never changes shape while somebody types. A
+ * single real text box sits on top, invisible, so the keyboard, paste and the
+ * phone's own "fill in the code" all work as normal.
  *
- * The hidden box takes a few more digits than any code has, on purpose. If
- * it stopped at ten, a longer paste would be cut short without a word; this
- * way `readCode()` sees how many arrived and the screen says so.
+ * The hidden box takes a few more digits than the row shows, on purpose. If
+ * it stopped at six, a longer code pasted in would be cut short without a
+ * word; this way `readCode()` sees how many arrived and the screen says so.
  */
-function CodeBoxes({ length, value, onChange, email, error, onSubmit }: {
-  length: number;
+function CodeBoxes({ value, onChange, email, error, onSubmit }: {
   value: string;
   onChange: (text: string) => void;
   email: boolean;
@@ -249,17 +202,17 @@ function CodeBoxes({ length, value, onChange, email, error, onSubmit }: {
   const input = useRef<TextInput>(null);
   const [focused, setFocused] = useState(true);
   const { width } = useWindowDimensions();
-  const digits = value.slice(0, length);
+  const digits = value.slice(0, CODE_DIGITS);
   // Each box gets a real size in points. They used to share the row with
   // `flex: 1`, which worked in a browser and on Android collapsed every box to
   // its own border. The screen has 20 points of margin each side and a box is
-  // never wider than 56; longer rows close up, so ten still fit at 320 points.
-  const gap = length <= 6 ? 8 : length <= 8 ? 6 : 4;
-  const size = Math.max(22, Math.min(56, Math.floor((width - 40 - gap * (length - 1)) / length)));
+  // never wider than 56, so six fit from a 320-point phone upwards.
+  const gap = 8;
+  const size = Math.max(32, Math.min(56, Math.floor((width - 40 - gap * (CODE_DIGITS - 1)) / CODE_DIGITS)));
   return (
     <Press onPress={() => input.current?.focus()} sink={1} accessible={false} style={[s.boxes, { gap }]}>
-      {Array.from({ length }, (_, i) => {
-        const here = focused && i === Math.min(digits.length, length - 1);
+      {Array.from({ length: CODE_DIGITS }, (_, i) => {
+        const here = focused && i === Math.min(digits.length, CODE_DIGITS - 1);
         return (
           <View key={i} style={[s.box, { width: size, height: Math.round(size * 1.12), borderRadius: Math.round(size * 0.25) }, digits[i] ? s.boxFull : null, here ? s.boxHere : null, error ? s.boxError : null]}>
             <Text style={[s.digit, { fontSize: Math.round(size * 0.5) }]}>{digits[i] ?? ''}</Text>
@@ -273,11 +226,11 @@ function CodeBoxes({ length, value, onChange, email, error, onSubmit }: {
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         onSubmitEditing={onSubmit}
-        accessibilityLabel={`Code, ${length} numbers`}
+        accessibilityLabel={`Code, ${CODE_DIGITS} numbers`}
         keyboardType="number-pad"
         textContentType="oneTimeCode"
         autoComplete={email ? 'one-time-code' : 'sms-otp'}
-        maxLength={CODE_MAX + 6}
+        maxLength={CODE_DIGITS + 6}
         autoFocus
         caretHidden
         // Android draws a line under every text box unless told not to: it

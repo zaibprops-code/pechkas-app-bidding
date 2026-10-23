@@ -132,19 +132,16 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   released through `pass_asked()` — and never touches his approval. The
   office's flags count a customer by the jobs they posted, not the mode
   they are in. `modes.test.mjs` breaks if any of that goes.
-- **A code should be `CODE_DIGITS` (6) digits, but the app signs in with
-  any length Supabase can send, 6 to `CODE_MAX` (10).** Supabase decides
-  the length ("Email OTP Length", "SMS OTP Length") and the phone cannot
-  read it; when the owner's was left at 8, a screen that took only 6 locked
-  him out with the real code in his hand. So the row is 6 boxes, or the
-  length this phone last signed in with (`pechkas.codeLength.email` /
-  `.sms`); a whole code arriving at once (paste, the phone's autofill) is
-  sent as it is and the row takes its length; typed a digit at a time it is
-  sent when the row is full, and typing past a full row shows the extra
-  digits for Continue to send. **The row never grows a box per digit while
-  a code fits it**, and the screen never sends part of a code: past ten,
-  `readCode()` reports the count instead of cutting it short. Supabase
-  should still say 6 (docs/OWNER.md).
+- **A code is `CODE_DIGITS` (6) digits, email and SMS alike**, and the
+  code screen always draws exactly that many boxes; the sixth digit sends
+  it. Supabase decides the real length ("Email OTP Length", "SMS OTP
+  Length") and must say 6 — set to 8, the old screen grew a box per digit.
+  `readCode()` reports a longer paste instead of cutting it short, and the
+  screen never sends the first six of a longer code. Do not go back to
+  guessing the length from what arrives. **The owner's decision (October
+  2026): codes are 6 and only 6.** A version accepting 6 to 10 was built
+  and he reverted it; the length is fixed in Supabase, not in the app, and
+  no migration can set it.
 - **Continue with Google is Supabase's Google provider through the same
   door as the email link**: `signInWithGoogle()` opens Google in
   `expo-web-browser`'s secure sheet with `redirectTo` `pechkas://auth-callback`
