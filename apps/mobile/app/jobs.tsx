@@ -3,7 +3,7 @@ import { Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from 'rea
 import { Redirect, router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { MenuButton } from '../src/components/Menu';
-import { Button, Hero, Loading, Notice, NotifyCard } from '../src/components/ui';
+import { Button, Hero, Loading, Notice, NotifyCard, SystemBars, useScrollEnd } from '../src/components/ui';
 import { Icon } from '../src/components/Icon';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
@@ -21,6 +21,7 @@ const EVERY = 10000;
  * live; the whole card is here too, so nothing needs a second tap.
  */
 export default function Jobs() {
+  const end = useScrollEnd(32);
   const { ready, session, account } = useAccount();
   const lists = useLists();
   const { notify, ask: askNotify } = useNotify(true);
@@ -66,7 +67,7 @@ export default function Jobs() {
     <View style={{ flex: 1, backgroundColor: colour.canvas }}>
       <StatusBar style="dark" />
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 32 }}
+        contentContainerStyle={{ paddingBottom: end }}
         refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
       >
         <Hero title="My jobs" sub={summary} left={<MenuButton />} />
@@ -110,6 +111,7 @@ export default function Jobs() {
         {jobs?.length ? <Button kind="outline" label="Post another job" onPress={() => router.push('/post')} /> : null}
         </View>
       </ScrollView>
+      <SystemBars bg={colour.canvas} />
     </View>
   );
 }

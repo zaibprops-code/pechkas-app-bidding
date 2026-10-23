@@ -4,7 +4,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { rupees } from '@pechkas/shared';
-import { Hero, Loading, Notice } from '../../src/components/ui';
+import { Hero, Loading, Notice, SystemBars } from '../../src/components/ui';
 import { MenuButton } from '../../src/components/Menu';
 import { Stars } from '../../src/components/Stars';
 import { supabase } from '../../src/supabase';
@@ -62,7 +62,7 @@ export default function MoneyScreen() {
     <View style={{ flex: 1, backgroundColor: colour.canvas }}>
       <StatusBar style="dark" />
       <ScrollView
-        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 16) + 8 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
       >
         <Hero title={w.moneyTitle} left={<MenuButton />} />
@@ -150,6 +150,7 @@ export default function MoneyScreen() {
 
         </View>
       </ScrollView>
+      <SystemBars bg={colour.canvas} />
     </View>
   );
 }

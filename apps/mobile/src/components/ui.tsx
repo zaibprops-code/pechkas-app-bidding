@@ -99,18 +99,47 @@ export function Hero({ title, sub, back, right, left, children, dark = false }: 
   );
 }
 
+/**
+ * Android draws every app under its status bar (the clock) and its button
+ * bar, and both are see-through. Without these two strips, text scrolled
+ * under the clock and sat behind the Back / Home buttons — at the foot of a
+ * long page it could not be scrolled clear of them at all. Each strip is the
+ * screen's own colour, so the bars look solid and nothing reads through.
+ * Touches pass straight through them.
+ *
+ * Every screen that scrolls draws these, and ends its scrolling with
+ * `scrollEnd()` of room, so the last line stops above the button bar.
+ */
+export function SystemBars({ bg, top = true, bottom = true }: { bg: string; top?: boolean; bottom?: boolean }) {
+  const insets = useSafeAreaInsets();
+  return (
+    <>
+      {top && insets.top > 0 ? <View pointerEvents="none" style={[s.bar, { top: 0, height: insets.top, backgroundColor: bg }]} /> : null}
+      {bottom && insets.bottom > 0 ? <View pointerEvents="none" style={[s.bar, { bottom: 0, height: insets.bottom, backgroundColor: bg }]} /> : null}
+    </>
+  );
+}
+
+/** Room at the foot of a scrolling screen: the button bar, then a little air. */
+export function useScrollEnd(air = 24): number {
+  return useSafeAreaInsets().bottom + air;
+}
+
 export function Screen({ children, dark = false, footer, hero }: { children: ReactNode; footer?: ReactNode; hero?: HeroProps } & Tone) {
   const insets = useSafeAreaInsets();
   const arrive = useArrive();
   const rise = arrive.interpolate({ inputRange: [0, 1], outputRange: [18, 0] });
+  const bg = dark ? colour.ink : colour.canvas;
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: dark ? colour.ink : colour.canvas }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <StatusBar style={dark ? 'light' : 'dark'} />
-      <ScrollView contentContainerStyle={{ paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
+      {/* With a footer, the footer keeps clear of the button bar; without one, the scrolling has to. */}
+      <ScrollView contentContainerStyle={{ paddingBottom: footer ? 24 : insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
         {hero ? <Hero dark={dark} {...hero} /> : null}
         <Animated.View style={{ paddingTop: hero ? 8 : insets.top + 16, paddingHorizontal: 20, gap: 16, transform: [{ translateY: rise }] }}>{children}</Animated.View>
       </ScrollView>
       {footer ? <View style={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: Math.max(insets.bottom, 16) }}>{footer}</View> : null}
+      <SystemBars bg={bg} />
     </KeyboardAvoidingView>
   );
 }
@@ -314,6 +343,7 @@ export function Loading({ dark = false }: Tone) {
 }
 
 const s = StyleSheet.create({
+  bar: { position: 'absolute', left: 0, right: 0 },
   hero: { paddingHorizontal: 20, paddingBottom: 14, gap: 4 },
   heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
   heroBack: { width: 48, height: 48, borderRadius: 24, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.14)' },

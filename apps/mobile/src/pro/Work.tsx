@@ -8,7 +8,7 @@ import { MenuButton } from '../components/Menu';
 import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
 import { Icon } from '../components/Icon';
-import { Button, Notice, NotifyCard } from '../components/ui';
+import { Button, Notice, NotifyCard, SystemBars } from '../components/ui';
 import { RemoteMedia, type StoredMedia } from '../post/RemoteMedia';
 import { Chosen, Finished, type ActiveJob, type FinishedJob } from './OnTheJob';
 import { useAccount } from '../account';
@@ -222,6 +222,8 @@ export function Work({ firstName }: { firstName: string }) {
 
         <Finished items={finished} w={w} tradeName={tradeName} onChanged={load} />
       </ScrollView>
+      {/* The top bar already covers the clock; this keeps the list clear of the button bar. */}
+      <SystemBars bg={colour.canvas} top={false} />
 
       {opened && feed ? (
         <Sheet onClose={() => setOpen(null)} closeLabel={w.closeJob}>

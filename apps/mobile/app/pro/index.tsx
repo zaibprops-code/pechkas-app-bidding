@@ -7,7 +7,7 @@ import { MenuButton } from '../../src/components/Menu';
 import { Mark } from '../../src/components/Mark';
 import { Icon } from '../../src/components/Icon';
 import { Press } from '../../src/components/Press';
-import { Button, Loading } from '../../src/components/ui';
+import { Button, Loading, SystemBars } from '../../src/components/ui';
 import { useAccount } from '../../src/account';
 import { supabase } from '../../src/supabase';
 import { useProWords } from '../../src/words';
@@ -60,7 +60,7 @@ export default function ProHome() {
     <View style={{ flex: 1, backgroundColor: colour.canvas }}>
       <StatusBar style="dark" />
       <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + 14, paddingHorizontal: 18, paddingBottom: 32, gap: 16 }}
+        contentContainerStyle={{ paddingTop: insets.top + 14, paddingHorizontal: 18, paddingBottom: insets.bottom + 32, gap: 16 }}
         refreshControl={<RefreshControl refreshing={false} onRefresh={refresh} tintColor={colour.green} />}
       >
         <View style={s.top}>
@@ -95,6 +95,7 @@ export default function ProHome() {
         </View>
 
       </ScrollView>
+      <SystemBars bg={colour.canvas} />
     </View>
   );
 }

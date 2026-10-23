@@ -10,7 +10,7 @@ import { MenuButton } from '../src/components/Menu';
 import { Press } from '../src/components/Press';
 import { ScrewSpinner } from '../src/components/ScrewSpinner';
 import { rupees } from '@pechkas/shared';
-import { useArrive } from '../src/components/ui';
+import { SystemBars, useArrive } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { supabase } from '../src/supabase';
 import { colour, font, radius, TAP } from '../src/theme';
@@ -106,6 +106,12 @@ export default function Home() {
   // The buttons over the map scroll away with it, rather than sitting on the cards.
   const scrollY = useRef(new Animated.Value(0)).current;
   const lift = scrollY.interpolate({ inputRange: [0, 1000], outputRange: [0, -1000], extrapolateLeft: 'clamp' });
+  // The map is meant to show under the clock, the sheet is not: as the
+  // sheet's top edge reaches the clock, a strip of its own colour follows the
+  // edge up and stays there, so its words never scroll under the clock.
+  // Moved by transform only, inside a box the height of the status bar.
+  const sheetTop = mapHeight - 28;
+  const capY = scrollY.interpolate({ inputRange: [sheetTop - insets.top, sheetTop], outputRange: [insets.top, 0], extrapolate: 'clamp' });
   const arrive = useArrive();
   const rise = arrive.interpolate({ inputRange: [0, 1], outputRange: [24, 0] });
 
@@ -214,6 +220,10 @@ export default function Home() {
             {body}
           </View>
         </Animated.ScrollView>
+        <View pointerEvents="none" style={[s.cap, { height: insets.top }]}>
+          <Animated.View style={{ height: insets.top, backgroundColor: colour.canvas, transform: [{ translateY: capY }] }} />
+        </View>
+        <SystemBars bg={colour.canvas} top={false} />
         {/* The pin stays in the middle of what can be seen of the map, with the one thing to do above it. */}
         <Animated.View
           pointerEvents="box-none"
@@ -259,6 +269,7 @@ export default function Home() {
 
         {body}
       </ScrollView>
+      <SystemBars bg={colour.canvas} />
     </View>
   );
 }
@@ -383,6 +394,7 @@ const s = StyleSheet.create({
   city: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: TAP, paddingHorizontal: 14, borderRadius: radius.pill, backgroundColor: colour.white, boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.10)' },
   cityText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   map: { position: 'absolute', top: 0, left: 0, right: 0 },
+  cap: { position: 'absolute', top: 0, left: 0, right: 0, overflow: 'hidden' },
   floating: { position: 'absolute', left: 0, right: 0 },
   sheetBase: { backgroundColor: colour.canvas, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingTop: 8, minHeight: 600 },
   handle: { alignSelf: 'center', width: 40, height: 5, borderRadius: 3, backgroundColor: 'rgba(20, 23, 26, 0.18)' },

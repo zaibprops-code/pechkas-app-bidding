@@ -647,3 +647,14 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   both. The `/soon` screen was deleted before the first store build; a
   feature that is not built has no button.
 - Every tap target is at least 44 × 44.
+- **Nothing is read through Android's bars.** The app is drawn edge to
+  edge, under a see-through status bar and button bar. Every screen that
+  scrolls draws `SystemBars` (`ui.tsx`, a strip of the screen's own colour
+  over each bar, touches pass through) and ends its scrolling with
+  `insets.bottom` of room (`useScrollEnd()`); `Screen` does both itself.
+  Without them the privacy policy's last line sat behind the Back and Home
+  buttons and could never be scrolled clear, and every long page ran under
+  the clock. A fixed top bar (chat, the technician's bar) covers the clock
+  on its own; home's map may show under the clock but its sheet may not, so
+  a strip follows the sheet's edge up (transform only). Check any new
+  screen with Android's bars in place, at 320 wide too.

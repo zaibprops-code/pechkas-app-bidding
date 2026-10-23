@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../../src/components/ui';
+import { Button, SystemBars } from '../../src/components/ui';
 import { Icon } from '../../src/components/Icon';
 import { useAccount } from '../../src/account';
 import { EMERGENCY_NUMBERS } from '../../src/emergency';
@@ -87,7 +87,7 @@ export default function Emergency() {
   return (
     <View style={{ flex: 1, backgroundColor: colour.canvas }}>
       <StatusBar style="dark" />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: 20, paddingBottom: Math.max(insets.bottom, 20) + 8, gap: 14 }}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: 20, paddingBottom: insets.bottom + 28, gap: 14 }}>
         <View style={s.head}>
           <Icon name="alert" size={30} color={colour.white} strokeWidth={2.2} />
           <Text style={s.title} accessibilityRole="header">
@@ -108,6 +108,7 @@ export default function Emergency() {
         {state === 'sent' && !mistake ? <Button kind="outline" label={w.emMistake} onPress={takeBack} /> : null}
         <Button kind="outline" label={w.back} onPress={() => (router.canGoBack() ? router.back() : router.replace(pro ? '/pro' : '/jobs'))} />
       </ScrollView>
+      <SystemBars bg={colour.canvas} />
     </View>
   );
 }

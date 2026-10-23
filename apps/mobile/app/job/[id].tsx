@@ -3,7 +3,7 @@ import { AccessibilityInfo, Animated, Easing, Linking, RefreshControl, ScrollVie
 import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ScrewSpinner } from '../../src/components/ScrewSpinner';
-import { Button, Hero, Loading, Notice, NotifyCard } from '../../src/components/ui';
+import { Button, Hero, Loading, Notice, NotifyCard, SystemBars, useScrollEnd } from '../../src/components/ui';
 import { useAccount } from '../../src/account';
 import { useLists } from '../../src/lists';
 import { useNotify } from '../../src/notifications';
@@ -32,6 +32,7 @@ const OPEN_EVERY = 5000;
 const LATER_EVERY = 10000;
 
 export default function LiveJob() {
+  const end = useScrollEnd(32);
   const { id, asked } = useLocalSearchParams<{ id: string; asked?: string }>();
   const { ready, session, account } = useAccount();
   const lists = useLists();
@@ -84,7 +85,7 @@ export default function LiveJob() {
     <View style={{ flex: 1, backgroundColor: colour.canvas }}>
       <StatusBar style="dark" />
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 32 }}
+        contentContainerStyle={{ paddingBottom: end }}
         refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
       >
         <Hero title={head.title} sub={head.sub} back={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
@@ -126,6 +127,7 @@ export default function LiveJob() {
           <JobCard job={job} trade={trade} tick={tick} onChanged={load} />
         </View>
       </ScrollView>
+      <SystemBars bg={colour.canvas} />
     </View>
   );
 }
