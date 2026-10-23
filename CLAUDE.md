@@ -556,9 +556,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   components still accept it). On a light screen yellow is a background,
   never text: amounts a technician keeps or owes are green or ink.
 - **Laid out the way inDrive is — the owner's reference.** No tab bar: the
-  ☰ `MenuButton` (`src/components/Menu.tsx`) opens a side menu with the
-  profile on top and line-icon rows; every item goes to a real screen
-  (`/safety` and `/help` exist for that). Customer screens are a light grey
+  ☰ `MenuButton` (`src/components/Menu.tsx`) opens a side menu laid out as
+  inDrive's: the person on top (name, number, which side they are on; tap
+  for Settings), full-width line-icon rows with the current one shaded —
+  Home or Jobs, My jobs or My account, Notifications, Safety, Settings,
+  Help, Support — and one big yellow **Technician mode / Customer mode**
+  button at the foot (`ModeSwitch pill`). Every item goes to a real screen:
+  `/notifications` says whether this phone is told and lists only what
+  `push_words` really sends to that side (change the two together), and
+  Support opens the office on WhatsApp. Customer screens are a light grey
   `colour.canvas` with white rounded cards, bold black headings, yellow as
   the one highlight. **Home is inDrive's home** (the owner's screenshot):
   over the map, the ☰ button, a yellow **"We could not find you — Tap to

@@ -22,7 +22,7 @@ export function Sheet({ children, onClose, closeLabel = 'Close', title }: { chil
       });
   }, [y]);
   return (
-    <Modal transparent visible onRequestClose={onClose} statusBarTranslucent animationType="none">
+    <Modal transparent visible onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent animationType="none">
       <View style={s.root}>
         <Pressable style={s.backdrop} onPress={onClose} accessibilityRole="button" accessibilityLabel={closeLabel} />
         <Animated.View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 12), transform: [{ translateY: y }] }]}>

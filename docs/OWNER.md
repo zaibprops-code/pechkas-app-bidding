@@ -7,6 +7,15 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The ☰ menu looks like inDrive's (new — no database step).** Your name,
+number and side (Customer or Technician) at the top — tap it for Settings —
+then bigger rows: Home, My jobs, **Notifications** (new: says whether
+this phone will be told, with a button to turn it on, and exactly what
+Pechkas tells you about), Safety, Settings, Help and **Support** (opens the
+office on WhatsApp). At the bottom, one big yellow **Technician mode**
+button (or **Customer mode** on the technician side), like inDrive's
+"Driver mode". The menu now also dims the phone's button bar behind it.
+
 **Post a job is tidier (new — no database step).** One page in white
 cards: **The job** is two drop-downs (kind of work, then which job and its
 price), **What is wrong?** is three tiles in a row (Voice, Video, Photo)

@@ -20,7 +20,7 @@ import { colour, font, radius } from '../theme';
  *
  * The colours never ease: the button is green with light words and stays so.
  */
-export function ModeSwitch({ onSwitched }: { onSwitched?: () => void }) {
+export function ModeSwitch({ onSwitched, pill = false }: { onSwitched?: () => void; pill?: boolean }) {
   const { account } = useAccount();
   const m = useSwitchMode();
   const [asking, setAsking] = useState(false);
@@ -40,6 +40,25 @@ export function ModeSwitch({ onSwitched }: { onSwitched?: () => void }) {
         {m.why ? <Text style={s.why}>{m.why}</Text> : null}
         <Button kind="green" label="Switch" busy={m.busy} onPress={() => m.go(onSwitched)} />
         <Button kind="outline" label="Stay a technician" onPress={() => { m.clear(); setAsking(false); }} />
+      </View>
+    );
+  }
+
+  // The foot of the menu: one big yellow button, as inDrive's "Driver mode".
+  if (pill) {
+    return (
+      <View style={{ gap: 8 }}>
+        <Press
+          onPress={() => (m.other === 'customer' ? setAsking(true) : m.go(onSwitched))}
+          accessibilityRole="button"
+          accessibilityLabel={`${m.label}. ${sub}`}
+          accessibilityState={{ busy: m.busy }}
+          sink={0.97}
+          style={s.pill}
+        >
+          {m.busy ? <ScrewSpinner size={24} /> : <Text style={s.pillText}>{m.label}</Text>}
+        </Press>
+        {m.why ? <Text style={s.why}>{m.why}</Text> : null}
       </View>
     );
   }
@@ -69,6 +88,8 @@ export function ModeSwitch({ onSwitched }: { onSwitched?: () => void }) {
 }
 
 const s = StyleSheet.create({
+  pill: { minHeight: 58, borderRadius: 18, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
+  pillText: { fontFamily: font.displayBold, fontSize: 19, color: colour.ink },
   button: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 10, paddingHorizontal: 12, borderRadius: radius.big, backgroundColor: colour.green },
   icon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
   label: { fontFamily: font.bodySemi, fontSize: 17, color: colour.paper },
