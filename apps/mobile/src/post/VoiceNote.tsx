@@ -15,10 +15,13 @@ import { colour, font, radius } from '../theme';
 import { LIMITS, type Media } from './media';
 
 /**
- * Say what is wrong, in Urdu or anything else. Tap to start, tap to stop, it
- * stops by itself at a minute. Play it back before posting, or throw it away.
+ * Say what is wrong, in Urdu or anything else: one tile in the row of three
+ * on Post a job. Tap to start, tap to stop, it stops by itself at a minute.
+ * Once recorded the tile goes, and `VoicePlayback` shows the note under the
+ * row to play back or throw away — so the row never holds a tile that does
+ * nothing.
  */
-export function VoiceNote({ value, onChange, onProblem }: { value: Media | null; onChange: (m: Media | null) => void; onProblem: (text: string) => void }) {
+export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; onProblem: (text: string) => void }) {
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const state = useAudioRecorderState(recorder, 250);
   const [busy, setBusy] = useState(false);
@@ -51,44 +54,44 @@ export function VoiceNote({ value, onChange, onProblem }: { value: Media | null;
     try {
       await recorder.stop();
       await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
-      if (recorder.uri && seconds >= 1) onChange({ kind: 'voice', uri: recorder.uri, seconds });
+      if (recorder.uri && seconds >= 1) onDone({ kind: 'voice', uri: recorder.uri, seconds });
       else onProblem('That was too short to hear. Hold on a moment longer.');
     } finally {
       stopping.current = false;
     }
   }
 
-  // A minute is plenty to describe a fault; stop there by itself.
   useEffect(() => {
     if (state.isRecording && seconds >= LIMITS.voiceSeconds) stop();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seconds, state.isRecording]);
 
-  if (value) return <Recorded media={value} onRemove={() => onChange(null)} />;
-
+  const live = state.isRecording;
   return (
     <Press
-      onPress={state.isRecording ? stop : start}
+      onPress={live ? stop : start}
       accessibilityRole="button"
-      accessibilityLabel={state.isRecording ? 'Stop recording' : 'Record a voice note'}
-      style={[s.box, state.isRecording && s.boxLive]}
+      accessibilityLabel={live ? 'Stop recording' : 'Record a voice note'}
+      sink={0.96}
+      style={[tile.box, live && tile.boxLive]}
     >
-      <View style={[s.dot, { backgroundColor: state.isRecording ? colour.brick : colour.yellow }]}>
-        {state.isRecording ? <View style={s.stopSquare} /> : <Icon name="mic" size={22} color={colour.ink} strokeWidth={2} />}
+      <View style={[tile.dot, live && { backgroundColor: colour.paper }]}>
+        {live ? <View style={s.stopSquare} /> : <Icon name="mic" size={22} color={colour.ink} strokeWidth={2} />}
       </View>
-      <View style={{ flex: 1 }}>
-        <Text style={[s.title, state.isRecording && { color: colour.paper }]}>
-          {state.isRecording ? `Recording… 0:${String(seconds).padStart(2, '0')}` : 'Record a voice note'}
-        </Text>
-        <Text style={[s.sub, state.isRecording && { color: '#f6e3dc' }]}>
-          {state.isRecording ? 'Tap to stop. Up to a minute.' : 'Say what is wrong. Urdu is fine.'}
-        </Text>
-      </View>
+      <Text style={[tile.label, live && { color: colour.paper }]}>{live ? `0:${String(seconds).padStart(2, '0')} Stop` : 'Voice'}</Text>
     </Press>
   );
 }
 
-function Recorded({ media, onRemove }: { media: Media; onRemove: () => void }) {
+/** The look every tile in the row shares: voice, video, photo. */
+export const tile = StyleSheet.create({
+  box: { flex: 1, minHeight: 92, alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 6, borderRadius: radius.big, backgroundColor: colour.canvas },
+  boxLive: { backgroundColor: colour.brick },
+  dot: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: colour.yellow },
+  label: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink, textAlign: 'center' },
+});
+
+/** A recorded note under the row: play it back, or delete it. */
+export function VoicePlayback({ media, onRemove }: { media: Media; onRemove: () => void }) {
   const player = useAudioPlayer({ uri: media.uri });
   const status = useAudioPlayerStatus(player);
   const playing = status.playing;
@@ -120,20 +123,9 @@ function Recorded({ media, onRemove }: { media: Media; onRemove: () => void }) {
 }
 
 const s = StyleSheet.create({
-  box: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 12,
-    minHeight: 68,
-    borderRadius: radius.big,
-    backgroundColor: colour.white,
-    borderWidth: 1,
-    borderColor: 'rgba(20,23,26,0.12)',
-  },
-  boxLive: { backgroundColor: colour.ink, borderColor: colour.ink },
+  box: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, minHeight: 64, borderRadius: radius.big, backgroundColor: colour.canvas },
   dot: { width: 46, height: 46, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  stopSquare: { width: 16, height: 16, borderRadius: 3, backgroundColor: colour.paper },
+  stopSquare: { width: 16, height: 16, borderRadius: 3, backgroundColor: colour.brick },
   play: {
     width: 0,
     height: 0,

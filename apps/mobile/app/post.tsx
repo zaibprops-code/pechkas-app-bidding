@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
@@ -7,18 +7,21 @@ import { ISLAMABAD, MapBox, mapsReady, PinPicker } from '../src/components/Map';
 import { rupees } from '@pechkas/shared';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
-import { Body, Button, Chip, Field, Loading, Notice, Screen, Title } from '../src/components/ui';
+import { Button, Chip, Field, Loading, Notice, Screen } from '../src/components/ui';
+import { Sheet, SheetOption } from '../src/components/Sheet';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
 import { ask, supabase } from '../src/supabase';
 import { clearDraft, EMPTY, loadDraft, saveDraft, type Draft } from '../src/post/draft';
 import { LIMITS, takePhoto, takeVideo, upload, type Media } from '../src/post/media';
-import { VoiceNote } from '../src/post/VoiceNote';
+import { tile, VoicePlayback, VoiceTile } from '../src/post/VoiceNote';
 import { colour, font, radius } from '../src/theme';
 
 /**
  * Posting a job: what is broken, shown rather than typed, where, when, and the
- * price the customer offers. Board 2 of the approved design.
+ * price the customer offers. One page in white cards, the owner's choice
+ * over a page per step: two drop-downs for the job, one row of tiles to show
+ * it, the address, when, and the price, with Post job always at the foot.
  *
  * The form is saved on the phone as it is filled in, files are uploaded only
  * when Post is pressed, and the database checks everything again — this page
@@ -28,6 +31,8 @@ import { colour, font, radius } from '../src/theme';
 // Trades where whether the electricity is on decides if the visit is wasted.
 const NEEDS_POWER = new Set(['ac', 'electrician', 'ups', 'solar', 'appliances', 'cctv', 'wifi', 'computers']);
 const LAST_ADDRESS = 'pechkas.last-address';
+// Every refusal this form can show beside its own box.
+const SHOWN = new Set(['trade', 'job_type', 'media', 'description', 'sector', 'street', 'house', 'landmark', 'gate_note', 'when', 'power', 'parts', 'offer']);
 // The database keeps an "ask again" for an hour (job_preferred()); so does the form.
 const ASK_LASTS = 60 * 60 * 1000;
 const PARTS_OF_DAY = [
@@ -49,6 +54,10 @@ export default function Post() {
   // The map, when this build has one (src/components/Map.tsx says when).
   const withMap = mapsReady();
   const [picking, setPicking] = useState(false);
+  // Which drop-down is open, if any.
+  const [sheet, setSheet] = useState<null | 'trade' | 'type' | 'video' | 'photo'>(null);
+  const [more, setMore] = useState(false);
+  const { width } = useWindowDimensions();
   // Where the home map was when "Set the job's address" was tapped, if the phone had been found.
   const fromHome = Number.isFinite(Number(params.lat)) && Number.isFinite(Number(params.lng)) && params.lat && params.lng
     ? { latitude: Number(params.lat), longitude: Number(params.lng) }
@@ -254,8 +263,10 @@ export default function Post() {
     setBusy(false);
     setProgress(null);
     if (!r.ok) {
-      if (r.field) setErrors({ [r.field]: r.why });
-      setNotice(r.field ? 'Please fix what is marked above.' : r.why);
+      // A refusal about a box on the form is shown beside it; any other is shown here, in full.
+      const shown = r.field && SHOWN.has(r.field);
+      if (shown) setErrors({ [r.field!]: r.why });
+      setNotice(shown ? 'Please fix what is marked above.' : r.why);
       return;
     }
     AsyncStorage.setItem(
@@ -282,13 +293,15 @@ export default function Post() {
   const live = lists?.live_sectors ?? [];
   const notYet = (lists?.sectors ?? []).filter((x) => !live.includes(x));
   const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
+  // The landmark and the gate note are tucked away until wanted — or until they hold something.
+  const extrasOpen = more || Boolean(d.landmark || d.gateNote || errors.landmark || errors.gate_note);
+  const pinned = d.lat !== null && d.lng !== null;
 
   return (
     <Screen
-      hero={{ title: 'Post a job', sub: 'Six short steps. Saved on your phone as you go.', back: true }}
-      footer={<Button label={progress ?? 'Post job'} onPress={post} busy={busy && !progress} disabled={busy} />}
+      hero={{ title: 'Post a job', back: true }}
+      footer={<Button label={progress ?? `Post job · ${rupees(offer)}`} onPress={post} busy={busy && !progress} disabled={busy} />}
     >
-
       {d.askFor ? (
         <View style={s.askFor}>
           <Text style={s.askForTitle}>Asking {d.askFor.name} first</Text>
@@ -296,115 +309,119 @@ export default function Post() {
             {d.askFor.name} sees this {tradeName(d.askFor.trade)} job first, for {d.askFor.minutes} minutes. Then every checked technician can
             send an offer. If he is not working right now, it goes to everyone straight away.
           </Text>
-          <Press onPress={forgetAsk} accessibilityRole="button" style={s.askForLink}>
-            <Text style={s.askForLinkText}>Ask everyone instead</Text>
+          <Press onPress={forgetAsk} accessibilityRole="button" style={s.link}>
+            <Text style={s.linkGreen}>Ask everyone instead</Text>
           </Press>
         </View>
       ) : null}
 
-      <Section n={1} title="What needs fixing?" error={errors.trade || errors.job_type}>
-        <View style={s.wrap}>
-          {(lists?.trades ?? []).map((t) => (
-            <Chip key={t.slug} label={t.name} on={d.trade === t.slug} onPress={() => chooseTrade(t.slug)} />
-          ))}
-        </View>
+      <Card title="The job" error={errors.trade || errors.job_type}>
+        <Select label="Kind of work" value={d.trade ? tradeName(d.trade) : null} placeholder="Choose" onPress={() => setSheet('trade')} />
         {d.trade ? (
-          <View style={s.types}>
-            {types.map((t) => (
-              <TypeRow key={t.id} name={t.name} price={t.list_paisa} on={d.jobType === t.id} onPress={() => update({ jobType: t.id, offer: t.list_paisa ?? null })} />
-            ))}
-            <TypeRow name="Something else, or not sure" price={null} on={d.jobType === null} onPress={() => update({ jobType: null })} />
+          <Select
+            label="Which job"
+            value={chosen?.name ?? 'Something else, or not sure'}
+            right={chosen?.list_paisa ? rupees(chosen.list_paisa) : 'Price after a look'}
+            onPress={() => setSheet('type')}
+          />
+        ) : null}
+      </Card>
+
+      <Card title="What is wrong?" hint="Say it, show it, or type it. Urdu is fine." error={errors.media || errors.description}>
+        {!voice || !video || photos.length < LIMITS.photos ? (
+          <View style={s.tiles}>
+            {voice ? null : <VoiceTile onDone={(m) => setMedia('voice', [m])} onProblem={setNotice} />}
+            {video ? null : <MediaTile icon="video" label="Video" onPress={() => setSheet('video')} />}
+            {photos.length < LIMITS.photos ? <MediaTile icon="camera" label={photos.length ? 'Add photo' : 'Photo'} onPress={() => setSheet('photo')} /> : null}
           </View>
         ) : null}
-      </Section>
-
-      <Section n={2} title="Show us" hint="A voice note or a short video says more than typing." error={errors.media}>
-        <VoiceNote value={voice} onChange={(m) => setMedia('voice', m ? [m] : [])} onProblem={setNotice} />
+        {voice ? <VoicePlayback media={voice} onRemove={() => setMedia('voice', [])} /> : null}
         {video ? (
           <View style={s.fileRow}>
-            <View style={[s.thumb, { backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' }]}>
+            <View style={s.thumb}>
               <Icon name="video" size={22} color={colour.yellow} strokeWidth={2} />
             </View>
             <Text style={s.fileText}>Video{video.seconds ? ` · 0:${String(video.seconds).padStart(2, '0')}` : ''}</Text>
             <Remove label="Delete the video" onPress={() => setMedia('video', [])} />
           </View>
-        ) : (
-          <View style={s.twoUp}>
-            <Small icon="video" label="Record a video" onPress={() => addVideo(true)} />
-            <Small icon="jobs" label="Choose a video" onPress={() => addVideo(false)} />
-          </View>
-        )}
+        ) : null}
         {photos.length ? (
           <View style={s.photos}>
             {photos.map((p, i) => (
               <View key={p.uri} style={s.photoBox}>
                 <Image source={{ uri: p.uri }} style={s.photo} accessibilityLabel={`Photo ${i + 1}`} />
                 <Press onPress={() => setMedia('photo', photos.filter((x) => x !== p))} accessibilityRole="button" accessibilityLabel={`Delete photo ${i + 1}`} style={s.photoX}>
-                  <Text style={s.photoXText}>×</Text>
+                  <View style={s.photoXDot}>
+                    <Icon name="cross" size={14} color={colour.paper} strokeWidth={2.6} />
+                  </View>
                 </Press>
               </View>
             ))}
           </View>
         ) : null}
-        {photos.length < LIMITS.photos ? (
-          <View style={s.twoUp}>
-            <Small icon="cctv" label="Take a photo" onPress={() => addPhoto(true)} />
-            <Small icon="jobs" label="Choose a photo" onPress={() => addPhoto(false)} />
-          </View>
-        ) : null}
-        <Field
-          label="Or write it (optional)"
+        <TextInput
           value={d.description}
           onChangeText={(v) => update({ description: v })}
-          placeholder="Blows air but it is not cold"
+          placeholder="Or type a few words: it blows air but is not cold"
+          placeholderTextColor="#7a838a"
           multiline
           maxLength={500}
-          style={{ minHeight: 80, textAlignVertical: 'top', paddingTop: 12 }}
-          error={errors.description}
+          accessibilityLabel="Or type what is wrong"
+          style={s.words}
         />
-      </Section>
+      </Card>
 
-      <Section n={3} title="Where" hint={live.length ? `Pechkas works in ${live.join(', ')} for now.` : undefined} error={errors.sector}>
+      <Card
+        title="Address"
+        hint={live.length ? `Pechkas works in ${live.join(', ')} for now. Only the technician you choose sees your street and house.` : 'Only the technician you choose sees your street and house.'}
+        error={errors.sector}
+      >
         <View style={s.wrap}>
           {live.map((name) => (
             <Chip key={name} label={name} on={d.sector === name} onPress={() => update({ sector: name })} />
           ))}
         </View>
-        <Field label="Street" value={d.street} onChangeText={(v) => update({ street: v })} placeholder="Street 34" error={errors.street} autoComplete="street-address" />
-        <Field
-          label="House number"
-          value={d.house}
-          onChangeText={(v) => update({ house: v })}
-          placeholder="House 12"
-          error={errors.house}
-          hint="Only the technician you choose will see this."
-        />
-        <Field label="Landmark (optional)" value={d.landmark} onChangeText={(v) => update({ landmark: v })} placeholder="Behind the markaz mosque" maxLength={120} error={errors.landmark} />
+        <View style={s.pair}>
+          <View style={{ flex: 1 }}>
+            <Field label="Street" value={d.street} onChangeText={(v) => update({ street: v })} placeholder="Street 34" error={errors.street} autoComplete="street-address" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Field label="House" value={d.house} onChangeText={(v) => update({ house: v })} placeholder="House 12" error={errors.house} />
+          </View>
+        </View>
         {/* With a map: pin the house by moving the map. Without one: the phone's own position. */}
-        {d.lat !== null && d.lng !== null && withMap ? (
+        {pinned && withMap ? (
           <View style={{ gap: 8 }}>
-            <MapBox center={{ latitude: d.lat, longitude: d.lng }} pin={{ latitude: d.lat, longitude: d.lng }} zoom={0.004} style={s.mapPreview} />
+            <MapBox center={{ latitude: d.lat!, longitude: d.lng! }} pin={{ latitude: d.lat!, longitude: d.lng! }} zoom={0.004} style={s.mapPreview} />
             <View style={s.fileRow}>
               <Icon name="pin" size={20} strokeWidth={2} />
-              <Text style={s.fileText}>Your house is pinned on the map</Text>
+              <Text style={s.fileText}>Pinned on the map</Text>
               <Press onPress={() => setPicking(true)} accessibilityRole="button" style={s.change}>
                 <Text style={s.changeText}>Change</Text>
               </Press>
               <Remove label="Remove the pin" onPress={() => update({ lat: null, lng: null, accuracy: null })} />
             </View>
           </View>
-        ) : d.lat !== null ? (
+        ) : pinned ? (
           <View style={s.fileRow}>
             <Icon name="pin" size={20} strokeWidth={2} />
-            <Text style={s.fileText}>Your location is added{d.accuracy ? ` (within ${Math.round(d.accuracy)} m)` : ''}</Text>
+            <Text style={s.fileText}>Location added{d.accuracy ? ` (within ${Math.round(d.accuracy)} m)` : ''}</Text>
             <Remove label="Remove the location" onPress={() => update({ lat: null, lng: null, accuracy: null })} />
           </View>
         ) : withMap ? (
-          <Button kind="outline" icon="pin" label="Pin my house on the map" onPress={() => setPicking(true)} />
+          <LinkRow icon="pin" label="Pin my house on the map" onPress={() => setPicking(true)} />
         ) : (
-          <Button kind="outline" label={locating ? 'Finding you…' : 'Add my exact location'} onPress={locate} busy={locating} />
+          <LinkRow icon="locate" label={locating ? 'Finding you…' : 'Add my exact location'} onPress={locating ? undefined : locate} />
         )}
         {errors.location ? <Text style={s.error}>{errors.location}</Text> : null}
+        {extrasOpen ? (
+          <>
+            <Field label="Landmark (optional)" value={d.landmark} onChangeText={(v) => update({ landmark: v })} placeholder="Behind the markaz mosque" maxLength={120} error={errors.landmark} />
+            <Field label="Note for the gate (optional)" value={d.gateNote} onChangeText={(v) => update({ gateNote: v })} placeholder="The guard will open. Please ring twice." maxLength={120} error={errors.gate_note} />
+          </>
+        ) : (
+          <LinkRow icon="doc" label="Add a landmark or a note for the gate" onPress={() => setMore(true)} />
+        )}
         {asked ? (
           <View style={s.asked} accessibilityRole="alert">
             <Text style={s.askedTitle}>Thank you. We have counted you in {asked}.</Text>
@@ -424,13 +441,13 @@ export default function Post() {
             {errors.elsewhere ? <Text style={s.error}>{errors.elsewhere}</Text> : null}
           </View>
         ) : (
-          <Press onPress={() => setElsewhere(true)} accessibilityRole="button" style={s.askForLink}>
-            <Text style={s.elsewhereText}>My sector is not listed</Text>
+          <Press onPress={() => setElsewhere(true)} accessibilityRole="button" style={s.link}>
+            <Text style={s.linkInk}>My sector is not listed</Text>
           </Press>
         )}
-      </Section>
+      </Card>
 
-      <Section n={4} title="When" error={errors.when}>
+      <Card title="When" error={errors.when}>
         <View style={s.wrap}>
           <Chip label="Now" on={d.whenKind === 'now'} onPress={() => update({ whenKind: 'now', whenPart: null })} />
           <Chip label="Today" on={d.whenKind === 'today'} onPress={() => update({ whenKind: 'today', whenPart: d.whenPart ?? 'evening' })} />
@@ -443,27 +460,22 @@ export default function Post() {
             ))}
           </View>
         ) : null}
-      </Section>
+      </Card>
 
-      <Section n={5} title="Good to know">
+      <Card title="Good to know" hint="Optional. Tap what is true." error={errors.power || errors.parts}>
         {d.trade && NEEDS_POWER.has(d.trade) ? (
           <View style={s.wrap}>
-            <Chip label="Electricity is on now" on={d.power === 'on'} onPress={() => update({ power: d.power === 'on' ? null : 'on' })} />
-            <Chip label="Load-shedding right now" on={d.power === 'off'} onPress={() => update({ power: d.power === 'off' ? null : 'off' })} />
+            <Chip label="Electricity is on" on={d.power === 'on'} onPress={() => update({ power: d.power === 'on' ? null : 'on' })} />
+            <Chip label="Load-shedding now" on={d.power === 'off'} onPress={() => update({ power: d.power === 'off' ? null : 'off' })} />
           </View>
         ) : null}
         <View style={s.wrap}>
-          <Chip label="The technician brings parts; I pay the shop receipt" on={d.parts === 'pro_buys'} onPress={() => update({ parts: d.parts === 'pro_buys' ? null : 'pro_buys' })} />
-          <Chip label="I already have the part" on={d.parts === 'customer_has'} onPress={() => update({ parts: d.parts === 'customer_has' ? null : 'customer_has' })} />
+          <Chip label="He brings parts, I pay the receipt" on={d.parts === 'pro_buys'} onPress={() => update({ parts: d.parts === 'pro_buys' ? null : 'pro_buys' })} />
+          <Chip label="I have the part" on={d.parts === 'customer_has'} onPress={() => update({ parts: d.parts === 'customer_has' ? null : 'customer_has' })} />
         </View>
-        <Field label="Note for the gate (optional)" value={d.gateNote} onChangeText={(v) => update({ gateNote: v })} placeholder="The guard will open the gate. Please ring twice." maxLength={120} error={errors.gate_note} />
-      </Section>
+      </Card>
 
-      <View style={s.offer}>
-        <View style={s.offerTop}>
-          <Text style={s.offerLabel}>6 · Your offer</Text>
-          {chosen?.list_paisa ? <Text style={s.offerList}>Pechkas website price: {rupees(chosen.list_paisa)}</Text> : null}
-        </View>
+      <Card title="Your price" error={errors.offer}>
         <View style={s.offerRow}>
           <Press
             onPress={() => update({ offer: Math.max(min, offer - 10000) })}
@@ -472,9 +484,9 @@ export default function Post() {
             accessibilityLabel="Lower by Rs 100"
             style={[s.step, offer <= min && { opacity: 0.4 }]}
           >
-            <Text style={[s.stepText, { color: colour.paper }]}>−</Text>
+            <Text style={s.stepText}>−</Text>
           </Press>
-          <Text style={s.price} accessibilityLiveRegion="polite">
+          <Text style={[s.price, width < 360 && { fontSize: 30 }]} numberOfLines={1} accessibilityLiveRegion="polite">
             {rupees(offer)}
           </Text>
           <Press onPress={() => update({ offer: Math.min(50000000, offer + 10000) })} sink={0.9} accessibilityRole="button" accessibilityLabel="Raise by Rs 100" style={[s.step, s.stepPlus]}>
@@ -482,21 +494,88 @@ export default function Post() {
           </Press>
         </View>
         <Text style={s.zone}>{zone}</Text>
-        <Text style={s.min}>Lowest offer: {rupees(min)}, what it costs for somebody to come and look.</Text>
+        <Text style={s.small}>
+          {chosen?.list_paisa ? `Website price ${rupees(chosen.list_paisa)} · ` : ''}Lowest offer {rupees(min)}, the cost of coming to look.
+        </Text>
         {lists?.visit_fee_min_paisa && lists.visit_fee_max_paisa ? (
-          <Text style={s.min}>
-            If the job turns out bigger, the technician must ask you a new price in the app. Say no, and you pay only a visit fee for
-            his petrol: {rupees(lists.visit_fee_min_paisa)} to {rupees(lists.visit_fee_max_paisa)}.
+          <Text style={s.small}>
+            If the job turns out bigger, he must ask you a new price in the app. Say no, and you pay only a visit fee for his petrol:{' '}
+            {rupees(lists.visit_fee_min_paisa)} to {rupees(lists.visit_fee_max_paisa)}.
           </Text>
         ) : null}
-        {errors.offer ? <Text style={[s.error, { color: '#ffd2c6' }]}>{errors.offer}</Text> : null}
-      </View>
+        <Text style={s.small}>You pay after the job, in cash or by JazzCash or Easypaisa. Nothing in advance.</Text>
+      </Card>
 
-      <Body muted>You pay the technician after the job, in cash or by JazzCash or Easypaisa. Nothing in advance.</Body>
       <Notice text={notice} />
+
+      {sheet === 'trade' ? (
+        <Sheet title="Kind of work" onClose={() => setSheet(null)}>
+          {(lists?.trades ?? []).map((t) => (
+            <SheetOption
+              key={t.slug}
+              label={t.name}
+              on={d.trade === t.slug}
+              onPress={() => {
+                chooseTrade(t.slug);
+                // Straight on to which job: the next thing anybody has to answer.
+                setSheet('type');
+              }}
+            />
+          ))}
+        </Sheet>
+      ) : null}
+      {sheet === 'type' && d.trade ? (
+        <Sheet title={tradeName(d.trade)} onClose={() => setSheet(null)}>
+          {types.map((t) => (
+            <SheetOption
+              key={t.id}
+              label={t.name}
+              right={t.list_paisa ? rupees(t.list_paisa) : 'Price after a look'}
+              on={d.jobType === t.id}
+              onPress={() => {
+                update({ jobType: t.id, offer: t.list_paisa ?? null });
+                setSheet(null);
+              }}
+            />
+          ))}
+          <SheetOption
+            label="Something else, or not sure"
+            right="Price after a look"
+            on={d.jobType === null}
+            onPress={() => {
+              update({ jobType: null });
+              setSheet(null);
+            }}
+          />
+        </Sheet>
+      ) : null}
+      {sheet === 'video' || sheet === 'photo' ? (
+        <Sheet title={sheet === 'video' ? 'Add a video' : 'Add a photo'} onClose={() => setSheet(null)}>
+          <SheetOption
+            label={sheet === 'video' ? `Record a video (up to ${LIMITS.videoSeconds} seconds)` : 'Take a photo'}
+            icon={<Icon name="camera" size={22} color={colour.ink} strokeWidth={2} />}
+            onPress={() => {
+              const kind = sheet;
+              setSheet(null);
+              if (kind === 'video') addVideo(true);
+              else addPhoto(true);
+            }}
+          />
+          <SheetOption
+            label="Choose from the gallery"
+            icon={<Icon name="image" size={22} color={colour.ink} strokeWidth={2} />}
+            onPress={() => {
+              const kind = sheet;
+              setSheet(null);
+              if (kind === 'video') addVideo(false);
+              else addPhoto(false);
+            }}
+          />
+        </Sheet>
+      ) : null}
       {picking ? (
         <PinPicker
-          start={d.lat !== null && d.lng !== null ? { latitude: d.lat, longitude: d.lng } : fromHome ?? ISLAMABAD}
+          start={pinned ? { latitude: d.lat!, longitude: d.lng! } : fromHome ?? ISLAMABAD}
           onCancel={() => setPicking(false)}
           onConfirm={(p) => {
             update({ lat: p.latitude, lng: p.longitude, accuracy: null });
@@ -508,34 +587,56 @@ export default function Post() {
   );
 }
 
-function Section({ n, title, hint, error, children }: { n: number; title: string; hint?: string; error?: string; children: ReactNode }) {
+/** One part of the form: a white card with its title, and its own error at the foot. */
+function Card({ title, hint, error, children }: { title: string; hint?: string; error?: string; children: ReactNode }) {
   return (
-    <View style={s.section}>
-      <Text style={s.sectionTitle} accessibilityRole="header">
-        {n} · {title}
-      </Text>
-      {hint ? <Text style={s.hint}>{hint}</Text> : null}
+    <View style={s.card}>
+      <View style={{ gap: 2 }}>
+        <Text style={s.cardTitle} accessibilityRole="header">
+          {title}
+        </Text>
+        {hint ? <Text style={s.hint}>{hint}</Text> : null}
+      </View>
       {children}
       {error ? <Text style={s.error}>{error}</Text> : null}
     </View>
   );
 }
 
-function TypeRow({ name, price, on, onPress }: { name: string; price: number | null; on: boolean; onPress: () => void }) {
+/** A drop-down: what is chosen, and a tap opens the choices in a sheet. */
+function Select({ label, value, placeholder, right, onPress }: { label: string; value: string | null; placeholder?: string; right?: string; onPress: () => void }) {
   return (
-    <Press onPress={onPress} accessibilityRole="radio" accessibilityState={{ selected: on }} style={[s.type, on && s.typeOn]}>
-      <View style={[s.radio, on && s.radioOn]}>{on ? <View style={s.radioDot} /> : null}</View>
-      <Text style={s.typeName}>{name}</Text>
-      <Text style={s.typePrice}>{price ? rupees(price) : 'Price after a look'}</Text>
+    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}: ${value ?? placeholder ?? ''}. Change`} sink={0.98} style={s.select}>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={s.selectLabel}>{label}</Text>
+        <Text style={[s.selectValue, !value && { color: colour.steel }]} numberOfLines={2}>
+          {value ?? placeholder}
+        </Text>
+      </View>
+      {right ? <Text style={s.selectRight}>{right}</Text> : null}
+      <Icon name="chevronDown" size={20} color={colour.ink} strokeWidth={2.2} />
     </Press>
   );
 }
 
-function Small({ icon, label, onPress }: { icon: 'video' | 'jobs' | 'cctv'; label: string; onPress: () => void }) {
+function MediaTile({ icon, label, onPress }: { icon: 'video' | 'camera'; label: string; onPress: () => void }) {
   return (
-    <Press onPress={onPress} accessibilityRole="button" style={s.small}>
-      <Icon name={icon} size={18} strokeWidth={2} />
-      <Text style={s.smallText}>{label}</Text>
+    <Press onPress={onPress} accessibilityRole="button" sink={0.96} style={tile.box}>
+      <View style={tile.dot}>
+        <Icon name={icon} size={22} color={colour.ink} strokeWidth={2} />
+      </View>
+      <Text style={tile.label}>{label}</Text>
+    </Press>
+  );
+}
+
+/** A quiet optional step: an icon and words, the whole row to tap. */
+function LinkRow({ icon, label, onPress }: { icon: 'pin' | 'locate' | 'doc'; label: string; onPress?: () => void }) {
+  return (
+    <Press onPress={onPress} accessibilityRole="button" sink={0.98} style={s.linkRow}>
+      <Icon name={icon} size={20} color={colour.green} strokeWidth={2} />
+      <Text style={s.linkRowText}>{label}</Text>
+      <Icon name="chevronRight" size={18} color={colour.steel} strokeWidth={2.2} />
     </Press>
   );
 }
@@ -549,53 +650,47 @@ function Remove({ label, onPress }: { label: string; onPress: () => void }) {
 }
 
 const s = StyleSheet.create({
-  mapPreview: { height: 150, borderRadius: 18 },
-  change: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 },
-  changeText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green, textDecorationLine: 'underline' },
-  section: { gap: 10, paddingTop: 6 },
-  sectionTitle: { fontFamily: font.displayBold, fontSize: 18, color: colour.ink },
-  hint: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel, marginTop: -4 },
+  card: { gap: 12, padding: 16, borderRadius: 22, backgroundColor: colour.white },
+  cardTitle: { fontFamily: font.displayBold, fontSize: 18, color: colour.ink },
+  hint: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
   error: { fontFamily: font.bodySemi, fontSize: 13, lineHeight: 18, color: colour.brick },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  types: { borderRadius: radius.big, backgroundColor: colour.white, borderWidth: 1, borderColor: colour.rule, overflow: 'hidden' },
-  type: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colour.rule },
-  typeOn: { backgroundColor: colour.greenSoft },
-  radio: { width: 22, height: 22, borderRadius: 999, borderWidth: 2, borderColor: 'rgba(20,23,26,0.35)', alignItems: 'center', justifyContent: 'center' },
-  radioOn: { borderColor: colour.green },
-  radioDot: { width: 10, height: 10, borderRadius: 999, backgroundColor: colour.green },
-  typeName: { flex: 1, fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 19, color: colour.ink },
-  typePrice: { fontFamily: font.bodySemi, fontSize: 13, color: colour.green },
-  twoUp: { flexDirection: 'row', gap: 10 },
-  small: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(20,23,26,0.18)' },
-  smallText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
-  fileRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, borderRadius: radius.big, backgroundColor: colour.white, borderWidth: 1, borderColor: colour.rule },
+  pair: { flexDirection: 'row', gap: 10 },
+  select: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 60, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 16, backgroundColor: colour.canvas },
+  selectLabel: { fontFamily: font.body, fontSize: 12, color: colour.steel },
+  selectValue: { fontFamily: font.bodySemi, fontSize: 16, lineHeight: 21, color: colour.ink },
+  selectRight: { fontFamily: font.bodySemi, fontSize: 13, color: colour.green, maxWidth: 110, textAlign: 'right' },
+  tiles: { flexDirection: 'row', gap: 10 },
+  words: { minHeight: 72, padding: 12, paddingTop: 12, borderRadius: 16, backgroundColor: colour.canvas, fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.ink, textAlignVertical: 'top', outlineWidth: 0 },
+  fileRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, borderRadius: radius.big, backgroundColor: colour.canvas },
   fileText: { flex: 1, fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
-  thumb: { width: 48, height: 48, borderRadius: 12 },
+  thumb: { width: 44, height: 44, borderRadius: 12, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
   photos: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  photoBox: { width: 76, height: 76 },
-  photo: { width: 76, height: 76, borderRadius: 12, backgroundColor: colour.paper2 },
-  photoX: { position: 'absolute', top: -10, right: -10, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  photoXText: { width: 26, height: 26, borderRadius: 999, backgroundColor: colour.ink, color: colour.paper, textAlign: 'center', lineHeight: 25, fontFamily: font.bodySemi, fontSize: 18 },
+  photoBox: { width: 72, height: 72 },
+  photo: { width: 72, height: 72, borderRadius: 12, backgroundColor: colour.paper2 },
+  photoX: { position: 'absolute', top: -12, right: -12, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  photoXDot: { width: 26, height: 26, borderRadius: 999, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
+  mapPreview: { height: 140, borderRadius: 16 },
+  change: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 },
+  changeText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green, textDecorationLine: 'underline' },
+  linkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48 },
+  linkRowText: { flex: 1, fontFamily: font.bodySemi, fontSize: 15, color: colour.green },
   remove: { minHeight: 44, minWidth: 44, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },
   removeText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
   askFor: { gap: 6, padding: 14, borderRadius: radius.big, backgroundColor: colour.greenSoft },
   askForTitle: { fontFamily: font.bodySemi, fontSize: 15, color: colour.greenDark },
   askForText: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.ink },
-  askForLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
-  askForLinkText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.greenDark, textDecorationLine: 'underline' },
-  elsewhereText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink, textDecorationLine: 'underline' },
-  asked: { gap: 6, padding: 14, borderRadius: radius.big, backgroundColor: colour.white, borderWidth: 1, borderColor: colour.rule },
+  link: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
+  linkGreen: { fontFamily: font.bodySemi, fontSize: 14, color: colour.greenDark, textDecorationLine: 'underline' },
+  linkInk: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, textDecorationLine: 'underline' },
+  asked: { gap: 6, padding: 14, borderRadius: radius.big, backgroundColor: colour.canvas },
   askedTitle: { fontFamily: font.bodySemi, fontSize: 15, color: colour.ink },
   line: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft },
-  offer: { gap: 10, padding: 16, borderRadius: 22, backgroundColor: colour.green, marginTop: 6 },
-  offerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
-  offerLabel: { fontFamily: font.bodySemi, fontSize: 13, color: colour.yellow },
-  offerList: { fontFamily: font.body, fontSize: 12, color: colour.paper },
   offerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  step: { width: 52, height: 52, borderRadius: 999, borderWidth: 2, borderColor: 'rgba(250,246,239,0.4)', alignItems: 'center', justifyContent: 'center' },
+  step: { width: 52, height: 52, borderRadius: 999, borderWidth: 2, borderColor: 'rgba(20,23,26,0.18)', alignItems: 'center', justifyContent: 'center' },
   stepPlus: { backgroundColor: colour.yellow, borderColor: colour.yellow },
   stepText: { fontFamily: font.display, fontSize: 26, color: colour.ink, marginTop: -2 },
-  price: { fontFamily: font.display, fontSize: 40, color: colour.paper, letterSpacing: -1 },
-  zone: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.paper },
-  min: { fontFamily: font.body, fontSize: 12, lineHeight: 17, color: 'rgba(250,246,239,0.85)' },
+  price: { flex: 1, textAlign: 'center', fontFamily: font.display, fontSize: 38, color: colour.ink, letterSpacing: -1 },
+  zone: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.green, textAlign: 'center' },
+  small: { fontFamily: font.body, fontSize: 12, lineHeight: 17, color: colour.steel },
 });

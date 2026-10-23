@@ -42,7 +42,10 @@ export type IconName =
   | 'help'
   | 'whatsapp'
   | 'locate'
-  | 'cross';
+  | 'cross'
+  | 'check'
+  | 'camera'
+  | 'image';
 
 type Props = {
   name: IconName;
@@ -127,6 +130,20 @@ export function Icon({ name, size = 24, color = colour.green, strokeWidth = 1.8,
       )}
       {name === 'alert' && <Path {...s} d="M12 3L2 20h20zM12 10v4M12 17v.5" />}
       {name === 'cross' && <Path {...s} d="M6 6l12 12M18 6L6 18" />}
+      {name === 'check' && <Path {...s} d="M5 12.5l4.5 4.5L19 7.5" />}
+      {name === 'camera' && (
+        <>
+          <Path {...s} d="M4 8.5h3.2l1.8-2.5h6l1.8 2.5H20v10.5H4z" />
+          <Circle {...s} cx={12} cy={13.5} r={3.4} />
+        </>
+      )}
+      {name === 'image' && (
+        <>
+          <Rect {...s} x={4} y={5} width={16} height={14} rx={2.5} />
+          <Circle {...s} cx={9} cy={10} r={1.6} />
+          <Path {...s} d="M20 15.5l-4.5-4.5L7 19" />
+        </>
+      )}
       {name === 'chevronRight' && <Path {...s} d="M9 6l6 6-6 6" />}
       {name === 'bell' && <Path {...s} d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0" />}
       {name === 'logout' && <Path {...s} d="M14 4h5a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-5M10 8l-4 4 4 4M6 12h10" />}

@@ -7,6 +7,16 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Post a job is tidier (new — no database step).** One page in white
+cards: **The job** is two drop-downs (kind of work, then which job and its
+price), **What is wrong?** is three tiles in a row (Voice, Video, Photo)
+and one box for words, **Address** has Street and House side by side with
+the landmark and gate note behind a link, then **When**, **Good to know**
+and **Your price**. The yellow button at the bottom says **Post job ·
+Rs …** so you always see the price you are offering. Nothing about what
+is sent to technicians changed. To try it: a new **preview** build, then
+tap a tile on the home screen.
+
 **The technician side looks like inDrive's driver side (new — no
 database step).** At the top: the ☰ menu, an **Online / Offline** switch
 in the middle, and what he owes Pechkas on the right (tap it for his

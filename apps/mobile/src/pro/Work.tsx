@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, Linking, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Linking, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import { MenuButton } from '../components/Menu';
 import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
 import { Icon } from '../components/Icon';
+import { Sheet } from '../components/Sheet';
 import { Button, Notice, NotifyCard, SystemBars } from '../components/ui';
 import { RemoteMedia, type StoredMedia } from '../post/RemoteMedia';
 import { Chosen, Finished, type ActiveJob, type FinishedJob } from './OnTheJob';
@@ -315,37 +316,6 @@ function RequestRow({ j, w, trade, onOpen }: { j: FeedJob; w: ProWords; trade: s
  * dimmed screen, as inDrive's ride request does. It moves by transform only;
  * the words never fade. Tapping outside or Close puts it away.
  */
-function Sheet({ children, onClose, closeLabel }: { children: React.ReactNode; onClose: () => void; closeLabel: string }) {
-  const insets = useSafeAreaInsets();
-  const y = useRef(new Animated.Value(600)).current;
-  useEffect(() => {
-    AccessibilityInfo.isReduceMotionEnabled()
-      .catch(() => false)
-      .then((still) => {
-        if (still) return y.setValue(0);
-        Animated.timing(y, { toValue: 0, duration: 240, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
-      });
-  }, [y]);
-  return (
-    <Modal transparent visible onRequestClose={onClose} statusBarTranslucent animationType="none">
-      <View style={s.sheetRoot}>
-        <Pressable style={s.sheetBackdrop} onPress={onClose} accessibilityRole="button" accessibilityLabel={closeLabel} />
-        <Animated.View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 12), transform: [{ translateY: y }] }]}>
-          <View style={s.sheetHead}>
-            <View style={s.grab} />
-            <Press onPress={onClose} accessibilityRole="button" accessibilityLabel={closeLabel} sink={0.9} style={s.sheetClose}>
-              <Icon name="cross" size={20} color={colour.ink} strokeWidth={2.4} />
-            </Press>
-          </View>
-          <ScrollView contentContainerStyle={{ paddingHorizontal: 4, paddingBottom: 8 }} keyboardShouldPersistTaps="handled">
-            {children}
-          </ScrollView>
-        </Animated.View>
-      </View>
-    </Modal>
-  );
-}
-
 function whenText(j: { when_kind: FeedJob['when_kind']; when_part: FeedJob['when_part'] }, w: ProWords) {
   return j.when_kind === 'now' ? w.now : `${j.when_kind === 'today' ? w.today : w.tomorrow} ${j.when_part ? w[j.when_part] : ''}`.trim();
 }
@@ -583,12 +553,6 @@ const s = StyleSheet.create({
   tagYellow: { backgroundColor: colour.yellow },
   tagGreen: { backgroundColor: colour.green },
   tagText: { fontFamily: font.bodySemi, fontSize: 12, color: colour.ink },
-  sheetRoot: { flex: 1, justifyContent: 'flex-end' },
-  sheetBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(20, 23, 26, 0.45)' },
-  sheet: { maxHeight: '92%', backgroundColor: colour.white, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 10 },
-  sheetHead: { alignItems: 'center', justifyContent: 'center', minHeight: 52 },
-  grab: { width: 40, height: 5, borderRadius: 3, backgroundColor: 'rgba(20, 23, 26, 0.18)' },
-  sheetClose: { position: 'absolute', right: 4, top: 4, width: 44, height: 44, borderRadius: 22, backgroundColor: colour.canvas, alignItems: 'center', justifyContent: 'center' },
   steps: { flexDirection: 'row', gap: 8 },
   stepChip: { flex: 1, minWidth: 0, paddingHorizontal: 4 },
   section: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, marginTop: 4 },

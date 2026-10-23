@@ -647,6 +647,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   both. The `/soon` screen was deleted before the first store build; a
   feature that is not built has no button.
 - Every tap target is at least 44 × 44.
+- **Post a job is one page in white cards** (`app/post.tsx`) — the owner
+  chose that over a page per step. The job is two drop-downs (kind of work,
+  then which job with its price) opening a `Sheet` (`src/components/Sheet.tsx`,
+  shared with the technician's job sheet); "What is wrong?" is one row of
+  tiles (Voice, Video, Photo — a tile goes once it is used up, so none does
+  nothing) and one text box; Street and House sit side by side, and the
+  landmark and gate note stay behind a link until wanted or filled; the
+  footer says **Post job · Rs …**. A refusal for a box the page does not
+  draw is shown in full, never as "fix what is marked above".
 - **Nothing is read through Android's bars.** The app is drawn edge to
   edge, under a see-through status bar and button bar. Every screen that
   scrolls draws `SystemBars` (`ui.tsx`, a strip of the screen's own colour
