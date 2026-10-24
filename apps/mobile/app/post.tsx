@@ -7,7 +7,7 @@ import { ISLAMABAD, MapBox, mapsReady, PinPicker } from '../src/components/Map';
 import { rupees } from '@pechkas/shared';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
-import { Button, Chip, Field, Loading, Notice, Screen } from '../src/components/ui';
+import { Button, Chip, Field, Loading, Notice, Screen, useScreenScroll } from '../src/components/ui';
 import { Sheet, SheetOption } from '../src/components/Sheet';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
@@ -31,8 +31,26 @@ import { colour, font, radius } from '../src/theme';
 // Trades where whether the electricity is on decides if the visit is wasted.
 const NEEDS_POWER = new Set(['ac', 'electrician', 'ups', 'solar', 'appliances', 'cctv', 'wifi', 'computers']);
 const LAST_ADDRESS = 'pechkas.last-address';
-// Every refusal this form can show beside its own box.
-const SHOWN = new Set(['trade', 'job_type', 'media', 'description', 'sector', 'street', 'house', 'landmark', 'gate_note', 'when', 'power', 'parts', 'offer']);
+// Every refusal this form can show beside its own box, and the card it is in,
+// top to bottom: a refusal scrolls the page up to the first of them.
+const CARD_OF: Record<string, string> = {
+  trade: 'job', job_type: 'job',
+  media: 'what', description: 'what',
+  sector: 'address', street: 'address', house: 'address', landmark: 'address', gate_note: 'address', location: 'address',
+  when: 'when',
+  power: 'good', parts: 'good',
+  offer: 'price',
+};
+const CARDS = ['job', 'what', 'address', 'when', 'good', 'price'];
+// Which refusals a change to each part of the form answers.
+const ANSWERS: Partial<Record<keyof Draft, string[]>> = {
+  trade: ['trade', 'job_type'], jobType: ['job_type'],
+  media: ['media'], description: ['media', 'description'],
+  sector: ['sector'], street: ['street'], house: ['house'], landmark: ['landmark'], gateNote: ['gate_note'],
+  whenKind: ['when'], whenPart: ['when'], power: ['power'], parts: ['parts'], offer: ['offer'],
+};
+const SHOWN = new Set(Object.keys(CARD_OF).filter((k) => k !== 'location'));
+const FIX = 'Some details are missing. The page has scrolled to the first one, marked in red.';
 // The database keeps an "ask again" for an hour (job_preferred()); so does the form.
 const ASK_LASTS = 60 * 60 * 1000;
 const PARTS_OF_DAY = [
@@ -57,6 +75,16 @@ export default function Post() {
   // Which drop-down is open, if any.
   const [sheet, setSheet] = useState<null | 'trade' | 'type' | 'video' | 'photo'>(null);
   const [more, setMore] = useState(false);
+  // Where each card sits, and a request to scroll to one (see Jump).
+  const ys = useRef<Record<string, number>>({}).current;
+  const atY = (id: string, y: number) => (ys[id] = y);
+  const [jump, setJump] = useState<{ card: string; n: number } | null>(null);
+  /** Show the refusals, and take the person to the first box that needs them. */
+  const refuse = (errs: Record<string, string>) => {
+    setErrors(errs);
+    const card = CARDS.find((c) => Object.keys(errs).some((k) => errs[k] && CARD_OF[k] === c));
+    if (card) setJump((j) => ({ card, n: (j?.n ?? 0) + 1 }));
+  };
   const { width } = useWindowDimensions();
   // Where the home map was when "Set the job's address" was tapped, if the phone had been found.
   const fromHome = Number.isFinite(Number(params.lat)) && Number.isFinite(Number(params.lng)) && params.lat && params.lng
@@ -98,6 +126,9 @@ export default function Post() {
   const update = (patch: Partial<Draft>) => {
     // Any change answers the last complaint; do not leave it on screen.
     setNotice(null);
+    // And the red line under the box just filled in goes with it.
+    const answered = Object.keys(patch).flatMap((k) => ANSWERS[k as keyof Draft] ?? []);
+    if (answered.length) setErrors((e) => (answered.some((k) => e[k]) ? Object.fromEntries(Object.entries(e).filter(([k]) => !answered.includes(k))) : e));
     setD((prev) => {
       const next = { ...(prev ?? EMPTY), ...patch };
       saveDraft(next);
@@ -218,8 +249,8 @@ export default function Post() {
     if (!d.house.trim()) early.house = 'Write your house number.';
     if (d.media.length === 0 && d.description.trim().length < 10) early.media = 'Show us what is wrong: a voice note, a video, a photo, or a few words.';
     if (Object.keys(early).length) {
-      setErrors(early);
-      setNotice('Please fix what is marked above.');
+      refuse(early);
+      setNotice(FIX);
       return;
     }
 
@@ -265,8 +296,8 @@ export default function Post() {
     if (!r.ok) {
       // A refusal about a box on the form is shown beside it; any other is shown here, in full.
       const shown = r.field && SHOWN.has(r.field);
-      if (shown) setErrors({ [r.field!]: r.why });
-      setNotice(shown ? 'Please fix what is marked above.' : r.why);
+      if (shown) refuse({ [r.field!]: r.why });
+      setNotice(shown ? FIX : r.why);
       return;
     }
     AsyncStorage.setItem(
@@ -315,7 +346,7 @@ export default function Post() {
         </View>
       ) : null}
 
-      <Card title="The job" error={errors.trade || errors.job_type}>
+      <Card id="job" onY={atY} title="The job" error={errors.trade || errors.job_type}>
         <Select label="Kind of work" value={d.trade ? tradeName(d.trade) : null} placeholder="Choose" onPress={() => setSheet('trade')} />
         {d.trade ? (
           <Select
@@ -327,7 +358,7 @@ export default function Post() {
         ) : null}
       </Card>
 
-      <Card title="What is wrong?" hint="Say it, show it, or type it. Urdu is fine." error={errors.media || errors.description}>
+      <Card id="what" onY={atY} title="What is wrong?" hint="Say it, show it, or type it. Urdu is fine." error={errors.media || errors.description}>
         {!voice || !video || photos.length < LIMITS.photos ? (
           <View style={s.tiles}>
             {voice ? null : <VoiceTile onDone={(m) => setMedia('voice', [m])} onProblem={setNotice} />}
@@ -372,15 +403,18 @@ export default function Post() {
       </Card>
 
       <Card
+        id="address"
+        onY={atY}
         title="Address"
         hint={live.length ? `Pechkas works in ${live.join(', ')} for now. Only the technician you choose sees your street and house.` : 'Only the technician you choose sees your street and house.'}
-        error={errors.sector}
       >
         <View style={s.wrap}>
           {live.map((name) => (
             <Chip key={name} label={name} on={d.sector === name} onPress={() => update({ sector: name })} />
           ))}
         </View>
+        {/* Right under the sectors, not at the foot of the card, so it is beside what it is about. */}
+        {errors.sector ? <Text style={s.error}>{errors.sector}</Text> : null}
         <View style={s.pair}>
           <View style={{ flex: 1 }}>
             <Field label="Street" value={d.street} onChangeText={(v) => update({ street: v })} placeholder="Street 34" error={errors.street} autoComplete="street-address" />
@@ -447,7 +481,7 @@ export default function Post() {
         )}
       </Card>
 
-      <Card title="When" error={errors.when}>
+      <Card id="when" onY={atY} title="When" error={errors.when}>
         <View style={s.wrap}>
           <Chip label="Now" on={d.whenKind === 'now'} onPress={() => update({ whenKind: 'now', whenPart: null })} />
           <Chip label="Today" on={d.whenKind === 'today'} onPress={() => update({ whenKind: 'today', whenPart: d.whenPart ?? 'evening' })} />
@@ -462,7 +496,7 @@ export default function Post() {
         ) : null}
       </Card>
 
-      <Card title="Good to know" hint="Optional. Tap what is true." error={errors.power || errors.parts}>
+      <Card id="good" onY={atY} title="Good to know" hint="Optional. Tap what is true." error={errors.power || errors.parts}>
         {d.trade && NEEDS_POWER.has(d.trade) ? (
           <View style={s.wrap}>
             <Chip label="Electricity is on" on={d.power === 'on'} onPress={() => update({ power: d.power === 'on' ? null : 'on' })} />
@@ -475,7 +509,7 @@ export default function Post() {
         </View>
       </Card>
 
-      <Card title="Your price" error={errors.offer}>
+      <Card id="price" onY={atY} title="Your price" error={errors.offer}>
         <View style={s.offerRow}>
           <Press
             onPress={() => update({ offer: Math.max(min, offer - 10000) })}
@@ -507,6 +541,7 @@ export default function Post() {
       </Card>
 
       <Notice text={notice} />
+      <Jump to={jump} ys={ys} />
 
       {sheet === 'trade' ? (
         <Sheet title="Kind of work" onClose={() => setSheet(null)}>
@@ -588,9 +623,9 @@ export default function Post() {
 }
 
 /** One part of the form: a white card with its title, and its own error at the foot. */
-function Card({ title, hint, error, children }: { title: string; hint?: string; error?: string; children: ReactNode }) {
+function Card({ id, onY, title, hint, error, children }: { id: string; onY: (id: string, y: number) => void; title: string; hint?: string; error?: string; children: ReactNode }) {
   return (
-    <View style={s.card}>
+    <View style={s.card} onLayout={(e) => onY(id, e.nativeEvent.layout.y)}>
       <View style={{ gap: 2 }}>
         <Text style={s.cardTitle} accessibilityRole="header">
           {title}
@@ -601,6 +636,19 @@ function Card({ title, hint, error, children }: { title: string; hint?: string; 
       {error ? <Text style={s.error}>{error}</Text> : null}
     </View>
   );
+}
+
+/**
+ * Inside the Screen, where its scrolling can be reached: each time `to`
+ * changes, the page scrolls up to that card.
+ */
+function Jump({ to, ys }: { to: { card: string; n: number } | null; ys: Record<string, number> }) {
+  const scrollTo = useScreenScroll();
+  useEffect(() => {
+    if (to && ys[to.card] !== undefined) scrollTo(ys[to.card]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [to?.n]);
+  return null;
 }
 
 /** A drop-down: what is chosen, and a tap opens the choices in a sheet. */

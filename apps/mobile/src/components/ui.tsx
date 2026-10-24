@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -125,8 +125,25 @@ export function useScrollEnd(air = 24): number {
   return useSafeAreaInsets().bottom + air;
 }
 
+/**
+ * Lets something inside a `Screen` scroll the screen to itself: a form that
+ * was refused scrolls up to the first box that needs fixing, rather than
+ * leaving the person at the foot looking at "fix what is marked above".
+ * `y` is measured from the top of the screen's body (an onLayout `y` of a
+ * direct child of the body).
+ */
+const ScreenScroll = createContext<(y: number) => void>(() => {});
+export const useScreenScroll = () => useContext(ScreenScroll);
+
 export function Screen({ children, dark = false, footer, hero }: { children: ReactNode; footer?: ReactNode; hero?: HeroProps } & Tone) {
   const insets = useSafeAreaInsets();
+  const scroll = useRef<ScrollView>(null);
+  // Where the body starts inside the scrolling content, below the hero.
+  const bodyY = useRef(0);
+  const scrollTo = useCallback((y: number) => {
+    // A little above the box, so its title shows and it is not tight under the clock.
+    scroll.current?.scrollTo({ y: Math.max(0, bodyY.current + y - insets.top - 12), animated: true });
+  }, [insets.top]);
   const arrive = useArrive();
   const rise = arrive.interpolate({ inputRange: [0, 1], outputRange: [18, 0] });
   const bg = dark ? colour.ink : colour.canvas;
@@ -134,9 +151,14 @@ export function Screen({ children, dark = false, footer, hero }: { children: Rea
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <StatusBar style={dark ? 'light' : 'dark'} />
       {/* With a footer, the footer keeps clear of the button bar; without one, the scrolling has to. */}
-      <ScrollView contentContainerStyle={{ paddingBottom: footer ? 24 : insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
+      <ScrollView ref={scroll} contentContainerStyle={{ paddingBottom: footer ? 24 : insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
         {hero ? <Hero dark={dark} {...hero} /> : null}
-        <Animated.View style={{ paddingTop: hero ? 8 : insets.top + 16, paddingHorizontal: 20, gap: 16, transform: [{ translateY: rise }] }}>{children}</Animated.View>
+        <Animated.View
+          onLayout={(e) => (bodyY.current = e.nativeEvent.layout.y)}
+          style={{ paddingTop: hero ? 8 : insets.top + 16, paddingHorizontal: 20, gap: 16, transform: [{ translateY: rise }] }}
+        >
+          <ScreenScroll.Provider value={scrollTo}>{children}</ScreenScroll.Provider>
+        </Animated.View>
       </ScrollView>
       {footer ? <View style={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: Math.max(insets.bottom, 16) }}>{footer}</View> : null}
       <SystemBars bg={bg} />

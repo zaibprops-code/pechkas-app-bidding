@@ -661,7 +661,13 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   nothing) and one text box; Street and House sit side by side, and the
   landmark and gate note stay behind a link until wanted or filled; the
   footer says **Post job · Rs …**. A refusal for a box the page does not
-  draw is shown in full, never as "fix what is marked above".
+  draw is shown in full, never as "fix what is marked above". **A refusal
+  scrolls the page up to the first card that needs fixing** (`CARD_OF`,
+  `CARDS`, `Jump` and `useScreenScroll()` in `ui.tsx`), and each red line
+  goes the moment its box is answered (`ANSWERS`): somebody pressing Post
+  at the foot of a long page must never be left there looking at a
+  sentence about boxes they cannot see. A new box on the form needs its
+  field in `CARD_OF` and `ANSWERS`.
 - **Nothing is read through Android's bars.** The app is drawn edge to
   edge, under a see-through status bar and button bar. Every screen that
   scrolls draws `SystemBars` (`ui.tsx`, a strip of the screen's own colour
