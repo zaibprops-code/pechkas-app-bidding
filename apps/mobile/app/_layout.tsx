@@ -15,6 +15,7 @@ import { routeFor } from '../src/route';
 import { useNotificationTaps } from '../src/notifications';
 import { colour } from '../src/theme';
 import { LaunchScrew } from '../src/components/LaunchScrew';
+import { ToastHost } from '../src/components/Toast';
 
 // Keep the green splash up until the fonts are ready. Then LaunchScrew draws
 // the same picture, hides the phone's, and turns the screw until the gate
@@ -48,12 +49,14 @@ export default function RootLayout() {
         <StatusBar style="light" />
         <NotificationTaps />
         <Gate onDecided={onDecided} />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: colour.paper },
-          }}
-        />
+        <ToastHost>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: colour.paper },
+            }}
+          />
+        </ToastHost>
         {launched ? null : <LaunchScrew decided={decided} onDone={onLaunched} />}
       </AccountProvider>
     </SafeAreaProvider>

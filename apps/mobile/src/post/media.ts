@@ -17,6 +17,25 @@ export type Media = {
 
 export const LIMITS = { voiceSeconds: 60, videoSeconds: 30, photos: 4, bytes: 30 * 1024 * 1024 };
 
+/**
+ * A file larger than LIMITS.bytes: an ordinary Error whose message is 'big',
+ * carrying its size so the person can be told by how much. (Not a subclass:
+ * `instanceof` on a subclass of Error is not dependable once compiled.)
+ */
+function tooBig(bytes: number): Error & { bytes: number } {
+  return Object.assign(new Error('big'), { bytes });
+}
+
+/** "That video is 58 MB, and …": the words for a 'big' error, sizes in whole megabytes. */
+export function tooBigWords(e: unknown): string | null {
+  if (!(e instanceof Error) || e.message !== 'big') return null;
+  const mb = (n: number) => Math.ceil(n / (1024 * 1024));
+  const bytes = (e as Error & { bytes?: number }).bytes;
+  return bytes
+    ? `That video is ${mb(bytes)} MB, and Pechkas can send up to ${mb(LIMITS.bytes)} MB. Record a shorter one, or send photos and a voice note instead.`
+    : `That video is too big to send: Pechkas can send up to ${mb(LIMITS.bytes)} MB. Record a shorter one, or send photos and a voice note instead.`;
+}
+
 const TYPES = {
   m4a: 'audio/mp4',
   aac: 'audio/aac',
@@ -82,7 +101,7 @@ export async function takeVideo(fromCamera: boolean): Promise<Media | null> {
   const a = r.assets[0];
   const seconds = a.duration ? Math.round(a.duration / 1000) : undefined;
   if (seconds && seconds > LIMITS.videoSeconds + 2) throw new Error('long');
-  if (a.fileSize && a.fileSize > LIMITS.bytes) throw new Error('big');
+  if (a.fileSize && a.fileSize > LIMITS.bytes) throw tooBig(a.fileSize);
   return { kind: 'video', uri: a.uri, seconds };
 }
 
@@ -101,7 +120,7 @@ export async function upload(m: Media, userId: string): Promise<string> {
   const ext = extension(m);
   const path = `${userId}/${m.kind}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const body = await bytesOf(m.uri);
-  if (body.byteLength > LIMITS.bytes) throw new Error('big');
+  if (body.byteLength > LIMITS.bytes) throw tooBig(body.byteLength);
   let last: unknown = null;
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const { error } = await supabase.storage.from('job-media').upload(path, body, { contentType: TYPES[ext], upsert: false });

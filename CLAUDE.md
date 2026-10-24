@@ -668,6 +668,17 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   at the foot of a long page must never be left there looking at a
   sentence about boxes they cannot see. A new box on the form needs its
   field in `CARD_OF` and `ANSWERS`.
+- **Trouble is said at the top of the screen, never only at the foot.**
+  `Notice` (ui.tsx) shows its sentence as a banner sliding down over the
+  top of whatever screen is open (`src/components/Toast.tsx`, `ToastHost`
+  in `_layout.tsx`) — the owner chose a video, it was refused, and the box
+  saying so was at the bottom of a long page he was not looking at. The
+  banner stays until its × is tapped, the next one replaces it, the screen
+  clears its message, or the person leaves the screen; it never slides
+  away by itself. Inside a `Sheet` (a Modal, drawn above everything) pass
+  `inline`, or the banner would be underneath. A refusal about one box
+  still goes beside that box as well. To show the same sentence again after
+  it was closed, give the `Notice` a new `key`.
 - **Nothing is read through Android's bars.** The app is drawn edge to
   edge, under a see-through status bar and button bar. Every screen that
   scrolls draws `SystemBars` (`ui.tsx`, a strip of the screen's own colour

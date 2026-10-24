@@ -7,6 +7,13 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Problems are shown at the top of the screen (new — no database step).**
+When something goes wrong anywhere in the app — a video too big to send,
+no signal, a refusal from Pechkas — a white banner with a red ⚠ slides down
+over the top of the screen, wherever you have scrolled to. Tap its **×**
+to close it. A video that is too big now says its size, for example
+*"That video is 58 MB, and Pechkas can send up to 30 MB."*
+
 **The ☰ menu looks like inDrive's (new — no database step).** Your name,
 number and side (Customer or Technician) at the top — tap it for Settings —
 then bigger rows: Home, My jobs, **Notifications** (new: says whether

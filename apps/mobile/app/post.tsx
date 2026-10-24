@@ -13,7 +13,7 @@ import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
 import { ask, supabase } from '../src/supabase';
 import { clearDraft, EMPTY, loadDraft, saveDraft, type Draft } from '../src/post/draft';
-import { LIMITS, takePhoto, takeVideo, upload, type Media } from '../src/post/media';
+import { LIMITS, takePhoto, takeVideo, tooBigWords, upload, type Media } from '../src/post/media';
 import { tile, VoicePlayback, VoiceTile } from '../src/post/VoiceNote';
 import { colour, font, radius } from '../src/theme';
 
@@ -50,7 +50,7 @@ const ANSWERS: Partial<Record<keyof Draft, string[]>> = {
   whenKind: ['when'], whenPart: ['when'], power: ['power'], parts: ['parts'], offer: ['offer'],
 };
 const SHOWN = new Set(Object.keys(CARD_OF).filter((k) => k !== 'location'));
-const FIX = 'Some details are missing. The page has scrolled to the first one, marked in red.';
+const FIX = 'Some details are missing. They are marked in red.';
 // The database keeps an "ask again" for an hour (job_preferred()); so does the form.
 const ASK_LASTS = 60 * 60 * 1000;
 const PARTS_OF_DAY = [
@@ -166,7 +166,7 @@ export default function Post() {
     if (msg === 'camera') setNotice('Pechkas needs the camera for this. Allow it in your phone settings.');
     else if (msg === 'photos') setNotice('Pechkas needs your photos for this. Allow it in your phone settings.');
     else if (msg === 'long') setNotice(`Keep the video under ${LIMITS.videoSeconds} seconds.`);
-    else if (msg === 'big') setNotice('That video is too big to send. Record a shorter one.');
+    else if (tooBigWords(e)) setNotice(tooBigWords(e));
     else setNotice('That did not work. Please try again.');
   }
 
@@ -268,7 +268,7 @@ export default function Post() {
     } catch (e) {
       setBusy(false);
       setProgress(null);
-      setNotice(e instanceof Error && e.message === 'big' ? 'That video is too big to send. Record a shorter one.' : 'Sending did not finish. Check your signal and press Post again: what was already sent is kept.');
+      setNotice(tooBigWords(e) ?? 'Sending did not finish. Check your signal and press Post again: what was already sent is kept.');
       return;
     }
 
@@ -540,7 +540,8 @@ export default function Post() {
         <Text style={s.small}>You pay after the job, in cash or by JazzCash or Easypaisa. Nothing in advance.</Text>
       </Card>
 
-      <Notice text={notice} />
+      {/* A new key each refusal, so the same sentence comes back after its banner was closed. */}
+      <Notice key={jump?.n ?? 0} text={notice} />
       <Jump to={jump} ys={ys} />
 
       {sheet === 'trade' ? (

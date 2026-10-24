@@ -17,6 +17,7 @@ import { router } from 'expo-router';
 import { ScrewSpinner } from './ScrewSpinner';
 import { Icon, type IconName } from './Icon';
 import { Press } from './Press';
+import { useToast } from './Toast';
 import { colour, font, radius, TAP } from '../theme';
 
 /**
@@ -141,8 +142,8 @@ export function Screen({ children, dark = false, footer, hero }: { children: Rea
   // Where the body starts inside the scrolling content, below the hero.
   const bodyY = useRef(0);
   const scrollTo = useCallback((y: number) => {
-    // A little above the box, so its title shows and it is not tight under the clock.
-    scroll.current?.scrollTo({ y: Math.max(0, bodyY.current + y - insets.top - 12), animated: true });
+    // Low enough that the box's title shows under the banner saying what is wrong.
+    scroll.current?.scrollTo({ y: Math.max(0, bodyY.current + y - insets.top - 104), animated: true });
   }, [insets.top]);
   const arrive = useArrive();
   const rise = arrive.interpolate({ inputRange: [0, 1], outputRange: [18, 0] });
@@ -278,8 +279,20 @@ export function Chip({ label, on, onPress, dark = false }: { label: string; on: 
 }
 
 /** A sentence from the database that is not about any one box. */
-export function Notice({ text, dark = false }: { text?: string | null } & Tone) {
-  if (!text) return null;
+/**
+ * A sentence about something that went wrong. It is shown as a banner over
+ * the top of the screen (Toast.tsx), where it cannot be missed, and goes when
+ * the screen clears it. `inline` keeps it in place instead, for a sheet that
+ * covers the screen — a banner would be underneath it.
+ */
+export function Notice({ text, dark = false, inline = false }: { text?: string | null; inline?: boolean } & Tone) {
+  const toast = useToast();
+  useEffect(() => {
+    if (!text || inline) return;
+    toast.show(text);
+    return () => toast.drop(text);
+  }, [text, inline, toast]);
+  if (!text || !inline) return null;
   return (
     <View style={[s.notice, { backgroundColor: dark ? '#3a2019' : '#f6e3dc' }]} accessibilityRole="alert">
       <Text style={[s.noticeText, { color: dark ? '#ffb4a3' : colour.brick }]}>{text}</Text>

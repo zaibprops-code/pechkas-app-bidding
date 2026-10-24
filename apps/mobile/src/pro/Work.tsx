@@ -509,7 +509,8 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
           />
         </View>
       )}
-      <Notice text={msg} />
+      {/* In the job's sheet, which covers the screen: a banner would be underneath it. */}
+      <Notice text={msg} inline />
     </View>
   );
 }
