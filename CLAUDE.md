@@ -198,6 +198,18 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - The post form is saved on the phone as it is typed (`post/draft.ts`), and
   an uploaded file keeps its `path`, so a post that fails on bad signal
   neither loses the voice note nor uploads it twice.
+- **The media tiles must work on a real phone, not only in a browser.**
+  Every camera or gallery opened from a `Sheet` goes through `afterSheet()`
+  (media.ts) so it opens after the sheet has closed; Post a job calls
+  `recoverLostPick()` on opening, because Android may close the app while
+  the camera is open and keeps the picture for `getPendingResultAsync()`;
+  media changes go through `changeMedia()`, from the newest list, never a
+  copy from before the camera opened; `VoiceTile` keeps its own clock and
+  recording flag instead of trusting the recorder's lagging reports. Any
+  failure shows its words in a "(Details: …)" line, so the owner's
+  screenshot says what the phone said. `LIMITS.bytes` (50 MB) equals the
+  `job-media` bucket's `file_size_limit` (migration `…_bigger_videos`,
+  checked in `jobs.test.mjs`): change both together. Videos are 20 s.
 - Permissions: microphone, camera, photos and location **while using**.
   Background location and background audio are switched off in `app.json`;
   Google Play asks questions about both.

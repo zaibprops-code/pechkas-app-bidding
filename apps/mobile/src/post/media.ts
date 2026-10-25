@@ -15,7 +15,29 @@ export type Media = {
   path?: string;
 };
 
-export const LIMITS = { voiceSeconds: 60, videoSeconds: 30, photos: 4, bytes: 30 * 1024 * 1024 };
+/**
+ * `bytes` must equal the job-media bucket's `file_size_limit` (migration
+ * …_bigger_videos, 50 MB — the most Supabase's plan accepts for one file).
+ * A phone records about 2 MB a second, so 30 MB refused almost every real
+ * video; 20 seconds now fits with room to spare, and says enough.
+ */
+export const LIMITS = { voiceSeconds: 60, videoSeconds: 20, photos: 4, bytes: 50 * 1024 * 1024 };
+
+/**
+ * Wait for a sheet to finish closing before the camera or the gallery opens.
+ * Opening them while the sheet is still on its way out can leave the phone
+ * with nothing on screen (the iPhone refuses outright), so every option in
+ * a sheet that opens one goes through here.
+ */
+export function afterSheet(open: () => void) {
+  setTimeout(open, 350);
+}
+
+/** The words of any error, for the "Details" line people can screenshot. */
+export function detailOf(e: unknown): string {
+  const m = e instanceof Error ? e.message : typeof e === 'string' ? e : '';
+  return m ? m.slice(0, 160) : 'no details given';
+}
 
 /**
  * A file larger than LIMITS.bytes: an ordinary Error whose message is 'big',
@@ -89,6 +111,29 @@ export async function takePhoto(fromCamera: boolean): Promise<Media | null> {
   return { kind: 'photo', uri: await shrink(r.assets[0].uri) };
 }
 
+/** A video the phone handed back, checked against the limits. */
+function asVideo(a: ImagePicker.ImagePickerAsset): Media {
+  const seconds = a.duration ? Math.round(a.duration / 1000) : undefined;
+  if (seconds && seconds > LIMITS.videoSeconds + 2) throw new Error('long');
+  if (a.fileSize && a.fileSize > LIMITS.bytes) throw tooBig(a.fileSize);
+  return { kind: 'video', uri: a.uri, seconds };
+}
+
+/**
+ * Android may close Pechkas while the camera is open, to free memory on a
+ * busy phone. The photo or video is not lost: the phone keeps it, and this
+ * collects it when the screen opens again. Without it the picture simply
+ * never appeared — exactly what "the photo button does not work" looks like.
+ */
+export async function recoverLostPick(): Promise<Media | null> {
+  if (Platform.OS !== 'android') return null;
+  const r = await ImagePicker.getPendingResultAsync();
+  if (!r || !('assets' in r) || r.canceled || !r.assets?.[0]) return null;
+  const a = r.assets[0];
+  if (a.type === 'video') return asVideo(a);
+  return { kind: 'photo', uri: await shrink(a.uri) };
+}
+
 export async function takeVideo(fromCamera: boolean): Promise<Media | null> {
   await allowed(fromCamera);
   const opts: ImagePicker.ImagePickerOptions = {
@@ -98,11 +143,7 @@ export async function takeVideo(fromCamera: boolean): Promise<Media | null> {
   };
   const r = fromCamera ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
   if (r.canceled || !r.assets[0]) return null;
-  const a = r.assets[0];
-  const seconds = a.duration ? Math.round(a.duration / 1000) : undefined;
-  if (seconds && seconds > LIMITS.videoSeconds + 2) throw new Error('long');
-  if (a.fileSize && a.fileSize > LIMITS.bytes) throw tooBig(a.fileSize);
-  return { kind: 'video', uri: a.uri, seconds };
+  return asVideo(r.assets[0]);
 }
 
 async function bytesOf(uri: string): Promise<ArrayBuffer> {

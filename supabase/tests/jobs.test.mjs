@@ -206,4 +206,11 @@ ok('Ayesha deletes her account', (await call('authenticated', AYESHA, `SELECT pu
   ok('none of her jobs or file records remain', rows[0].j === 0 && rows[0].m === 0);
 }
 
+{
+  // The app refuses a file over LIMITS.bytes (apps/mobile/src/post/media.ts) before sending it; the
+  // bucket must take exactly that much, or a video the app allowed is turned away at the door.
+  const { rows } = await setup(`SELECT file_size_limit FROM storage.buckets WHERE id = 'job-media'`);
+  ok('the job-media bucket takes files up to 50 MB, the same as the app', Number(rows[0]?.file_size_limit) === 50 * 1024 * 1024, rows[0]);
+}
+
 report();

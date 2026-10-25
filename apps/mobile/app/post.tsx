@@ -13,7 +13,7 @@ import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
 import { ask, supabase } from '../src/supabase';
 import { clearDraft, EMPTY, loadDraft, saveDraft, type Draft } from '../src/post/draft';
-import { LIMITS, takePhoto, takeVideo, tooBigWords, upload, type Media } from '../src/post/media';
+import { afterSheet, detailOf, LIMITS, recoverLostPick, takePhoto, takeVideo, tooBigWords, upload, type Media } from '../src/post/media';
 import { tile, VoicePlayback, VoiceTile } from '../src/post/VoiceNote';
 import { colour, font, radius } from '../src/theme';
 
@@ -123,6 +123,21 @@ export default function Post() {
     })();
   }, [params.trade, params.ask, params.minutes]);
 
+  /**
+   * Media is changed from the newest copy of the form, never from the one the
+   * screen had when the camera opened: the camera can take a minute, and a
+   * voice note recorded or a photo recovered in the meantime must survive.
+   */
+  const changeMedia = (fn: (all: Media[]) => Media[]) => {
+    setNotice(null);
+    setErrors((e) => (e.media || e.description ? Object.fromEntries(Object.entries(e).filter(([k]) => k !== 'media')) : e));
+    setD((prev) => {
+      const next = { ...(prev ?? EMPTY), media: fn((prev ?? EMPTY).media) };
+      saveDraft(next);
+      return next;
+    });
+  };
+
   const update = (patch: Partial<Draft>) => {
     // Any change answers the last complaint; do not leave it on screen.
     setNotice(null);
@@ -140,6 +155,26 @@ export default function Post() {
   const chosen = types.find((t) => t.id === d?.jobType) ?? null;
   const min = lists?.min_offer_paisa ?? 100000;
   const offer = Math.max(min, d?.offer ?? chosen?.list_paisa ?? min);
+
+  // A photo or video Android kept when it closed the app while the camera was open.
+  const recovered = useRef(false);
+  useEffect(() => {
+    if (!d || recovered.current) return;
+    recovered.current = true;
+    recoverLostPick()
+      .then((m) => {
+        if (!m) return;
+        changeMedia((all) =>
+          m.kind === 'photo'
+            ? all.filter((x) => x.kind === 'photo').length >= LIMITS.photos
+              ? all
+              : [...all, m]
+            : [...all.filter((x) => x.kind !== m.kind), m],
+        );
+      })
+      .catch((e) => setNotice(tooBigWords(e) ?? (e instanceof Error && e.message === 'long' ? `Keep the video under ${LIMITS.videoSeconds} seconds.` : null)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [d]);
 
   // "Say it" and "Show it" on the home screen open the right recorder.
   useEffect(() => {
@@ -159,7 +194,7 @@ export default function Post() {
   const voice = d.media.find((m) => m.kind === 'voice') ?? null;
   const video = d.media.find((m) => m.kind === 'video') ?? null;
   const photos = d.media.filter((m) => m.kind === 'photo');
-  const setMedia = (kind: Media['kind'], items: Media[]) => update({ media: [...d.media.filter((m) => m.kind !== kind), ...items] });
+  const setMedia = (kind: Media['kind'], items: Media[]) => changeMedia((all) => [...all.filter((m) => m.kind !== kind), ...items]);
 
   function problem(e: unknown) {
     const msg = e instanceof Error ? e.message : '';
@@ -167,7 +202,7 @@ export default function Post() {
     else if (msg === 'photos') setNotice('Pechkas needs your photos for this. Allow it in your phone settings.');
     else if (msg === 'long') setNotice(`Keep the video under ${LIMITS.videoSeconds} seconds.`);
     else if (tooBigWords(e)) setNotice(tooBigWords(e));
-    else setNotice('That did not work. Please try again.');
+    else setNotice(`That did not work. Please try again. (Details: ${detailOf(e)})`);
   }
 
   async function addVideo(camera: boolean) {
@@ -185,7 +220,7 @@ export default function Post() {
     if (photos.length >= LIMITS.photos) return;
     try {
       const m = await takePhoto(camera);
-      if (m) setMedia('photo', [...photos, m]);
+      if (m) changeMedia((all) => (all.filter((x) => x.kind === 'photo').length >= LIMITS.photos ? all : [...all, m]));
     } catch (e) {
       problem(e);
     }
@@ -593,8 +628,7 @@ export default function Post() {
             onPress={() => {
               const kind = sheet;
               setSheet(null);
-              if (kind === 'video') addVideo(true);
-              else addPhoto(true);
+              afterSheet(() => (kind === 'video' ? addVideo(true) : addPhoto(true)));
             }}
           />
           <SheetOption
@@ -603,8 +637,7 @@ export default function Post() {
             onPress={() => {
               const kind = sheet;
               setSheet(null);
-              if (kind === 'video') addVideo(false);
-              else addPhoto(false);
+              afterSheet(() => (kind === 'video' ? addVideo(false) : addPhoto(false)));
             }}
           />
         </Sheet>

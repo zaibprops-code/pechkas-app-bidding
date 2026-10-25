@@ -7,6 +7,23 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Voice notes, photos and videos made sturdier (new — one database step).**
+1. **Supabase → SQL Editor:** open `supabase/migrations/20261030000000_bigger_videos.sql`
+   from this repository, paste it all in, press **Run**. It should say
+   **Success**. It lets a video be up to **50 MB** (it was 30 MB, which a
+   normal phone video is almost always over).
+2. **Expo:** a new **preview** build from `main`, and install it.
+3. On **Post a job**, try each tile: **Voice** (tap, speak, tap again),
+   **Photo** and **Video** (each asks *take one* or *choose from the
+   gallery*). Videos are now up to **20 seconds**.
+
+What changed in the app: the camera and gallery wait until the little menu
+has closed before they open; a photo or video taken when Android closed
+Pechkas to save memory is now picked up when you come back, instead of
+vanishing; the voice tile keeps its own clock; and if anything still fails,
+the banner at the top says so **with a "Details" line** — send me a
+screenshot of it and I can see exactly what the phone said.
+
 **Problems are shown at the top of the screen (new — no database step).**
 When something goes wrong anywhere in the app — a video too big to send,
 no signal, a refusal from Pechkas — a white banner with a red ⚠ slides down

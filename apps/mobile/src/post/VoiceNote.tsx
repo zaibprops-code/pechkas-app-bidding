@@ -12,7 +12,7 @@ import {
 import { Icon } from '../components/Icon';
 import { Press } from '../components/Press';
 import { colour, font, radius } from '../theme';
-import { LIMITS, type Media } from './media';
+import { detailOf, LIMITS, type Media } from './media';
 
 /**
  * Say what is wrong, in Urdu or anything else: one tile in the row of three
@@ -26,11 +26,23 @@ export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; o
   const state = useAudioRecorderState(recorder, 250);
   const [busy, setBusy] = useState(false);
   const stopping = useRef(false);
+  // The tile keeps its own clock and its own idea of whether it is recording,
+  // rather than waiting on the recorder's reports: on a phone those can lag,
+  // and a tile that never turns to "Stop", or calls a ten-second note "too
+  // short", is a voice note that does not work.
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+  const live = startedAt !== null || state.isRecording;
+  const seconds = Math.max(Math.floor((state.durationMillis ?? 0) / 1000), startedAt ? Math.floor((now - startedAt) / 1000) : 0);
 
-  const seconds = Math.floor((state.durationMillis ?? 0) / 1000);
+  useEffect(() => {
+    if (startedAt === null) return;
+    const t = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(t);
+  }, [startedAt]);
 
   async function start() {
-    if (busy) return;
+    if (busy || live) return;
     setBusy(true);
     try {
       const perm = await requestRecordingPermissionsAsync();
@@ -41,8 +53,10 @@ export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; o
       await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
       await recorder.prepareToRecordAsync();
       recorder.record();
-    } catch {
-      onProblem('The voice note could not start. Try again, or write instead.');
+      setNow(Date.now());
+      setStartedAt(Date.now());
+    } catch (e) {
+      onProblem(`The voice note could not start. Try again, or write instead. (Details: ${detailOf(e)})`);
     } finally {
       setBusy(false);
     }
@@ -51,21 +65,26 @@ export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; o
   async function stop() {
     if (stopping.current) return;
     stopping.current = true;
+    const length = seconds;
     try {
       await recorder.stop();
-      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
-      if (recorder.uri && seconds >= 1) onDone({ kind: 'voice', uri: recorder.uri, seconds });
-      else onProblem('That was too short to hear. Hold on a moment longer.');
+      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
+      if (!recorder.uri) onProblem('The voice note was not saved. Please record it again.');
+      else if (length < 1) onProblem('That was too short to hear. Hold on a moment longer.');
+      else onDone({ kind: 'voice', uri: recorder.uri, seconds: length });
+    } catch (e) {
+      onProblem(`The voice note could not be saved. Please record it again. (Details: ${detailOf(e)})`);
     } finally {
       stopping.current = false;
+      setStartedAt(null);
     }
   }
 
   useEffect(() => {
-    if (state.isRecording && seconds >= LIMITS.voiceSeconds) stop();
-  }, [seconds, state.isRecording]);
+    if (live && seconds >= LIMITS.voiceSeconds) stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seconds, live]);
 
-  const live = state.isRecording;
   return (
     <Press
       onPress={live ? stop : start}
@@ -77,7 +96,7 @@ export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; o
       <View style={[tile.dot, live && { backgroundColor: colour.paper }]}>
         {live ? <View style={s.stopSquare} /> : <Icon name="mic" size={22} color={colour.ink} strokeWidth={2} />}
       </View>
-      <Text style={[tile.label, live && { color: colour.paper }]}>{live ? `0:${String(seconds).padStart(2, '0')} Stop` : 'Voice'}</Text>
+      <Text style={[tile.label, live && { color: colour.paper }]}>{live ? `0:${String(seconds).padStart(2, '0')} Stop` : busy ? 'Starting…' : 'Voice'}</Text>
     </Press>
   );
 }
