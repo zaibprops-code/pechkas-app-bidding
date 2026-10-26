@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Image, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
@@ -15,6 +15,7 @@ import { ask, supabase } from '../src/supabase';
 import { clearDraft, EMPTY, loadDraft, saveDraft, type Draft } from '../src/post/draft';
 import { afterSheet, clock, detailOf, LIMITS, recoverLostPick, takePhoto, takeVideo, tooBigWords, upload, type Media } from '../src/post/media';
 import { tile, VoicePlayback, VoiceTile } from '../src/post/VoiceNote';
+import { whenRecorded } from '../src/post/recorded';
 import { colour, font, radius } from '../src/theme';
 
 /**
@@ -156,6 +157,13 @@ export default function Post() {
   const min = lists?.min_offer_paisa ?? 100000;
   const offer = Math.max(min, d?.offer ?? chosen?.list_paisa ?? min);
 
+  // A video recorded on Pechkas' own camera screen comes back here.
+  useEffect(
+    () => whenRecorded((m) => changeMedia((all) => [...all.filter((x) => x.kind !== 'video'), m])),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   // A photo or video Android kept when it closed the app while the camera was open.
   const recovered = useRef(false);
   useEffect(() => {
@@ -180,7 +188,7 @@ export default function Post() {
   useEffect(() => {
     if (!d || opened.current || !session) return;
     opened.current = true;
-    if (params.start === 'video' && !d.media.some((m) => m.kind === 'video')) addVideo(true);
+    if (params.start === 'video' && !d.media.some((m) => m.kind === 'video')) recordVideo();
     // "Set the job's address" on the home map: straight to the pin, where the map was.
     if (params.start === 'pin' && mapsReady()) setPicking(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -213,6 +221,16 @@ export default function Post() {
     } catch (e) {
       problem(e);
     }
+  }
+
+  /**
+   * Recording a video: Pechkas' own camera screen, with the countdown, on a
+   * phone. A browser cannot record, so the browser copy used for testing
+   * keeps the phone's picker.
+   */
+  function recordVideo() {
+    if (Platform.OS === 'web') addVideo(true);
+    else router.push('/record');
   }
 
   async function addPhoto(camera: boolean) {
@@ -626,12 +644,12 @@ export default function Post() {
         <Sheet title={sheet === 'video' ? 'Add a video' : 'Add a photo'} onClose={() => setSheet(null)}>
           <SheetOption
             label={sheet === 'video' ? 'Record a video' : 'Take a photo'}
-            sub={sheet === 'video' ? `Up to ${LIMITS.videoSeconds} seconds. The camera stops by itself when the time is up.` : undefined}
+            sub={sheet === 'video' ? `Up to ${LIMITS.videoSeconds} seconds, with the time left on the screen. It stops by itself.` : undefined}
             icon={<Icon name="camera" size={22} color={colour.ink} strokeWidth={2} />}
             onPress={() => {
               const kind = sheet;
               setSheet(null);
-              afterSheet(() => (kind === 'video' ? addVideo(true) : addPhoto(true)));
+              afterSheet(() => (kind === 'video' ? recordVideo() : addPhoto(true)));
             }}
           />
           <SheetOption

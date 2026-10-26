@@ -7,6 +7,22 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Pechkas' own video camera, with the time left (new — no database step,
+needs a new build).** On Post a job: **Video → Record a video** now opens
+Pechkas' own camera. A big clock counts down from **0:20** at the top, a
+yellow bar fills across the screen, a red dot says **Recording**, and it
+stops by itself when the time is up — or tap the red button to stop
+sooner. The ⚡ button turns the phone's light on, for under sinks and
+behind cupboards; the camera button beside the record button turns to the
+front camera. The first time, the phone asks to allow the camera and the
+microphone: tap **Allow** for both. **Choose from the gallery** works as
+before.
+
+To try it: a new **preview** build from `main` (this one adds a camera
+part, so an old build cannot have it), then **Post a job → Video →
+Record a video**. If anything misbehaves, a red message appears just above
+the record button with a "Details" line — send me a screenshot.
+
 **How much time is left (new — no database step).** On Post a job, each
 tile says its limit: **Voice — up to 1 min**, **Video — up to 20 sec**,
 **Photo — up to 4**. While a voice note records, the tile counts down
