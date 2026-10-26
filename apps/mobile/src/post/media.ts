@@ -33,6 +33,12 @@ export function afterSheet(open: () => void) {
   setTimeout(open, 350);
 }
 
+/** Seconds as a clock reads them: 48 → "0:48", 60 → "1:00". */
+export function clock(seconds: number): string {
+  const s = Math.max(0, Math.round(seconds));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
 /** The words of any error, for the "Details" line people can screenshot. */
 export function detailOf(e: unknown): string {
   const m = e instanceof Error ? e.message : typeof e === 'string' ? e : '';

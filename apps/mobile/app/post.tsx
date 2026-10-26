@@ -13,7 +13,7 @@ import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
 import { ask, supabase } from '../src/supabase';
 import { clearDraft, EMPTY, loadDraft, saveDraft, type Draft } from '../src/post/draft';
-import { afterSheet, detailOf, LIMITS, recoverLostPick, takePhoto, takeVideo, tooBigWords, upload, type Media } from '../src/post/media';
+import { afterSheet, clock, detailOf, LIMITS, recoverLostPick, takePhoto, takeVideo, tooBigWords, upload, type Media } from '../src/post/media';
 import { tile, VoicePlayback, VoiceTile } from '../src/post/VoiceNote';
 import { colour, font, radius } from '../src/theme';
 
@@ -200,7 +200,7 @@ export default function Post() {
     const msg = e instanceof Error ? e.message : '';
     if (msg === 'camera') setNotice('Pechkas needs the camera for this. Allow it in your phone settings.');
     else if (msg === 'photos') setNotice('Pechkas needs your photos for this. Allow it in your phone settings.');
-    else if (msg === 'long') setNotice(`Keep the video under ${LIMITS.videoSeconds} seconds.`);
+    else if (msg === 'long') setNotice(`That video is longer than ${LIMITS.videoSeconds} seconds. Choose or record a shorter one: the camera stops by itself at ${LIMITS.videoSeconds} seconds.`);
     else if (tooBigWords(e)) setNotice(tooBigWords(e));
     else setNotice(`That did not work. Please try again. (Details: ${detailOf(e)})`);
   }
@@ -397,8 +397,10 @@ export default function Post() {
         {!voice || !video || photos.length < LIMITS.photos ? (
           <View style={s.tiles}>
             {voice ? null : <VoiceTile onDone={(m) => setMedia('voice', [m])} onProblem={setNotice} />}
-            {video ? null : <MediaTile icon="video" label="Video" onPress={() => setSheet('video')} />}
-            {photos.length < LIMITS.photos ? <MediaTile icon="camera" label={photos.length ? 'Add photo' : 'Photo'} onPress={() => setSheet('photo')} /> : null}
+            {video ? null : <MediaTile icon="video" label="Video" limit={`Up to ${LIMITS.videoSeconds} sec`} onPress={() => setSheet('video')} />}
+            {photos.length < LIMITS.photos ? (
+              <MediaTile icon="camera" label={photos.length ? 'Add photo' : 'Photo'} limit={photos.length ? `${LIMITS.photos - photos.length} more` : `Up to ${LIMITS.photos}`} onPress={() => setSheet('photo')} />
+            ) : null}
           </View>
         ) : null}
         {voice ? <VoicePlayback media={voice} onRemove={() => setMedia('voice', [])} /> : null}
@@ -407,7 +409,7 @@ export default function Post() {
             <View style={s.thumb}>
               <Icon name="video" size={22} color={colour.yellow} strokeWidth={2} />
             </View>
-            <Text style={s.fileText}>Video{video.seconds ? ` · 0:${String(video.seconds).padStart(2, '0')}` : ''}</Text>
+            <Text style={s.fileText}>Video{video.seconds ? ` · ${clock(video.seconds)} of ${clock(LIMITS.videoSeconds)}` : ''}</Text>
             <Remove label="Delete the video" onPress={() => setMedia('video', [])} />
           </View>
         ) : null}
@@ -623,7 +625,8 @@ export default function Post() {
       {sheet === 'video' || sheet === 'photo' ? (
         <Sheet title={sheet === 'video' ? 'Add a video' : 'Add a photo'} onClose={() => setSheet(null)}>
           <SheetOption
-            label={sheet === 'video' ? `Record a video (up to ${LIMITS.videoSeconds} seconds)` : 'Take a photo'}
+            label={sheet === 'video' ? 'Record a video' : 'Take a photo'}
+            sub={sheet === 'video' ? `Up to ${LIMITS.videoSeconds} seconds. The camera stops by itself when the time is up.` : undefined}
             icon={<Icon name="camera" size={22} color={colour.ink} strokeWidth={2} />}
             onPress={() => {
               const kind = sheet;
@@ -633,6 +636,7 @@ export default function Post() {
           />
           <SheetOption
             label="Choose from the gallery"
+            sub={sheet === 'video' ? `A video up to ${LIMITS.videoSeconds} seconds long.` : undefined}
             icon={<Icon name="image" size={22} color={colour.ink} strokeWidth={2} />}
             onPress={() => {
               const kind = sheet;
@@ -701,13 +705,16 @@ function Select({ label, value, placeholder, right, onPress }: { label: string; 
   );
 }
 
-function MediaTile({ icon, label, onPress }: { icon: 'video' | 'camera'; label: string; onPress: () => void }) {
+function MediaTile({ icon, label, limit, onPress }: { icon: 'video' | 'camera'; label: string; limit: string; onPress: () => void }) {
   return (
-    <Press onPress={onPress} accessibilityRole="button" sink={0.96} style={tile.box}>
+    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}, ${limit}`} sink={0.96} style={tile.box}>
       <View style={tile.dot}>
         <Icon name={icon} size={22} color={colour.ink} strokeWidth={2} />
       </View>
-      <Text style={tile.label}>{label}</Text>
+      <View style={{ alignItems: 'center' }}>
+        <Text style={tile.label}>{label}</Text>
+        <Text style={tile.limit}>{limit}</Text>
+      </View>
     </Press>
   );
 }

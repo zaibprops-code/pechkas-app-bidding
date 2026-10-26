@@ -210,6 +210,12 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   screenshot says what the phone said. `LIMITS.bytes` (50 MB) equals the
   `job-media` bucket's `file_size_limit` (migration `…_bigger_videos`,
   checked in `jobs.test.mjs`): change both together. Videos are 20 s.
+  **Every tile says its limit** (Up to 1 min, Up to 20 sec, Up to 4), the
+  voice tile counts down while it records ("0:48 left", a bar filling by
+  transform) and stops itself at the minute, and a finished video reads
+  "0:14 of 0:20". A video is recorded by the phone's own camera app, which
+  the app cannot draw on: its limit is said in the sheet before it opens,
+  and the camera is told to stop at it (`videoMaxDuration`).
 - Permissions: microphone, camera, photos and location **while using**.
   Background location and background audio are switched off in `app.json`;
   Google Play asks questions about both.

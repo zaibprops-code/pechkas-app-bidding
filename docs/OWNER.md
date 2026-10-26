@@ -7,6 +7,15 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**How much time is left (new — no database step).** On Post a job, each
+tile says its limit: **Voice — up to 1 min**, **Video — up to 20 sec**,
+**Photo — up to 4**. While a voice note records, the tile counts down
+(*0:48 left*) with a bar filling along its bottom, and stops by itself
+when the minute is up. A video is recorded by your phone's own camera app,
+which Pechkas cannot draw on; the menu says *"Up to 20 seconds. The camera
+stops by itself when the time is up"* before it opens, and the finished
+video shows *0:14 of 0:20*.
+
 **Voice notes, photos and videos made sturdier (new — one database step).**
 1. **Supabase → SQL Editor:** open `supabase/migrations/20261030000000_bigger_videos.sql`
    from this repository, paste it all in, press **Run**. It should say

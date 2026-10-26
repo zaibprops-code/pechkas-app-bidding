@@ -12,7 +12,7 @@ import {
 import { Icon } from '../components/Icon';
 import { Press } from '../components/Press';
 import { colour, font, radius } from '../theme';
-import { detailOf, LIMITS, type Media } from './media';
+import { clock, detailOf, LIMITS, type Media } from './media';
 
 /**
  * Say what is wrong, in Urdu or anything else: one tile in the row of three
@@ -85,28 +85,52 @@ export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; o
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seconds, live]);
 
+  // What is left, counted down, and a bar that fills as the minute runs out.
+  const left = Math.max(0, LIMITS.voiceSeconds - seconds);
+  const used = Math.min(1, seconds / LIMITS.voiceSeconds);
   return (
     <Press
       onPress={live ? stop : start}
       accessibilityRole="button"
-      accessibilityLabel={live ? 'Stop recording' : 'Record a voice note'}
+      accessibilityLabel={live ? `Stop recording. ${left} seconds left.` : `Record a voice note, up to ${LIMITS.voiceSeconds / 60} minute`}
       sink={0.96}
       style={[tile.box, live && tile.boxLive]}
     >
       <View style={[tile.dot, live && { backgroundColor: colour.paper }]}>
         {live ? <View style={s.stopSquare} /> : <Icon name="mic" size={22} color={colour.ink} strokeWidth={2} />}
       </View>
-      <Text style={[tile.label, live && { color: colour.paper }]}>{live ? `0:${String(seconds).padStart(2, '0')} Stop` : busy ? 'Starting…' : 'Voice'}</Text>
+      {live ? (
+        <View style={{ alignItems: 'center' }}>
+          <Text style={[tile.label, { color: colour.paper }]} accessibilityLiveRegion="polite">
+            {clock(left)} left
+          </Text>
+          <Text style={[tile.limit, { color: colour.paper }]}>Tap to stop</Text>
+        </View>
+      ) : (
+        <View style={{ alignItems: 'center' }}>
+          <Text style={tile.label}>{busy ? 'Starting…' : 'Voice'}</Text>
+          <Text style={tile.limit}>Up to {LIMITS.voiceSeconds / 60} min</Text>
+        </View>
+      )}
+      {live ? (
+        <View style={tile.track} accessible={false}>
+          {/* Grows from the left by transform only, as everything that moves in the app. */}
+          <View style={[tile.fill, { transform: [{ scaleX: used }] }]} />
+        </View>
+      ) : null}
     </Press>
   );
 }
 
 /** The look every tile in the row shares: voice, video, photo. */
 export const tile = StyleSheet.create({
-  box: { flex: 1, minHeight: 92, alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 6, borderRadius: radius.big, backgroundColor: colour.canvas },
+  box: { flex: 1, minHeight: 100, alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, paddingHorizontal: 6, borderRadius: radius.big, backgroundColor: colour.canvas, overflow: 'hidden' },
   boxLive: { backgroundColor: colour.brick },
   dot: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: colour.yellow },
   label: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink, textAlign: 'center' },
+  limit: { fontFamily: font.body, fontSize: 11, color: colour.steel, textAlign: 'center' },
+  track: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 5, backgroundColor: 'rgba(250,246,239,0.3)', overflow: 'hidden' },
+  fill: { height: 5, backgroundColor: colour.paper, transformOrigin: 'left' },
 });
 
 /** A recorded note under the row: play it back, or delete it. */
@@ -131,7 +155,7 @@ export function VoicePlayback({ media, onRemove }: { media: Media; onRemove: () 
         {playing ? <View style={s.pause} /> : <View style={s.play} />}
       </Press>
       <View style={{ flex: 1 }}>
-        <Text style={s.title}>Voice note · 0:{String(media.seconds ?? 0).padStart(2, '0')}</Text>
+        <Text style={s.title}>Voice note · {clock(media.seconds ?? 0)}</Text>
         <Text style={s.sub}>{media.path ? 'Uploaded' : 'Ready to send'}</Text>
       </View>
       <Press onPress={onRemove} sink={0.94} accessibilityRole="button" accessibilityLabel="Delete the voice note" style={s.remove}>

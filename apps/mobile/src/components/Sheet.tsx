@@ -47,11 +47,14 @@ export function Sheet({ children, onClose, closeLabel = 'Close', title }: { chil
 }
 
 /** One choice in a sheet: a line of words, something on the right, a tick when it is the one chosen. */
-export function SheetOption({ label, right, on = false, onPress, icon }: { label: string; right?: string; on?: boolean; onPress: () => void; icon?: ReactNode }) {
+export function SheetOption({ label, sub, right, on = false, onPress, icon }: { label: string; sub?: string; right?: string; on?: boolean; onPress: () => void; icon?: ReactNode }) {
   return (
     <Press onPress={onPress} accessibilityRole="radio" accessibilityState={{ selected: on }} sink={0.98} style={[s.option, on && s.optionOn]}>
       {icon ?? null}
-      <Text style={[s.optionText, on && { fontFamily: font.bodySemi }]}>{label}</Text>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={[s.optionText, on && { fontFamily: font.bodySemi }]}>{label}</Text>
+        {sub ? <Text style={s.optionSub}>{sub}</Text> : null}
+      </View>
       {right ? <Text style={s.optionRight}>{right}</Text> : null}
       {on ? <Icon name="check" size={20} color={colour.green} strokeWidth={2.6} /> : null}
     </Press>
@@ -69,5 +72,6 @@ const s = StyleSheet.create({
   option: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 16 },
   optionOn: { backgroundColor: colour.greenSoft },
   optionText: { flex: 1, fontFamily: font.bodyMedium, fontSize: 16, lineHeight: 21, color: colour.ink },
+  optionSub: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
   optionRight: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green },
 });
