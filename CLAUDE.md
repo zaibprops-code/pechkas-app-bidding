@@ -337,6 +337,24 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   one place a job is acted on: choosing, declining, cancelling, the start
   code, a new price, paying, rating, blocking. It asks `my_jobs()` every
   5 s while open and 10 s after, only while in front.
+- **The job's screen is a stack of white cards**, redesigned at the
+  owner's request in the same style, from the pieces in
+  `src/customer/bits.tsx` (`TradeTile`, `Steps`, `Panel`, `Action`) that
+  My jobs shares. Top to bottom: the search (while open); with offers,
+  **Offers** first with a yellow count, one card each, then **Your job**;
+  the job card (drawing, trade · ref, title, the price with what it is —
+  Your price, Agreed, Total, Visit fee — and when, where and the files as
+  icon lines); once chosen, **his card** (initial, where he has got to,
+  checked and years, the four steps, Call / Chat / Family / Report as
+  square two-tone buttons, Emergency full-width red, never a tile), the
+  start code in ink, a new price as a soft-yellow card with Approve over
+  Decline; once over, **what to pay** large on soft yellow (his work and
+  parts split when there were parts), Photos, Rate, and the guarantee or
+  "something not right"; and at the foot one card for ask again, block
+  and cancel, where nobody taps them by mistake. On a phone under 360
+  wide the price moves under the title and long button labels drop the
+  price or the word "Pechkas", so nothing is cut or wrapped mid-figure.
+  Every action is the same database call as before.
 - **My jobs (`app/jobs.tsx`) is the history, laid out like a ride app's**
   — redesigned at the owner's request in the menu's and home's style. No
   buttons on it but the cards themselves, each opening the job's screen.

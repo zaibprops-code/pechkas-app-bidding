@@ -1,12 +1,14 @@
 import { useToast } from '../components/Toast';
 import { done } from '../message';
 import { useState } from 'react';
-import { Image, Linking, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Linking, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
 import { rupees, showMobile } from '@pechkas/shared';
 import { Button, Notice } from '../components/ui';
 import { Press } from '../components/Press';
 import { Stars } from '../components/Stars';
+import { DuoIcon } from '../components/DuoIcon';
+import { Action, Panel, SHADOW, SOFT_YELLOW, Steps } from './bits';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { useSignedUrls } from '../post/RemoteMedia';
 import { ask } from '../supabase';
@@ -49,11 +51,12 @@ export type JobNow = {
   claim_open?: boolean;
 };
 
-const WHERE: Record<Stage, (name: string) => string> = {
-  chosen: (n) => `${n} is your technician. Your phone tells you when he sets off.`,
-  on_way: (n) => `${n} is on his way.`,
-  arrived: (n) => `${n} has arrived.`,
-  working: (n) => `${n} is working on it.`,
+/** Where he has got to, as the heading of the "your technician" card. */
+const HEAD: Record<Stage, (name: string) => string> = {
+  chosen: (n) => `${n} is your technician`,
+  on_way: (n) => `${n} is on his way`,
+  arrived: (n) => `${n} has arrived`,
+  working: (n) => `${n} is working on it`,
 };
 
 export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => void }) {
@@ -91,21 +94,52 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
     onChanged();
   }
 
+  const narrow = useWindowDimensions().width < 360;
+  const early = job.stage === 'chosen' || job.stage === 'on_way';
+
   return (
-    <View style={s.box}>
-      <View style={s.top}>
-        <View style={s.avatar}>
-          <Text style={s.avatarText}>{pro.first_name.charAt(0)}</Text>
+    <>
+      {/* Who is coming and where he has got to, with every way to reach him in one row. */}
+      <View style={s.panel}>
+        <View style={s.top}>
+          <View style={s.avatar}>
+            <Text style={s.avatarText}>{pro.first_name.charAt(0)}</Text>
+          </View>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={s.name}>{HEAD[job.stage ?? 'chosen'](pro.first_name)}</Text>
+            <View style={s.checked}>
+              <DuoIcon name="shield" size={16} />
+              <Text style={s.meta}>
+                Checked by Pechkas · {pro.years} {pro.years === 1 ? 'year' : 'years'} in the trade
+              </Text>
+            </View>
+          </View>
         </View>
-        <View style={{ flex: 1 }}>
-          <Text style={s.name}>{job.stage ? WHERE[job.stage](pro.first_name) : `${pro.first_name} is your technician`}</Text>
-          <Text style={s.meta}>Checked by Pechkas · agreed {rupees(job.agreed_paisa)}</Text>
+        <Steps stage={job.stage} narrow={narrow} />
+        {job.stage === 'chosen' || !job.stage ? <Text style={s.line}>Your phone tells you when he sets off.</Text> : null}
+        <View style={s.actions}>
+          {pro.phone ? <Action icon="phone" label="Call" full={`Call ${pro.first_name}`} onPress={() => Linking.openURL(`tel:+${pro.phone!.replace(/^\+/, '')}`)} /> : null}
+          <Action icon="chat" label="Chat" full={`Message ${pro.first_name}`} onPress={() => router.push({ pathname: '/chat/[job]', params: { job: job.id } })} />
+          {early ? <Action icon="share" label="Family" full="Send his name to family on WhatsApp" onPress={() => Linking.openURL(`https://wa.me/?text=${family}`)} /> : null}
+          <Action icon="flag" label="Report" full="Report a problem" on={reporting} onPress={() => setReporting(!reporting)} />
         </View>
+        {reporting ? (
+          <View style={{ gap: 8 }}>
+            <Text style={s.line}>Tell us what is wrong. The Pechkas office reads it and calls you.</Text>
+            <TextInput value={reportText} onChangeText={setReportText} maxLength={500} multiline accessibilityLabel="What is wrong" style={s.input} />
+            <Button kind="green" label="Send to Pechkas" busy={busy} onPress={sendReport} />
+          </View>
+        ) : null}
+        {reported ? <Text style={s.line}>The Pechkas office has been told. They will call you.</Text> : null}
+        <Button kind="danger" label="Emergency" onPress={() => router.push({ pathname: '/emergency/[job]', params: { job: job.id } })} />
       </View>
 
       {job.start_code && !job.code_locked ? (
         <View style={s.codeBox}>
-          <Text style={s.codeLabel}>Your start code</Text>
+          <View style={s.codeHead}>
+            <DuoIcon name="lock" size={22} ink={colour.paper} />
+            <Text style={s.codeLabel}>Your start code</Text>
+          </View>
           <Text style={s.code} accessibilityLabel={`Start code ${job.start_code.split('').join(' ')}`}>
             {job.start_code.split('').join(' ')}
           </Text>
@@ -118,30 +152,27 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
       {job.code_locked ? (
         <View style={s.warnBox}>
           <Text style={s.warnText}>Too many wrong codes were tried at your door. Do not let anyone in yet. Pechkas will call you.</Text>
-          <Button kind="green" label={`Call Pechkas · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+          <Button kind="green" label={narrow ? `Call ${OFFICE_PHONE_SHOWN}` : `Call Pechkas · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
         </View>
       ) : null}
 
       {job.change ? (
-        <View style={s.change}>
-          <Text style={s.changeTitle}>
-            {pro.first_name} asks {rupees(job.change.price_paisa)} instead of {rupees(job.change.from_paisa)}
-          </Text>
-          <Text style={s.line}>“{job.change.reason}”</Text>
+        <Panel
+          tone="money"
+          icon="wallet"
+          title={`${pro.first_name} asks for ${rupees(job.change.price_paisa)}`}
+          hint={`Instead of the ${rupees(job.change.from_paisa)} agreed. Nothing changes unless you approve.`}
+        >
+          <Text style={s.quote}>“{job.change.reason}”</Text>
           {urls[job.change.photo] ? (
             <Press onPress={() => Linking.openURL(urls[job.change!.photo])} accessibilityRole="imagebutton" accessibilityLabel="The photo he sent">
               <Image source={{ uri: urls[job.change.photo] }} style={s.changePhoto} />
             </Press>
           ) : null}
-          <Text style={s.small}>Nothing changes unless you approve.</Text>
           {!declining ? (
-            <View style={s.row}>
-              <View style={{ flex: 1 }}>
-                <Button kind="green" label={`Approve ${rupees(job.change.price_paisa)}`} busy={busy} onPress={() => decide(true)} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Button kind="outline" label="Decline" onPress={() => setDeclining(true)} />
-              </View>
+            <View style={{ gap: 8 }}>
+              <Button kind="green" label={`Approve ${rupees(job.change.price_paisa)}`} busy={busy} onPress={() => decide(true)} />
+              <Button kind="outline" label="Decline" onPress={() => setDeclining(true)} />
             </View>
           ) : (
             <View style={{ gap: 8 }}>
@@ -152,41 +183,11 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
               <Button kind="outline" label="Go back" onPress={() => setDeclining(false)} />
             </View>
           )}
-        </View>
+        </Panel>
       ) : null}
 
       <Notice text={msg} />
-
-      <View style={s.row}>
-        {pro.phone ? (
-          <View style={{ flex: 1 }}>
-            <Button kind="green" label={`Call ${pro.first_name}`} onPress={() => Linking.openURL(`tel:+${pro.phone!.replace(/^\+/, '')}`)} />
-          </View>
-        ) : null}
-        <View style={{ flex: 1 }}>
-          <Button kind="outline" label="Message" onPress={() => router.push({ pathname: '/chat/[job]', params: { job: job.id } })} />
-        </View>
-      </View>
-      {job.stage === 'chosen' || job.stage === 'on_way' ? (
-        <Button kind="outline" label="Send his name to family on WhatsApp" onPress={() => Linking.openURL(`https://wa.me/?text=${family}`)} />
-      ) : null}
-      <View style={s.row}>
-        <View style={{ flex: 1 }}>
-          <Button kind="outline" label="Report a problem" onPress={() => setReporting(!reporting)} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Button kind="danger" label="Emergency" onPress={() => router.push({ pathname: '/emergency/[job]', params: { job: job.id } })} />
-        </View>
-      </View>
-      {reporting ? (
-        <View style={{ gap: 8 }}>
-          <Text style={s.line}>Tell us what is wrong. The Pechkas office reads it and calls you.</Text>
-          <TextInput value={reportText} onChangeText={setReportText} maxLength={500} multiline accessibilityLabel="What is wrong" style={s.input} />
-          <Button kind="green" label="Send to Pechkas" busy={busy} onPress={sendReport} />
-        </View>
-      ) : null}
-      {reported ? <Text style={s.line}>The Pechkas office has been told. They will call you.</Text> : null}
-    </View>
+    </>
   );
 }
 
@@ -240,109 +241,134 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
     onChanged();
   }
 
+  const stages = (['before', 'after', 'receipt'] as const).filter((stage) => photos.some((p) => p.stage === stage));
+  const help = job.claim_open || guarantee || job.problem_at || job.can_report;
+
   return (
-    <View style={s.box}>
-      <Text style={s.endTitle}>
-        {job.status === 'done' ? `Done. Pay ${name} ${rupees(job.collect_paisa)} in cash.` : `Stopped. Pay ${name} the visit fee, ${rupees(job.collect_paisa)}.`}
-      </Text>
-      {job.status === 'stopped' ? <Text style={s.line}>You declined the new price, so the job stopped there.</Text> : null}
-      {job.parts_paisa ? (
-        <Text style={s.line}>
-          Of that, {rupees(job.parts_paisa)} was parts he bought, with the shop receipt below, and {rupees((job.collect_paisa ?? 0) - job.parts_paisa)} his work.
-        </Text>
-      ) : null}
-      {(['before', 'after', 'receipt'] as const).map((stage) => {
-        const list = photos.filter((p) => p.stage === stage);
-        if (!list.length) return null;
-        return (
-          <View key={stage} style={{ gap: 6 }}>
-            <Text style={s.small}>{stage === 'before' ? 'Before' : stage === 'after' ? 'After' : 'Shop receipt'}</Text>
-            <View style={s.photos}>
-              {list.map((p) =>
-                urls[p.path] ? (
-                  <Press key={p.path} onPress={() => Linking.openURL(urls[p.path])} accessibilityRole="imagebutton" accessibilityLabel={`${stage} photo`}>
-                    <Image source={{ uri: urls[p.path] }} style={s.photo} />
-                  </Press>
-                ) : (
-                  <View key={p.path} style={[s.photo, { backgroundColor: colour.paper2 }]} />
-                ),
-              )}
+    <>
+      {/* What to pay, large: the one figure she needs at the door. */}
+      <View style={[s.panel, s.pay]}>
+        <Text style={s.payLabel}>{job.status === 'done' ? `Pay ${name} in cash` : `Pay ${name} the visit fee`}</Text>
+        <Text style={s.payAmount}>{rupees(job.collect_paisa)}</Text>
+        {job.status === 'stopped' ? <Text style={s.line}>You declined the new price, so the job stopped there.</Text> : null}
+        {job.parts_paisa ? (
+          <View style={s.split}>
+            <View style={s.splitRow}>
+              <Text style={s.line}>His work</Text>
+              <Text style={s.splitFigure}>{rupees((job.collect_paisa ?? 0) - job.parts_paisa)}</Text>
+            </View>
+            <View style={s.splitRow}>
+              <Text style={s.line}>Parts he bought{stages.includes('receipt') ? ' (receipt below)' : ''}</Text>
+              <Text style={s.splitFigure}>{rupees(job.parts_paisa)}</Text>
             </View>
           </View>
-        );
-      })}
+        ) : null}
+      </View>
+
+      {stages.length ? (
+        <Panel icon="camera" title="Photos" hint="Tap one to see it full size.">
+          {stages.map((stage) => (
+            <View key={stage} style={{ gap: 8 }}>
+              <Text style={s.small}>{stage === 'before' ? 'Before' : stage === 'after' ? 'After' : 'Shop receipt'}</Text>
+              <View style={s.photos}>
+                {photos
+                  .filter((p) => p.stage === stage)
+                  .map((p) =>
+                    urls[p.path] ? (
+                      <Press key={p.path} onPress={() => Linking.openURL(urls[p.path])} accessibilityRole="imagebutton" accessibilityLabel={`${stage} photo`}>
+                        <Image source={{ uri: urls[p.path] }} style={s.photo} />
+                      </Press>
+                    ) : (
+                      <View key={p.path} style={[s.photo, { backgroundColor: colour.paper2 }]} />
+                    ),
+                  )}
+              </View>
+            </View>
+          ))}
+        </Panel>
+      ) : null}
+
       {job.can_rate ? (
-        <View style={s.rate}>
-          <Text style={s.small}>Rate {name}</Text>
+        <Panel icon="star" title={`Rate ${name}`} hint={`${name} sees it once he has rated you too, or after two days.`}>
           <Stars value={stars} onPick={setStars} label={`Rate ${name}`} />
           {stars ? (
             <>
               <TextInput value={words} onChangeText={setWords} maxLength={300} placeholder="Anything to say? (optional)" placeholderTextColor={colour.steel} accessibilityLabel="Anything to say" style={[s.input, { minHeight: 52 }]} />
-              <Text style={s.small}>{name} sees it once he has rated you too, or after two days.</Text>
               <Button kind="green" label="Send rating" busy={busy} onPress={rate} />
             </>
           ) : null}
-        </View>
+        </Panel>
       ) : null}
       {job.my_rating ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Text style={s.small}>You rated {name}</Text>
-          <Stars value={job.my_rating} size={16} />
-        </View>
+        <Panel icon="star" title={`You rated ${name}`}>
+          <Stars value={job.my_rating} size={22} />
+        </Panel>
       ) : null}
-      {job.claim_open ? <Text style={s.line}>Your guarantee claim is with the Pechkas office. They will call you.</Text> : null}
-      {/* In the first day "Something is wrong" covers it; after that, the guarantee. */}
-      {guarantee && !job.claim_open && !claiming && !job.can_report ? (
-        <View style={{ gap: 4 }}>
-          <Button kind="outline" label="It has failed again (guarantee)" onPress={() => setClaiming(true)} />
-          <Text style={s.small}>Pechkas guarantees this work until {guarantee.toLocaleDateString('en-PK', { day: 'numeric', month: 'long' })}.</Text>
-        </View>
-      ) : null}
-      {guarantee && claiming ? (
-        <View style={{ gap: 8 }}>
-          <Text style={s.line}>What has gone wrong? Pechkas reads it, calls you, and arranges the repair.</Text>
-          <TextInput value={claimText} onChangeText={setClaimText} maxLength={500} multiline accessibilityLabel="What has gone wrong" style={s.input} />
-          <Button kind="green" label="Claim the guarantee" busy={busy} onPress={claim} />
-          <Button kind="outline" label="Go back" onPress={() => setClaiming(false)} />
-        </View>
-      ) : null}
-      {job.problem_at ? <Text style={s.line}>You told us something is wrong. The Pechkas office will call you.</Text> : null}
-      {job.can_report && !writing ? <Button kind="outline" label="Something is wrong" onPress={() => setWriting(true)} /> : null}
-      {job.can_report && writing ? (
-        <View style={{ gap: 8 }}>
-          <Text style={s.line}>Tell us what is wrong. The Pechkas office reads it and calls you.</Text>
-          <TextInput value={text} onChangeText={setText} maxLength={500} multiline accessibilityLabel="What is wrong" style={s.input} />
-          <Button kind="green" label="Send to Pechkas" busy={busy} onPress={report} />
-          <Button kind="outline" label="Go back" onPress={() => setWriting(false)} />
-        </View>
+
+      {help ? (
+        <Panel
+          icon="shield"
+          title={guarantee ? `Guaranteed until ${guarantee.toLocaleDateString('en-PK', { day: 'numeric', month: 'long' })}` : 'Something not right?'}
+          hint={guarantee ? 'If the same fault comes back, Pechkas arranges the repair.' : undefined}
+        >
+          {job.claim_open ? <Text style={s.line}>Your guarantee claim is with the Pechkas office. They will call you.</Text> : null}
+          {/* In the first day "Something is wrong" covers it; after that, the guarantee. */}
+          {guarantee && !job.claim_open && !claiming && !job.can_report ? (
+            <Button kind="outline" label="The fault has come back" onPress={() => setClaiming(true)} />
+          ) : null}
+          {guarantee && claiming ? (
+            <View style={{ gap: 8 }}>
+              <Text style={s.line}>What has gone wrong? Pechkas reads it, calls you, and arranges the repair.</Text>
+              <TextInput value={claimText} onChangeText={setClaimText} maxLength={500} multiline accessibilityLabel="What has gone wrong" style={s.input} />
+              <Button kind="green" label="Claim the guarantee" busy={busy} onPress={claim} />
+              <Button kind="outline" label="Go back" onPress={() => setClaiming(false)} />
+            </View>
+          ) : null}
+          {job.problem_at ? <Text style={s.line}>You told us something is wrong. The Pechkas office will call you.</Text> : null}
+          {job.can_report && !writing ? <Button kind="outline" label="Something is wrong" onPress={() => setWriting(true)} /> : null}
+          {job.can_report && writing ? (
+            <View style={{ gap: 8 }}>
+              <Text style={s.line}>Tell us what is wrong. The Pechkas office reads it and calls you.</Text>
+              <TextInput value={text} onChangeText={setText} maxLength={500} multiline accessibilityLabel="What is wrong" style={s.input} />
+              <Button kind="green" label="Send to Pechkas" busy={busy} onPress={report} />
+              <Button kind="outline" label="Go back" onPress={() => setWriting(false)} />
+            </View>
+          ) : null}
+        </Panel>
       ) : null}
       <Notice text={msg} />
-    </View>
+    </>
   );
 }
 
 const s = StyleSheet.create({
-  box: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.greenSoft },
-  top: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  avatar: { width: 42, height: 42, borderRadius: 999, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontFamily: font.display, fontSize: 18, color: colour.yellow },
-  name: { fontFamily: font.bodySemi, fontSize: 16, lineHeight: 21, color: colour.ink },
-  meta: { fontFamily: font.body, fontSize: 12, color: colour.steel },
+  panel: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: SHADOW },
+  top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  avatar: { width: 52, height: 52, borderRadius: 26, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontFamily: font.display, fontSize: 22, color: colour.yellow },
+  name: { fontFamily: font.display, fontSize: 18, lineHeight: 23, color: colour.ink },
+  checked: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  meta: { flex: 1, fontFamily: font.body, fontSize: 13, color: colour.steel },
+  actions: { flexDirection: 'row', gap: 8 },
   line: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft },
-  small: { fontFamily: font.bodySemi, fontSize: 12, color: colour.steel },
+  small: { fontFamily: font.bodySemi, fontSize: 12.5, color: colour.steel },
+  quote: { fontFamily: font.bodyMedium, fontSize: 15, lineHeight: 21, color: colour.ink },
   row: { flexDirection: 'row', gap: 8 },
-  codeBox: { gap: 4, padding: 14, borderRadius: radius.card, backgroundColor: colour.ink, alignItems: 'center' },
-  codeLabel: { fontFamily: font.bodySemi, fontSize: 13, color: '#b9c2c9' },
-  code: { fontFamily: font.mono, fontSize: 40, letterSpacing: 6, color: colour.yellow },
-  codeText: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.paper, textAlign: 'center' },
-  warnBox: { gap: 8, padding: 12, borderRadius: radius.card, backgroundColor: '#f6e3dc' },
-  warnText: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.brick },
-  change: { gap: 8, padding: 12, borderRadius: radius.card, backgroundColor: colour.white, borderWidth: 2, borderColor: colour.yellow },
-  changeTitle: { fontFamily: font.display, fontSize: 18, lineHeight: 23, color: colour.ink },
-  changePhoto: { width: '100%', height: 160, borderRadius: 12 },
-  endTitle: { fontFamily: font.display, fontSize: 18, lineHeight: 23, color: colour.greenDark },
+  codeBox: { gap: 6, padding: 18, borderRadius: 24, backgroundColor: colour.ink, alignItems: 'center' },
+  codeHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  codeLabel: { fontFamily: font.bodySemi, fontSize: 14, color: '#d5dbe0' },
+  code: { fontFamily: font.mono, fontSize: 42, letterSpacing: 6, color: colour.yellow },
+  codeText: { fontFamily: font.body, fontSize: 13.5, lineHeight: 19, color: colour.paper, textAlign: 'center' },
+  warnBox: { gap: 10, padding: 16, borderRadius: 24, backgroundColor: '#f6e3dc' },
+  warnText: { fontFamily: font.bodySemi, fontSize: 14.5, lineHeight: 21, color: colour.brick },
+  changePhoto: { width: '100%', height: 170, borderRadius: 16 },
+  pay: { gap: 4, alignItems: 'center', paddingVertical: 22, backgroundColor: SOFT_YELLOW },
+  payLabel: { fontFamily: font.bodySemi, fontSize: 15, color: colour.inkSoft },
+  payAmount: { fontFamily: font.display, fontSize: 40, lineHeight: 48, color: colour.ink },
+  split: { alignSelf: 'stretch', gap: 6, marginTop: 10, padding: 12, borderRadius: 16, backgroundColor: colour.white },
+  splitRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
+  splitFigure: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   photos: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  photo: { width: 72, height: 72, borderRadius: 12 },
-  rate: { gap: 6, padding: 10, borderRadius: radius.card, backgroundColor: colour.white },
+  photo: { width: 84, height: 84, borderRadius: 14 },
   input: { minHeight: 80, borderRadius: 14, padding: 12, backgroundColor: colour.white, color: colour.ink, fontFamily: font.bodyMedium, fontSize: 15, borderWidth: 1.5, borderColor: colour.rule },
 });

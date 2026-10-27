@@ -7,13 +7,13 @@ import { MenuButton } from '../src/components/Menu';
 import { Hero, Loading, Notice, NotifyCard, SystemBars, useScrollEnd } from '../src/components/ui';
 import { Icon } from '../src/components/Icon';
 import { DuoIcon } from '../src/components/DuoIcon';
-import { Art, artFor } from '../src/components/Art';
 import { Press } from '../src/components/Press';
 import { ScrewSpinner } from '../src/components/ScrewSpinner';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
 import { useNotify } from '../src/notifications';
 import { type Job } from '../src/customer/JobCard';
+import { SHADOW, SOFT_YELLOW, Steps, TradeTile } from '../src/customer/bits';
 import { supabase } from '../src/supabase';
 import { Trouble } from '../src/components/Trouble';
 import { noAnswer, type NoAnswer } from '../src/net';
@@ -162,19 +162,6 @@ const WHEN = { now: 'As soon as possible', today: 'Today', tomorrow: 'Tomorrow' 
 /** What she will actually pay once there is a figure for it; her offer until then. */
 const priceOf = (j: Job) => j.collect_paisa ?? j.agreed_paisa ?? j.offered_paisa;
 
-/** The trade's drawing on a cream tile, or the jobs icon for a trade without one. */
-function TradeTile({ trade, size }: { trade: string; size: number }) {
-  const art = artFor(trade);
-  return (
-    <View style={[s.tradeTile, { width: size, height: size, borderRadius: size * 0.32 }]}>
-      {art ? <Art name={art} width={Math.round(size * 0.86)} height={Math.round(size * 0.65)} /> : <DuoIcon name="jobs" size={Math.round(size * 0.45)} />}
-    </View>
-  );
-}
-
-const STEPS = ['chosen', 'on_way', 'arrived', 'working'] as const;
-const STEP_WORDS = { chosen: 'Chosen', on_way: 'On the way', arrived: 'Arrived', working: 'Working' } as const;
-
 /**
  * A job still happening. Open: the screw turning while nobody has offered,
  * then a yellow pill once there is something to choose. Chosen: who is
@@ -183,7 +170,6 @@ const STEP_WORDS = { chosen: 'Chosen', on_way: 'On the way', arrived: 'Arrived',
 function LiveJob({ job, trade, narrow }: { job: Job; trade: string; narrow: boolean }) {
   const name = job.pro?.first_name;
   const offers = job.live_offers;
-  const step = job.stage ? STEPS.indexOf(job.stage) : 0;
   const headline =
     job.status === 'open'
       ? offers
@@ -240,22 +226,7 @@ function LiveJob({ job, trade, narrow }: { job: Job; trade: string; narrow: bool
         {todo ? null : <Icon name="chevronRight" size={20} color={colour.steel} strokeWidth={2.2} />}
       </View>
 
-      {job.status === 'assigned' ? (
-        <View accessible accessibilityLabel={`Step ${step + 1} of 4: ${STEP_WORDS[STEPS[step]]}`}>
-          <View style={s.steps}>
-            {STEPS.map((k, i) => (
-              <View key={k} style={[s.step, i <= step && s.stepDone]} />
-            ))}
-          </View>
-          <View style={s.stepWords}>
-            {STEPS.map((k, i) => (
-              <Text key={k} style={[s.stepWord, narrow && s.stepWordNarrow, i === step && s.stepWordNow]} numberOfLines={1}>
-                {STEP_WORDS[k]}
-              </Text>
-            ))}
-          </View>
-        </View>
-      ) : null}
+      {job.status === 'assigned' ? <Steps stage={job.stage} narrow={narrow} /> : null}
 
       {todo ? (
         <View style={s.todo}>
@@ -337,9 +308,6 @@ function PostCta({ first = false }: { first?: boolean }) {
   );
 }
 
-const CREAM = '#f6f2e8';
-const SOFT_YELLOW = '#fff6dc';
-const SHADOW = '0px 2px 10px rgba(20, 23, 26, 0.05)';
 
 const s = StyleSheet.create({
   body: { paddingTop: 14, paddingHorizontal: 12, gap: 18 },
@@ -349,7 +317,6 @@ const s = StyleSheet.create({
 
   live: { gap: 14, padding: 14, borderRadius: 26, backgroundColor: colour.white, boxShadow: SHADOW },
   liveTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  tradeTile: { backgroundColor: CREAM, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   kicker: { fontFamily: font.bodyMedium, fontSize: 12.5, color: colour.steel },
   liveTitle: { fontFamily: font.displayBold, fontSize: 16.5, lineHeight: 21, color: colour.ink },
   price: { fontFamily: font.display, fontSize: 19, color: colour.ink },
@@ -363,13 +330,6 @@ const s = StyleSheet.create({
   statusTitle: { fontFamily: font.display, fontSize: 15.5, color: colour.ink },
   statusSub: { fontFamily: font.body, fontSize: 13, color: colour.steel },
 
-  steps: { flexDirection: 'row', gap: 6 },
-  step: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colour.canvas },
-  stepDone: { backgroundColor: colour.green },
-  stepWords: { flexDirection: 'row', gap: 6, marginTop: 6 },
-  stepWord: { flex: 1, fontFamily: font.body, fontSize: 12, color: colour.steel },
-  stepWordNarrow: { fontSize: 10.5 },
-  stepWordNow: { fontFamily: font.bodySemi, color: colour.greenDark },
 
   todo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, paddingHorizontal: 18, borderRadius: radius.pill, backgroundColor: colour.yellow },
   todoText: { fontFamily: font.display, fontSize: 15.5, color: colour.ink },

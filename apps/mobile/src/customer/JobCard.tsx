@@ -1,12 +1,13 @@
 import { useToast } from '../components/Toast';
 import { done } from '../message';
 import { useEffect, useState } from 'react';
-import { Linking, StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
 import { rupees } from '@pechkas/shared';
 import { ScrewSpinner } from '../components/ScrewSpinner';
 import { Button, Field, Notice } from '../components/ui';
-import { Icon } from '../components/Icon';
+import { DuoIcon, type DuoName } from '../components/DuoIcon';
+import { SHADOW, TradeTile } from './bits';
 import { Stars } from '../components/Stars';
 import { Press } from '../components/Press';
 import { Ended, UnderWay, type JobNow } from './UnderWay';
@@ -139,101 +140,161 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
     onChanged();
   }
 
+  const narrow = useWindowDimensions().width < 360;
+  const canAskAgain = Boolean(job.can_ask_again && job.pro);
+  const canBlock = Boolean(job.can_block && job.block_name);
+  const officeOnly = assigned && !canCancel;
+  const status =
+    job.status === 'done'
+      ? 'Done'
+      : job.status === 'stopped'
+        ? 'Stopped at the door'
+        : assigned
+          ? 'Technician chosen'
+          : open
+            ? job.live_offers > 0
+              ? `${job.live_offers} ${job.live_offers === 1 ? 'offer' : 'offers'} to choose from`
+              : 'Waiting for offers'
+            : job.cancelled_by === 'office'
+              ? 'Cancelled by Pechkas'
+              : 'Cancelled';
+  // What the figure beside the title is, so nobody reads her own offer as the bill.
+  const priceLabel = open || job.status === 'cancelled' ? 'Your price' : assigned ? 'Agreed' : job.status === 'stopped' ? 'Visit fee' : 'Total';
+
+  const offersFirst = open && job.live_offers > 0;
+  const shown = rupees(job.collect_paisa ?? job.agreed_paisa ?? job.offered_paisa);
+
   return (
-    <View style={[s.card, !active && s.cardClosed]}>
-      {/* In a list, the top of the card opens the job's own screen. */}
-      <Press onPress={onOpen} disabled={!onOpen} accessibilityRole={onOpen ? 'button' : undefined} sink={onOpen ? 0.98 : 1} style={s.cardTop}>
-        <View style={{ flex: 1, gap: 2 }}>
-          <Text style={s.trade}>{trade} · {job.ref}</Text>
-          <Text style={s.jobTitle}>{job.title}</Text>
-        </View>
-        {/* What she will actually pay once there is a figure for it; her offer until then. */}
-        <Text style={s.price}>{rupees(job.collect_paisa ?? job.agreed_paisa ?? job.offered_paisa)}</Text>
-        {onOpen ? <Icon name="chevronRight" size={18} color={colour.steel} strokeWidth={2.2} /> : null}
-      </Press>
-      <Text style={s.line}>
-        {WHEN[job.when_kind]}
-        {job.when_part ? `, ${job.when_part}` : ''} · {job.house}, {job.street}, {job.sector}
-      </Text>
-      {files ? <Text style={s.muted}>{files}</Text> : null}
-      <View style={[s.badge, { backgroundColor: active || ended ? colour.greenSoft : colour.paper2 }]}>
-        {open && !(job.live_offers > 0) ? <ScrewSpinner size={16} colour={colour.steel} label="Waiting for offers" /> : null}
-        <Text style={[s.badgeText, { color: active || ended ? colour.greenDark : colour.steel }]}>
-          {job.status === 'done'
-            ? 'Done'
-            : job.status === 'stopped'
-              ? 'Stopped at the door'
-              : assigned
-            ? 'Technician chosen'
-            : open
-              ? job.live_offers > 0
-                ? `${job.live_offers} ${job.live_offers === 1 ? 'offer' : 'offers'} to choose from`
-                : 'Waiting for offers'
-              : job.cancelled_by === 'office'
-                ? 'Cancelled by Pechkas'
-                : 'Cancelled'}
+    <>
+      {/* With offers waiting, they come first: choosing is what she is here to do. */}
+      {offersFirst ? <Offers job={job} tick={tick} onChosen={onChanged} /> : null}
+      {offersFirst ? (
+        <Text style={s.sectionTitle} accessibilityRole="header">
+          Your job
         </Text>
-      </View>
-      {!active && job.cancelled_by === 'office' && job.cancel_reason ? <Text style={s.line}>{job.cancel_reason}</Text> : null}
+      ) : null}
+      {/* The job itself: what, where, when — the part that never changes. */}
+      <Press
+        onPress={onOpen}
+        disabled={!onOpen}
+        accessibilityRole={onOpen ? 'button' : undefined}
+        sink={onOpen ? 0.98 : 1}
+        style={[s.panel, !active && !ended && s.panelClosed]}
+      >
+        <View style={s.top}>
+          <TradeTile trade={job.trade} size={narrow ? 52 : 60} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={s.kicker} numberOfLines={2}>
+              {trade} · {job.ref.replace('-', '\u2011')}
+            </Text>
+            <Text style={s.jobTitle}>{job.title}</Text>
+            {/* On a narrow phone the price goes under the title, so the title keeps the width. */}
+            {narrow ? (
+              <Text style={s.priceInline}>
+                <Text style={[s.priceInlineFigure, job.status === 'cancelled' && s.priceOff]}>{shown}</Text> · {priceLabel}
+              </Text>
+            ) : null}
+          </View>
+          {narrow ? null : (
+            <View style={{ alignItems: 'flex-end' }}>
+              {/* What she will actually pay once there is a figure for it; her offer until then. */}
+              <Text style={[s.price, job.status === 'cancelled' && s.priceOff]}>{shown}</Text>
+              <Text style={s.priceLabel}>{priceLabel}</Text>
+            </View>
+          )}
+        </View>
+        <View style={s.facts}>
+          <Fact icon="clock" text={`${WHEN[job.when_kind]}${job.when_part ? `, ${job.when_part}` : ''}`} />
+          <Fact icon="pin" text={`${job.house}, ${job.street}, ${job.sector}`} />
+          {files ? <Fact icon="camera" text={files} /> : null}
+        </View>
+        <View style={[s.badge, active || job.status === 'done' ? s.badgeOn : null]}>
+          {open && !(job.live_offers > 0) ? <ScrewSpinner size={16} colour={colour.steel} label="Waiting for offers" /> : null}
+          <Text style={[s.badgeText, active || job.status === 'done' ? s.badgeTextOn : null]}>{status}</Text>
+        </View>
+        {!active && job.cancelled_by === 'office' && job.cancel_reason ? <Text style={s.line}>{job.cancel_reason}</Text> : null}
+      </Press>
+
       {open && job.preferred ? (
         <View style={s.held}>
-          <Text style={s.line}>
-            You asked for {job.preferred.first_name}. Only he can see this job until {clock(job.preferred.until)}; then every checked technician can.
-          </Text>
+          <View style={s.heldHead}>
+            <DuoIcon name="star" size={24} />
+            <Text style={[s.line, { flex: 1 }]}>
+              You asked for {job.preferred.first_name}. Only he can see this job until {clock(job.preferred.until)}; then every checked technician can.
+            </Text>
+          </View>
           <Button kind="outline" label="Ask everyone now" onPress={everyone} busy={busy} />
         </View>
       ) : null}
-      {open && job.live_offers > 0 ? <Offers job={job} tick={tick} onChosen={onChanged} /> : null}
-      {open && job.live_offers === 0 ? (
-        <Text style={s.muted}>Offers appear here as technicians send them. This screen updates by itself.</Text>
-      ) : null}
+
       {assigned && job.pro ? <UnderWay job={job} onChanged={onChanged} /> : null}
       {ended ? <Ended job={job} onChanged={onChanged} /> : null}
-      {job.can_ask_again && job.pro ? <Button kind="green" label={`Ask ${job.pro.first_name} again`} onPress={askAgain} busy={busy} /> : null}
-      {job.can_block && job.block_name && job.blocked ? (
-        <View style={s.held}>
-          <Text style={s.line}>You blocked {job.block_name}. He does not see your jobs, and he was not told.</Text>
-          <Button kind="outline" label="Undo" onPress={unblock} busy={busy} />
-        </View>
-      ) : null}
-      {job.can_block && job.block_name && !job.blocked && !blocking ? (
-        <Press onPress={() => setBlocking(true)} accessibilityRole="button" style={s.link}>
-          <Text style={s.linkText}>Never send me {job.block_name} again</Text>
-        </Press>
-      ) : null}
-      {job.can_block && job.block_name && !job.blocked && blocking ? (
-        <View style={{ gap: 8 }}>
-          <Text style={s.line}>
-            Block {job.block_name}? He will never see your jobs again. He is not told, and you can undo this here.
-          </Text>
-          <Field
-            label="Tell Pechkas why (optional — only the office sees it)"
-            value={blockWhy}
-            onChangeText={setBlockWhy}
-            maxLength={300}
-            multiline
-          />
-          <Button kind="danger" label={`Yes, block ${job.block_name}`} onPress={block} busy={busy} />
-          <Button kind="outline" label="No" onPress={() => setBlocking(false)} />
-        </View>
-      ) : null}
-      {canCancel && !confirming ? <Button kind="outline" label="Cancel this job" onPress={() => setConfirming(true)} /> : null}
-      {assigned && !canCancel ? (
-        <View style={{ gap: 6 }}>
-          <Text style={s.muted}>He is already at your house. To cancel now, call the Pechkas office.</Text>
-          <Button kind="outline" label={`Call Pechkas · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
-        </View>
-      ) : null}
-      {canCancel && confirming ? (
-        <View style={{ gap: 8 }}>
-          <Text style={s.line}>
-            Cancel {job.ref}? {assigned && job.pro ? `Please also call ${job.pro.first_name} to tell him.` : 'Nobody will come for it.'}
-          </Text>
-          <Button kind="danger" label="Yes, cancel it" onPress={cancel} busy={busy} />
-          <Button kind="outline" label="No, keep it" onPress={() => setConfirming(false)} />
+
+      {/* Everything else she can do with this job, together at the foot, where nobody taps it by mistake. */}
+      {canAskAgain || canBlock || canCancel || officeOnly ? (
+        <View style={s.panel}>
+          {canAskAgain ? (
+            <View style={{ gap: 6 }}>
+              <Button kind="green" icon="arrowRight" label={`Ask ${job.pro!.first_name} again`} onPress={askAgain} busy={busy} />
+              <Text style={s.small}>You post a new job, and it goes to him first if he is free.</Text>
+            </View>
+          ) : null}
+          {canBlock && job.blocked ? (
+            <View style={s.held}>
+              <Text style={s.line}>You blocked {job.block_name}. He does not see your jobs, and he was not told.</Text>
+              <Button kind="outline" label="Undo" onPress={unblock} busy={busy} />
+            </View>
+          ) : null}
+          {canBlock && !job.blocked && !blocking ? (
+            <Press onPress={() => setBlocking(true)} accessibilityRole="button" style={s.link}>
+              <Text style={s.linkText}>Never send me {job.block_name} again</Text>
+            </Press>
+          ) : null}
+          {canBlock && !job.blocked && blocking ? (
+            <View style={{ gap: 8 }}>
+              <Text style={s.line}>
+                Block {job.block_name}? He will never see your jobs again. He is not told, and you can undo this here.
+              </Text>
+              <Field
+                label="Tell Pechkas why (optional — only the office sees it)"
+                value={blockWhy}
+                onChangeText={setBlockWhy}
+                maxLength={300}
+                multiline
+              />
+              <Button kind="danger" label={`Yes, block ${job.block_name}`} onPress={block} busy={busy} />
+              <Button kind="outline" label="No" onPress={() => setBlocking(false)} />
+            </View>
+          ) : null}
+          {canCancel && !confirming ? <Button kind="outline" label="Cancel this job" onPress={() => setConfirming(true)} /> : null}
+          {officeOnly ? (
+            <View style={{ gap: 6 }}>
+              <Text style={s.small}>He is already at your house. To cancel now, call the Pechkas office.</Text>
+              <Button kind="outline" label={narrow ? `Call ${OFFICE_PHONE_SHOWN}` : `Call Pechkas · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+            </View>
+          ) : null}
+          {canCancel && confirming ? (
+            <View style={{ gap: 8 }}>
+              <Text style={s.line}>
+                Cancel {job.ref}? {assigned && job.pro ? `Please also call ${job.pro.first_name} to tell him.` : 'Nobody will come for it.'}
+              </Text>
+              <Button kind="danger" label="Yes, cancel it" onPress={cancel} busy={busy} />
+              <Button kind="outline" label="No, keep it" onPress={() => setConfirming(false)} />
+            </View>
+          ) : null}
         </View>
       ) : null}
       <Notice text={msg} />
+    </>
+  );
+}
+
+/** One line of the job's details, with its two-tone icon. */
+function Fact({ icon, text }: { icon: DuoName; text: string }) {
+  return (
+    <View style={s.fact}>
+      <DuoIcon name={icon} size={20} />
+      <Text style={s.factText}>{text}</Text>
     </View>
   );
 }
@@ -258,6 +319,7 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
    * refresh, so a second tap has nothing to land on.
    */
   const toast = useToast();
+  const narrow = useWindowDimensions().width < 360;
 
   async function decline(id: string) {
     setBusy(true);
@@ -284,18 +346,26 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
   if (!offers?.length) return null;
   return (
     <View style={{ gap: 10 }}>
+      <View style={s.sectionHead}>
+        <Text style={s.h2} accessibilityRole="header">
+          Offers
+        </Text>
+        <View style={s.count}>
+          <Text style={s.countText}>{offers.length}</Text>
+        </View>
+      </View>
       {offers.map((o) => {
         const left = Math.max(0, Math.ceil((new Date(o.expires_at).getTime() - Date.now()) / 60000));
         return (
-          <View key={o.id} style={s.offer}>
+          <View key={o.id} style={s.panel}>
             <View style={s.offerTop}>
               <View style={s.avatar}>
                 <Text style={s.avatarText}>{o.pro_first_name.charAt(0)}</Text>
               </View>
-              <View style={{ flex: 1, gap: 1 }}>
+              <View style={{ flex: 1, gap: 2 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   <Text style={s.offerName}>{o.pro_first_name}</Text>
-                  <Icon name="shield" size={15} strokeWidth={2.2} />
+                  <DuoIcon name="shield" size={18} />
                 </View>
                 <View style={s.rating}>
                   {o.rating !== null && o.rating !== undefined ? (
@@ -306,22 +376,20 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
                   ) : (
                     <Text style={s.newPro}>New</Text>
                   )}
-                  {o.jobs_done !== undefined ? <Text style={s.offerMeta}>· {o.jobs_done} {o.jobs_done === 1 ? 'job' : 'jobs'} done</Text> : null}
+                  {o.jobs_done !== undefined ? <Text style={s.offerMeta}>{o.jobs_done} {o.jobs_done === 1 ? 'job' : 'jobs'} done</Text> : null}
                 </View>
-                <Text style={s.offerMeta}>
-                  Checked by Pechkas · {o.years} {o.years === 1 ? 'year' : 'years'} in the trade
-                </Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={s.offerPrice}>{rupees(o.price_paisa)}</Text>
                 <Text style={[s.offerTag, { color: o.is_counter ? colour.brick : colour.green }]}>{o.is_counter ? 'His price' : 'Took your price'}</Text>
               </View>
             </View>
-            <Text style={s.line}>
-              {o.eta_minutes ? `Can be there in ${o.eta_minutes} minutes` : 'Can come at the time you asked'}
-              {o.note ? ` · “${o.note}”` : ''}
-            </Text>
-            <Text style={s.muted}>This offer stays open {left} more {left === 1 ? 'minute' : 'minutes'}.</Text>
+            <View style={s.offerFacts}>
+              <Fact icon="shield" text={`Checked by Pechkas · ${o.years} ${o.years === 1 ? 'year' : 'years'} in the trade`} />
+              <Fact icon="clock" text={o.eta_minutes ? `Can be there in ${o.eta_minutes} minutes` : 'Can come at the time you asked'} />
+              {o.note ? <Text style={s.quote}>“{o.note}”</Text> : null}
+            </View>
+            <Text style={s.small}>This offer stays open {left} more {left === 1 ? 'minute' : 'minutes'}.</Text>
             {picking === o.id ? (
               <View style={{ gap: 8 }}>
                 <Text style={s.line}>
@@ -332,7 +400,7 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
               </View>
             ) : (
               <>
-                <Button label={`Choose ${o.pro_first_name} · ${rupees(o.price_paisa)}`} onPress={() => setPicking(o.id)} />
+                <Button icon="arrowRight" label={narrow ? `Choose ${o.pro_first_name}` : `Choose ${o.pro_first_name} · ${rupees(o.price_paisa)}`} onPress={() => setPicking(o.id)} />
                 {declining === o.id ? (
                   <View style={{ gap: 8 }}>
                     <Text style={s.line}>
@@ -360,38 +428,46 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
 /** Once chosen: who is coming, what was agreed, and how to reach him. */
 
 const s = StyleSheet.create({
-  empty: { alignItems: 'center', gap: 10, paddingVertical: 28, paddingHorizontal: 12 },
-  emptyIcon: { width: 72, height: 72, borderRadius: 24, backgroundColor: colour.greenSoft, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
-  emptyTitle: { fontFamily: font.display, fontSize: 22, color: colour.ink },
-  posted: { gap: 6, padding: 16, borderRadius: radius.big, backgroundColor: colour.green },
-  postedHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  postedTitle: { fontFamily: font.display, fontSize: 18, color: colour.yellow },
-  postedText: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.paper },
-  muted: { fontFamily: font.body, fontSize: 13, color: colour.steel },
-  card: { gap: 8, padding: 16, borderRadius: radius.big, backgroundColor: colour.white, borderWidth: 1, borderColor: colour.rule },
-  cardClosed: { backgroundColor: colour.paper },
-  cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  trade: { fontFamily: font.body, fontSize: 12, color: colour.steel },
-  jobTitle: { fontFamily: font.bodySemi, fontSize: 16, lineHeight: 21, color: colour.ink },
+  panel: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: SHADOW },
+  panelClosed: { backgroundColor: colour.paper },
+  top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  kicker: { fontFamily: font.bodyMedium, fontSize: 12.5, color: colour.steel },
+  jobTitle: { fontFamily: font.displayBold, fontSize: 17, lineHeight: 22, color: colour.ink },
   price: { fontFamily: font.display, fontSize: 20, color: colour.ink },
+  priceInline: { fontFamily: font.bodyMedium, fontSize: 13, color: colour.steel, marginTop: 2 },
+  priceInlineFigure: { fontFamily: font.display, fontSize: 16, color: colour.ink },
+  priceOff: { color: colour.steel },
+  priceLabel: { fontFamily: font.bodyMedium, fontSize: 12, color: colour.steel },
+  facts: { gap: 10, padding: 12, borderRadius: 18, backgroundColor: colour.canvas },
+  fact: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  factText: { flex: 1, fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft },
   line: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft },
-  badge: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill },
-  badgeText: { fontFamily: font.bodySemi, fontSize: 12 },
-  offer: { gap: 8, padding: 12, borderRadius: 16, backgroundColor: colour.paper, borderWidth: 1, borderColor: colour.rule },
-  offerTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  avatar: { width: 42, height: 42, borderRadius: 999, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontFamily: font.display, fontSize: 18, color: colour.yellow },
-  offerName: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
-  offerMeta: { fontFamily: font.body, fontSize: 12, color: colour.steel },
-  rating: { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
+  small: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
+  badge: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: colour.paper2 },
+  badgeOn: { backgroundColor: colour.greenSoft },
+  badgeText: { fontFamily: font.bodySemi, fontSize: 12.5, color: colour.steel },
+  badgeTextOn: { color: colour.greenDark },
+  held: { gap: 10, padding: 14, borderRadius: 20, backgroundColor: colour.greenSoft },
+  heldHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4, marginTop: 4 },
+  h2: { fontFamily: font.display, fontSize: 19, color: colour.ink },
+  sectionTitle: { fontFamily: font.display, fontSize: 19, color: colour.ink, paddingHorizontal: 4, marginTop: 4 },
+  count: { minWidth: 26, height: 26, borderRadius: 13, paddingHorizontal: 7, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
+  countText: { fontFamily: font.display, fontSize: 13, color: colour.ink },
+  offerTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  avatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontFamily: font.display, fontSize: 20, color: colour.yellow },
+  offerName: { fontFamily: font.display, fontSize: 17, color: colour.ink },
+  offerMeta: { fontFamily: font.body, fontSize: 12.5, color: colour.steel },
+  rating: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   ratingText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
-  newPro: { fontFamily: font.bodySemi, fontSize: 12, color: colour.greenDark, backgroundColor: colour.greenSoft, paddingHorizontal: 6, paddingVertical: 1, borderRadius: 6, overflow: 'hidden' },
-  offerPrice: { fontFamily: font.display, fontSize: 20, color: colour.ink },
-  offerTag: { fontFamily: font.bodySemi, fontSize: 11 },
-  chosen: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.greenSoft },
-  held: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.greenSoft },
+  newPro: { fontFamily: font.bodySemi, fontSize: 12, color: colour.greenDark, backgroundColor: colour.greenSoft, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, overflow: 'hidden' },
+  offerPrice: { fontFamily: font.display, fontSize: 21, color: colour.ink },
+  offerTag: { fontFamily: font.bodySemi, fontSize: 12 },
+  offerFacts: { gap: 10, padding: 12, borderRadius: 18, backgroundColor: colour.canvas },
+  quote: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.ink, paddingLeft: 30 },
   link: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
+  linkText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, textDecorationLine: 'underline' },
   noThanks: { alignSelf: 'center', minHeight: 44, minWidth: 120, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
   noThanksText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.inkSoft, textDecorationLine: 'underline' },
-  linkText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, textDecorationLine: 'underline' },
 });

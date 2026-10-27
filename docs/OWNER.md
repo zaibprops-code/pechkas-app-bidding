@@ -7,6 +7,30 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**A job's own screen, redesigned the same way (new — no database step,
+needs a new build).** Instead of one long box, it is now a stack of
+clean cards, each with its own icon:
+
+- **Offers** come first when there are some, with a yellow count, one card
+  per technician: his initial, New or his stars, the price, what he said,
+  and a big yellow **Choose …** button.
+- **Your job**: the trade's picture, the price (and whether it is your
+  price, the agreed price or the total), when, and the address.
+- Once you choose, **his card** says where he has got to, with the four
+  steps, and four square buttons: **Call**, **Chat**, **Family** (send his
+  name on WhatsApp) and **Report**. **Emergency** is a red button of its
+  own under them.
+- The **start code** is a dark card with the four big numbers.
+- A **new price** he asks for is a soft yellow card with **Approve** over
+  **Decline**.
+- When it is done: **Pay Bilal in cash** with the amount large, then the
+  photos, **Rate Bilal**, and the guarantee date with **The fault has come
+  back**.
+- **Ask again**, **Never send me …** and **Cancel this job** sit together
+  in the last card at the bottom, so nobody taps them by mistake.
+
+To try it: open any job from **My jobs**.
+
 **My jobs, redesigned the same way (new — no database step, needs a new
 build).** Shorter and easier to read:
 
@@ -1161,7 +1185,7 @@ say **Success**. Then a new **preview** build on both phones.
    technician past Rs 3,000. His phone says so, his work screen turns red,
    and **Accept** is refused until you record a payment.
 10. **Guarantee:** a day after a job is done, the customer's card shows
-    **It has failed again (guarantee)**. A claim lands in Problems.
+    **The fault has come back**. A claim lands in Problems.
 
 ---
 

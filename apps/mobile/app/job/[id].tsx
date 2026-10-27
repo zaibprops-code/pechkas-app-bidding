@@ -111,7 +111,7 @@ export default function LiveJob() {
         refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
       >
         <Hero title={head.title} sub={head.sub} back={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
-        <View style={{ paddingHorizontal: 20, gap: 14 }}>
+        <View style={{ paddingHorizontal: 14, gap: 14 }}>
           {open ? (
             <>
               <Searching found={offers} />
@@ -234,7 +234,7 @@ function Searching({ found }: { found: number }) {
 }
 
 const s = StyleSheet.create({
-  search: { borderRadius: radius.big, backgroundColor: colour.white, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  search: { borderRadius: 24, backgroundColor: colour.white, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.05)' },
   ring: { position: 'absolute', width: 120, height: 120, borderRadius: 60, borderWidth: 2, borderColor: 'rgba(11, 81, 72, 0.22)' },
   centre: { width: 96, height: 96, borderRadius: 48, backgroundColor: colour.canvas, alignItems: 'center', justifyContent: 'center' },
   note: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft, paddingHorizontal: 4 },
