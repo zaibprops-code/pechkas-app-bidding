@@ -334,6 +334,17 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   sentence saying what this phone does), the legal page for that side;
   Sign out and Delete my account (brick tile and words). `ThisCopy` is a
   white card at the foot.
+- **Help (`app/help.tsx`) is in the same style**: the office on a green
+  card (hours, number, **WhatsApp** and **Call** side by side, stacked
+  under 360 wide), **Common questions** that open one at a time (the
+  chevron turns by transform and snaps), then the legal pages and Safety as
+  `DuoRow`s from `src/components/Rows.tsx`, which Settings uses too. The
+  answers are different for each side and are only rules the app already
+  keeps, in its screens' own words; a number that can vary or is still
+  undecided (the credit limit and visit fee the office may set, the
+  guarantee's 15-or-30 days) is never written there — the answer points to
+  the screen showing the real figure. The 10% and 7% are locked
+  settings, as in the terms: change them and this page in the same week.
 - The Me screen shows and turns on notifications for anyone, so the owner's
   own phone can receive the office alerts without having a job open.
   `useNotify(null)` waits: a technician's language must be read from the

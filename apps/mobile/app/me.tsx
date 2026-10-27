@@ -1,13 +1,11 @@
 import { useToast } from '../src/components/Toast';
 import { done } from '../src/message';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { showMobile } from '@pechkas/shared';
 import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
-import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
-import { Icon } from '../src/components/Icon';
-import { Press } from '../src/components/Press';
+import { DuoRow } from '../src/components/Rows';
 import { ModeSwitch } from '../src/components/ModeSwitch';
 import { ThisCopy } from '../src/components/ThisCopy';
 import { useAccount } from '../src/account';
@@ -128,7 +126,7 @@ export default function Me() {
       </View>
 
       <View style={s.card}>
-        <Row
+        <DuoRow
           icon="phone"
           label="Mobile number"
           value={phone}
@@ -136,7 +134,7 @@ export default function Me() {
           right={unchecked && !editing ? <Text style={s.change}>Change</Text> : undefined}
           last={!account?.email && !editing}
         />
-        {account?.email ? <Row icon="mail" label="Email" value={account.email} oneLine last={!editing} /> : null}
+        {account?.email ? <DuoRow icon="mail" label="Email" value={account.email} oneLine last={!editing} /> : null}
         {editing ? (
           <View style={s.edit}>
             <Field
@@ -164,7 +162,7 @@ export default function Me() {
 
       <View style={s.card}>
         {notifyWhat ? (
-          <Row
+          <DuoRow
             icon="bell"
             label="Notifications"
             value={notifyWhat}
@@ -176,17 +174,17 @@ export default function Me() {
             }
           />
         ) : null}
-        <Row icon="lock" label="Privacy policy" onPress={() => openLegal('privacy')} />
+        <DuoRow icon="lock" label="Privacy policy" onPress={() => openLegal('privacy')} />
         {pro ? (
-          <Row icon="doc" label="Technician agreement" onPress={() => openLegal('technician-agreement')} last />
+          <DuoRow icon="doc" label="Technician agreement" onPress={() => openLegal('technician-agreement')} last />
         ) : (
-          <Row icon="doc" label="Terms of use" onPress={() => openLegal('terms')} last />
+          <DuoRow icon="doc" label="Terms of use" onPress={() => openLegal('terms')} last />
         )}
       </View>
 
       <View style={s.card}>
-        <Row icon="logout" label="Sign out" onPress={async () => { await signOut(); router.replace('/start'); }} />
-        <Row icon="trash" label="Delete my account" danger onPress={() => setConfirming(true)} last={!confirming} />
+        <DuoRow icon="logout" label="Sign out" onPress={async () => { await signOut(); router.replace('/start'); }} />
+        <DuoRow icon="trash" label="Delete my account" danger onPress={() => setConfirming(true)} last={!confirming} />
         {confirming ? (
           <View style={s.danger}>
             <Text style={s.dangerText}>
@@ -204,39 +202,6 @@ export default function Me() {
   );
 }
 
-/**
- * One row, as in the menu: a two-tone icon on a soft yellow tile, the words,
- * and a chevron when it does something. The one that cannot be undone is
- * brick, tile and words alike.
- */
-function Row({ icon, label, value, onPress, right, danger = false, last = false, oneLine = false }: { icon: DuoName; label: string; value?: string; onPress?: () => void; right?: ReactNode; danger?: boolean; last?: boolean; oneLine?: boolean }) {
-  const body = (
-    <>
-      <View style={[s.tile, danger && s.tileDanger]}>
-        <DuoIcon name={icon} size={22} accent={danger ? '#f3b9a8' : colour.yellow} ink={danger ? colour.brick : colour.ink} />
-      </View>
-      <View style={{ flex: 1, gap: 1 }}>
-        <Text style={[s.label, danger && { color: colour.brick }]}>{label}</Text>
-        {/* An email address has no place to break, so it stays on one line, shortened in the middle if it must be. */}
-        {value ? (
-          <Text style={s.value} numberOfLines={oneLine ? 1 : undefined} ellipsizeMode="middle">
-            {value}
-          </Text>
-        ) : null}
-      </View>
-      {right ?? (onPress ? <Icon name="chevronRight" size={18} color="#9aa1a6" strokeWidth={2.2} /> : null)}
-    </>
-  );
-  const style = [s.row, !last && s.rule];
-  return onPress ? (
-    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={value ? `${label}, ${value}` : label} sink={0.985} style={style}>
-      {body}
-    </Press>
-  ) : (
-    <View style={style}>{body}</View>
-  );
-}
-
 const SHADOW = '0px 2px 10px rgba(20, 23, 26, 0.05)';
 
 const s = StyleSheet.create({
@@ -250,12 +215,6 @@ const s = StyleSheet.create({
   card: { paddingHorizontal: 14, borderRadius: 24, backgroundColor: colour.white, boxShadow: SHADOW },
   mode: { gap: 12, paddingVertical: 16 },
   modeNow: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.steel },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 68, paddingVertical: 12 },
-  rule: { borderBottomWidth: 1, borderBottomColor: colour.rule },
-  tile: { width: 42, height: 42, borderRadius: 14, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
-  tileDanger: { backgroundColor: '#fbe6df' },
-  label: { fontFamily: font.bodySemi, fontSize: 15.5, color: colour.ink },
-  value: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
   change: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green, textDecorationLine: 'underline' },
   chip: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill },
   chipOn: { backgroundColor: colour.greenSoft },

@@ -7,6 +7,20 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Help, redesigned the same way (new — no database step, needs a new
+build).** Menu (☰) → **Help**:
+
+- The office on a green card, with its hours and number, and two big
+  buttons: **WhatsApp** and **Call**.
+- **Common questions**. Tap one and its answer opens. Customers see five
+  (paying, cancelling, the start code, a higher price, the fault coming
+  back); technicians see five of their own (how they are paid, paying what
+  they owe, why offers stop, asking for a new price, changing trades).
+  Every answer is a rule the app already keeps. Please read them once: if
+  any is not how you want Pechkas to work, tell me and I will change it.
+- **Terms of use** (or **Technician agreement**), **Privacy policy** and
+  **Safety** as rows with icons, like Settings.
+
 **Settings (the Me screen), redesigned the same way (new — no database
 step, needs a new build).** Open the menu (☰) and tap **Settings**, or tap
 your name at the top of the menu:
