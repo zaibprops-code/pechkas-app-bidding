@@ -7,6 +7,22 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The home screen, redesigned the same way (new — no database step,
+needs a new build).** The map, the pin and "Set the job's address" stay
+as they were. Underneath:
+
+- A greeting with your first name — *Good morning*, *Good afternoon* or
+  *Good evening* by your phone's clock — and **What needs fixing?** in
+  large letters.
+- The trade tiles on a warm cream, the big AC and Electrician tiles with a
+  small arrow. Every other trade is now in a neat grid of four across, so
+  nothing is cut off at the edge of the screen any more.
+- **What needs fixing & for how much?** as one green card with a yellow
+  arrow: the main way in.
+- **Recent jobs** with a **See all** link to My jobs and a label for how
+  each one ended.
+- *Describe it your way* and *Why Pechkas* with the new two-tone icons.
+
 **A redesigned side menu, and a new typeface across the app (new — no
 database step, needs a new build).** Tap ☰ on any screen:
 

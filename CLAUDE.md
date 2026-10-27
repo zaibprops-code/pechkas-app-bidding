@@ -621,10 +621,17 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   once refused, it opens the phone's settings), a pin in the middle with
   **"Set the job's address ›"** (opens the post screen straight on the
   pin, starting where the map was), and the locate button at the map's
-  lower right. Then the sheet: one big tile (AC), one wide (Electrician),
-  two small (Plumber, UPS), a row of small square tiles with their names
-  under them (every other trade, then All trades), the question "What needs
-  fixing & for how much?" and the last two jobs. No discount or count on any
+  lower right. Then the sheet, redesigned at the owner's request in the
+  menu's style: a greeting by the phone's clock and the person's first name
+  over **"What needs fixing?"**; any job still happening; one big tile (AC),
+  one wide (Electrician), two small (Plumber, UPS) on warm cream, the big
+  two with a small arrow in a white disc; **every other trade in a 4 × 2
+  grid** with All trades last — never a sideways row, which cut "Ca…" off
+  the edge — whose gaps close on a narrow phone so every name stays whole;
+  the question **"What needs fixing & for how much?"** as the one green
+  call to action; **Recent jobs** with See all and a status label; and
+  "Describe it your way" and "Why Pechkas" with two-tone icons
+  (`DuoIcon.tsx`) on soft yellow tiles. No discount or count on any
   tile. The drawings are `src/components/Art.tsx` — objects, never people,
   over a yellow sweep; every trade in `public.trades` has one.
 - **The technician side is inDrive's driver side** (`src/pro/Work.tsx`):

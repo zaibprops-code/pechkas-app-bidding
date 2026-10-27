@@ -9,7 +9,7 @@ import { colour } from '../theme';
  * colours. Drawn on the same 24-unit grid; they say what the words beside
  * them say, so screen readers skip them.
  */
-export type DuoName = 'home' | 'jobs' | 'bell' | 'shield' | 'help' | 'support' | 'settings' | 'share' | 'briefcase' | 'wallet' | 'swap';
+export type DuoName = 'home' | 'jobs' | 'bell' | 'shield' | 'help' | 'support' | 'settings' | 'share' | 'briefcase' | 'wallet' | 'swap' | 'mic' | 'video' | 'lock' | 'search';
 
 export function DuoIcon({ name, size = 26, accent = colour.yellow, ink = colour.ink }: { name: DuoName; size?: number; accent?: string; ink?: string }) {
   const line = { stroke: ink, strokeWidth: 1.8, fill: 'none' as const, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -94,6 +94,34 @@ export function DuoIcon({ name, size = 26, accent = colour.yellow, ink = colour.
           <Path {...line} d="M4 7.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.5a2 2 0 0 0-2-2H6a2 2 0 0 1-2-2 2 2 0 0 1 2-2h10" />
           <Rect {...line} x={13} y={11} width={7.5} height={6} rx={1.5} />
           <Circle cx={16} cy={14} r={1} fill={ink} />
+        </>
+      )}
+      {name === 'mic' && (
+        <>
+          <Rect {...fill} x={9} y={2.5} width={6} height={11.5} rx={3} />
+          <Rect {...line} x={9} y={2.5} width={6} height={11.5} rx={3} />
+          <Path {...line} d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4M9 21.5h6" />
+        </>
+      )}
+      {name === 'video' && (
+        <>
+          <Rect {...fill} x={2.5} y={6} width={13} height={12} rx={2.5} />
+          <Rect {...line} x={2.5} y={6} width={13} height={12} rx={2.5} />
+          <Path {...line} d="M15.5 10.2l5.5-3v9.6l-5.5-3z" />
+        </>
+      )}
+      {name === 'lock' && (
+        <>
+          <Rect {...fill} x={4.5} y={10.5} width={15} height={11} rx={2.5} />
+          <Rect {...line} x={4.5} y={10.5} width={15} height={11} rx={2.5} />
+          <Path {...line} d="M8 10.5V7a4 4 0 0 1 8 0v3.5M12 14.5v3" />
+        </>
+      )}
+      {name === 'search' && (
+        <>
+          <Circle {...fill} cx={10.5} cy={10.5} r={6.5} />
+          <Circle {...line} cx={10.5} cy={10.5} r={6.5} />
+          <Path {...line} strokeWidth={2.2} d="M15.5 15.5l5 5" />
         </>
       )}
       {name === 'swap' && <Path {...line} strokeWidth={2.1} d="M7 4L3.5 7.5 7 11M3.5 7.5H17M17 13l3.5 3.5L17 20M20.5 16.5H7" />}

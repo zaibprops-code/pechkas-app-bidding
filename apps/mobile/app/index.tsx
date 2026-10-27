@@ -4,7 +4,8 @@ import { Redirect, router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Art, type ArtName } from '../src/components/Art';
-import { Icon, type IconName } from '../src/components/Icon';
+import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
+import { Icon } from '../src/components/Icon';
 import { askPosition, ISLAMABAD, knownPosition, MapBox, mapsReady, Pin, type Point } from '../src/components/Map';
 import { MenuButton } from '../src/components/Menu';
 import { Press } from '../src/components/Press';
@@ -135,8 +136,21 @@ export default function Home() {
 
   if (account?.role === 'pro') return <Redirect href="/pro" />;
 
+  const hour = new Date().getHours();
+  const greeting = hour < 5 ? 'Good evening' : hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
   const body = (
     <>
+        {/* Who this is for, and the one question, before anything to tap. */}
+        <View style={s.greet}>
+          <Text style={s.hello} numberOfLines={1}>
+            {greeting}
+            {account?.first_name ? `, ${account.first_name}` : ''}
+          </Text>
+          <Text style={s.ask} accessibilityRole="header">
+            What needs fixing?
+          </Text>
+        </View>
         {live.length ? (
           <View style={s.liveStack}>
             {live.map((j) => (
@@ -145,8 +159,8 @@ export default function Home() {
           </View>
         ) : null}
         <Animated.View style={{ gap: 12, paddingTop: 12, transform: [{ translateY: rise }] }}>
-          {/* One big tile, one wide and two small, then a row of small ones: inDrive's sheet. */}
-          <View style={[s.sheet, { gap: 14 }]} accessibilityLabel="What needs fixing?">
+          {/* One big tile, one wide and two small, then every other trade in a neat grid. */}
+          <View style={[s.sheet, { gap: 14 }]} accessibilityLabel="Choose the kind of work">
             <View style={s.tiles}>
               <Tile big label="AC" art="ac" onPress={() => post({ trade: 'ac' })} />
               {/* On a narrow phone the right-hand column takes a little more, so "Plumber" fits its tile. */}
@@ -158,45 +172,64 @@ export default function Home() {
                 </View>
               </View>
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.smallRow}>
+            <View style={s.grid}>
               {MORE.map((m) => (
                 <Small key={m.label} label={m.label} art={m.art} onPress={() => post(m.slug ? { trade: m.slug } : {})} />
               ))}
-            </ScrollView>
+            </View>
           </View>
 
-          {/* The one question, and the last two jobs under it. */}
-          <View style={s.sheet}>
-            <Press onPress={() => post()} accessibilityRole="button" sink={0.98} style={s.search}>
-              <Icon name="search" size={24} color={colour.ink} strokeWidth={2.2} />
-              <Text style={s.searchText}>What needs fixing & for how much?</Text>
-            </Press>
-            {recent.map((j) => (
-              <Press key={j.id} onPress={() => router.push(`/job/${j.id}`)} accessibilityRole="button" sink={0.98} style={s.recent}>
-                <Icon name="clock" size={22} color={colour.steel} strokeWidth={2} />
-                <View style={{ flex: 1 }}>
-                  <Text style={s.recentTitle} numberOfLines={1}>
-                    {j.title}
-                  </Text>
-                  <Text style={s.recentSub} numberOfLines={1}>
-                    {j.ref} · {statusLine(j)}
-                  </Text>
-                </View>
-              </Press>
-            ))}
-          </View>
+          {/* The question Pechkas is built on, as the one big call to action. */}
+          <Press onPress={() => post()} accessibilityRole="button" accessibilityLabel="Post a job. What needs fixing and for how much?" sink={0.98} style={s.cta}>
+            <View style={{ flex: 1, gap: 4 }}>
+              <Text style={s.ctaTitle}>What needs fixing & for how much?</Text>
+              <Text style={s.ctaText}>Name your price. Checked technicians send you offers.</Text>
+            </View>
+            <View style={s.ctaGo}>
+              <Icon name="arrowRight" size={22} color={colour.ink} strokeWidth={2.4} />
+            </View>
+          </Press>
+
+          {recent.length ? (
+            <View style={s.sheet}>
+              <View style={s.head}>
+                <Text style={s.h2}>Recent jobs</Text>
+                <Press onPress={() => router.push('/jobs')} accessibilityRole="link" sink={0.95} style={s.seeAll}>
+                  <Text style={s.seeAllText}>See all</Text>
+                </Press>
+              </View>
+              {recent.map((j, i) => (
+                <Press key={j.id} onPress={() => router.push(`/job/${j.id}`)} accessibilityRole="button" sink={0.98} style={[s.recent, i < recent.length - 1 && s.rule]}>
+                  <View style={s.soft}>
+                    <DuoIcon name="jobs" size={22} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.recentTitle} numberOfLines={1}>
+                      {j.title}
+                    </Text>
+                    <Text style={s.recentSub} numberOfLines={1}>
+                      {j.ref}
+                    </Text>
+                  </View>
+                  <View style={[s.chip, j.status === 'done' && s.chipDone]}>
+                    <Text style={[s.chipText, j.status === 'done' && s.chipTextDone]}>{statusLine(j)}</Text>
+                  </View>
+                </Press>
+              ))}
+            </View>
+          ) : null}
 
           {/* Two ways to say what is wrong without typing. */}
           <View style={s.sheet}>
-            <Text style={s.h2}>Describe it your way</Text>
+            <Text style={[s.h2, s.h2Alone]}>Describe it your way</Text>
             <Way icon="mic" title="Send a voice note" sub="Urdu or English, as you like." onPress={() => post({ start: 'voice' })} />
             <Way icon="video" title="Show a short video" sub="Point the camera at the fault." onPress={() => post({ start: 'video' })} last />
           </View>
 
           <View style={s.sheet}>
-            <Text style={s.h2}>How Pechkas is different</Text>
-            <Promise icon="shield" text="Every technician is checked before his first job: who he is, a trial job and our rules." />
-            <Promise icon="lock" text="The price is agreed in the app before he comes. It changes only if you approve it." />
+            <Text style={[s.h2, s.h2Alone]}>Why Pechkas</Text>
+            <Promise icon="shield" title="Checked technicians" text="Every technician is checked before his first job: who he is, a trial job and our rules." />
+            <Promise icon="lock" title="Your price, agreed first" text="The price is agreed in the app before he comes. It changes only if you approve it." last />
           </View>
         </Animated.View>
     </>
@@ -285,44 +318,60 @@ function Tile({ label, art, onPress, big = false, wide = false, small = false }:
       <View style={[s.tileArt, small && s.tileArtSmall]}>
         <Art name={art} width={big ? 150 : small ? 78 : 112} height={big ? 112 : small ? 58 : 84} />
       </View>
+      {/* The big tiles say "tap here" the way designed apps do: a small arrow in a white disc. */}
+      {big || wide ? (
+        <View style={[s.tileGo, big ? s.tileGoBig : s.tileGoWide]} accessible={false}>
+          <Icon name="arrowRight" size={16} color={colour.ink} strokeWidth={2.4} />
+        </View>
+      ) : null}
     </Press>
   );
 }
 
-/** A small square tile with its name under it: the row under the big tiles. */
+/** A trade in the grid of four across: a square with its drawing, its name under it. */
 function Small({ label, art, onPress }: { label: string; art: ArtName; onPress: () => void }) {
+  const { width } = useWindowDimensions();
+  // Four across the sheet, whatever the phone: the sheet's sides and three gaps come off first.
+  // On a narrow phone the gaps close up, so "Appliances" and "Computers" keep every letter.
+  const narrow = width < 360;
+  const cell = Math.floor((width - 20 - 24 - 3 * (narrow ? 5 : 10)) / 4);
   return (
-    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={label} sink={0.95} style={s.small}>
-      <View style={s.smallArt}>
-        <Art name={art} width={70} height={53} />
+    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={label} sink={0.95} style={[s.small, { width: cell }]}>
+      <View style={[s.smallArt, { width: cell, height: Math.round(cell * 0.92) }]}>
+        <Art name={art} width={Math.round(cell * 0.9)} height={Math.round(cell * 0.68)} />
       </View>
-      <Text style={s.smallText} numberOfLines={1}>
+      <Text style={[s.smallText, narrow && { fontSize: 11 }]} numberOfLines={1}>
         {label}
       </Text>
     </Press>
   );
 }
 
-function Way({ icon, title, sub, onPress, last = false }: { icon: IconName; title: string; sub: string; onPress: () => void; last?: boolean }) {
+function Way({ icon, title, sub, onPress, last = false }: { icon: DuoName; title: string; sub: string; onPress: () => void; last?: boolean }) {
   return (
-    <Press onPress={onPress} accessibilityRole="button" sink={0.98} style={[s.way, !last && s.wayRule]}>
-      <View style={s.wayIcon}>
-        <Icon name={icon} size={20} color={colour.ink} strokeWidth={2.2} />
+    <Press onPress={onPress} accessibilityRole="button" sink={0.98} style={[s.way, !last && s.rule]}>
+      <View style={s.soft}>
+        <DuoIcon name={icon} size={24} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={s.wayTitle}>{title}</Text>
         <Text style={s.waySub}>{sub}</Text>
       </View>
-      <Icon name="chevronRight" size={18} color="#9aa1a6" strokeWidth={2} />
+      <Icon name="chevronRight" size={18} color="#b4babe" strokeWidth={2.2} />
     </Press>
   );
 }
 
-function Promise({ icon, text }: { icon: IconName; text: string }) {
+function Promise({ icon, title, text, last = false }: { icon: DuoName; title: string; text: string; last?: boolean }) {
   return (
-    <View style={s.promise}>
-      <Icon name={icon} size={20} color={colour.green} strokeWidth={2.2} />
-      <Text style={s.promiseText}>{text}</Text>
+    <View style={[s.promise, !last && s.rule]}>
+      <View style={s.soft}>
+        <DuoIcon name={icon} size={24} />
+      </View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={s.wayTitle}>{title}</Text>
+        <Text style={s.promiseText}>{text}</Text>
+      </View>
     </View>
   );
 }
@@ -406,37 +455,56 @@ const s = StyleSheet.create({
   bannerTitle: { fontFamily: font.display, fontSize: 17, color: colour.ink },
   bannerText: { fontFamily: font.bodyMedium, fontSize: 14, color: colour.ink },
 
-  sheet: { marginHorizontal: 10, padding: 12, borderRadius: 28, backgroundColor: colour.white, gap: 6 },
-  tiles: { flexDirection: 'row', gap: 8 },
-  column: { flex: 1.2, gap: 8 },
-  row: { flexDirection: 'row', gap: 8 },
-  tile: { borderRadius: 20, backgroundColor: colour.tile, padding: 12, overflow: 'hidden' },
-  tileBig: { flex: 1, minHeight: 208 },
+  greet: { paddingHorizontal: 20, paddingTop: 10, gap: 2 },
+  hello: { fontFamily: font.bodyMedium, fontSize: 15, color: colour.steel },
+  ask: { fontFamily: font.display, fontSize: 26, lineHeight: 32, color: colour.ink },
+
+  sheet: { marginHorizontal: 10, padding: 12, borderRadius: 26, backgroundColor: colour.white, gap: 4, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.04)' },
+  tiles: { flexDirection: 'row', gap: 10 },
+  column: { flex: 1.2, gap: 10 },
+  row: { flexDirection: 'row', gap: 10 },
+  tile: { borderRadius: 22, backgroundColor: '#f6f2e8', padding: 12, overflow: 'hidden' },
+  tileBig: { flex: 1, minHeight: 212 },
   tileWide: { flex: 1, minHeight: 100 },
   tileSmall: { flex: 1, minHeight: 100, paddingHorizontal: 8, paddingVertical: 10 },
   tileText: { fontFamily: font.displayBold, fontSize: 15, color: colour.ink },
-  tileTextBig: { fontFamily: font.display, fontSize: 22 },
+  tileTextBig: { fontFamily: font.display, fontSize: 24, paddingRight: 40 },
   tileArt: { position: 'absolute', right: -6, bottom: -4 },
   tileArtSmall: { right: -4, bottom: -2 },
+  // The big tile's drawing fills its foot, so its arrow sits in the empty top corner.
+  tileGoBig: { right: 12, top: 14 },
+  tileGoWide: { left: 12, bottom: 12 },
+  tileGo: { position: 'absolute', width: 30, height: 30, borderRadius: 15, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', boxShadow: '0px 2px 6px rgba(20, 23, 26, 0.12)' },
 
-  search: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, paddingHorizontal: 16, borderRadius: 18, backgroundColor: colour.canvas },
-  searchText: { flex: 1, fontFamily: font.displayBold, fontSize: 16, color: colour.ink },
-  recent: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 58, paddingHorizontal: 8 },
-  recentTitle: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 14, paddingHorizontal: 2 },
+  small: { alignItems: 'center', gap: 6 },
+  smallArt: { borderRadius: 18, backgroundColor: '#f6f2e8', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  smallText: { fontFamily: font.bodySemi, fontSize: 12.5, color: colour.ink },
+
+  cta: { flexDirection: 'row', alignItems: 'center', gap: 14, marginHorizontal: 10, paddingVertical: 18, paddingLeft: 18, paddingRight: 14, borderRadius: 24, backgroundColor: colour.green },
+  ctaTitle: { fontFamily: font.display, fontSize: 18, lineHeight: 23, color: colour.white },
+  ctaText: { fontFamily: font.bodyMedium, fontSize: 13.5, lineHeight: 19, color: '#cfe2de' },
+  ctaGo: { width: 48, height: 48, borderRadius: 24, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
+
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  h2: { fontFamily: font.display, fontSize: 18, color: colour.ink, paddingHorizontal: 4 },
+  h2Alone: { paddingTop: 6, paddingBottom: 6 },
+  seeAll: { minHeight: TAP, minWidth: TAP, justifyContent: 'center', alignItems: 'flex-end', paddingHorizontal: 6 },
+  seeAllText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green },
+  rule: { borderBottomWidth: 1, borderBottomColor: colour.rule },
+  soft: { width: 44, height: 44, borderRadius: 14, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
+  recent: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingHorizontal: 4 },
+  recentTitle: { fontFamily: font.bodySemi, fontSize: 15.5, color: colour.ink },
   recentSub: { fontFamily: font.body, fontSize: 13, color: colour.steel },
+  chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill, backgroundColor: colour.canvas },
+  chipDone: { backgroundColor: colour.greenSoft },
+  chipText: { fontFamily: font.bodySemi, fontSize: 12, color: colour.inkSoft },
+  chipTextDone: { color: colour.greenDark },
 
-  h2: { fontFamily: font.display, fontSize: 20, color: colour.ink, paddingHorizontal: 4, paddingVertical: 6 },
-  smallRow: { gap: 10, paddingHorizontal: 2 },
-  small: { width: 76, alignItems: 'center', gap: 6 },
-  smallArt: { width: 76, height: 72, borderRadius: 18, backgroundColor: colour.tile, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  smallText: { fontFamily: font.bodyMedium, fontSize: 13, color: colour.ink },
-
-  way: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 64, paddingHorizontal: 4 },
-  wayRule: { borderBottomWidth: 1, borderBottomColor: colour.rule },
-  wayIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
-  wayTitle: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
+  way: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 68, paddingHorizontal: 4 },
+  wayTitle: { fontFamily: font.bodySemi, fontSize: 15.5, color: colour.ink },
   waySub: { fontFamily: font.body, fontSize: 13, color: colour.steel },
 
-  promise: { flexDirection: 'row', gap: 12, paddingHorizontal: 4, paddingVertical: 6 },
-  promiseText: { flex: 1, fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.inkSoft },
+  promise: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, paddingHorizontal: 4, paddingVertical: 12 },
+  promiseText: { fontFamily: font.body, fontSize: 13.5, lineHeight: 19, color: colour.steel },
 });
