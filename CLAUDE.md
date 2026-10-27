@@ -636,11 +636,20 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   over a yellow sweep; every trade in `public.trades` has one.
 - **The technician side is inDrive's driver side** (`src/pro/Work.tsx`):
   the ☰ menu, the **Online / Offline switch** in the middle of the top bar
-  and what he owes on the right (tap: his account); offline, one card with
-  a big **Go online**; online, **"Jobs in your areas"** as short request
-  cards — first name, when, how long ago (`created_at`), the price large,
+  and what he owes on the right (tap: his account); under it a greeting by
+  the phone's clock and his first name over the screen's heading (**My
+  jobs** while he has one, otherwise **Jobs in your areas**, or **Ready for
+  work?** offline); offline, one green card with a big yellow **Go
+  online**; online, the request cards — the customer's initial on a yellow
+  disc, first name, when, how long ago (`created_at`), the price large,
   the job and the sector, tags for "Asked for you", his live offer and the
-  media — and a tap opens the job in a **sheet from the bottom** with
+  media, and a yellow **Make an offer** pill until he has one — with "No
+  new jobs yet" as a card of its own. On a job, **Call, Chat, Map and
+  Report are a row of square two-tone buttons** (`Action` in
+  `OnTheJob.tsx`, the full name for screen readers) and **Emergency stays
+  a full-width red button**, never one tile among four. My account heads
+  each card with a two-tone icon. A tap on a request opens the job in a
+  **sheet from the bottom** with
   **"Accept for Rs …"**, steps to ask for more (+Rs 200 / 500 / 1,000 above
   her price, within `max_counter_bps`: plain steps, never a price we
   suggest), the − / + stepper, how soon, and the note. The switch's colours

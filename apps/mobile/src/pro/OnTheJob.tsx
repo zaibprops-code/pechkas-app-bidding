@@ -1,3 +1,4 @@
+import { DuoIcon, type DuoName } from '../components/DuoIcon';
 import { useState } from 'react';
 import { Image, Linking, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
@@ -171,15 +172,14 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
         </View>
       </View>
       <RemoteMedia items={j.media} voiceLabel={w.playVoice} videoLabel={w.watchVideo} />
-      <View style={s.row}>
+      {/* What he reaches for at a gate, as one row of square buttons — the way ride apps lay it out. */}
+      <View style={s.actions}>
         {j.customer_phone ? (
-          <View style={{ flex: 1 }}>
-            <Button kind="green" label={w.callCustomer} onPress={() => Linking.openURL(`tel:+${j.customer_phone!.replace(/^\+/, '')}`)} />
-          </View>
+          <Action icon="phone" label={w.actCall} full={w.callCustomer} onPress={() => Linking.openURL(`tel:+${j.customer_phone!.replace(/^\+/, '')}`)} />
         ) : null}
-        <View style={{ flex: 1 }}>
-          <Button kind="outline" label={w.message} onPress={() => router.push({ pathname: '/chat/[job]', params: { job: j.id } })} />
-        </View>
+        <Action icon="chat" label={w.actMessage} full={w.message} onPress={() => router.push({ pathname: '/chat/[job]', params: { job: j.id } })} />
+        {j.stage === 'chosen' || j.stage === 'on_way' ? <Action icon="pin" label={w.actMap} full={w.openMap} onPress={() => Linking.openURL(map)} /> : null}
+        <Action icon="flag" label={w.actReport} full={w.reportProblem} on={reporting} onPress={() => setReporting(!reporting)} />
       </View>
       {/* The customer's own pin, once he is the one chosen; tapping it opens directions. */}
       {(j.stage === 'chosen' || j.stage === 'on_way') && j.lat !== null && j.lng !== null && mapsReady() ? (
@@ -187,15 +187,8 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
           <MapBox center={{ latitude: j.lat, longitude: j.lng }} pin={{ latitude: j.lat, longitude: j.lng }} zoom={0.006} style={s.map} />
         </Press>
       ) : null}
-      {j.stage === 'chosen' || j.stage === 'on_way' ? <Button kind="outline" label={w.openMap} onPress={() => Linking.openURL(map)} /> : null}
-      <View style={s.row}>
-        <View style={{ flex: 1 }}>
-          <Button kind="outline" label={w.reportProblem} onPress={() => setReporting(!reporting)} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Button kind="danger" label={w.emergency} onPress={() => router.push({ pathname: '/emergency/[job]', params: { job: j.id } })} />
-        </View>
-      </View>
+      {/* Safety stays a full-width red button, never one tile among four. */}
+      <Button kind="danger" label={w.emergency} onPress={() => router.push({ pathname: '/emergency/[job]', params: { job: j.id } })} />
       {reporting ? (
         <View style={s.step}>
           <TextInput
@@ -314,6 +307,18 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
 
       {msg && !j.code_locked && !['code', 'photos', 'parts', 'receipt', 'report'].includes(msgField ?? '') ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
     </View>
+  );
+}
+
+/** One square button in the row of things to do at the gate: a two-tone icon and a short word. */
+function Action({ icon, label, full, onPress, on = false }: { icon: DuoName; label: string; full: string; onPress: () => void; on?: boolean }) {
+  return (
+    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={full} accessibilityState={{ expanded: on }} sink={0.96} style={[s.action, on && s.actionOn]}>
+      <DuoIcon name={icon} size={26} />
+      <Text style={s.actionText} numberOfLines={1}>
+        {label}
+      </Text>
+    </Press>
   );
 }
 
@@ -472,6 +477,10 @@ function RateCustomer({ f, w, onDone }: { f: FinishedJob; w: ProWords; onDone: (
 }
 
 const s = StyleSheet.create({
+  actions: { flexDirection: 'row', gap: 8 },
+  action: { flex: 1, minHeight: 76, alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 4, borderRadius: 18, backgroundColor: colour.canvas },
+  actionOn: { backgroundColor: '#fff6dc' },
+  actionText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
   map: { height: 160, borderRadius: 16 },
   card: { gap: 10, padding: 14, borderRadius: 22 },
   feeLine: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green },

@@ -1,3 +1,4 @@
+import { DuoIcon, type DuoName } from '../../src/components/DuoIcon';
 import { useCallback, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
@@ -72,8 +73,15 @@ export default function MoneyScreen() {
         {m ? (
           <>
             <View style={[s.owed, m.blocked && s.owedBlocked]}>
-              <Text style={[s.owedLabel, m.blocked && { color: colour.white }]}>{w.owe}</Text>
-              <Text style={[s.owedBig, m.blocked && { color: colour.white }]}>{rupees(m.owed_paisa)}</Text>
+              <View style={s.owedTop}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.owedLabel, m.blocked && { color: colour.white }]}>{w.owe}</Text>
+                  <Text style={[s.owedBig, m.blocked && { color: colour.white }]}>{rupees(m.owed_paisa)}</Text>
+                </View>
+                <View style={s.owedIcon}>
+                  <DuoIcon name="wallet" size={28} accent={colour.white} />
+                </View>
+              </View>
               {m.blocked ? (
                 <Text style={s.blockedText}>{fill(w.blockedText, { owed: rupees(m.owed_paisa), limit: rupees(m.credit_limit_paisa) })}</Text>
               ) : null}
@@ -81,14 +89,14 @@ export default function MoneyScreen() {
 
             {m.owed_paisa > 0 ? (
               <View style={s.card}>
-                <Text style={s.cardTitle}>{w.howToPay}</Text>
+                <CardHead icon="wallet" title={w.howToPay} />
                 <Text style={s.payTo}>{m.pay_to ?? w.payAsk}</Text>
                 <Text style={s.note}>{w.payNote}</Text>
               </View>
             ) : null}
 
             <View style={s.card}>
-              <Text style={s.cardTitle}>{w.thisMonth}</Text>
+              <CardHead icon="jobs" title={w.thisMonth} />
               <Text style={s.big}>{m.month.jobs === 1 ? w.jobDone : fill(w.jobsDone, { n: m.month.jobs })}</Text>
               <Row k={w.collected} v={rupees(m.month.collected_paisa)} />
               <Row k={w.partsSpent} v={rupees(m.month.parts_paisa)} />
@@ -100,7 +108,7 @@ export default function MoneyScreen() {
             </View>
 
             <View style={s.card}>
-              <Text style={s.cardTitle}>{w.myRating}</Text>
+              <CardHead icon="star" title={w.myRating} />
               {m.rating.avg !== null ? (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                   <Stars value={Math.round(m.rating.avg)} size={22} />
@@ -121,7 +129,7 @@ export default function MoneyScreen() {
             </View>
 
             <View style={s.card}>
-              <Text style={s.cardTitle}>{w.lines}</Text>
+              <CardHead icon="briefcase" title={w.lines} />
               {m.lines.length === 0 ? <Text style={s.note}>{w.nothingYet}</Text> : null}
               {m.lines.map((l, i) => (
                 <View key={i} style={s.line}>
@@ -155,6 +163,20 @@ export default function MoneyScreen() {
   );
 }
 
+/** A card's heading: a two-tone icon on a soft tile and the title, as on home and in the menu. */
+function CardHead({ icon, title }: { icon: DuoName; title: string }) {
+  return (
+    <View style={s.head}>
+      <View style={s.soft}>
+        <DuoIcon name={icon} size={22} />
+      </View>
+      <Text style={s.headText} accessibilityRole="header">
+        {title}
+      </Text>
+    </View>
+  );
+}
+
 function Row({ k, v }: { k: string; v: string }) {
   return (
     <View style={s.row}>
@@ -165,12 +187,17 @@ function Row({ k, v }: { k: string; v: string }) {
 }
 
 const s = StyleSheet.create({
-  owed: { gap: 4, padding: 16, borderRadius: radius.big, backgroundColor: colour.yellow },
+  owed: { gap: 6, padding: 18, borderRadius: 24, backgroundColor: colour.yellow },
+  owedTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  owedIcon: { width: 54, height: 54, borderRadius: 18, backgroundColor: 'rgba(20, 23, 26, 0.08)', alignItems: 'center', justifyContent: 'center' },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 },
+  soft: { width: 38, height: 38, borderRadius: 12, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
+  headText: { flex: 1, fontFamily: font.display, fontSize: 17, color: colour.ink },
   owedBlocked: { backgroundColor: colour.brick },
   owedLabel: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   owedBig: { fontFamily: font.display, fontSize: 34, color: colour.ink },
   blockedText: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.white },
-  card: { gap: 8, padding: 14, borderRadius: radius.big, backgroundColor: colour.white },
+  card: { gap: 8, padding: 16, borderRadius: 22, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.04)' },
   cardTitle: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel },
   payTo: { fontFamily: font.bodySemi, fontSize: 17, lineHeight: 24, color: colour.ink },
   big: { fontFamily: font.display, fontSize: 20, color: colour.ink },

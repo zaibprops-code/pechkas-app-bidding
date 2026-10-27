@@ -7,6 +7,7 @@ import { rupees, showMobile, technicianKeeps } from '@pechkas/shared';
 import { MenuButton } from '../components/Menu';
 import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
+import { DuoIcon } from '../components/DuoIcon';
 import { Icon } from '../components/Icon';
 import { Sheet } from '../components/Sheet';
 import { Button, Notice, NotifyCard, SystemBars } from '../components/ui';
@@ -125,6 +126,8 @@ export function Work({ firstName }: { firstName: string }) {
     setSwitching(false);
   }
 
+  const hour = new Date().getHours();
+  const greeting = hour >= 5 && hour < 12 ? w.goodMorning : hour >= 12 && hour < 17 ? w.goodAfternoon : w.goodEvening;
   const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
   const online = feed?.online ?? false;
   const opened = feed?.jobs.find((j) => j.id === open) ?? null;
@@ -172,6 +175,26 @@ export function Work({ firstName }: { firstName: string }) {
         <Notice text={feed ? problem : null} />
         {feed === null && trouble ? <Trouble kind={trouble} onRetry={load} /> : null}
 
+        {/* Who this is for, and where he stands, before anything to tap. */}
+        {feed ? (
+          <View style={s.greet}>
+            <Text style={s.hello} numberOfLines={1}>
+              {greeting}
+              {firstName ? `, ${firstName}` : ''}
+            </Text>
+            <View style={s.listHead}>
+              <Text style={s.ask} accessibilityRole="header">
+                {mine.length ? w.myJobs : online ? w.requestsTitle : w.readyTitle}
+              </Text>
+              {!mine.length && online && feed.jobs.length ? (
+                <View style={s.count}>
+                  <Text style={s.countText}>{feed.jobs.length}</Text>
+                </View>
+              ) : null}
+            </View>
+          </View>
+        ) : null}
+
         {feed?.blocked ? (
           <Press onPress={() => router.push('/pro/money')} accessibilityRole="button" style={s.blocked}>
             <Text style={s.blockedTitle}>{w.blockedTitle}</Text>
@@ -184,7 +207,6 @@ export function Work({ firstName }: { firstName: string }) {
 
         {mine.length ? (
           <View style={{ gap: 10 }}>
-            <Text style={s.section}>{w.myJobs}</Text>
             {mine.map((j) => (
               <Chosen
                 key={j.id}
@@ -202,26 +224,45 @@ export function Work({ firstName }: { firstName: string }) {
 
         {feed && !online ? (
           <View style={s.offline}>
-            <Mark size={72} />
-            <Text style={s.offlineTitle}>{w.offlineTitle}</Text>
-            <Text style={s.offlineText}>{w.offlineText}</Text>
-            <View style={{ alignSelf: 'stretch' }}>
-              <Button label={w.goOnline} onPress={() => setOnline(true)} busy={switching} />
+            <View style={s.offlineTop}>
+              <View style={s.offlineMark}>
+                <Mark size={44} />
+              </View>
+              <View style={{ flex: 1, gap: 4 }}>
+                <Text style={s.offlineTitle}>{w.offlineTitle}</Text>
+                <Text style={s.offlineText}>{w.offlineText}</Text>
+              </View>
             </View>
+            <Button label={w.goOnline} onPress={() => setOnline(true)} busy={switching} />
           </View>
         ) : null}
 
         {online ? (
-          <View style={{ gap: 8 }}>
-            <View style={s.listHead}>
-              <Text style={s.listTitle}>{w.requestsTitle}</Text>
-              {feed?.jobs.length ? (
-                <View style={s.count}>
-                  <Text style={s.countText}>{feed.jobs.length}</Text>
+          <View style={{ gap: 10 }}>
+            {/* With a job of his own on top, the jobs in his areas get their own heading here. */}
+            {mine.length ? (
+              <View style={[s.listHead, { paddingHorizontal: 6, marginTop: 6 }]}>
+                <Text style={s.section} accessibilityRole="header">
+                  {w.requestsTitle}
+                </Text>
+                {feed?.jobs.length ? (
+                  <View style={s.count}>
+                    <Text style={s.countText}>{feed.jobs.length}</Text>
+                  </View>
+                ) : null}
+              </View>
+            ) : null}
+            {feed && feed.jobs.length === 0 ? (
+              <View style={s.emptyCard}>
+                <View style={s.soft}>
+                  <DuoIcon name="briefcase" size={26} />
                 </View>
-              ) : null}
-            </View>
-            {feed && feed.jobs.length === 0 ? <Text style={s.empty}>{w.noJobs}</Text> : null}
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Text style={s.emptyTitle}>{w.noJobsTitle}</Text>
+                  <Text style={s.empty}>{w.noJobs}</Text>
+                </View>
+              </View>
+            ) : null}
             {feed?.jobs.map((j) => (
               <RequestRow key={j.id} j={j} w={w} trade={tradeName(j.trade)} onOpen={() => setOpen(j.id)} />
             ))}
@@ -295,8 +336,8 @@ function RequestRow({ j, w, trade, onOpen }: { j: FeedJob; w: ProWords; trade: s
           </Text>
         </View>
       </View>
-      {media || j.asked_you || live ? (
-        <View style={s.reqTags}>
+      <View style={s.reqFoot}>
+        <View style={[s.reqTags, { flex: 1 }]}>
           {j.asked_you ? (
             <View style={[s.tag, s.tagYellow]}>
               <Text style={s.tagText}>{w.askedBadge}</Text>
@@ -313,7 +354,14 @@ function RequestRow({ j, w, trade, onOpen }: { j: FeedJob; w: ProWords; trade: s
             </View>
           ) : null}
         </View>
-      ) : null}
+        {/* Says what a tap does, as a designed app would; the whole card is the button. */}
+        {live ? null : (
+          <View style={s.offerPill} accessible={false}>
+            <Text style={s.offerPillText}>{w.makeOffer}</Text>
+            <Icon name="chevronRight" size={16} color={colour.ink} strokeWidth={2.4} />
+          </View>
+        )}
+      </View>
     </Press>
   );
 }
@@ -538,17 +586,27 @@ const s = StyleSheet.create({
   blocked: { gap: 4, padding: 14, borderRadius: radius.big, backgroundColor: colour.brick },
   blockedTitle: { fontFamily: font.display, fontSize: 17, color: colour.white },
   blockedText: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.white },
-  offline: { alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingTop: 36, paddingBottom: 24, borderRadius: 28, backgroundColor: colour.white },
-  offlineTitle: { fontFamily: font.display, fontSize: 24, color: colour.ink, marginTop: 6 },
-  offlineText: { fontFamily: font.body, fontSize: 15, lineHeight: 22, color: colour.steel, textAlign: 'center', marginBottom: 8 },
-  listHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4, paddingTop: 4 },
-  listTitle: { fontFamily: font.display, fontSize: 20, color: colour.ink },
+  greet: { paddingHorizontal: 6, paddingTop: 4, gap: 2 },
+  hello: { fontFamily: font.bodyMedium, fontSize: 15, color: colour.steel },
+  ask: { fontFamily: font.display, fontSize: 24, lineHeight: 30, color: colour.ink },
+  offline: { gap: 16, padding: 18, borderRadius: 26, backgroundColor: colour.green },
+  offlineTop: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  offlineMark: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
+  offlineTitle: { fontFamily: font.display, fontSize: 20, color: colour.white },
+  offlineText: { fontFamily: font.bodyMedium, fontSize: 13.5, lineHeight: 19, color: '#cfe2de' },
+  listHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  soft: { width: 48, height: 48, borderRadius: 15, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
+  emptyCard: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 22, backgroundColor: colour.white },
+  emptyTitle: { fontFamily: font.displayBold, fontSize: 16, color: colour.ink },
+  reqFoot: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 12, borderTopWidth: 1, borderTopColor: colour.rule },
+  offerPill: { flexDirection: 'row', alignItems: 'center', gap: 2, minHeight: 36, paddingLeft: 14, paddingRight: 8, borderRadius: radius.pill, backgroundColor: colour.yellow },
+  offerPillText: { fontFamily: font.bodySemi, fontSize: 13.5, color: colour.ink },
   count: { minWidth: 26, height: 26, paddingHorizontal: 8, borderRadius: 13, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
   countText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
-  req: { gap: 12, padding: 14, borderRadius: 22, backgroundColor: colour.white },
+  req: { gap: 12, padding: 14, borderRadius: 22, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.05)' },
   reqMarked: { borderWidth: 2, borderColor: colour.yellow },
   reqTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  avatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: colour.tile, alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontFamily: font.display, fontSize: 18, color: colour.ink },
   reqName: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
   reqWhen: { fontFamily: font.body, fontSize: 13, color: colour.steel },
@@ -563,7 +621,7 @@ const s = StyleSheet.create({
   tagText: { fontFamily: font.bodySemi, fontSize: 12, color: colour.ink },
   steps: { flexDirection: 'row', gap: 8 },
   stepChip: { flex: 1, minWidth: 0, paddingHorizontal: 4 },
-  section: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, marginTop: 4 },
+  section: { fontFamily: font.display, fontSize: 18, color: colour.ink },
   empty: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.steel },
   card: { gap: 10, padding: 14, borderRadius: 22, backgroundColor: colour.white },
   cardAsked: { borderWidth: 2, borderColor: colour.yellow },

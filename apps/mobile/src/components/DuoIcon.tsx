@@ -9,7 +9,7 @@ import { colour } from '../theme';
  * colours. Drawn on the same 24-unit grid; they say what the words beside
  * them say, so screen readers skip them.
  */
-export type DuoName = 'home' | 'jobs' | 'bell' | 'shield' | 'help' | 'support' | 'settings' | 'share' | 'briefcase' | 'wallet' | 'swap' | 'mic' | 'video' | 'lock' | 'search';
+export type DuoName = 'home' | 'jobs' | 'bell' | 'shield' | 'help' | 'support' | 'settings' | 'share' | 'briefcase' | 'wallet' | 'swap' | 'mic' | 'video' | 'lock' | 'search' | 'phone' | 'chat' | 'pin' | 'flag' | 'star';
 
 export function DuoIcon({ name, size = 26, accent = colour.yellow, ink = colour.ink }: { name: DuoName; size?: number; accent?: string; ink?: string }) {
   const line = { stroke: ink, strokeWidth: 1.8, fill: 'none' as const, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -122,6 +122,38 @@ export function DuoIcon({ name, size = 26, accent = colour.yellow, ink = colour.
           <Circle {...fill} cx={10.5} cy={10.5} r={6.5} />
           <Circle {...line} cx={10.5} cy={10.5} r={6.5} />
           <Path {...line} strokeWidth={2.2} d="M15.5 15.5l5 5" />
+        </>
+      )}
+      {name === 'phone' && (
+        <>
+          <Path {...fill} d="M5 3.5h3.5l2 5-2.4 1.6a11 11 0 0 0 5.8 5.8l1.6-2.4 5 2v3.5a2 2 0 0 1-2 2A16.5 16.5 0 0 1 3 5.5a2 2 0 0 1 2-2z" />
+          <Path {...line} d="M5 3.5h3.5l2 5-2.4 1.6a11 11 0 0 0 5.8 5.8l1.6-2.4 5 2v3.5a2 2 0 0 1-2 2A16.5 16.5 0 0 1 3 5.5a2 2 0 0 1 2-2z" />
+        </>
+      )}
+      {name === 'chat' && (
+        <>
+          <Path {...fill} d="M4 5.5A2 2 0 0 1 6 3.5h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10l-5 4v-4.2A2 2 0 0 1 4 14.5z" />
+          <Path {...line} d="M4 5.5A2 2 0 0 1 6 3.5h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10l-5 4v-4.2A2 2 0 0 1 4 14.5z" />
+          <Path {...line} d="M8.5 10h.01M12 10h.01M15.5 10h.01" strokeWidth={2.6} />
+        </>
+      )}
+      {name === 'pin' && (
+        <>
+          <Path {...fill} d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" />
+          <Path {...line} d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" />
+          <Circle {...line} cx={12} cy={10} r={2.6} />
+        </>
+      )}
+      {name === 'flag' && (
+        <>
+          <Path {...fill} d="M5 4.5h12.5l-2.5 4 2.5 4H5z" />
+          <Path {...line} d="M5 21V4.5h12.5l-2.5 4 2.5 4H5" />
+        </>
+      )}
+      {name === 'star' && (
+        <>
+          <Path {...fill} d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" />
+          <Path {...line} d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" />
         </>
       )}
       {name === 'swap' && <Path {...line} strokeWidth={2.1} d="M7 4L3.5 7.5 7 11M3.5 7.5H17M17 13l3.5 3.5L17 20M20.5 16.5H7" />}

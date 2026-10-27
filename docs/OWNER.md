@@ -7,6 +7,24 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The technician's side, redesigned the same way (new — no database
+step, needs a new build).**
+
+- **Jobs screen:** a greeting with his first name over the heading — *Ready
+  for work?* when offline, *Jobs in your areas* when online, *My jobs*
+  while he has one. Offline, one green card with a big yellow **Go
+  online**.
+- **Each job request** shows the customer's initial on a yellow circle,
+  the price large, the job and the sector, and a yellow **Make an offer**
+  button until he has offered. *No new jobs yet* is its own tidy card.
+- **On a job:** **Call**, **Chat**, **Map** and **Report** are one row of
+  square buttons with the new two-tone icons. **Emergency** stays a
+  full-width red button on its own — safety is never one small tile among
+  four.
+- **My account:** what he owes in a yellow card with a wallet badge; each
+  section (*This month*, *My rating*, *Account lines*) headed by its own
+  icon.
+
 **The home screen, redesigned the same way (new — no database step,
 needs a new build).** The map, the pin and "Set the job's address" stay
 as they were. Underneath:
