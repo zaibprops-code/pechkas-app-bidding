@@ -7,6 +7,13 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Safety, redesigned the same way (new — no database step, needs a new
+build).** Menu (☰) → **Safety**. The four emergency numbers (Police 15,
+Rescue 1122, Fire brigade 16, Edhi ambulance 115) are now big tiles, two
+by two: tap one and the phone rings it. The Pechkas office is a row under
+them, and each line of "How Pechkas keeps a visit safe" has its own icon.
+Not one word of the safety advice changed.
+
 **Help, redesigned the same way (new — no database step, needs a new
 build).** Menu (☰) → **Help**:
 

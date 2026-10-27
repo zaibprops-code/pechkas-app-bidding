@@ -345,6 +345,13 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   guarantee's 15-or-30 days) is never written there — the answer points to
   the screen showing the real figure. The 10% and 7% are locked
   settings, as in the terms: change them and this page in the same week.
+- **Safety (`app/safety.tsx`) is in the same style**, and still open
+  signed out and never covered by a pause: the four numbers from
+  `src/emergency.ts` as big white tiles two by two (the number large in
+  brick, a brick call disc, the service under it; a tap rings it), the
+  office as a `DuoRow`, then "How Pechkas keeps a visit safe" with a
+  two-tone icon per line. Only the look changed: the words are safety
+  advice and stay exactly as they were.
 - The Me screen shows and turns on notifications for anyone, so the owner's
   own phone can receive the office alerts without having a job open.
   `useNotify(null)` waits: a technician's language must be read from the
