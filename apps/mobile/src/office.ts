@@ -22,3 +22,14 @@ export const DELETE_ACCOUNT_URL = 'https://pechkas.net/app/delete-account';
 /** The customer terms and the technician agreement, on the same site. Drafts until a lawyer has read them. */
 export const TERMS_URL = 'https://pechkas.net/app/terms';
 export const AGREEMENT_URL = 'https://pechkas.net/app/technician-agreement';
+
+/**
+ * Where "Update Pechkas" goes. Android opens the Play Store's own page for
+ * the app (the package name in app.json). The App Store page needs Apple's
+ * number for the app, which exists only once it is listed: until then the
+ * button opens the App Store and the screen says to update from there.
+ */
+export const PLAY_STORE_APP = 'market://details?id=net.pechkas.app';
+export const PLAY_STORE_WEB = 'https://play.google.com/store/apps/details?id=net.pechkas.app';
+export const APP_STORE_ID = '';
+export const APP_STORE_APP = APP_STORE_ID ? `itms-apps://apps.apple.com/app/id${APP_STORE_ID}` : 'itms-apps://apps.apple.com/';

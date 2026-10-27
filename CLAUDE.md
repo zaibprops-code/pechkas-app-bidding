@@ -726,6 +726,27 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   load fails shows the card version under its own header (My jobs, a job,
   the technician's list); once it has something on screen, a failed
   refresh is only the top banner.
+- **The office has two switches every phone obeys** (migration
+  `…_update_and_pause`, `src/control.tsx`, admin **Settings → App
+  switches**): *paused*, with a short note, and *min_edition*, below which
+  a copy must update. `public.app_status()` is the only way in — open to
+  `anon`, because the app asks before anybody signs in — and returns
+  exactly three things. The app asks on opening (the launch cover waits up
+  to 3 s for it), on coming back to the front, and every 30 s while a
+  switch is on, so lifting it lets everybody back in by itself. **Being
+  unable to ask never stops anybody**: no answer, or a database without the
+  function, counts as both off. `OfficeSwitches` in `_layout.tsx` draws
+  `Trouble` kind `update` or `paused` over everything **except the
+  `emergency` and `safety` screens**, and both offer **Emergency numbers**
+  (the safety page is in `OPEN`, so it works signed out). An office login
+  sees through a pause, never through "please update". **`APP_EDITION`
+  in `packages/shared`** is this code's edition; raise it by one in the
+  same commit as any change older copies would get wrong, and tell the
+  owner to ask for the update **only once that edition is in the stores**
+  — asking sooner stops everybody with an update they cannot get. The
+  pause note refuses phone numbers and CNICs (it is on every phone), and
+  every move is in `setting_changes`. `control.test.mjs` breaks if any of
+  that goes.
 - **Nothing is read through Android's bars.** The app is drawn edge to
   edge, under a see-through status bar and button bar. Every screen that
   scrolls draws `SystemBars` (`ui.tsx`, a strip of the screen's own colour

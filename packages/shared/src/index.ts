@@ -10,6 +10,18 @@
  * packages/shared/test/ pin the cases where that matters.
  */
 
+/**
+ * Which edition of the phone app this code is: a whole number, raised by one
+ * in the same commit as any change that older copies on people's phones
+ * would get wrong. The office can then ask every copy older than this to
+ * update (public.app_control.min_edition, set from the admin panel, which
+ * reads this same number) — but only once this edition is in the stores,
+ * or everybody would be asked for an update they cannot get.
+ *
+ * Copies built before editions existed never ask, so they are never stopped.
+ */
+export const APP_EDITION = 1;
+
 /** What a screen shows when nobody has agreed a price. Never "Rs 0". */
 export const NO_PRICE = 'no price yet';
 

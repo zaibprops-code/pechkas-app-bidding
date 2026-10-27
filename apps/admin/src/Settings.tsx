@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { rupees } from '@pechkas/shared';
+import { APP_EDITION, rupees } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
 
 /**
@@ -124,6 +124,7 @@ export function Settings() {
       {r === null && !problem ? <p className="lead">Loading…</p> : null}
       {r ? (
         <div className="stack">
+          <AppSwitches onChanged={load} />
           <Sectors sectors={r.sectors} onChanged={load} />
           {GROUPS.map((g) => (
             <section key={g.title} className="card">
@@ -149,6 +150,16 @@ export function Settings() {
               {r.changes.map((c, i) => {
                 const sector = c.key.startsWith('sector:') ? c.key.slice(7) : null;
                 const s = byKey.get(c.key);
+                if (c.key === 'app:paused' || c.key === 'app:min_edition') {
+                  return (
+                    <li key={i}>
+                      {time(c.at)} · {c.by ?? 'unknown'}:{' '}
+                      {c.key === 'app:paused'
+                        ? c.new ? 'paused the app' : 'let the app carry on'
+                        : c.new ? `asked copies older than edition ${c.new} to update` : 'stopped asking anybody to update'}
+                    </li>
+                  );
+                }
                 return (
                   <li key={i}>
                     {time(c.at)} · {c.by ?? 'unknown'}:{' '}
@@ -266,6 +277,123 @@ function Sectors({ sectors, onChanged }: { sectors: Sector[]; onChanged: () => v
         </div>
       </details>
       {msg ? <p className="error" role="alert">{msg}</p> : null}
+    </section>
+  );
+}
+
+type Control = { min_edition: number; paused: boolean; pause_note: string; changed_at: string; changed_by: string | null };
+
+/**
+ * The two switches every phone obeys (public.app_control): pause the app
+ * while something is worked on, and ask old copies to update. Both are
+ * read by every copy of the app when it opens and when it comes back to
+ * the front; while one is on, phones ask again every half minute.
+ */
+function AppSwitches({ onChanged }: { onChanged: () => void }) {
+  const [c, setC] = useState<Control | null>(null);
+  const [note, setNote] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase.rpc('admin_app_control');
+    if (error) {
+      setC(null);
+      return setMsg(/function|does not exist|schema cache/i.test(error.message)
+        ? 'These switches need the database change 20261031000000_update_and_pause.sql. Run it in Supabase first.'
+        : `Could not load: ${error.message}`);
+    }
+    setMsg(null);
+    setC(data as Control);
+    setNote((data as Control | null)?.pause_note ?? '');
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function run(fn: string, args: Record<string, unknown>) {
+    setBusy(true);
+    setMsg(null);
+    const r = await ask(fn, args);
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    await load();
+    onChanged();
+  }
+
+  const pause = () => {
+    if (!window.confirm('Pause the app for everybody? Every phone will show "Pechkas is paused" with your note, including anybody in the middle of a job. The emergency numbers stay on their screen. Office logins still see the app.')) return;
+    run('admin_set_pause', { p_paused: true, p_note: note });
+  };
+  const carryOn = () => run('admin_set_pause', { p_paused: false, p_note: note });
+  const askUpdate = () => {
+    if (!window.confirm(`Only do this once edition ${APP_EDITION} is live on Google Play and the App Store. Every phone with an older copy will be stopped until it updates. Carry on?`)) return;
+    run('admin_set_min_edition', { p_edition: APP_EDITION });
+  };
+  const stopAsking = () => run('admin_set_min_edition', { p_edition: 0 });
+
+  return (
+    <section className="card">
+      <h2>App switches</h2>
+      {msg ? <p className="error" role="alert">{msg}</p> : null}
+      {c ? (
+        <>
+          <div className="setting">
+            <div className="setting-text">
+              <strong>Pause the app</strong>
+              <span className="muted">
+                For when something is being worked on, such as running a database change. Every phone shows one screen saying Pechkas is
+                paused, with your note, and opens again by itself within half a minute of you pressing Carry on. It does not switch the
+                database off. Office logins still see the app.
+              </span>
+              <span className="muted">
+                {c.paused ? 'Paused now' : 'Running'}
+                {c.changed_by ? ` · last changed ${time(c.changed_at)} by ${c.changed_by}` : ''}
+              </span>
+            </div>
+            <div className="setting-edit">
+              <label>
+                <span className="muted small">Note everybody will read (optional, no phone numbers)</span>
+                <input value={note} maxLength={300} onChange={(e) => setNote(e.target.value)} placeholder="Back by 3 pm." />
+              </label>
+              {c.paused ? (
+                <>
+                  <button className="small" disabled={busy || note === c.pause_note} onClick={() => run('admin_set_pause', { p_paused: true, p_note: note })}>
+                    Change the note
+                  </button>
+                  <button className="small" disabled={busy} onClick={carryOn}>Carry on</button>
+                </>
+              ) : (
+                <button className="small" disabled={busy} onClick={pause}>Pause the app</button>
+              )}
+            </div>
+          </div>
+          <div className="setting">
+            <div className="setting-text">
+              <strong>Ask old copies to update</strong>
+              <span className="muted">
+                This admin panel is edition {APP_EDITION}. Phones show their edition under Settings, This copy of the app. Asking makes
+                every older copy stop and show "Please update Pechkas" with a button to the store. Do it only after this edition is live
+                in the stores, or nobody will be able to get the update. Stop asking puts it right at once.
+              </span>
+              <span className="muted">
+                {c.min_edition ? `Asking every copy older than edition ${c.min_edition} to update.` : 'Not asking anybody to update.'}
+              </span>
+            </div>
+            <div className="setting-edit">
+              {APP_EDITION <= 1 ? (
+                <span className="muted small">Nothing to ask yet: edition 1 is the first copy that can be asked.</span>
+              ) : null}
+              {APP_EDITION > 1 && c.min_edition < APP_EDITION ? (
+                <button className="small" disabled={busy} onClick={askUpdate}>Ask copies older than {APP_EDITION} to update</button>
+              ) : null}
+              {c.min_edition > 0 ? <button className="small" disabled={busy} onClick={stopAsking}>Stop asking</button> : null}
+            </div>
+          </div>
+        </>
+      ) : null}
     </section>
   );
 }

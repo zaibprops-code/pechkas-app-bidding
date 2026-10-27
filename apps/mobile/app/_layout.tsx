@@ -18,6 +18,7 @@ import { colour } from '../src/theme';
 import { LaunchScrew } from '../src/components/LaunchScrew';
 import { ToastHost } from '../src/components/Toast';
 import { Trouble } from '../src/components/Trouble';
+import { ControlProvider, useControl } from '../src/control';
 
 // Keep the green splash up until the fonts are ready. Then LaunchScrew draws
 // the same picture, hides the phone's, and turns the screw until the gate
@@ -48,6 +49,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AccountProvider>
+       <ControlProvider>
         <StatusBar style="light" />
         <NotificationTaps />
         <Gate onDecided={onDecided} />
@@ -59,15 +61,21 @@ export default function RootLayout() {
             }}
           />
         </ToastHost>
+        <OfficeSwitches />
         <LaunchTrouble />
         {launched ? null : <LaunchScrew decided={decided} onDone={onLaunched} />}
+       </ControlProvider>
       </AccountProvider>
     </SafeAreaProvider>
   );
 }
 
-/** Screens anybody may see without an account: the welcome screen and the steps of signing in. */
-const OPEN = new Set(['start', 'sign-in', 'verify', 'auth-callback', 'legal']);
+/**
+ * Screens anybody may see without an account: the welcome screen, the steps
+ * of signing in, and the safety page — its emergency numbers are offered on
+ * the "paused" and "please update" screens to everybody, signed in or not.
+ */
+const OPEN = new Set(['start', 'sign-in', 'verify', 'auth-callback', 'legal', 'safety']);
 /** Screens a signed-in account may be on before it has a mode and a number. */
 const SETTING_UP = new Set(['choose', 'welcome', 'verify', 'auth-callback', 'legal']);
 
@@ -82,10 +90,13 @@ const SETTING_UP = new Set(['choose', 'welcome', 'verify', 'auth-callback', 'leg
  */
 function Gate({ onDecided }: { onDecided: () => void }) {
   const { ready, session, account, trouble } = useAccount();
+  const { checked } = useControl();
   const first = useSegments()[0] ?? '';
 
   useEffect(() => {
-    if (!ready) return;
+    // Wait for the office's switches too (a few seconds at most), so the
+    // home screen never flashes up before "paused" or "please update".
+    if (!ready || !checked) return;
     let moved = false;
     if (trouble) {
       // We do not know who this is yet: no internet, or Pechkas not
@@ -109,7 +120,7 @@ function Gate({ onDecided }: { onDecided: () => void }) {
     // Give a redirect a moment to draw before the green lifts off it.
     const t = setTimeout(onDecided, moved ? 150 : 0);
     return () => clearTimeout(t);
-  }, [ready, session, account, trouble, first, onDecided]);
+  }, [ready, session, account, trouble, checked, first, onDecided]);
 
   return null;
 }
@@ -118,6 +129,30 @@ function Gate({ onDecided }: { onDecided: () => void }) {
 function NotificationTaps() {
   useNotificationTaps();
   return null;
+}
+
+/** Screens the office's switches never cover: help in an emergency comes first. */
+const NEVER_COVERED = new Set(['emergency', 'safety']);
+
+/**
+ * "Please update" and "paused", over everything, when the office has
+ * switched them on (src/control.tsx). The emergency screen and the safety
+ * page are never covered, and both screens offer the emergency numbers. An
+ * office login sees through a pause, so the app can be checked before it
+ * is lifted; nobody sees through "please update".
+ */
+function OfficeSwitches() {
+  const { tooOld, paused, status, check } = useControl();
+  const { account } = useAccount();
+  const first = useSegments()[0] ?? '';
+  if (NEVER_COVERED.has(first)) return null;
+  const kind = tooOld ? 'update' : paused && !account?.is_staff ? 'paused' : null;
+  if (!kind) return null;
+  return (
+    <View style={StyleSheet.absoluteFill} accessibilityViewIsModal>
+      <Trouble kind={kind} full note={status?.note} onRetry={check} onSafety={() => router.push('/safety')} />
+    </View>
+  );
 }
 
 /**
@@ -129,7 +164,7 @@ function LaunchTrouble() {
   const { trouble, retry } = useAccount();
   if (!trouble) return null;
   return (
-    <View style={StyleSheet.absoluteFill}>
+    <View style={StyleSheet.absoluteFill} accessibilityViewIsModal>
       <Trouble kind={trouble} full onRetry={retry} />
     </View>
   );

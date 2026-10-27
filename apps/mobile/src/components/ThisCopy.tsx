@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { APP_EDITION } from '@pechkas/shared';
 import { supabase } from '../supabase';
 import { APP_VERSION, BUILT_AT, COMMIT, NEWEST_MIGRATION } from '../version';
 import { colour, font, radius } from '../theme';
@@ -36,7 +37,7 @@ export function ThisCopy({ dark = false }: { dark?: boolean }) {
     <View style={[s.box, { borderColor: dark ? 'rgba(250,246,239,0.18)' : colour.rule }]}>
       <Text style={[s.title, { color: fg }]}>This copy of the app</Text>
       <Text style={[s.line, { color: muted }]}>
-        Version {APP_VERSION}
+        Version {APP_VERSION} · edition {APP_EDITION}
         {COMMIT ? ` · code ${COMMIT}` : ' · local copy'}
         {built ? ` · built ${built}` : ''}
       </Text>

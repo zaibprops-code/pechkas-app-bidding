@@ -7,6 +7,44 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Two switches for you: pause the app, and ask old copies to update (new —
+one database step, needs a new build).** In the admin panel, **Settings →
+App switches**:
+
+- **Pause the app** — for when something is being worked on, such as
+  running a database change. Type a short note if you like (*Back by 3
+  pm.* — no phone numbers; the screen already offers to call the office)
+  and press **Pause the app**. Every phone shows *Pechkas is paused for a
+  short while* with your note, **Try again**, **Call the office** and
+  **Emergency numbers**. Press **Carry on** and every phone opens again by
+  itself within about half a minute. It does not switch the database off,
+  and your own office login still sees the app. **It stops anybody in the
+  middle of a job too**, so use it only when you must; the emergency
+  numbers always stay reachable.
+- **Ask old copies to update** — every copy of the app now has an
+  *edition* number, shown on the phone under **Settings → This copy of the
+  app**. When I tell you a new edition needs everyone to update, and only
+  once that edition is live on Google Play, press **Ask copies older than
+  … to update**. Older copies then show *Please update Pechkas* with a
+  button to the Play Store. **Stop asking** undoes it at once. This
+  build is edition 1, the first that can be asked, so there is nothing to
+  ask yet; copies from before this build never ask and are never stopped.
+
+Every press is kept under **Recent changes** with your name.
+
+To set it up:
+1. **Supabase → SQL Editor:** open
+   `supabase/migrations/20261031000000_update_and_pause.sql` from this
+   repository, paste it all in, press **Run**. It should say **Success**.
+2. **Vercel** puts the new admin panel online by itself from `main`.
+3. **Expo:** a new **preview** build from `main`, and install it.
+4. To try it: in the admin panel press **Pause the app** with a note, then
+   open the app on your phone — you should see the pause screen and your
+   note (your phone number is not an office login, so it is paused for you
+   too). Tap **Emergency numbers**: the safety page opens. Go back, press
+   **Carry on** in the admin panel, and within half a minute the phone
+   carries on by itself.
+
 **When something goes wrong: no internet, Pechkas down, a broken link, a
 crash (new — no database step, needs a new build).** Like every big app,
 Pechkas now has a proper screen for each of these instead of a blank page or
