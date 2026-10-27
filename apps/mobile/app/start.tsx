@@ -186,7 +186,7 @@ export default function Start() {
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colour.white },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingBottom: 6 },
-  name: { fontFamily: font.display, fontSize: 28, color: colour.ink, letterSpacing: -0.6 },
+  name: { fontFamily: font.brand, fontSize: 28, color: colour.ink, letterSpacing: -0.6 },
   nameSmall: { fontSize: 24 },
   page: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28, gap: 22 },
   words: { alignItems: 'center', gap: 8, maxWidth: 360 },

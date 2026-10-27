@@ -595,16 +595,18 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   never text: amounts a technician keeps or owes are green or ink.
 - **Laid out the way inDrive is — the owner's reference.** No tab bar: the
   ☰ `MenuButton` (`src/components/Menu.tsx`) opens a side menu laid out as
-  inDrive's, made more professional at the owner's request: the Pechkas
-  mark and a close button on top; the person on a soft card (name, number,
-  a dot and which side they are on; tap for Settings); then the places in
-  groups — Home or Jobs, My jobs or My account, Notifications; **Help and
-  safety**: Safety, Help, Support; **More**: Settings, Tell a friend (the
-  phone's share sheet, with words that claim only what is true) — each row
-  an icon on a soft square tile (yellow for the current one), the words
-  and a chevron; and at the foot one big yellow **Technician mode /
-  Customer mode** button (`ModeSwitch pill`: swap icon, one line saying
-  what it does) with the version and edition under it. **It is drawn by
+  inDrive's, redesigned at the owner's request — **one plain list, no
+  group headings** (he asked for a better design, not categories): the
+  Pechkas mark and a close button on top; the person on a green card with
+  their initial on a yellow disc and Customer or Technician (tap for
+  Settings); then Home or Jobs, My jobs or My account, Notifications,
+  Safety, Help, Support, Settings — each row a **two-tone icon**
+  (`DuoIcon.tsx`: ink outline, yellow fill on the part that matters), the
+  words and a light chevron, the current screen on soft yellow; at the
+  foot **Tell a friend about Pechkas** (the phone's share sheet, words
+  that claim only what is true) and the big yellow **Technician mode /
+  Customer mode** button (`ModeSwitch pill`: swap icon and one line saying
+  what it does), with the version and edition under it. **It is drawn by
   `MenuHost` at the root (`_layout.tsx`), never in a Modal**: a Modal is
   its own window, and on the owner's Android 9 phone it stopped short of
   the status bar and the button bar, so the dimming did not reach the
@@ -669,6 +671,13 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   menu, since only Pakistani numbers work — and **Next** at the foot. The
   welcome screen's number box is the same `PhoneBox`. No passkey: it needs
   its own set-up and is not well supported on the phones customers have.
+- **The typeface is Plus Jakarta Sans** (`font` in `theme.ts`, loaded in
+  `_layout.tsx`): the owner found the first pair, Bricolage Grotesque and
+  IBM Plex Sans, not professional enough for an app. `font.brand` keeps
+  Bricolage only for the word "Pechkas" beside the mark — the logo's own
+  lettering, as BRAND.md has it — and `font.mono` stays IBM Plex Mono for
+  details and codes. Every screen takes its font from those names; never
+  write a family name in a screen.
 - **Only `transform` moves.** `Press` sinks on tap and buzzes; it never eases
   a colour. A control whose text colour changes between states eases no
   colour at all — halfway through, text and background are the same grey.

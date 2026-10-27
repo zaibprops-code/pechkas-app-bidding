@@ -3,11 +3,11 @@ import { AccessibilityInfo, Animated, BackHandler, Easing, Linking, Pressable, S
 import { router, usePathname, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { APP_EDITION, showMobile } from '@pechkas/shared';
-import { Icon, type IconName } from './Icon';
+import { DuoIcon, type DuoName } from './DuoIcon';
+import { Icon } from './Icon';
 import { Mark } from './Mark';
 import { ModeSwitch } from './ModeSwitch';
 import { Press } from './Press';
-import { Avatar } from './ui';
 import { useAccount } from '../account';
 import { OFFICE_WHATSAPP } from '../office';
 import { APP_VERSION } from '../version';
@@ -17,9 +17,11 @@ import { colour, font } from '../theme';
  * The ☰ button and the menu it opens — the app's only navigation, like
  * inDrive's (the owner's screenshot): no tab bar along the bottom.
  *
- * Drawn as a professional app's side menu: the Pechkas mark at the top, the
- * person on a card (tap: Settings), then the places in small groups — each
- * row an icon on a soft tile, the words, and a chevron — and at the foot one
+ * Drawn as a designed app's side menu, at the owner's request: the Pechkas
+ * mark at the top; the person on a green card with a yellow ring round
+ * their initial (tap: Settings); then one plain list, no headings — each
+ * row a two-tone icon (DuoIcon.tsx), the words, a light chevron, and the
+ * current screen on soft yellow; and at the foot "Tell a friend" and one
  * big yellow button for the other mode, where inDrive keeps "Driver mode",
  * with the version underneath.
  *
@@ -35,48 +37,34 @@ import { colour, font } from '../theme';
  * way Pechkas has always answered; Help has the phone number too.
  */
 
-type Item = { icon: IconName; label: string; note?: string; to?: Href; open?: () => void };
-type Group = { title?: string; items: Item[] };
+type Item = { icon: DuoName; label: string; to?: Href; open?: () => void };
 
-const support: Item = { icon: 'whatsapp', label: 'Support', note: 'Chat with the office on WhatsApp', open: () => void Linking.openURL(OFFICE_WHATSAPP).catch(() => {}) };
+const support: Item = { icon: 'support', label: 'Support', open: () => void Linking.openURL(OFFICE_WHATSAPP).catch(() => {}) };
 
 /** Only what is true about Pechkas, so a friend is promised nothing it does not do. */
 const SHARE_TEXT = 'Pechkas: checked technicians for home repairs in Islamabad, and you name the price. https://pechkas.net';
-const tellAFriend: Item = {
-  icon: 'share',
-  label: 'Tell a friend',
-  open: () => void Share.share({ message: SHARE_TEXT }).catch(() => {}),
-};
+const tellAFriend = () => void Share.share({ message: SHARE_TEXT }).catch(() => {});
 
-const HELP: Group = {
-  title: 'Help and safety',
-  items: [{ icon: 'shield', label: 'Safety', to: '/safety' }, { icon: 'help', label: 'Help', to: '/help' }, support],
-};
-const MORE: Group = { title: 'More', items: [{ icon: 'settings', label: 'Settings', to: '/me' }, tellAFriend] };
-
-const CUSTOMER: Group[] = [
-  {
-    items: [
-      { icon: 'home', label: 'Home', to: '/' },
-      { icon: 'clipboard', label: 'My jobs', to: '/jobs' },
-      { icon: 'bell', label: 'Notifications', to: '/notifications' },
-    ],
-  },
-  HELP,
-  MORE,
+const REST: Item[] = [
+  { icon: 'shield', label: 'Safety', to: '/safety' },
+  { icon: 'help', label: 'Help', to: '/help' },
+  support,
+  { icon: 'settings', label: 'Settings', to: '/me' },
 ];
 
-const technician = (approved: boolean): Group[] => [
-  {
-    items: [
-      { icon: 'briefcase', label: 'Jobs', to: '/pro' },
-      // An unapproved technician has no account screen yet.
-      ...(approved ? [{ icon: 'wallet', label: 'My account', to: '/pro/money' } as Item] : []),
-      { icon: 'bell', label: 'Notifications', to: '/notifications' },
-    ],
-  },
-  HELP,
-  MORE,
+const CUSTOMER: Item[] = [
+  { icon: 'home', label: 'Home', to: '/' },
+  { icon: 'jobs', label: 'My jobs', to: '/jobs' },
+  { icon: 'bell', label: 'Notifications', to: '/notifications' },
+  ...REST,
+];
+
+const technician = (approved: boolean): Item[] => [
+  { icon: 'briefcase', label: 'Jobs', to: '/pro' },
+  // An unapproved technician has no account screen yet.
+  ...(approved ? [{ icon: 'wallet', label: 'My account', to: '/pro/money' } as Item] : []),
+  { icon: 'bell', label: 'Notifications', to: '/notifications' },
+  ...REST,
 ];
 
 const MenuContext = createContext<{ open: () => void }>({ open: () => {} });
@@ -112,8 +100,9 @@ function Drawer({ onClose }: { onClose: () => void }) {
   const { account, session } = useAccount();
   const here = usePathname();
   const pro = account?.role === 'pro';
-  const groups = pro ? technician(account?.pro?.status === 'approved') : CUSTOMER;
+  const items = pro ? technician(account?.pro?.status === 'approved') : CUSTOMER;
   const panel = Math.round(Math.min(340, width * 0.86));
+  const narrow = panel < 320;
   const x = useRef(new Animated.Value(-panel)).current;
 
   useEffect(() => {
@@ -147,88 +136,82 @@ function Drawer({ onClose }: { onClose: () => void }) {
   };
   const number = account?.phone ?? session?.user.phone ?? '';
   const who = number ? showMobile(number) : account?.email ?? '';
+  const name = account?.first_name ?? 'Your account';
 
   return (
     <View style={StyleSheet.absoluteFill}>
       <Pressable style={s.backdrop} onPress={onClose} accessibilityLabel="Close the menu" accessibilityRole="button" />
       <Animated.View
         accessibilityViewIsModal
-        style={[s.panel, { width: panel, paddingTop: insets.top + (short ? 8 : 14), paddingBottom: insets.bottom + 14, transform: [{ translateX: x }] }]}
+        style={[s.panel, { width: panel, paddingTop: insets.top + (short ? 10 : 18), paddingBottom: insets.bottom + 14, transform: [{ translateX: x }] }]}
       >
         <View style={s.brand}>
           <View style={s.brandName} accessible accessibilityLabel="Pechkas">
-            <Mark size={30} />
+            <Mark size={28} />
             <Text style={s.brandText}>Pechkas</Text>
           </View>
           <Press onPress={onClose} accessibilityRole="button" accessibilityLabel="Close the menu" sink={0.9} style={s.close}>
-            <Icon name="cross" size={20} color={colour.ink} strokeWidth={2.4} />
+            <Icon name="cross" size={18} color={colour.ink} strokeWidth={2.4} />
           </Press>
         </View>
 
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 8 }} bounces={false} showsVerticalScrollIndicator={false}>
-          <Press
-            onPress={() => go({ icon: 'me', label: 'Settings', to: '/me' })}
-            accessibilityRole="button"
-            accessibilityLabel={`${account?.first_name ?? 'Your account'}${who ? `, ${who}` : ''}, ${pro ? 'technician' : 'customer'}. Open settings`}
-            style={[s.profile, short && { paddingVertical: 10 }]}
-            sink={0.98}
-          >
-            <Avatar name={account?.first_name} size={short ? 46 : 52} />
-            <View style={{ flex: 1, gap: 2 }}>
-              <Text style={s.name} numberOfLines={1}>
-                {account?.first_name ?? 'Your account'}
+        <Press
+          onPress={() => go({ icon: 'settings', label: 'Settings', to: '/me' })}
+          accessibilityRole="button"
+          accessibilityLabel={`${name}${who ? `, ${who}` : ''}, ${pro ? 'technician' : 'customer'}. Open settings`}
+          style={[s.profile, short && { paddingVertical: 12 }]}
+          sink={0.98}
+        >
+          <View style={[s.initial, short && s.initialShort]} accessible={false}>
+            <Text style={[s.initialText, short && { fontSize: 20 }]}>{(account?.first_name ?? '?').trim().charAt(0).toUpperCase()}</Text>
+          </View>
+          <View style={{ flex: 1, gap: 3 }}>
+            <Text style={s.hello} numberOfLines={1}>
+              Hello,
+            </Text>
+            <Text style={s.name} numberOfLines={1}>
+              {name}
+            </Text>
+            {who ? (
+              <Text style={s.sub} numberOfLines={1}>
+                {who}
               </Text>
-              {who ? (
-                <Text style={s.sub} numberOfLines={1}>
-                  {who}
-                </Text>
-              ) : null}
-              <View style={s.sideRow}>
-                <View style={[s.dot, { backgroundColor: pro ? colour.yellow : colour.green }]} />
-                <Text style={s.side}>{pro ? 'Technician' : 'Customer'}</Text>
-              </View>
-            </View>
-            <Icon name="chevronRight" size={20} color={colour.steel} strokeWidth={2.2} />
-          </Press>
+            ) : null}
+            {/* On a narrow phone the side goes under the number, so the name keeps its room. */}
+            {narrow ? <Side pro={pro} /> : null}
+          </View>
+          {narrow ? null : <Side pro={pro} />}
+        </Press>
 
-          {groups.map((g, gi) => (
-            <View key={g.title ?? gi} style={{ marginTop: gi === 0 ? (short ? 8 : 10) : short ? 4 : 8 }}>
-              {g.title ? (
-                <Text style={s.group} accessibilityRole="header">
-                  {g.title}
-                </Text>
-              ) : null}
-              {g.items.map((i) => {
-                const on = Boolean(i.to) && i.to === here;
-                return (
-                  <Press
-                    key={i.label}
-                    onPress={() => go(i)}
-                    accessibilityRole={i.open ? 'link' : 'button'}
-                    accessibilityState={{ selected: on }}
-                    accessibilityHint={i.note}
-                    style={[s.item, short && { minHeight: 48 }, on && s.itemOn]}
-                    sink={0.98}
-                  >
-                    <View style={[s.tile, short && s.tileShort, on && s.tileOn]}>
-                      <Icon name={i.icon} size={short ? 19 : 20} color={colour.ink} strokeWidth={2} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[s.itemText, on && s.itemTextOn]}>{i.label}</Text>
-                      {i.note && !short ? <Text style={s.note}>{i.note}</Text> : null}
-                    </View>
-                    <Icon name="chevronRight" size={18} color={on ? colour.ink : '#a3a9ae'} strokeWidth={2.2} />
-                  </Press>
-                );
-              })}
-            </View>
-          ))}
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: short ? 4 : 8, paddingBottom: 8 }} bounces={false} showsVerticalScrollIndicator={false}>
+          {items.map((i) => {
+            const on = Boolean(i.to) && i.to === here;
+            return (
+              <Press
+                key={i.label}
+                onPress={() => go(i)}
+                accessibilityRole={i.open ? 'link' : 'button'}
+                accessibilityState={{ selected: on }}
+                accessibilityHint={i.open ? 'Opens WhatsApp' : undefined}
+                style={[s.item, short && { minHeight: 50 }, on && s.itemOn]}
+                sink={0.98}
+              >
+                <DuoIcon name={i.icon} size={short ? 24 : 26} />
+                <Text style={[s.itemText, on && s.itemTextOn]}>{i.label}</Text>
+                <Icon name="chevronRight" size={18} color={on ? colour.ink : '#b4babe'} strokeWidth={2.2} />
+              </Press>
+            );
+          })}
         </ScrollView>
 
         <View style={s.bottom}>
+          <Press onPress={() => { onClose(); tellAFriend(); }} accessibilityRole="button" accessibilityHint="Opens your phone's share menu" sink={0.97} style={s.invite}>
+            <DuoIcon name="share" size={22} />
+            <Text style={s.inviteText}>Tell a friend about Pechkas</Text>
+          </Press>
           <ModeSwitch pill onSwitched={onClose} />
           <Text style={s.version}>
-            Pechkas {APP_VERSION ? `${APP_VERSION} · ` : ''}edition {APP_EDITION}
+            Version {APP_VERSION ? `${APP_VERSION} · ` : ''}edition {APP_EDITION}
           </Text>
         </View>
       </Animated.View>
@@ -236,48 +219,69 @@ function Drawer({ onClose }: { onClose: () => void }) {
   );
 }
 
+/** Customer or technician, as a small label on the profile card. */
+function Side({ pro }: { pro: boolean }) {
+  return (
+    <View style={[s.side, pro && s.sidePro]}>
+      <Text style={[s.sideText, pro && s.sideTextPro]}>{pro ? 'Technician' : 'Customer'}</Text>
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
   button: { width: 48, height: 48, borderRadius: 24, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.14)' },
   buttonDark: { backgroundColor: '#22282d', boxShadow: 'none' },
-  backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(20, 23, 26, 0.5)' },
+  backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(20, 23, 26, 0.55)' },
   panel: {
     position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
     backgroundColor: colour.white,
-    borderTopRightRadius: 24,
-    borderBottomRightRadius: 24,
-    boxShadow: '6px 0px 24px rgba(20, 23, 26, 0.18)',
+    borderTopRightRadius: 28,
+    borderBottomRightRadius: 28,
+    boxShadow: '8px 0px 30px rgba(20, 23, 26, 0.2)',
   },
-  brand: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 20, paddingRight: 12, marginBottom: 8 },
-  brandName: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  brandText: { fontFamily: font.display, fontSize: 22, letterSpacing: -0.4, color: colour.ink },
+  brand: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 22, paddingRight: 14 },
+  brandName: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  brandText: { fontFamily: font.brand, fontSize: 21, letterSpacing: -0.4, color: colour.ink },
   close: { width: 44, height: 44, borderRadius: 22, backgroundColor: colour.canvas, alignItems: 'center', justifyContent: 'center' },
   profile: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
+    marginTop: 12,
     marginHorizontal: 14,
     paddingHorizontal: 14,
-    paddingVertical: 14,
-    borderRadius: 20,
-    backgroundColor: colour.canvas,
+    paddingVertical: 16,
+    borderRadius: 22,
+    backgroundColor: colour.green,
   },
-  name: { fontFamily: font.display, fontSize: 20, letterSpacing: -0.3, color: colour.ink },
-  sub: { fontFamily: font.body, fontSize: 14, color: colour.steel },
-  sideRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  side: { fontFamily: font.bodySemi, fontSize: 13, color: colour.inkSoft },
-  group: { fontFamily: font.bodySemi, fontSize: 12, letterSpacing: 0.8, textTransform: 'uppercase', color: colour.steel, paddingHorizontal: 22, paddingTop: 4, paddingBottom: 2 },
-  item: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 52, marginHorizontal: 8, paddingHorizontal: 12, borderRadius: 16 },
-  itemOn: { backgroundColor: colour.canvas },
-  tile: { width: 38, height: 38, borderRadius: 12, backgroundColor: colour.canvas, alignItems: 'center', justifyContent: 'center' },
-  tileShort: { width: 36, height: 36, borderRadius: 11 },
-  tileOn: { backgroundColor: colour.yellow },
-  itemText: { fontFamily: font.bodyMedium, fontSize: 16, color: colour.ink },
-  itemTextOn: { fontFamily: font.bodySemi },
-  note: { fontFamily: font.body, fontSize: 12.5, lineHeight: 16, color: colour.steel },
-  bottom: { gap: 10, paddingTop: 12, paddingHorizontal: 14, borderTopWidth: 1, borderTopColor: colour.rule },
-  version: { fontFamily: font.body, fontSize: 12, color: colour.steel, textAlign: 'center' },
+  initial: { width: 54, height: 54, borderRadius: 27, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
+  initialShort: { width: 48, height: 48, borderRadius: 24 },
+  initialText: { fontFamily: font.display, fontSize: 22, color: colour.ink },
+  hello: { fontFamily: font.bodyMedium, fontSize: 13, color: '#b9d3cf' },
+  name: { fontFamily: font.display, fontSize: 20, color: colour.white, marginTop: -2 },
+  sub: { fontFamily: font.bodyMedium, fontSize: 13, color: '#d7e6e3' },
+  side: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.14)' },
+  sidePro: { backgroundColor: colour.yellow },
+  sideText: { fontFamily: font.bodySemi, fontSize: 11.5, color: colour.white },
+  sideTextPro: { color: colour.ink },
+  item: { flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 56, marginHorizontal: 10, paddingHorizontal: 14, borderRadius: 16 },
+  itemOn: { backgroundColor: '#fff6dc' },
+  itemText: { flex: 1, fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
+  itemTextOn: { fontFamily: font.displayBold },
+  bottom: { gap: 10, paddingTop: 12, paddingHorizontal: 14 },
+  invite: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    minHeight: 52,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: colour.rule,
+  },
+  inviteText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.ink },
+  version: { fontFamily: font.bodyMedium, fontSize: 11.5, color: colour.steel, textAlign: 'center' },
 });

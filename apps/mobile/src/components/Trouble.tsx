@@ -314,7 +314,7 @@ const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colour.canvas },
   fullBody: { flexGrow: 1, justifyContent: 'space-between', paddingHorizontal: 20, gap: 24 },
   brand: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
-  brandName: { fontFamily: font.display, fontSize: 24, color: colour.ink, letterSpacing: -0.4 },
+  brandName: { fontFamily: font.brand, fontSize: 24, color: colour.ink, letterSpacing: -0.4 },
   middle: { alignItems: 'center', gap: 20 },
   card: { alignItems: 'center', gap: 16, padding: 20, borderRadius: 22, backgroundColor: colour.white },
   words: { alignSelf: 'stretch', gap: 8 },

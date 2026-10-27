@@ -32,14 +32,22 @@ export const colour = {
  * Font family names, as registered in app/_layout.tsx. The fonts ship inside
  * the app: nothing is fetched over the network, so a weak signal never
  * leaves the screen in a fallback typeface.
+ *
+ * Plus Jakarta Sans for everything people read and tap — the owner found the
+ * first pair (Bricolage Grotesque headings, IBM Plex Sans text) not
+ * professional enough for an app; Jakarta is a clean, modern app face with
+ * the weights a phone screen needs. `brand` keeps Bricolage for the word
+ * "Pechkas" beside the mark, because that is the logo's own lettering
+ * (BRAND.md in the website repository) and a logo does not change typeface.
  */
 export const font = {
-  display: 'BricolageGrotesque_800ExtraBold',
-  displayBold: 'BricolageGrotesque_700Bold',
-  body: 'IBMPlexSans_400Regular',
-  bodyMedium: 'IBMPlexSans_500Medium',
-  bodySemi: 'IBMPlexSans_600SemiBold',
+  display: 'PlusJakartaSans_800ExtraBold',
+  displayBold: 'PlusJakartaSans_700Bold',
+  body: 'PlusJakartaSans_400Regular',
+  bodyMedium: 'PlusJakartaSans_500Medium',
+  bodySemi: 'PlusJakartaSans_600SemiBold',
   mono: 'IBMPlexMono_600SemiBold',
+  brand: 'BricolageGrotesque_800ExtraBold',
 } as const;
 
 export const radius = {

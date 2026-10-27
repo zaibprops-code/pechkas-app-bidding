@@ -7,18 +7,25 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
-**A more professional side menu (new — no database step, needs a new
-build).** Tap ☰ on any screen. At the top: the Pechkas mark, a close
-button, and your name and number on a card (tap it for Settings). Then
-the places, grouped — your main screens first, then **Help and safety**
-(Safety, Help, Support on WhatsApp), then **More** (Settings, and **Tell a
-friend**, which opens your phone's share menu with a one-line message about
-Pechkas and its web address). Each has its own icon on a soft tile, and
-the screen you are on is marked in yellow. At the foot: the
-**Technician mode / Customer mode** button, now with an icon and a line
-saying what it does, and the app's version. The dark shade behind the
-menu now reaches the very top and bottom of the screen, and the phone's
-Back button closes the menu.
+**A redesigned side menu, and a new typeface across the app (new — no
+database step, needs a new build).** Tap ☰ on any screen:
+
+- Your initial on a yellow disc, with your name and number on a green
+  card (tap it for Settings), and whether you are a customer or a
+  technician.
+- One clean list, no headings: Home (or Jobs), My jobs (or My account),
+  Notifications, Safety, Help, Support, Settings. Every icon is new and
+  two-tone — a dark outline with Pechkas yellow on the part that matters —
+  and the screen you are on is marked in soft yellow.
+- At the foot, **Tell a friend about Pechkas** (your phone's share menu,
+  with a one-line message and pechkas.net), the **Technician mode /
+  Customer mode** button, and the app's version.
+- The dark shade behind the menu now reaches the very top and bottom of
+  the screen, and the phone's Back button closes it.
+
+**The whole app now uses one modern typeface, Plus Jakarta Sans,** in
+place of the two older ones, so every screen reads like a designed app.
+The word "Pechkas" beside the logo keeps the logo's own lettering.
 
 **Messages that look like a big app's, and "Take a photo" fixed on older
 phones (new — no database step, needs a new build).**
