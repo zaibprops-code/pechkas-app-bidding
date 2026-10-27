@@ -7,6 +7,38 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**When something goes wrong: no internet, Pechkas down, a broken link, a
+crash (new — no database step, needs a new build).** Like every big app,
+Pechkas now has a proper screen for each of these instead of a blank page or
+a small line of red text:
+
+- **No internet connection** — the phone is offline. It says so, tells them
+  to check mobile data or Wi-Fi, and tries again by itself the moment the
+  connection is back. **Call the office** rings 0335 8855076, because a
+  phone call works without the internet.
+- **Pechkas is not answering** — the phone is online but Pechkas did not
+  reply (for example, if Supabase is down or paused). It keeps trying by
+  itself.
+- **This page is not in the app** — an old or broken link. One button:
+  **Go to home**.
+- **Something went wrong** — the app hit a problem it did not expect. It
+  shows **Try again**, **Go to home**, and a small "Details" line. If you
+  ever see this screen, send me a screenshot: the Details line tells me
+  what broke.
+
+Opening the app with no signal used to go wrong in two ways: somebody
+signed in for a while was sent to the welcome screen as if signed out, and
+a technician could be shown the customer's home. Both now get the "No
+internet connection" screen and carry on where they were once the signal
+is back. My jobs, a job's own screen and the technician's job list show the
+same message in a card when they cannot load.
+
+To try it: a new **preview** build from `main` (this adds a small part that
+lets the app see whether the phone is online, so an old build cannot have
+it). Then, with the app open on My jobs, turn on **Airplane mode** and
+reopen the app: you should see *No internet connection*. Turn Airplane
+mode off and it should carry on by itself.
+
 **Pechkas' own video camera, with the time left (new — no database step,
 needs a new build).** On Post a job: **Video → Record a video** now opens
 Pechkas' own camera. A big clock counts down from **0:20** at the top, a
@@ -27,10 +59,8 @@ the record button with a "Details" line — send me a screenshot.
 tile says its limit: **Voice — up to 1 min**, **Video — up to 20 sec**,
 **Photo — up to 4**. While a voice note records, the tile counts down
 (*0:48 left*) with a bar filling along its bottom, and stops by itself
-when the minute is up. A video is recorded by your phone's own camera app,
-which Pechkas cannot draw on; the menu says *"Up to 20 seconds. The camera
-stops by itself when the time is up"* before it opens, and the finished
-video shows *0:14 of 0:20*.
+when the minute is up. A video records on Pechkas' own camera (above),
+which shows the clock, and the finished video shows *0:14 of 0:20*.
 
 **Voice notes, photos and videos made sturdier (new — one database step).**
 1. **Supabase → SQL Editor:** open `supabase/migrations/20261030000000_bigger_videos.sql`

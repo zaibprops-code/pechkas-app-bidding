@@ -707,6 +707,25 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `inline`, or the banner would be underneath. A refusal about one box
   still goes beside that box as well. To show the same sentence again after
   it was closed, give the `Notice` a new `key`.
+- **Trouble has its own screens, like every big app** (`Trouble.tsx`):
+  *No internet connection*, *Pechkas is not answering*, *Something went
+  wrong* (the crash screen, `ErrorBoundary` in `app/_layout.tsx`) and *This
+  page is not in the app* (`app/+not-found.tsx`). Each says what happened,
+  what to do, and has a button that does it; offline and not answering
+  also offer **Call the office**, because a call needs no internet.
+  `src/net.ts` asks the phone through `expo-network` (its Wi-Fi permission
+  is blocked in app.json; only the network-state one is used), and only a
+  phone that is SURE it is offline counts as offline. The two "no answer"
+  kinds follow the phone live, and offline retries the moment it is back.
+  **No answer is never "signed out"**: `AccountProvider` sets `trouble`
+  when `getSession()` fails with a retryable error or `my_account()` gets
+  no answer, keeps an account it already knew, and the Gate moves nobody
+  while `trouble` is set; `LaunchTrouble` covers the screen instead. It
+  says so after 4 s if the phone is offline and 10 s otherwise, rather
+  than waiting out Supabase's half-minute of retries. A screen whose first
+  load fails shows the card version under its own header (My jobs, a job,
+  the technician's list); once it has something on screen, a failed
+  refresh is only the top banner.
 - **Nothing is read through Android's bars.** The app is drawn edge to
   edge, under a see-through status bar and button bar. Every screen that
   scrolls draws `SystemBars` (`ui.tsx`, a strip of the screen's own colour

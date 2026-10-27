@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { router, Stack, useSegments } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+import { router, Stack, useSegments, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
@@ -16,6 +17,7 @@ import { useNotificationTaps } from '../src/notifications';
 import { colour } from '../src/theme';
 import { LaunchScrew } from '../src/components/LaunchScrew';
 import { ToastHost } from '../src/components/Toast';
+import { Trouble } from '../src/components/Trouble';
 
 // Keep the green splash up until the fonts are ready. Then LaunchScrew draws
 // the same picture, hides the phone's, and turns the screw until the gate
@@ -57,6 +59,7 @@ export default function RootLayout() {
             }}
           />
         </ToastHost>
+        <LaunchTrouble />
         {launched ? null : <LaunchScrew decided={decided} onDone={onLaunched} />}
       </AccountProvider>
     </SafeAreaProvider>
@@ -78,13 +81,17 @@ const SETTING_UP = new Set(['choose', 'welcome', 'verify', 'auth-callback', 'leg
  * decided, so the home screen never flashes before the welcome screen.
  */
 function Gate({ onDecided }: { onDecided: () => void }) {
-  const { ready, session, account } = useAccount();
+  const { ready, session, account, trouble } = useAccount();
   const first = useSegments()[0] ?? '';
 
   useEffect(() => {
     if (!ready) return;
     let moved = false;
-    if (!session) {
+    if (trouble) {
+      // We do not know who this is yet: no internet, or Pechkas not
+      // answering. Move nobody — "signed out" would be a guess — and let
+      // the green lift off the trouble screen, which asks again.
+    } else if (!session) {
       if (!OPEN.has(first)) {
         router.replace('/start');
         moved = true;
@@ -102,7 +109,7 @@ function Gate({ onDecided }: { onDecided: () => void }) {
     // Give a redirect a moment to draw before the green lifts off it.
     const t = setTimeout(onDecided, moved ? 150 : 0);
     return () => clearTimeout(t);
-  }, [ready, session, account, first, onDecided]);
+  }, [ready, session, account, trouble, first, onDecided]);
 
   return null;
 }
@@ -111,4 +118,44 @@ function Gate({ onDecided }: { onDecided: () => void }) {
 function NotificationTaps() {
   useNotificationTaps();
   return null;
+}
+
+/**
+ * Opening the app with no internet, or while Pechkas is not answering: the
+ * full trouble screen, over whatever was underneath, until an answer comes.
+ * It asks again by itself when the connection is back.
+ */
+function LaunchTrouble() {
+  const { trouble, retry } = useAccount();
+  if (!trouble) return null;
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <Trouble kind={trouble} full onRetry={retry} />
+    </View>
+  );
+}
+
+/**
+ * The crash screen. Anything a screen throws while it draws lands here
+ * instead of leaving a blank white phone. "Try again" draws the same screen
+ * again; "Go to home" starts from the top. The details are on the screen so
+ * the owner's screenshot says what went wrong.
+ */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  return (
+    <Trouble
+      kind="broken"
+      full
+      detail={error?.message || null}
+      onRetry={retry}
+      onHome={() => {
+        try {
+          router.replace('/');
+        } catch {
+          // Nowhere to go yet: trying again starts from where we were.
+        }
+        retry();
+      }}
+    />
+  );
 }

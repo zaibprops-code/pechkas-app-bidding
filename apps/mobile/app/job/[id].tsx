@@ -9,6 +9,8 @@ import { useLists } from '../../src/lists';
 import { useNotify } from '../../src/notifications';
 import { JobCard, type Job } from '../../src/customer/JobCard';
 import { supabase } from '../../src/supabase';
+import { Trouble } from '../../src/components/Trouble';
+import { noAnswer, type NoAnswer } from '../../src/net';
 import { colour, font, radius } from '../../src/theme';
 
 /**
@@ -38,6 +40,7 @@ export default function LiveJob() {
   const lists = useLists();
   const [job, setJob] = useState<Job | null | undefined>(undefined);
   const [problem, setProblem] = useState<string | null>(null);
+  const [trouble, setTrouble] = useState<NoAnswer | null>(null);
   const [tick, setTick] = useState(0);
   const open = job?.status === 'open';
   const { notify, ask: askNotify } = useNotify(Boolean(open));
@@ -45,7 +48,11 @@ export default function LiveJob() {
   const load = useCallback(async () => {
     if (!supabase || !id) return;
     const { data, error } = await supabase.rpc('my_jobs');
-    if (error) return setProblem('This job could not be loaded. Check your signal; it tries again by itself.');
+    if (error) {
+      setTrouble(noAnswer());
+      return setProblem('This job could not be loaded. Check your signal; it tries again by itself.');
+    }
+    setTrouble(null);
     setProblem(null);
     setJob(((data as Job[]) ?? []).find((j) => j.id === id) ?? null);
     setTick((n) => n + 1);
@@ -63,6 +70,21 @@ export default function LiveJob() {
   if (!ready) return <Loading />;
   if (!session) return <Redirect href="/start" />;
   if (account?.role === 'pro') return <Redirect href="/pro" />;
+  if (job === undefined && trouble) {
+    // Never loaded: the full card under the screen's own header, with Back.
+    return (
+      <View style={{ flex: 1, backgroundColor: colour.canvas }}>
+        <StatusBar style="dark" />
+        <ScrollView contentContainerStyle={{ paddingBottom: end }}>
+          <Hero title="Your job" back={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
+          <View style={{ paddingHorizontal: 20 }}>
+            <Trouble kind={trouble} onRetry={load} />
+          </View>
+        </ScrollView>
+        <SystemBars bg={colour.canvas} />
+      </View>
+    );
+  }
   if (job === undefined) return <Loading />;
 
   if (job === null) {

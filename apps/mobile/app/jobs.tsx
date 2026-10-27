@@ -10,6 +10,8 @@ import { useLists } from '../src/lists';
 import { useNotify } from '../src/notifications';
 import { JobCard, type Job } from '../src/customer/JobCard';
 import { supabase } from '../src/supabase';
+import { Trouble } from '../src/components/Trouble';
+import { noAnswer, type NoAnswer } from '../src/net';
 import { colour, font } from '../src/theme';
 
 const EVERY = 10000;
@@ -27,12 +29,17 @@ export default function Jobs() {
   const { notify, ask: askNotify } = useNotify(true);
   const [jobs, setJobs] = useState<Job[] | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  // Why nothing came back, for the full card shown when there is no list to show yet.
+  const [trouble, setTrouble] = useState<NoAnswer | null>(null);
 
   const load = useCallback(async () => {
     if (!supabase) return;
     const { data, error } = await supabase.rpc('my_jobs');
-    if (error) setProblem('Your jobs could not be loaded. Check your signal and pull down to try again.');
-    else {
+    if (error) {
+      setTrouble(noAnswer());
+      setProblem('Your jobs could not be loaded. Check your signal and pull down to try again.');
+    } else {
+      setTrouble(null);
       setProblem(null);
       setJobs((data as Job[]) ?? []);
     }
@@ -73,7 +80,9 @@ export default function Jobs() {
         <Hero title="My jobs" sub={summary} left={<MenuButton />} />
         <View style={{ paddingTop: 18, paddingHorizontal: 20, gap: 14 }}>
 
-        <Notice text={problem} />
+        {/* With a list on screen, a failed refresh is a line at the top; with none, the full card below says it. */}
+        <Notice text={jobs ? problem : null} />
+        {jobs === null && trouble ? <Trouble kind={trouble} onRetry={load} /> : null}
 
         {/* Only while something is waiting on offers: that is when being told helps. */}
         {jobs?.some((j) => j.status === 'open') && notify === 'ask' ? (
@@ -92,7 +101,7 @@ export default function Jobs() {
             onPress={() => Linking.openSettings()}
           />
         ) : null}
-        {jobs === null && !problem ? <Text style={s.muted}>Loading…</Text> : null}
+        {jobs === null && !trouble ? <Text style={s.muted}>Loading…</Text> : null}
         {jobs?.length === 0 ? (
           <View style={s.empty}>
             <View style={s.emptyIcon}>

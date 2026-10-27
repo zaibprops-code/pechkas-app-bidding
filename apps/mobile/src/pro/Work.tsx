@@ -16,6 +16,8 @@ import { useAccount } from '../account';
 import { useLists } from '../lists';
 import { useNotify } from '../notifications';
 import { ask, supabase } from '../supabase';
+import { Trouble } from '../components/Trouble';
+import { noAnswer, type NoAnswer } from '../net';
 import { fill, useProWords, type ProWords } from '../words';
 import { colour, font, radius } from '../theme';
 
@@ -84,6 +86,7 @@ export function Work({ firstName }: { firstName: string }) {
   const [finished, setFinished] = useState<FinishedJob[]>([]);
   const { session } = useAccount();
   const [problem, setProblem] = useState<string | null>(null);
+  const [trouble, setTrouble] = useState<NoAnswer | null>(null);
   const [switching, setSwitching] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
 
@@ -91,9 +94,11 @@ export function Work({ firstName }: { firstName: string }) {
     if (!supabase) return;
     const [f, m, d] = await Promise.all([supabase.rpc('pro_feed'), supabase.rpc('pro_my_jobs'), supabase.rpc('pro_finished')]);
     if (f.error || m.error) {
+      setTrouble(noAnswer());
       setProblem('No connection. Pull down to try again.');
       return;
     }
+    setTrouble(null);
     setProblem(null);
     setFeed(f.data as Feed);
     setMine((m.data as ActiveJob[]) ?? []);
@@ -163,7 +168,9 @@ export function Work({ firstName }: { firstName: string }) {
         contentContainerStyle={{ paddingHorizontal: 12, paddingTop: 4, paddingBottom: Math.max(insets.bottom, 16) + 16, gap: 12 }}
         refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
       >
-        <Notice text={problem} />
+        {/* Jobs on screen: a failed refresh is a line at the top. None yet: the full card says it. */}
+        <Notice text={feed ? problem : null} />
+        {feed === null && trouble ? <Trouble kind={trouble} onRetry={load} /> : null}
 
         {feed?.blocked ? (
           <Press onPress={() => router.push('/pro/money')} accessibilityRole="button" style={s.blocked}>
