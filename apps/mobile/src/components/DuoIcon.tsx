@@ -9,7 +9,7 @@ import { colour } from '../theme';
  * colours. Drawn on the same 24-unit grid; they say what the words beside
  * them say, so screen readers skip them.
  */
-export type DuoName = 'home' | 'jobs' | 'bell' | 'shield' | 'help' | 'support' | 'settings' | 'share' | 'briefcase' | 'wallet' | 'swap' | 'mic' | 'video' | 'lock' | 'search' | 'phone' | 'chat' | 'pin' | 'flag' | 'star';
+export type DuoName = 'home' | 'jobs' | 'bell' | 'shield' | 'help' | 'support' | 'settings' | 'share' | 'briefcase' | 'wallet' | 'swap' | 'mic' | 'video' | 'lock' | 'search' | 'phone' | 'chat' | 'pin' | 'flag' | 'star' | 'camera' | 'clock';
 
 export function DuoIcon({ name, size = 26, accent = colour.yellow, ink = colour.ink }: { name: DuoName; size?: number; accent?: string; ink?: string }) {
   const line = { stroke: ink, strokeWidth: 1.8, fill: 'none' as const, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -154,6 +154,20 @@ export function DuoIcon({ name, size = 26, accent = colour.yellow, ink = colour.
         <>
           <Path {...fill} d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" />
           <Path {...line} d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" />
+        </>
+      )}
+      {name === 'camera' && (
+        <>
+          <Path {...fill} d="M3.5 8.5a2 2 0 0 1 2-2h2.3l1.7-2.5h5l1.7 2.5h2.3a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" />
+          <Path {...line} d="M3.5 8.5a2 2 0 0 1 2-2h2.3l1.7-2.5h5l1.7 2.5h2.3a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" />
+          <Circle cx={12} cy={13} r={3.6} fill="#ffffff" stroke={ink} strokeWidth={1.8} />
+        </>
+      )}
+      {name === 'clock' && (
+        <>
+          <Circle {...fill} cx={12} cy={12} r={9} />
+          <Circle {...line} cx={12} cy={12} r={9} />
+          <Path {...line} strokeWidth={2} d="M12 7.5V12l3 2" />
         </>
       )}
       {name === 'swap' && <Path {...line} strokeWidth={2.1} d="M7 4L3.5 7.5 7 11M3.5 7.5H17M17 13l3.5 3.5L17 20M20.5 16.5H7" />}

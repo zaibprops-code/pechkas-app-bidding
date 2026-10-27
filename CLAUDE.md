@@ -726,7 +726,14 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   feature that is not built has no button.
 - Every tap target is at least 44 × 44.
 - **Post a job is one page in white cards** (`app/post.tsx`) — the owner
-  chose that over a page per step. The job is two drop-downs (kind of work,
+  chose that over a page per step. Redesigned in the menu's and home's
+  style at his request: a one-line subtitle under the title; every card
+  headed by a two-tone icon on a soft yellow tile (`Card icon=…`); the
+  chosen trade's home-tile drawing inside "Kind of work"; Voice, Video and
+  Photo on warm cream with two-tone icons in white discs; "Your price" as
+  the one soft-yellow card, its stepper in a white pill; an arrow on
+  **Post job**. On a narrow phone the stepper and the tiles' limits shrink
+  a little and sector names never break at their hyphen. The job is two drop-downs (kind of work,
   then which job with its price) opening a `Sheet` (`src/components/Sheet.tsx`,
   shared with the technician's job sheet); "What is wrong?" is one row of
   tiles (Voice, Video, Photo — a tile goes once it is used up, so none does

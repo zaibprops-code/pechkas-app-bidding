@@ -7,6 +7,19 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Post a job, redesigned the same way (new — no database step, needs a
+new build).** The same one page, easier on the eye:
+
+- A short line under the title: *Say what is wrong and name your price.
+  Checked technicians send offers.*
+- Every section — The job, What is wrong?, Address, When, Good to know,
+  Your price — has its own two-tone icon beside its title.
+- **Kind of work** shows the trade's picture from the home screen.
+- **Voice**, **Video** and **Photo** sit on warm cream tiles with the new
+  icons.
+- **Your price** is a soft yellow card, so it stands out as the part that
+  matters most, and the **Post job** button has an arrow.
+
 **The technician's side, redesigned the same way (new — no database
 step, needs a new build).**
 

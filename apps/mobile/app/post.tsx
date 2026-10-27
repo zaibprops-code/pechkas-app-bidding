@@ -1,3 +1,5 @@
+import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
+import { Art, type ArtName } from '../src/components/Art';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Image, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
@@ -73,6 +75,13 @@ function videoTrouble(e: unknown): Message | null {
   }
   return null;
 }
+
+/** The home tiles' drawing for a trade, when there is one. */
+const ARTS: Record<string, ArtName> = {
+  ac: 'ac', electrician: 'electrician', plumber: 'plumber', ups: 'ups', cctv: 'cctv', wifi: 'wifi',
+  solar: 'solar', appliances: 'appliances', carpentry: 'carpentry', painting: 'painting', computers: 'computers',
+};
+const artOf = (trade: string): ArtName | undefined => ARTS[trade];
 
 export default function Post() {
   const params = useLocalSearchParams<{ trade?: string; start?: string; ask?: string; minutes?: string; lat?: string; lng?: string }>();
@@ -387,8 +396,8 @@ export default function Post() {
 
   return (
     <Screen
-      hero={{ title: 'Post a job', back: true }}
-      footer={<Button label={progress ?? `Post job · ${rupees(offer)}`} onPress={post} busy={busy && !progress} disabled={busy} />}
+      hero={{ title: 'Post a job', sub: 'Say what is wrong and name your price. Checked technicians send offers.', back: true }}
+      footer={<Button label={progress ?? `Post job · ${rupees(offer)}`} icon={progress ? undefined : 'arrowRight'} onPress={post} busy={busy && !progress} disabled={busy} />}
     >
       {d.askFor ? (
         <View style={s.askFor}>
@@ -403,8 +412,8 @@ export default function Post() {
         </View>
       ) : null}
 
-      <Card id="job" onY={atY} title="The job" error={errors.trade || errors.job_type}>
-        <Select label="Kind of work" value={d.trade ? tradeName(d.trade) : null} placeholder="Choose" onPress={() => setSheet('trade')} />
+      <Card id="job" icon="briefcase" onY={atY} title="The job" error={errors.trade || errors.job_type}>
+        <Select label="Kind of work" art={d.trade ? artOf(d.trade) : undefined} value={d.trade ? tradeName(d.trade) : null} placeholder="Choose" onPress={() => setSheet('trade')} />
         {d.trade ? (
           <Select
             label="Which job"
@@ -415,7 +424,7 @@ export default function Post() {
         ) : null}
       </Card>
 
-      <Card id="what" onY={atY} title="What is wrong?" hint="Say it, show it, or type it. Urdu is fine." error={errors.media || errors.description}>
+      <Card id="what" icon="chat" onY={atY} title="What is wrong?" hint="Say it, show it, or type it. Urdu is fine." error={errors.media || errors.description}>
         {!voice || !video || photos.length < LIMITS.photos ? (
           <View style={s.tiles}>
             {voice ? null : <VoiceTile onDone={(m) => setMedia('voice', [m])} onProblem={setNotice} />}
@@ -463,9 +472,10 @@ export default function Post() {
 
       <Card
         id="address"
+        icon="pin"
         onY={atY}
         title="Address"
-        hint={live.length ? `Pechkas works in ${live.join(', ')} for now. Only the technician you choose sees your street and house.` : 'Only the technician you choose sees your street and house.'}
+        hint={live.length ? `Pechkas works in ${live.map((n) => n.replace(/-/g, '\u2011')).join(', ')} for now. Only the technician you choose sees your street and house.` : 'Only the technician you choose sees your street and house.'}
       >
         <View style={s.wrap}>
           {live.map((name) => (
@@ -540,7 +550,7 @@ export default function Post() {
         )}
       </Card>
 
-      <Card id="when" onY={atY} title="When" error={errors.when}>
+      <Card id="when" icon="clock" onY={atY} title="When" error={errors.when}>
         <View style={s.wrap}>
           <Chip label="Now" on={d.whenKind === 'now'} onPress={() => update({ whenKind: 'now', whenPart: null })} />
           <Chip label="Today" on={d.whenKind === 'today'} onPress={() => update({ whenKind: 'today', whenPart: d.whenPart ?? 'evening' })} />
@@ -555,7 +565,7 @@ export default function Post() {
         ) : null}
       </Card>
 
-      <Card id="good" onY={atY} title="Good to know" hint="Optional. Tap what is true." error={errors.power || errors.parts}>
+      <Card id="good" icon="help" onY={atY} title="Good to know" hint="Optional. Tap what is true." error={errors.power || errors.parts}>
         {d.trade && NEEDS_POWER.has(d.trade) ? (
           <View style={s.wrap}>
             <Chip label="Electricity is on" on={d.power === 'on'} onPress={() => update({ power: d.power === 'on' ? null : 'on' })} />
@@ -568,21 +578,21 @@ export default function Post() {
         </View>
       </Card>
 
-      <Card id="price" onY={atY} title="Your price" error={errors.offer}>
-        <View style={s.offerRow}>
+      <Card id="price" icon="wallet" tone="money" onY={atY} title="Your price" error={errors.offer}>
+        <View style={[s.offerRow, s.offerBox]}>
           <Press
             onPress={() => update({ offer: Math.max(min, offer - 10000) })}
             sink={0.9}
             accessibilityRole="button"
             accessibilityLabel="Lower by Rs 100"
-            style={[s.step, offer <= min && { opacity: 0.4 }]}
+            style={[s.step, width < 360 && s.stepNarrow, offer <= min && { opacity: 0.4 }]}
           >
             <Text style={s.stepText}>−</Text>
           </Press>
-          <Text style={[s.price, width < 360 && { fontSize: 30 }]} numberOfLines={1} accessibilityLiveRegion="polite">
+          <Text style={[s.price, width < 360 && { fontSize: 26, letterSpacing: -0.5 }]} numberOfLines={1} accessibilityLiveRegion="polite">
             {rupees(offer)}
           </Text>
-          <Press onPress={() => update({ offer: Math.min(50000000, offer + 10000) })} sink={0.9} accessibilityRole="button" accessibilityLabel="Raise by Rs 100" style={[s.step, s.stepPlus]}>
+          <Press onPress={() => update({ offer: Math.min(50000000, offer + 10000) })} sink={0.9} accessibilityRole="button" accessibilityLabel="Raise by Rs 100" style={[s.step, width < 360 && s.stepNarrow, s.stepPlus]}>
             <Text style={s.stepText}>+</Text>
           </Press>
         </View>
@@ -683,14 +693,20 @@ export default function Post() {
 }
 
 /** One part of the form: a white card with its title, and its own error at the foot. */
-function Card({ id, onY, title, hint, error, children }: { id: string; onY: (id: string, y: number) => void; title: string; hint?: string; error?: string; children: ReactNode }) {
+function Card({ id, icon, tone, onY, title, hint, error, children }: { id: string; icon: DuoName; tone?: 'money'; onY: (id: string, y: number) => void; title: string; hint?: string; error?: string; children: ReactNode }) {
   return (
-    <View style={s.card} onLayout={(e) => onY(id, e.nativeEvent.layout.y)}>
-      <View style={{ gap: 2 }}>
-        <Text style={s.cardTitle} accessibilityRole="header">
-          {title}
-        </Text>
-        {hint ? <Text style={s.hint}>{hint}</Text> : null}
+    <View style={[s.card, tone === 'money' && s.cardMoney]} onLayout={(e) => onY(id, e.nativeEvent.layout.y)}>
+      {/* Each part of the form says what it is the way the menu and home do: a two-tone icon on a soft tile. */}
+      <View style={s.cardHead}>
+        <View style={[s.soft, tone === 'money' && { backgroundColor: colour.white }]}>
+          <DuoIcon name={icon} size={24} />
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={s.cardTitle} accessibilityRole="header">
+            {title}
+          </Text>
+          {hint ? <Text style={s.hint}>{hint}</Text> : null}
+        </View>
       </View>
       {children}
       {error ? <Text style={s.error}>{error}</Text> : null}
@@ -712,9 +728,15 @@ function Jump({ to, ys }: { to: { card: string; n: number } | null; ys: Record<s
 }
 
 /** A drop-down: what is chosen, and a tap opens the choices in a sheet. */
-function Select({ label, value, placeholder, right, onPress }: { label: string; value: string | null; placeholder?: string; right?: string; onPress: () => void }) {
+function Select({ label, value, placeholder, right, art, onPress }: { label: string; value: string | null; placeholder?: string; right?: string; art?: ArtName; onPress: () => void }) {
   return (
     <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}: ${value ?? placeholder ?? ''}. Change`} sink={0.98} style={s.select}>
+      {/* The chosen trade's own drawing, as on its tile at home. */}
+      {art ? (
+        <View style={s.selectArt} accessible={false}>
+          <Art name={art} width={52} height={39} />
+        </View>
+      ) : null}
       <View style={{ flex: 1, gap: 2 }}>
         <Text style={s.selectLabel}>{label}</Text>
         <Text style={[s.selectValue, !value && { color: colour.steel }]} numberOfLines={2}>
@@ -728,14 +750,15 @@ function Select({ label, value, placeholder, right, onPress }: { label: string; 
 }
 
 function MediaTile({ icon, label, limit, onPress }: { icon: 'video' | 'camera'; label: string; limit: string; onPress: () => void }) {
+  const narrow = useWindowDimensions().width < 360;
   return (
     <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}, ${limit}`} sink={0.96} style={tile.box}>
       <View style={tile.dot}>
-        <Icon name={icon} size={22} color={colour.ink} strokeWidth={2} />
+        <DuoIcon name={icon} size={26} />
       </View>
       <View style={{ alignItems: 'center' }}>
         <Text style={tile.label}>{label}</Text>
-        <Text style={tile.limit}>{limit}</Text>
+        <Text style={[tile.limit, narrow && tile.limitNarrow]} numberOfLines={1}>{limit}</Text>
       </View>
     </Press>
   );
@@ -761,13 +784,17 @@ function Remove({ label, onPress }: { label: string; onPress: () => void }) {
 }
 
 const s = StyleSheet.create({
-  card: { gap: 12, padding: 16, borderRadius: 22, backgroundColor: colour.white },
-  cardTitle: { fontFamily: font.displayBold, fontSize: 18, color: colour.ink },
+  card: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.04)' },
+  cardMoney: { backgroundColor: '#fff6dc' },
+  cardHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  soft: { width: 44, height: 44, borderRadius: 14, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
+  cardTitle: { fontFamily: font.display, fontSize: 18, color: colour.ink },
   hint: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
   error: { fontFamily: font.bodySemi, fontSize: 13, lineHeight: 18, color: colour.brick },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pair: { flexDirection: 'row', gap: 10 },
-  select: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 60, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 16, backgroundColor: colour.canvas },
+  select: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 64, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 18, backgroundColor: colour.canvas },
+  selectArt: { width: 52, height: 44, borderRadius: 12, backgroundColor: '#f6f2e8', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   selectLabel: { fontFamily: font.body, fontSize: 12, color: colour.steel },
   selectValue: { fontFamily: font.bodySemi, fontSize: 16, lineHeight: 21, color: colour.ink },
   selectRight: { fontFamily: font.bodySemi, fontSize: 13, color: colour.green, maxWidth: 110, textAlign: 'right' },
@@ -798,7 +825,9 @@ const s = StyleSheet.create({
   askedTitle: { fontFamily: font.bodySemi, fontSize: 15, color: colour.ink },
   line: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft },
   offerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  step: { width: 52, height: 52, borderRadius: 999, borderWidth: 2, borderColor: 'rgba(20,23,26,0.18)', alignItems: 'center', justifyContent: 'center' },
+  offerBox: { flexDirection: 'row', alignItems: 'center', padding: 6, borderRadius: 999, backgroundColor: colour.white },
+  stepNarrow: { width: 44, height: 44 },
+  step: { width: 52, height: 52, borderRadius: 999, borderWidth: 2, borderColor: 'rgba(20,23,26,0.18)', backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },
   stepPlus: { backgroundColor: colour.yellow, borderColor: colour.yellow },
   stepText: { fontFamily: font.display, fontSize: 26, color: colour.ink, marginTop: -2 },
   price: { flex: 1, textAlign: 'center', fontFamily: font.display, fontSize: 38, color: colour.ink, letterSpacing: -1 },

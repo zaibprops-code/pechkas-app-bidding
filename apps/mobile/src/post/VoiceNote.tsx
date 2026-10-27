@@ -1,3 +1,4 @@
+import { DuoIcon } from '../components/DuoIcon';
 import { switchedOff, type Message } from '../message';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -98,7 +99,7 @@ export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; o
       style={[tile.box, live && tile.boxLive]}
     >
       <View style={[tile.dot, live && { backgroundColor: colour.paper }]}>
-        {live ? <View style={s.stopSquare} /> : <Icon name="mic" size={22} color={colour.ink} strokeWidth={2} />}
+        {live ? <View style={s.stopSquare} /> : <DuoIcon name="mic" size={26} />}
       </View>
       {live ? (
         <View style={{ alignItems: 'center' }}>
@@ -125,11 +126,13 @@ export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; o
 
 /** The look every tile in the row shares: voice, video, photo. */
 export const tile = StyleSheet.create({
-  box: { flex: 1, minHeight: 100, alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, paddingHorizontal: 6, borderRadius: radius.big, backgroundColor: colour.canvas, overflow: 'hidden' },
+  box: { flex: 1, minHeight: 104, alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 6, borderRadius: 20, backgroundColor: '#f6f2e8', overflow: 'hidden' },
   boxLive: { backgroundColor: colour.brick },
-  dot: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: colour.yellow },
+  dot: { width: 48, height: 48, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: colour.white, boxShadow: '0px 2px 6px rgba(20, 23, 26, 0.08)' },
   label: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink, textAlign: 'center' },
   limit: { fontFamily: font.body, fontSize: 11, color: colour.steel, textAlign: 'center' },
+  // A narrow phone's three tiles are about 70 points wide: "Up to 20 sec" fits on one line at 10.
+  limitNarrow: { fontSize: 10 },
   track: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 5, backgroundColor: 'rgba(250,246,239,0.3)', overflow: 'hidden' },
   fill: { height: 5, backgroundColor: colour.paper, transformOrigin: 'left' },
 });
