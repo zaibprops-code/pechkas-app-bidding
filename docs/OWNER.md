@@ -7,6 +7,35 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Messages that look like a big app's, and "Take a photo" fixed on older
+phones (new — no database step, needs a new build).**
+
+- **Take a photo now opens Pechkas' own camera**, the same one that
+  records videos. Your screenshot showed the phone's camera refusing to
+  open. On Android 9 and older, the phone's own camera cannot open from
+  Pechkas at all, whatever you allow: it wants a storage permission that
+  Pechkas does not ask for, on purpose. That stopped customers adding
+  photos and, worse, technicians taking their start and finish photos.
+  Pechkas' camera needs only the camera, on every phone. If the camera is
+  off, it says so and gives a button: **Allow the camera**, or **Open
+  settings** if the phone no longer lets Pechkas ask.
+- **Every message now has a kind you can see at a glance**: a brick
+  warning sign when something did not work, a yellow one when you need to
+  do something (with the button that does it, such as **Open settings**),
+  and a green tick when something is done. Each has a short title, plain
+  words, and the phone's own technical words hidden behind **Show
+  details** — open that and send me a screenshot if anything is wrong.
+- **Green "done" messages** now confirm things that used to happen
+  silently: cancelling a job, blocking or unblocking a technician,
+  declining an offer, rating, a guarantee claim or a problem sent to the
+  office, a saved phone number. They go away by themselves after a few
+  seconds; warnings stay until you close them.
+
+To try it: a new **preview** build from `main`. Then **Post a job → Photo
+→ Take a photo**: Pechkas' camera opens; take a photo and it appears on
+the form. To see the new warning, turn the microphone off for Pechkas in
+the phone's settings and tap **Voice**.
+
 **Two switches for you: pause the app, and ask old copies to update (new —
 one database step, needs a new build).** In the admin panel, **Settings →
 App switches**:

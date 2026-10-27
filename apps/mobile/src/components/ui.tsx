@@ -17,7 +17,8 @@ import { router } from 'expo-router';
 import { ScrewSpinner } from './ScrewSpinner';
 import { Icon, type IconName } from './Icon';
 import { Press } from './Press';
-import { useToast } from './Toast';
+import { MessageCard, useToast } from './Toast';
+import { asMessage, messageKey, type Message } from '../message';
 import { colour, font, radius, TAP } from '../theme';
 
 /**
@@ -285,19 +286,21 @@ export function Chip({ label, on, onPress, dark = false }: { label: string; on: 
  * the screen clears it. `inline` keeps it in place instead, for a sheet that
  * covers the screen — a banner would be underneath it.
  */
-export function Notice({ text, dark = false, inline = false }: { text?: string | null; inline?: boolean } & Tone) {
+export function Notice({ text, inline = false }: { text?: string | Message | null; inline?: boolean } & Tone) {
   const toast = useToast();
+  // Keyed by what it says, not by the object, so a screen that builds the
+  // same message again on every draw does not slide it in again each time.
+  const key = text ? messageKey(asMessage(text)) : null;
+  const latest = useRef(text);
+  latest.current = text;
   useEffect(() => {
-    if (!text || inline) return;
-    toast.show(text);
-    return () => toast.drop(text);
-  }, [text, inline, toast]);
+    const m = latest.current;
+    if (!m || inline) return;
+    toast.show(m);
+    return () => toast.drop(m);
+  }, [key, inline, toast]);
   if (!text || !inline) return null;
-  return (
-    <View style={[s.notice, { backgroundColor: dark ? '#3a2019' : '#f6e3dc' }]} accessibilityRole="alert">
-      <Text style={[s.noticeText, { color: dark ? '#ffb4a3' : colour.brick }]}>{text}</Text>
-    </View>
-  );
+  return <MessageCard m={text} />;
 }
 
 /**
@@ -415,6 +418,4 @@ const s = StyleSheet.create({
   error: { fontFamily: font.bodySemi, fontSize: 13, lineHeight: 18 },
   chip: { minHeight: TAP, paddingHorizontal: 14, borderRadius: radius.pill, borderWidth: 1.5, justifyContent: 'center' },
   chipText: { fontFamily: font.bodySemi, fontSize: 14 },
-  notice: { borderRadius: 14, padding: 12 },
-  noticeText: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20 },
 });

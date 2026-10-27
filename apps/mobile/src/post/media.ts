@@ -3,6 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { File } from 'expo-file-system';
 import { supabase } from '../supabase';
+import { capture } from './recorded';
 
 /**
  * A file the customer added to a job. `path` is set once it is safely in the
@@ -87,7 +88,7 @@ function extension(m: Media): keyof typeof TYPES {
  * Photos are shrunk on the phone before they leave it: a 12-megapixel photo
  * on 3G is a minute of waiting for something 1600 pixels shows just as well.
  */
-async function shrink(uri: string): Promise<string> {
+export async function shrink(uri: string): Promise<string> {
   try {
     const ref = await ImageManipulator.manipulate(uri).resize({ width: 1600 }).renderAsync();
     const saved = await ref.saveAsync({ compress: 0.7, format: SaveFormat.JPEG });
@@ -110,6 +111,9 @@ async function allowed(fromCamera: boolean) {
 }
 
 export async function takePhoto(fromCamera: boolean): Promise<Media | null> {
+  // On a phone the camera is Pechkas' own (see recorded.ts for why). It asks
+  // for the camera itself, and shrinks the photo before handing it back.
+  if (fromCamera && Platform.OS !== 'web') return capture('photo');
   await allowed(fromCamera);
   const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.8 };
   const r = fromCamera ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
@@ -141,6 +145,7 @@ export async function recoverLostPick(): Promise<Media | null> {
 }
 
 export async function takeVideo(fromCamera: boolean): Promise<Media | null> {
+  if (fromCamera && Platform.OS !== 'web') return capture('video');
   await allowed(fromCamera);
   const opts: ImagePicker.ImagePickerOptions = {
     mediaTypes: ['videos'],

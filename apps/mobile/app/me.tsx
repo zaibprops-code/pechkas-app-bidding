@@ -1,3 +1,5 @@
+import { useToast } from '../src/components/Toast';
+import { done } from '../src/message';
 import { useState } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
@@ -19,6 +21,7 @@ export default function Me() {
   const { session, account, signOut, connected, refresh } = useAccount();
   const [editing, setEditing] = useState(false);
   const [newPhone, setNewPhone] = useState('');
+  const toast = useToast();
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -84,6 +87,7 @@ export default function Me() {
     setEditing(false);
     setNewPhone('');
     await refresh();
+    toast.show(done('Your number is saved.'));
   }
 
   const role = account?.role === 'pro' ? 'Technician' : account?.role === 'customer' ? 'Customer' : 'Account not finished';

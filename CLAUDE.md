@@ -213,13 +213,23 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   **Every tile says its limit** (Up to 1 min, Up to 20 sec, Up to 4), the
   voice tile counts down while it records ("0:48 left", a bar filling by
   transform) and stops itself at the minute, and a finished video reads
-  "0:14 of 0:20". **A video is recorded on Pechkas' own camera screen**
+  "0:14 of 0:20". **Photos from the camera go through Pechkas' own camera
+  too** (`capture('photo')` in `src/post/recorded.ts`, which `takePhoto(true)`
+  uses on a phone, customers and technicians alike): the photo picker's
+  camera refuses to start on Android 9 and older without the storage
+  permission app.json blocks, so "Take a photo" could never work there and
+  a technician could not take his start or finish photos. Our camera needs
+  only the camera permission; it shows its own card after any refusal
+  (**Allow the camera** while the phone still lets us ask, **Open
+  settings** after) and reads the permission again on coming back from
+  Settings. **A video is recorded on Pechkas' own camera screen**
   (`app/record.tsx`, `expo-camera`, the owner's request): the camera fills
   the screen, a big clock counts down from 0:20, a bar fills by transform,
   and recording stops itself at `LIMITS.videoSeconds` (`maxDuration`, and
   the clock as a second guard). 720p on purpose, so 20 seconds is far
   inside `LIMITS.bytes`. It hands the video back through
-  `src/post/recorded.ts`, which Post a job listens to while open. Its
+  `capture('video')` in `src/post/recorded.ts`, which waits for what the
+  camera hands back (null if it was closed). Its
   trouble is shown above the record button (`Notice inline`), never as the
   top banner, which would cover the close button and the clock. A browser
   cannot record, so the browser copy keeps the picker. `expo-camera` brings
@@ -697,13 +707,24 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   sentence about boxes they cannot see. A new box on the form needs its
   field in `CARD_OF` and `ANSWERS`.
 - **Trouble is said at the top of the screen, never only at the foot.**
-  `Notice` (ui.tsx) shows its sentence as a banner sliding down over the
+  `Notice` (ui.tsx) shows its message as a card sliding down over the
   top of whatever screen is open (`src/components/Toast.tsx`, `ToastHost`
   in `_layout.tsx`) — the owner chose a video, it was refused, and the box
-  saying so was at the bottom of a long page he was not looking at. The
-  banner stays until its × is tapped, the next one replaces it, the screen
-  clears its message, or the person leaves the screen; it never slides
-  away by itself. Inside a `Sheet` (a Modal, drawn above everything) pass
+  saying so was at the bottom of a long page he was not looking at.
+  **Every message has a kind** (`src/message.ts`): error (brick), warning
+  — something the person must do — (yellow), success and info (green);
+  a short title, a sentence, at most one button that puts it right, and
+  the phone's own words behind **Show details**, never in the sentence
+  (the owner was once shown "Call to function
+  'ExponentImagePicker.launchCameraAsync' has been rejected" as the whole
+  message). A plain string still works: it is an error, and a trailing
+  "(Details: …)" is lifted into the details by `asMessage()`. Something
+  the phone has switched off is `switchedOff()` — a warning with **Open
+  settings**, never "try again", which would be refused again. Use
+  `done()` for a short success after an action that changes nothing on
+  screen by itself. Errors and warnings stay until × is tapped, the next
+  one replaces them, the screen clears its message, or the person leaves
+  the screen; a success or info goes after 5 s. Inside a `Sheet` (a Modal, drawn above everything) pass
   `inline`, or the banner would be underneath. A refusal about one box
   still goes beside that box as well. To show the same sentence again after
   it was closed, give the `Notice` a new `key`.

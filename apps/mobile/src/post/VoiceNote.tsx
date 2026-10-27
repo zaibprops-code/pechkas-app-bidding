@@ -1,3 +1,4 @@
+import { switchedOff, type Message } from '../message';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import {
@@ -21,7 +22,7 @@ import { clock, detailOf, LIMITS, type Media } from './media';
  * row to play back or throw away — so the row never holds a tile that does
  * nothing.
  */
-export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; onProblem: (text: string) => void }) {
+export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; onProblem: (m: string | Message) => void }) {
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const state = useAudioRecorderState(recorder, 250);
   const [busy, setBusy] = useState(false);
@@ -47,7 +48,7 @@ export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; o
     try {
       const perm = await requestRecordingPermissionsAsync();
       if (!perm.granted) {
-        onProblem('Pechkas needs the microphone to record a voice note. Allow it in your phone settings, or write instead.');
+        onProblem(switchedOff('microphone', 'Pechkas needs the microphone to record a voice note.'));
         return;
       }
       await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });

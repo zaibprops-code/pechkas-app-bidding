@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
-import { router } from 'expo-router';
+import { AppState, Linking, Platform, StyleSheet, Text, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
@@ -8,11 +8,20 @@ import { File } from 'expo-file-system';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { Button, Notice } from '../src/components/ui';
-import { clock, detailOf, LIMITS } from '../src/post/media';
-import { recorded } from '../src/post/recorded';
+import { clock, detailOf, LIMITS, shrink } from '../src/post/media';
+import { cancelled, recorded } from '../src/post/recorded';
 import { colour, font } from '../src/theme';
 
 /**
+ * Pechkas' own camera, for photos (`?mode=photo`) and videos (the rest).
+ *
+ * Photos come here because the phone's camera, opened by the photo picker,
+ * refuses to start on Android 9 and older without the old storage
+ * permission, which Pechkas never asks for (src/post/recorded.ts). This
+ * camera needs only the camera permission — and for a photo, not even the
+ * microphone. What is taken goes back through `capture()`; closing the
+ * screen without taking anything gives back nothing.
+ *
  * Recording a video of the fault, inside Pechkas — the owner asked to see how
  * much time is left while recording, and the phone's own camera app cannot
  * be drawn on. So: the camera fills the screen, a big clock counts down from
@@ -26,10 +35,22 @@ import { colour, font } from '../src/theme';
  * stored anywhere but the phone until Post a job sends it.
  */
 export default function Record() {
+  const photo = useLocalSearchParams<{ mode?: string }>().mode === 'photo';
   const insets = useSafeAreaInsets();
+  // Set once something has been handed back, so leaving afterwards is not "closed without taking".
+  const delivered = useRef(false);
   const camera = useRef<CameraView>(null);
-  const [cam, askCam] = useCameraPermissions();
-  const [mic, askMic] = useMicrophonePermissions();
+  const [cam, askCam, readCam] = useCameraPermissions();
+  const [mic, askMic, readMic] = useMicrophonePermissions();
+  // Back from the phone's settings: read the switches again, so turning the camera on there is enough.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => {
+      if (st !== 'active') return;
+      readCam();
+      readMic();
+    });
+    return () => sub.remove();
+  }, [readCam, readMic]);
   const [ready, setReady] = useState(false);
   const [facing, setFacing] = useState<'back' | 'front'>('back');
   const [torch, setTorch] = useState(false);
@@ -48,7 +69,7 @@ export default function Record() {
   // Asked for when the screen opens: opening it was the deliberate act.
   useEffect(() => {
     if (cam && !cam.granted && cam.canAskAgain) askCam();
-    if (mic && !mic.granted && mic.canAskAgain) askMic();
+    if (!photo && mic && !mic.granted && mic.canAskAgain) askMic();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cam?.status, mic?.status]);
 
@@ -67,9 +88,34 @@ export default function Record() {
     () => () => {
       leaving.current = true;
       camera.current?.stopRecording();
+      if (!delivered.current) cancelled();
     },
     [],
   );
+
+  async function snap() {
+    if (!camera.current || saving) return;
+    if (Platform.OS === 'web') {
+      setProblem('Taking a photo here works in the Pechkas app on a phone.');
+      return;
+    }
+    setProblem(null);
+    setSaving(true);
+    try {
+      const p = await camera.current.takePictureAsync({ quality: 0.85 });
+      if (!p?.uri) {
+        setSaving(false);
+        setProblem('The photo was not saved. Please take it again.');
+        return;
+      }
+      delivered.current = true;
+      recorded({ kind: 'photo', uri: await shrink(p.uri) });
+      router.back();
+    } catch (e) {
+      setSaving(false);
+      if (!leaving.current) setProblem(`The photo could not be taken. Please try again. (Details: ${detailOf(e)})`);
+    }
+  }
 
   async function start() {
     if (!camera.current || recording || saving) return;
@@ -106,6 +152,7 @@ export default function Record() {
         setProblem(`That video is ${Math.ceil(size / 1048576)} MB, and Pechkas can send up to ${Math.round(LIMITS.bytes / 1048576)} MB. Record a shorter one.`);
         return;
       }
+      delivered.current = true;
       recorded({ kind: 'video', uri: r.uri, seconds: length });
       router.back();
     } catch (e) {
@@ -119,25 +166,47 @@ export default function Record() {
     camera.current?.stopRecording();
   }
 
-  const close = () => (router.canGoBack() ? router.back() : router.replace('/post'));
+  const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
   // No camera, or no microphone: say so, and how to put it right.
-  const refused = (cam && !cam.granted && !cam.canAskAgain) || (mic && !mic.granted && !mic.canAskAgain);
-  if (refused) {
+  // Any "no" counts, not only a permanent one: after a first "Don't allow"
+  // the camera never starts, and the screen would wait for it for ever.
+  const camNo = cam && !cam.granted && cam.status === 'denied';
+  const micNo = !photo && mic && !mic.granted && mic.status === 'denied';
+  const canAsk = (!camNo || cam?.canAskAgain) && (!micNo || mic?.canAskAgain);
+  if (camNo || micNo) {
     return (
       <View style={[s.screen, s.centre, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
         <StatusBar style="light" />
         <View style={s.askCard}>
-          <Text style={s.askTitle}>Pechkas needs the camera and the microphone</Text>
-          <Text style={s.askText}>To record a video of the fault, allow both for Pechkas in your phone's settings. Or go back and choose a video from the gallery instead.</Text>
-          <Button label="Open the phone's settings" onPress={() => Linking.openSettings()} />
+          <Text style={s.askTitle} accessibilityRole="header">{photo ? 'The camera is off for Pechkas' : 'Pechkas needs the camera and the microphone'}</Text>
+          <Text style={s.askText}>
+            {photo
+              ? canAsk
+                ? 'Pechkas needs the camera to take a photo.'
+                : "To take a photo, turn on the camera for Pechkas in your phone's settings, then come back."
+              : canAsk
+                ? 'To record a video of the fault, Pechkas needs the camera and the microphone. Or go back and choose a video from the gallery.'
+                : "To record a video of the fault, allow both for Pechkas in your phone's settings, then come back. Or go back and choose a video from the gallery."}
+          </Text>
+          {canAsk ? (
+            <Button
+              label={photo ? 'Allow the camera' : 'Allow them'}
+              onPress={() => {
+                if (camNo) askCam();
+                if (micNo) askMic();
+              }}
+            />
+          ) : (
+            <Button label="Open settings" onPress={() => Linking.openSettings()} />
+          )}
           <Button kind="outline" dark label="Go back" onPress={close} />
         </View>
       </View>
     );
   }
 
-  const granted = cam?.granted && mic?.granted;
+  const granted = cam?.granted && (photo || mic?.granted);
 
   return (
     <View style={s.screen}>
@@ -146,7 +215,7 @@ export default function Record() {
         <CameraView
           ref={camera}
           style={StyleSheet.absoluteFill}
-          mode="video"
+          mode={photo ? 'picture' : 'video'}
           videoQuality="720p"
           facing={facing}
           enableTorch={torch}
@@ -165,6 +234,11 @@ export default function Record() {
               <Icon name="cross" size={22} color={colour.white} strokeWidth={2.4} />
             </Press>
           )}
+          {photo ? (
+            <View style={s.clockBox}>
+              <Text style={s.photoTitle} accessibilityRole="header">Take a photo</Text>
+            </View>
+          ) : (
           <View style={s.clockBox} accessibilityLiveRegion="polite" accessibilityLabel={recording ? `${left} seconds left` : `Up to ${LIMITS.videoSeconds} seconds`}>
             {recording ? (
               <View style={s.rec}>
@@ -175,6 +249,7 @@ export default function Record() {
             <Text style={[s.clock, recording && left <= 5 && { color: colour.yellow }]}>{clock(recording ? left : LIMITS.videoSeconds)}</Text>
             <Text style={s.clockSub}>{recording ? 'left' : 'Up to 20 seconds'}</Text>
           </View>
+          )}
           {facing === 'back' ? (
             <Press
               onPress={() => setTorch((t) => !t)}
@@ -190,9 +265,11 @@ export default function Record() {
             <View style={s.side} />
           )}
         </View>
-        <View style={s.track} accessible={false}>
-          <View style={[s.fill, { transform: [{ scaleX: used }] }]} />
-        </View>
+        {photo ? null : (
+          <View style={s.track} accessible={false}>
+            <View style={[s.fill, { transform: [{ scaleX: used }] }]} />
+          </View>
+        )}
       </View>
 
       {/* The foot: what to do, the button, and turning the camera round. */}
@@ -200,19 +277,27 @@ export default function Record() {
         {/* Here, not as the banner at the top: that would cover the close button and the clock. */}
         <Notice text={problem} inline />
         <Text style={s.hint}>
-          {saving ? 'Saving…' : recording ? 'Tap to stop' : granted ? 'Show the fault, and say what is wrong. It stops by itself at 0:20.' : 'Waiting for the camera…'}
+          {saving
+            ? 'Saving…'
+            : !granted
+              ? 'Waiting for the camera…'
+              : photo
+                ? 'Hold the phone still and tap the button.'
+                : recording
+                  ? 'Tap to stop'
+                  : 'Show the fault, and say what is wrong. It stops by itself at 0:20.'}
         </Text>
         <View style={s.controls}>
           <View style={s.side} />
           <Press
-            onPress={recording ? stop : start}
+            onPress={photo ? snap : recording ? stop : start}
             accessibilityRole="button"
-            accessibilityLabel={recording ? 'Stop recording' : 'Start recording'}
+            accessibilityLabel={photo ? 'Take the photo' : recording ? 'Stop recording' : 'Start recording'}
             accessibilityState={{ disabled: !ready || saving }}
             sink={0.92}
             style={[s.shutter, (!ready || saving) && { opacity: 0.5 }]}
           >
-            <View style={recording ? s.stopSquare : s.recCircle} />
+            <View style={photo ? s.photoCircle : recording ? s.stopSquare : s.recCircle} />
           </Press>
           {recording ? (
             <View style={s.side} />
@@ -245,6 +330,8 @@ const s = StyleSheet.create({
   round: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' },
   roundOn: { backgroundColor: colour.yellow },
   clockBox: { alignItems: 'center', minWidth: 140 },
+  photoTitle: { fontFamily: font.display, fontSize: 22, color: colour.white },
+  photoCircle: { width: 64, height: 64, borderRadius: 32, backgroundColor: colour.white },
   rec: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 },
   recDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#ff4d3a' },
   recText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.white },

@@ -13,9 +13,9 @@ import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
 import { ask, supabase } from '../src/supabase';
 import { clearDraft, EMPTY, loadDraft, saveDraft, type Draft } from '../src/post/draft';
+import { switchedOff, type Message } from '../src/message';
 import { afterSheet, clock, detailOf, LIMITS, recoverLostPick, takePhoto, takeVideo, tooBigWords, upload, type Media } from '../src/post/media';
 import { tile, VoicePlayback, VoiceTile } from '../src/post/VoiceNote';
-import { whenRecorded } from '../src/post/recorded';
 import { colour, font, radius } from '../src/theme';
 
 /**
@@ -60,13 +60,27 @@ const PARTS_OF_DAY = [
   ['evening', 'Evening'],
 ] as const;
 
+/** A video that cannot go as it is: too long or too big, said as a warning with a title. */
+function videoTrouble(e: unknown): Message | null {
+  const big = tooBigWords(e);
+  if (big) return { tone: 'warning', title: 'That video is too big', text: big };
+  if (e instanceof Error && e.message === 'long') {
+    return {
+      tone: 'warning',
+      title: 'That video is too long',
+      text: `Choose or record one under ${LIMITS.videoSeconds} seconds. Pechkas' camera stops by itself at ${LIMITS.videoSeconds} seconds.`,
+    };
+  }
+  return null;
+}
+
 export default function Post() {
   const params = useLocalSearchParams<{ trade?: string; start?: string; ask?: string; minutes?: string; lat?: string; lng?: string }>();
   const { ready, session, account } = useAccount();
   const lists = useLists();
   const [d, setD] = useState<Draft | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | Message | null>(null);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
@@ -157,12 +171,6 @@ export default function Post() {
   const min = lists?.min_offer_paisa ?? 100000;
   const offer = Math.max(min, d?.offer ?? chosen?.list_paisa ?? min);
 
-  // A video recorded on Pechkas' own camera screen comes back here.
-  useEffect(
-    () => whenRecorded((m) => changeMedia((all) => [...all.filter((x) => x.kind !== 'video'), m])),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
 
   // A photo or video Android kept when it closed the app while the camera was open.
   const recovered = useRef(false);
@@ -180,7 +188,7 @@ export default function Post() {
             : [...all.filter((x) => x.kind !== m.kind), m],
         );
       })
-      .catch((e) => setNotice(tooBigWords(e) ?? (e instanceof Error && e.message === 'long' ? `Keep the video under ${LIMITS.videoSeconds} seconds.` : null)));
+      .catch((e) => setNotice(videoTrouble(e)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [d]);
 
@@ -206,11 +214,8 @@ export default function Post() {
 
   function problem(e: unknown) {
     const msg = e instanceof Error ? e.message : '';
-    if (msg === 'camera') setNotice('Pechkas needs the camera for this. Allow it in your phone settings.');
-    else if (msg === 'photos') setNotice('Pechkas needs your photos for this. Allow it in your phone settings.');
-    else if (msg === 'long') setNotice(`That video is longer than ${LIMITS.videoSeconds} seconds. Choose or record a shorter one: the camera stops by itself at ${LIMITS.videoSeconds} seconds.`);
-    else if (tooBigWords(e)) setNotice(tooBigWords(e));
-    else setNotice(`That did not work. Please try again. (Details: ${detailOf(e)})`);
+    if (msg === 'camera') setNotice(switchedOff('camera', 'Pechkas needs the camera to take a photo or a video.'));
+    else setNotice(videoTrouble(e) ?? { title: 'That did not work', text: 'Please try again.', detail: detailOf(e) });
   }
 
   async function addVideo(camera: boolean) {
@@ -225,12 +230,11 @@ export default function Post() {
 
   /**
    * Recording a video: Pechkas' own camera screen, with the countdown, on a
-   * phone. A browser cannot record, so the browser copy used for testing
-   * keeps the phone's picker.
+   * phone (takeVideo opens it); a browser, which cannot record, keeps the
+   * phone's picker.
    */
   function recordVideo() {
-    if (Platform.OS === 'web') addVideo(true);
-    else router.push('/record');
+    addVideo(true);
   }
 
   async function addPhoto(camera: boolean) {
@@ -321,7 +325,7 @@ export default function Post() {
     } catch (e) {
       setBusy(false);
       setProgress(null);
-      setNotice(tooBigWords(e) ?? 'Sending did not finish. Check your signal and press Post again: what was already sent is kept.');
+      setNotice(videoTrouble(e) ?? { title: 'Your job was not sent', text: 'Check your signal and press Post again. Anything already sent is kept.', detail: detailOf(e) });
       return;
     }
 

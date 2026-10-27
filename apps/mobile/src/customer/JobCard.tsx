@@ -1,3 +1,5 @@
+import { useToast } from '../components/Toast';
+import { done } from '../message';
 import { useEffect, useState } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
@@ -87,11 +89,14 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
     .filter(Boolean)
     .join(' · ');
 
+  const toast = useToast();
+
   async function everyone() {
     setBusy(true);
     const r = await ask('release_now', { p_job: job.id });
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
+    toast.show(done('Your job has gone to every checked technician who works there.'));
     onChanged();
   }
 
@@ -111,6 +116,7 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
     setBlocking(false);
+    toast.show(done('Pechkas will not send him your jobs again.', 'Blocked'));
     onChanged();
   }
 
@@ -119,6 +125,7 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
     const r = await ask('unblock_pro', { p_job: job.id });
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
+    toast.show(done('He can be sent your jobs again.', 'Unblocked'));
     onChanged();
   }
 
@@ -128,6 +135,7 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
     setConfirming(false);
+    toast.show(done('Your job is cancelled.'));
     onChanged();
   }
 
@@ -249,6 +257,8 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
    * on this job again. It leaves the list at once rather than at the next
    * refresh, so a second tap has nothing to land on.
    */
+  const toast = useToast();
+
   async function decline(id: string) {
     setBusy(true);
     setMsg(null);
@@ -257,6 +267,7 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
     setDeclining(null);
     if (!r.ok) return setMsg(r.why);
     setOffers((list) => (list ?? []).filter((x) => x.id !== id));
+    toast.show(done('That offer is gone from your list.', 'Offer declined'));
     onChosen();
   }
 

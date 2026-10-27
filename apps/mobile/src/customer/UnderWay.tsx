@@ -1,3 +1,5 @@
+import { useToast } from '../components/Toast';
+import { done } from '../message';
 import { useState } from 'react';
 import { Image, Linking, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
@@ -203,6 +205,8 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
   const [msg, setMsg] = useState<string | null>(null);
   const name = job.pro?.first_name ?? 'the technician';
 
+  const toast = useToast();
+
   async function rate() {
     if (!stars) return setMsg('Choose from one to five stars.');
     setBusy(true);
@@ -210,6 +214,7 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
     const r = await ask('rate_job', { p_job: job.id, p_stars: stars, p_words: words });
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
+    toast.show(done('Your rating is saved.', 'Thank you'));
     onChanged();
   }
 
@@ -220,6 +225,7 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
     setClaiming(false);
+    toast.show(done('Your claim has gone to the Pechkas office.'));
     onChanged();
   }
 
@@ -230,6 +236,7 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
     setWriting(false);
+    toast.show(done('Your message has gone to the Pechkas office.'));
     onChanged();
   }
 
