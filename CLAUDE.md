@@ -595,11 +595,20 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   never text: amounts a technician keeps or owes are green or ink.
 - **Laid out the way inDrive is — the owner's reference.** No tab bar: the
   ☰ `MenuButton` (`src/components/Menu.tsx`) opens a side menu laid out as
-  inDrive's: the person on top (name, number, which side they are on; tap
-  for Settings), full-width line-icon rows with the current one shaded —
-  Home or Jobs, My jobs or My account, Notifications, Safety, Settings,
-  Help, Support — and one big yellow **Technician mode / Customer mode**
-  button at the foot (`ModeSwitch pill`). Every item goes to a real screen:
+  inDrive's, made more professional at the owner's request: the Pechkas
+  mark and a close button on top; the person on a soft card (name, number,
+  a dot and which side they are on; tap for Settings); then the places in
+  groups — Home or Jobs, My jobs or My account, Notifications; **Help and
+  safety**: Safety, Help, Support; **More**: Settings, Tell a friend (the
+  phone's share sheet, with words that claim only what is true) — each row
+  an icon on a soft square tile (yellow for the current one), the words
+  and a chevron; and at the foot one big yellow **Technician mode /
+  Customer mode** button (`ModeSwitch pill`: swap icon, one line saying
+  what it does) with the version and edition under it. **It is drawn by
+  `MenuHost` at the root (`_layout.tsx`), never in a Modal**: a Modal is
+  its own window, and on the owner's Android 9 phone it stopped short of
+  the status bar and the button bar, so the dimming did not reach the
+  edges. The phone's Back button closes it. Every item goes to a real screen:
   `/notifications` says whether this phone is told and lists only what
   `push_words` really sends to that side (change the two together), and
   Support opens the office on WhatsApp. Customer screens are a light grey

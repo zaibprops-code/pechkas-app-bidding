@@ -45,7 +45,12 @@ export type IconName =
   | 'cross'
   | 'check'
   | 'camera'
-  | 'image';
+  | 'image'
+  | 'clipboard'
+  | 'briefcase'
+  | 'wallet'
+  | 'share'
+  | 'swap';
 
 type Props = {
   name: IconName;
@@ -187,6 +192,34 @@ export function Icon({ name, size = 24, color = colour.green, strokeWidth = 1.8,
       )}
       {name === 'whatsapp' && <Path {...s} d="M4 20l1.3-3.9A8 8 0 1 1 8 19zM9 9.5c.3 2.3 2.2 4.2 4.5 4.5l1-1.5 2 .8" />}
       {name === 'locate' && <Path {...s} d="M20 4L4 11l7 2 2 7z" />}
+      {name === 'clipboard' && (
+        <>
+          <Rect {...s} x={5} y={4.5} width={14} height={16.5} rx={2.5} />
+          <Rect {...s} x={9} y={2.5} width={6} height={4} rx={1.2} />
+          <Path {...s} d="M8.8 11.5l1.6 1.6 3-3M8.8 17h6.4" />
+        </>
+      )}
+      {name === 'briefcase' && (
+        <>
+          <Rect {...s} x={3} y={7} width={18} height={13} rx={2.5} />
+          <Path {...s} d="M9 7V5.2A1.2 1.2 0 0 1 10.2 4h3.6A1.2 1.2 0 0 1 15 5.2V7M3 12.5h18M11 12.5v2h2v-2" />
+        </>
+      )}
+      {name === 'wallet' && (
+        <>
+          <Path {...s} d="M4 7.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.5a2 2 0 0 0-2-2H6a2 2 0 0 1-2-2 2 2 0 0 1 2-2h10" />
+          <Circle {...s} cx={16} cy={14} r={1.2} />
+        </>
+      )}
+      {name === 'share' && (
+        <>
+          <Circle {...s} cx={18} cy={5.5} r={2.5} />
+          <Circle {...s} cx={6} cy={12} r={2.5} />
+          <Circle {...s} cx={18} cy={18.5} r={2.5} />
+          <Path {...s} d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1" />
+        </>
+      )}
+      {name === 'swap' && <Path {...s} d="M7 4L3.5 7.5 7 11M3.5 7.5H17M17 13l3.5 3.5L17 20M20.5 16.5H7" />}
       {name === 'me' && (
         <>
           <Circle {...s} cx={12} cy={8} r={4} />

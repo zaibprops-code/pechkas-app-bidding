@@ -17,6 +17,7 @@ import { useNotificationTaps } from '../src/notifications';
 import { colour } from '../src/theme';
 import { LaunchScrew } from '../src/components/LaunchScrew';
 import { ToastHost } from '../src/components/Toast';
+import { MenuHost } from '../src/components/Menu';
 import { Trouble } from '../src/components/Trouble';
 import { ControlProvider, useControl } from '../src/control';
 
@@ -54,12 +55,14 @@ export default function RootLayout() {
         <NotificationTaps />
         <Gate onDecided={onDecided} />
         <ToastHost>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colour.paper },
-            }}
-          />
+          <MenuHost>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: colour.paper },
+              }}
+            />
+          </MenuHost>
         </ToastHost>
         <OfficeSwitches />
         <LaunchTrouble />

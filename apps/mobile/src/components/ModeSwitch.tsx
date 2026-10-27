@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Icon } from './Icon';
 import { Press } from './Press';
 import { ScrewSpinner } from './ScrewSpinner';
@@ -23,6 +23,7 @@ import { colour, font, radius } from '../theme';
 export function ModeSwitch({ onSwitched, pill = false }: { onSwitched?: () => void; pill?: boolean }) {
   const { account } = useAccount();
   const m = useSwitchMode();
+  const narrow = useWindowDimensions().width < 360;
   const [asking, setAsking] = useState(false);
   const hasApplied = Boolean(account?.pro);
   const sub =
@@ -56,7 +57,23 @@ export function ModeSwitch({ onSwitched, pill = false }: { onSwitched?: () => vo
           sink={0.97}
           style={s.pill}
         >
-          {m.busy ? <ScrewSpinner size={24} /> : <Text style={s.pillText}>{m.label}</Text>}
+          {m.busy ? (
+            <ScrewSpinner size={24} />
+          ) : (
+            <View style={s.pillRow}>
+              <View style={[s.pillIcon, narrow && s.pillIconNarrow]}>
+                <Icon name="swap" size={narrow ? 18 : 20} color={colour.ink} strokeWidth={2.2} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.pillText, narrow && { fontSize: 17 }]} numberOfLines={1}>
+                  {m.label}
+                </Text>
+                <Text style={s.pillSub}>{sub}</Text>
+              </View>
+              {/* On a narrow phone the words need the room more than the arrow does. */}
+              {narrow ? null : <Icon name="arrowRight" size={20} color={colour.ink} strokeWidth={2.2} />}
+            </View>
+          )}
         </Press>
         {m.why ? <Text style={s.why}>{m.why}</Text> : null}
       </View>
@@ -88,8 +105,12 @@ export function ModeSwitch({ onSwitched, pill = false }: { onSwitched?: () => vo
 }
 
 const s = StyleSheet.create({
-  pill: { minHeight: 58, borderRadius: 18, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
-  pillText: { fontFamily: font.displayBold, fontSize: 19, color: colour.ink },
+  pill: { minHeight: 64, borderRadius: 18, backgroundColor: colour.yellow, justifyContent: 'center', paddingHorizontal: 14, paddingVertical: 10 },
+  pillRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  pillIconNarrow: { width: 34, height: 34, borderRadius: 10 },
+  pillIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(20, 23, 26, 0.08)', alignItems: 'center', justifyContent: 'center' },
+  pillText: { fontFamily: font.displayBold, fontSize: 18, color: colour.ink },
+  pillSub: { fontFamily: font.body, fontSize: 13, color: colour.inkSoft },
   button: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 10, paddingHorizontal: 12, borderRadius: radius.big, backgroundColor: colour.green },
   icon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
   label: { fontFamily: font.bodySemi, fontSize: 17, color: colour.paper },
