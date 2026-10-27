@@ -13,6 +13,13 @@ import { colour } from '../theme';
 
 export type ArtName = 'ac' | 'electrician' | 'plumber' | 'cctv' | 'wifi' | 'ups' | 'solar' | 'appliances' | 'carpentry' | 'painting' | 'computers' | 'more';
 
+/** The drawing for a trade's slug, when it has one. Post a job and My jobs both use it. */
+const BY_TRADE: Record<string, ArtName> = {
+  ac: 'ac', electrician: 'electrician', plumber: 'plumber', ups: 'ups', cctv: 'cctv', wifi: 'wifi',
+  solar: 'solar', appliances: 'appliances', carpentry: 'carpentry', painting: 'painting', computers: 'computers',
+};
+export const artFor = (trade: string): ArtName | undefined => BY_TRADE[trade];
+
 const SHADE = '#d9d5cc';
 const WHITE = colour.white;
 const INK = colour.ink;

@@ -16,8 +16,8 @@ import { colour, font, radius } from '../theme';
 
 /**
  * One of the customer's jobs, whole: what was asked for, its offers and
- * choosing one, the visit, the end. Shared by the live screen of a job
- * (app/job/[id].tsx), which is where it lives, and My jobs, which lists them.
+ * choosing one, the visit, the end. Drawn on the job's own screen
+ * (app/job/[id].tsx); My jobs lists jobs as short cards that open it.
  */
 
 export type Job = JobNow & {

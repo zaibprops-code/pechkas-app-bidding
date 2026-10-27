@@ -333,9 +333,26 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - **Posting lands on the job's own screen**, the way a ride app lands on
   the search: `Searching` (the screw turning in rings that only grow) while
   it is open, the offers right under it, then the same screen follows the
-  visit. It renders `JobCard` from `src/customer/JobCard.tsx`, which My
-  jobs uses too, so the two can never disagree. It asks `my_jobs()` every
+  visit. It renders `JobCard` from `src/customer/JobCard.tsx`, and is the
+  one place a job is acted on: choosing, declining, cancelling, the start
+  code, a new price, paying, rating, blocking. It asks `my_jobs()` every
   5 s while open and 10 s after, only while in front.
+- **My jobs (`app/jobs.tsx`) is the history, laid out like a ride app's**
+  — redesigned at the owner's request in the menu's and home's style. No
+  buttons on it but the cards themselves, each opening the job's screen.
+  **Happening now**: one white card per open or assigned job — the trade's
+  drawing on a cream tile (`artFor()` in `Art.tsx`, shared with Post a
+  job), trade · ref, title, the price she will pay; then a grey status
+  row read from the job (the screw turning while nobody has offered, a
+  yellow disc with the number of offers, his initial once chosen); four
+  steps (Chosen, On the way, Arrived, Working) once he is chosen; and a
+  yellow pill only when she has something to do (**Choose a technician**,
+  **Answer the new price**). **Earlier**: one sheet of rows — drawing,
+  title and price on one line (the title gets the width, never cut on a
+  320 phone), date · trade · ref, a status chip, and **Rate …** only while
+  `can_rate` says she still may. Then the green **Post a new job** card,
+  the same as home's. Every word comes from `my_jobs()`; nothing
+  estimated.
 - **Home shows what is still happening** (`LiveCard` in `app/index.tsx`),
   from `my_jobs()` every 10 s while focused; finished jobs are the recent
   list under the question. Every headline is read from the job's own status

@@ -7,6 +7,25 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**My jobs, redesigned the same way (new — no database step, needs a new
+build).** Shorter and easier to read:
+
+- **Happening now** at the top: one card per job still going, with the
+  trade's picture, the price, and one line saying where it has got to
+  (*Finding a technician*, *2 offers to choose from*, *Bilal is on his
+  way*). Once a technician is chosen, four steps show how far the visit
+  has gone: Chosen, On the way, Arrived, Working.
+- A yellow button appears on a card only when you have something to do:
+  **Choose a technician**, or **Answer the new price**.
+- **Earlier** under it: every finished or cancelled job as one row, with
+  the date, the price, how it ended, and **Rate …** if you have not rated
+  him yet.
+- Tap any card or row to open that job. Choosing, cancelling, the start
+  code, rating and blocking are all on the job's own screen, as before.
+- A green **Post a new job** card at the foot, like on the home screen.
+
+To try it: on the customer side open the menu → **My jobs**.
+
 **Post a job, redesigned the same way (new — no database step, needs a
 new build).** The same one page, easier on the eye:
 
@@ -390,7 +409,8 @@ offers as cards, each with its time left and its own button. After you
 choose, the same screen follows the visit to the end. The **home screen**
 shows any job still happening in a card at the top — *Finding a
 technician*, *Choose a technician · 2 offers*, *Bilal is on his way* —
-and tapping it opens the job. **My jobs** is the full list; each card
+and tapping it opens the job. **My jobs** is the full list: what is still
+happening as cards at the top, everything earlier as rows under it; each
 opens its job. No migration — a new **preview** build from `main`, then
 post a job and watch it.
 
@@ -913,7 +933,7 @@ them to Claude.
 3. **On the phone:** sign in, tap **AC** on the home screen, choose a job,
    record a short voice note, add a photo, fill in F-11, a street and house,
    choose **Tomorrow · Morning**, and press **Post job**.
-4. **My jobs** should show it as **Waiting for a technician**.
+4. **My jobs** should show it under **Happening now** as **Finding a technician**.
 5. **Admin panel → Jobs:** it is there with the customer's number, the
    address, a Google Maps link if they added their location, the voice note to
    play and the photo to open.
@@ -943,7 +963,8 @@ one is an approved technician. Each needs its own test number in Supabase
 5. **The technician phone:** within 15 seconds the job appears, showing the
    sector and the customer's first name but **no address**. Press **+** twice
    to ask Rs 200 more, choose **30 min**, and send it.
-6. **The customer phone:** within 10 seconds **My jobs** shows the offer with
+6. **The customer phone:** within 10 seconds **My jobs** says **1 offer to
+   choose from** with a yellow **Choose a technician**. Tap it: the offer has
    "His price" under it. Press **Choose …** and then **Yes**.
 7. **The technician phone:** the job moves to **My jobs** with the full address, the customer's number, **Call customer** and **Open the map**.
 8. **The customer phone:** shows the technician's name, **Call**, and **Send
@@ -1085,7 +1106,7 @@ phones. Use one customer phone and one approved technician phone.
 1. **Customer:** post a job. **Technician:** go Online and press **Accept**.
    **Customer:** choose him.
 2. **Technician:** **My jobs** shows the job with a yellow **I am on my way** button. Tap it. The customer's phone buzzes "… is on his way" and
-   her **My jobs** shows a big **start code**.
+   her job (tap it on **My jobs**) shows a big **start code**.
 3. **Technician:** tap **I have arrived**. Her phone buzzes "… has arrived".
 4. **Technician:** type a **wrong** code, take a photo with **+**, press
    **Start the job**. It says the code is wrong and how many tries are
@@ -1152,8 +1173,8 @@ panel redeploys by itself on Vercel.
 
 1. Finish a job between your customer phone and your technician phone, as
    in phase 5. Make sure the technician is **Online**.
-2. **Customer → My jobs:** the finished job has **Ask Bilal again** (his
-   name). Tap it. The post screen says **Asking Bilal first**. Fill it in
+2. **Customer → My jobs:** tap the finished job under **Earlier**. It has
+   **Ask Bilal again** (his name). Tap it. The post screen says **Asking Bilal first**. Fill it in
    and **Post job**. The green box says it was sent to him first.
 3. **Technician:** his phone buzzes **A customer has asked for you again**.
    The job is at the top with a yellow edge, and under the price it says
@@ -1450,7 +1471,7 @@ admin panel and the website update by themselves.
    guarantee are there, marked **Locked**.
 3. Under **Sectors taking jobs**, open **Open another sector** and tap one
    where nobody works. It is refused, and says why.
-4. **Customer phone → My jobs**, on a finished job: tap **Never send me …
+4. **Customer phone → My jobs**, tap a finished job, then **Never send me …
    again**, write a reason, and **Yes, block**. The card says he was not
    told. On the technician's phone, post a new job from the customer: it
    does not appear for him. Tap **Undo** and it does.

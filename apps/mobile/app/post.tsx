@@ -1,5 +1,5 @@
 import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
-import { Art, type ArtName } from '../src/components/Art';
+import { Art, artFor, type ArtName } from '../src/components/Art';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Image, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
@@ -76,12 +76,7 @@ function videoTrouble(e: unknown): Message | null {
   return null;
 }
 
-/** The home tiles' drawing for a trade, when there is one. */
-const ARTS: Record<string, ArtName> = {
-  ac: 'ac', electrician: 'electrician', plumber: 'plumber', ups: 'ups', cctv: 'cctv', wifi: 'wifi',
-  solar: 'solar', appliances: 'appliances', carpentry: 'carpentry', painting: 'painting', computers: 'computers',
-};
-const artOf = (trade: string): ArtName | undefined => ARTS[trade];
+const artOf = artFor;
 
 export default function Post() {
   const params = useLocalSearchParams<{ trade?: string; start?: string; ask?: string; minutes?: string; lat?: string; lng?: string }>();
