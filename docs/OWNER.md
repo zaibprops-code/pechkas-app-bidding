@@ -7,6 +7,20 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Settings (the Me screen), redesigned the same way (new — no database
+step, needs a new build).** Open the menu (☰) and tap **Settings**, or tap
+your name at the top of the menu:
+
+- Your name, number and Customer or Technician on a green card, the same
+  as at the top of the menu.
+- White cards of rows, each with a two-tone icon: **Mobile number** and
+  **Email**; **Notifications** with an **On** or **Off** label beside it;
+  **Privacy policy** and **Terms of use** (or **Technician agreement**);
+  **Sign out**; and **Delete my account** in red.
+- The big yellow **Technician mode / Customer mode** button, the same as
+  the menu's.
+- **This copy of the app** at the foot, as before.
+
 **A job's own screen, redesigned the same way (new — no database step,
 needs a new build).** Instead of one long box, it is now a stack of
 clean cards, each with its own icon:
@@ -1070,8 +1084,8 @@ Cron** (or **Database → Cron Jobs**) as `pechkas-needs-you`.
 
 1. In Supabase → **Authentication** → **Phone** → test numbers, make sure
    your own mobile number is there (step C of phase 1).
-2. On your phone, sign in to the Pechkas app with that number → **Me** →
-   **Turn on notifications** → **Allow**.
+2. On your phone, sign in to the Pechkas app with that number → menu (☰) →
+   **Settings** → tap **Notifications** → **Allow**.
 3. **Admin panel → Jobs:** at the top, **Alerts on your phone** → type the
    same number → **Send alerts here**. It should say **One phone will hear
    it**. If it says no phone has allowed notifications, step 2 is not done
@@ -1224,7 +1238,7 @@ panel redeploys by itself on Vercel.
 
 ## Something is missing on my phone?
 
-Open **Me** and scroll to **This copy of the app**. It says two things:
+Open the menu (☰) → **Settings** and scroll to **This copy of the app**. It says two things:
 
 1. **Version 1.0.0 · code b305ba8 · built 16 Oct 2026** — the code inside
    the app on your phone. Compare the code with the newest commit on GitHub
@@ -1362,7 +1376,7 @@ they joined.
    which app to open it with — choose **Pechkas**. The app opens and signs
    you in. Only the **newest** email's link works, and only on the phone
    that asked for it; anywhere else it says so, and the code still works.
-8. **Me** shows your number with **(not checked)** and your email. In the
+8. **Settings** (menu ☰) shows your number with **(not checked)** and your email. In the
    admin panel, your number shows **(not checked)** on anything you post.
 
 If it fails, the red box says why and gives Supabase's own words: send a

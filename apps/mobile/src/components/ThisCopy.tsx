@@ -34,7 +34,7 @@ export function ThisCopy({ dark = false }: { dark?: boolean }) {
   const built = BUILT_AT ? new Date(BUILT_AT).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
 
   return (
-    <View style={[s.box, { borderColor: dark ? 'rgba(250,246,239,0.18)' : colour.rule }]}>
+    <View style={[s.box, dark ? { borderWidth: 1, borderColor: 'rgba(250,246,239,0.18)' } : s.light]}>
       <Text style={[s.title, { color: fg }]}>This copy of the app</Text>
       <Text style={[s.line, { color: muted }]}>
         Version {APP_VERSION} · edition {APP_EDITION}
@@ -58,7 +58,8 @@ export function ThisCopy({ dark = false }: { dark?: boolean }) {
 }
 
 const s = StyleSheet.create({
-  box: { gap: 6, padding: 14, borderRadius: radius.big, borderWidth: 1 },
+  box: { gap: 6, padding: 16, borderRadius: radius.big },
+  light: { backgroundColor: colour.white, borderRadius: 24, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.05)' },
   title: { fontFamily: font.bodySemi, fontSize: 14 },
   line: { fontFamily: font.body, fontSize: 13, lineHeight: 18 },
   warn: { padding: 10, borderRadius: 12 },

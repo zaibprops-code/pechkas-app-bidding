@@ -1,10 +1,13 @@
 import { useToast } from '../src/components/Toast';
 import { done } from '../src/message';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { showMobile } from '@pechkas/shared';
-import { Avatar, Body, Button, Field, ListGroup, ListRow, Notice, Screen, Title } from '../src/components/ui';
+import { Body, Button, Field, Notice, Screen, Title } from '../src/components/ui';
+import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
+import { Icon } from '../src/components/Icon';
+import { Press } from '../src/components/Press';
 import { ModeSwitch } from '../src/components/ModeSwitch';
 import { ThisCopy } from '../src/components/ThisCopy';
 import { useAccount } from '../src/account';
@@ -14,8 +17,11 @@ import { ask, supabase } from '../src/supabase';
 import { colour, font, radius } from '../src/theme';
 
 /**
- * The account screen: who you are, sign out, and delete everything. Both app
- * stores require that an account can be deleted from inside the app.
+ * Settings — the account screen: who you are, your number, which side of
+ * the app you are on, notifications, the legal pages, sign out, and delete
+ * everything (both app stores require that an account can be deleted from
+ * inside the app). Laid out as the menu is: the person on a green card,
+ * then white cards of rows with two-tone icons.
  */
 export default function Me() {
   const { session, account, signOut, connected, refresh } = useAccount();
@@ -90,81 +96,107 @@ export default function Me() {
     toast.show(done('Your number is saved.'));
   }
 
-  const role = account?.role === 'pro' ? 'Technician' : account?.role === 'customer' ? 'Customer' : 'Account not finished';
-  const notifyValue = notify === 'on' ? 'On' : notify === 'ask' ? 'Off — tap to turn on' : notify === 'off' ? 'Off — turn on in phone settings' : undefined;
+  const pro = account?.role === 'pro';
+  const role = pro ? 'Technician' : account?.role === 'customer' ? 'Customer' : 'Account not finished';
+  const unchecked = account?.phone_checked === false;
+  // Just the number on the card; the row under it says whether it was checked.
+  const who = number ? showMobile(number) : account?.email ?? '';
+  // What this phone is doing about notifications, in words, and a chip saying On or Off.
+  const notifyWhat =
+    notify === 'on' ? 'This phone is told about your jobs' : notify === 'ask' ? 'Tap to turn them on' : notify === 'off' ? "Turned off in your phone's settings" : null;
 
   return (
-    <Screen
-     
-      hero={{
-        title: account?.first_name || 'Your account',
-        sub: role,
-        back: () => (router.canGoBack() ? router.back() : router.replace('/')),
-        right: <Avatar name={account?.first_name} size={44} dark />,
-      }}
-    >
-      <ListGroup title="Contact">
-        <ListRow icon="phone" label="Mobile number" value={phone} onPress={account?.phone_checked === false && !editing ? () => setEditing(true) : undefined} last={!account?.email} />
-        {account?.email ? <ListRow icon="mail" label="Email" value={account.email} last /> : null}
-      </ListGroup>
-
-      {editing ? (
-        <View style={{ gap: 8 }}>
-          <Field
-           
-            label="Your mobile number"
-            value={newPhone}
-            onChangeText={setNewPhone}
-            placeholder="0300 1234567"
-            keyboardType="phone-pad"
-            autoComplete="tel"
-            error={phoneError ?? undefined}
-            hint="The person you are working with calls you on this."
-          />
-          <Button label="Save number" onPress={savePhone} busy={busy} />
-          <Button kind="outline" label="Cancel" onPress={() => { setEditing(false); setPhoneError(null); }} />
+    <Screen hero={{ title: 'Settings', back: () => (router.canGoBack() ? router.back() : router.replace('/')) }}>
+      {/* Who is signed in, the way the menu shows it. */}
+      <View style={s.profile} accessible accessibilityLabel={`${account?.first_name ?? 'Your account'}${who ? `, ${who}` : ''}, ${role}`}>
+        <View style={s.initial}>
+          <Text style={s.initialText}>{(account?.first_name ?? '?').trim().charAt(0).toUpperCase()}</Text>
         </View>
-      ) : null}
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={s.name} numberOfLines={2}>
+            {account?.first_name || 'Your account'}
+          </Text>
+          {who ? (
+            <Text style={s.who} numberOfLines={1}>
+              {who}
+            </Text>
+          ) : null}
+          <View style={s.side}>
+            <Text style={s.sideText}>{role}</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={s.card}>
+        <Row
+          icon="phone"
+          label="Mobile number"
+          value={phone}
+          onPress={unchecked && !editing ? () => setEditing(true) : undefined}
+          right={unchecked && !editing ? <Text style={s.change}>Change</Text> : undefined}
+          last={!account?.email && !editing}
+        />
+        {account?.email ? <Row icon="mail" label="Email" value={account.email} oneLine last={!editing} /> : null}
+        {editing ? (
+          <View style={s.edit}>
+            <Field
+              label="Your mobile number"
+              value={newPhone}
+              onChangeText={setNewPhone}
+              placeholder="0300 1234567"
+              keyboardType="phone-pad"
+              autoComplete="tel"
+              error={phoneError ?? undefined}
+              hint="The person you are working with calls you on this."
+            />
+            <Button label="Save number" onPress={savePhone} busy={busy} />
+            <Button kind="outline" label="Cancel" onPress={() => { setEditing(false); setPhoneError(null); }} />
+          </View>
+        ) : null}
+      </View>
 
       {account?.role ? (
-        <View style={{ gap: 8 }}>
-          <Text style={s.modeNow}>You are using Pechkas {account.role === 'pro' ? 'as a technician' : 'as a customer'}.</Text>
-          <ModeSwitch />
+        <View style={[s.card, s.mode]}>
+          <Text style={s.modeNow}>You are using Pechkas {pro ? 'as a technician' : 'as a customer'}.</Text>
+          <ModeSwitch pill />
         </View>
       ) : null}
 
-      <ListGroup title="Settings">
-        {notifyValue ? (
-          <ListRow
-           
+      <View style={s.card}>
+        {notifyWhat ? (
+          <Row
             icon="bell"
             label="Notifications"
-            value={notifyValue}
+            value={notifyWhat}
             onPress={notify === 'ask' ? askNotify : notify === 'off' ? () => Linking.openSettings() : undefined}
+            right={
+              <View style={[s.chip, notify === 'on' ? s.chipOn : s.chipOff]}>
+                <Text style={[s.chipText, notify === 'on' ? s.chipTextOn : null]}>{notify === 'on' ? 'On' : 'Off'}</Text>
+              </View>
+            }
           />
         ) : null}
-        <ListRow icon="lock" label="Privacy policy" onPress={() => openLegal('privacy')} />
-        {account?.role === 'pro' ? (
-          <ListRow icon="doc" label="Technician agreement" onPress={() => openLegal('technician-agreement')} last />
+        <Row icon="lock" label="Privacy policy" onPress={() => openLegal('privacy')} />
+        {pro ? (
+          <Row icon="doc" label="Technician agreement" onPress={() => openLegal('technician-agreement')} last />
         ) : (
-          <ListRow icon="doc" label="Terms of use" onPress={() => openLegal('terms')} last />
+          <Row icon="doc" label="Terms of use" onPress={() => openLegal('terms')} last />
         )}
-      </ListGroup>
+      </View>
 
-      <ListGroup>
-        <ListRow icon="logout" label="Sign out" onPress={async () => { await signOut(); router.replace('/start'); }} />
-        <ListRow icon="trash" label="Delete my account" danger onPress={() => setConfirming(true)} last />
-      </ListGroup>
-
-      {confirming ? (
-        <View style={s.danger}>
-          <Text style={s.dangerText}>
-            This deletes your account and everything in it: your name, your number, {account?.role === 'pro' ? 'your application, ' : ''}{account?.role === 'customer' ? 'your jobs, voice notes, videos and photos, ' : ''}all of it. It cannot be undone.
-          </Text>
-          <Button kind="danger" label="Yes, delete it" onPress={remove} busy={busy} />
-          <Button kind="outline" label="No, keep it" onPress={() => setConfirming(false)} />
-        </View>
-      ) : null}
+      <View style={s.card}>
+        <Row icon="logout" label="Sign out" onPress={async () => { await signOut(); router.replace('/start'); }} />
+        <Row icon="trash" label="Delete my account" danger onPress={() => setConfirming(true)} last={!confirming} />
+        {confirming ? (
+          <View style={s.danger}>
+            <Text style={s.dangerText}>
+              This deletes your account and everything in it: your name, your number, {pro ? 'your application, ' : ''}{account?.role === 'customer' ? 'your jobs, voice notes, videos and photos, ' : ''}all of it. It cannot be undone.
+            </Text>
+            <Button kind="danger" label="Yes, delete it" onPress={remove} busy={busy} />
+            <Button kind="outline" label="No, keep it" onPress={() => setConfirming(false)} />
+          </View>
+        ) : null}
+      </View>
       <Notice text={notice} />
 
       <ThisCopy />
@@ -172,8 +204,65 @@ export default function Me() {
   );
 }
 
+/**
+ * One row, as in the menu: a two-tone icon on a soft yellow tile, the words,
+ * and a chevron when it does something. The one that cannot be undone is
+ * brick, tile and words alike.
+ */
+function Row({ icon, label, value, onPress, right, danger = false, last = false, oneLine = false }: { icon: DuoName; label: string; value?: string; onPress?: () => void; right?: ReactNode; danger?: boolean; last?: boolean; oneLine?: boolean }) {
+  const body = (
+    <>
+      <View style={[s.tile, danger && s.tileDanger]}>
+        <DuoIcon name={icon} size={22} accent={danger ? '#f3b9a8' : colour.yellow} ink={danger ? colour.brick : colour.ink} />
+      </View>
+      <View style={{ flex: 1, gap: 1 }}>
+        <Text style={[s.label, danger && { color: colour.brick }]}>{label}</Text>
+        {/* An email address has no place to break, so it stays on one line, shortened in the middle if it must be. */}
+        {value ? (
+          <Text style={s.value} numberOfLines={oneLine ? 1 : undefined} ellipsizeMode="middle">
+            {value}
+          </Text>
+        ) : null}
+      </View>
+      {right ?? (onPress ? <Icon name="chevronRight" size={18} color="#9aa1a6" strokeWidth={2.2} /> : null)}
+    </>
+  );
+  const style = [s.row, !last && s.rule];
+  return onPress ? (
+    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={value ? `${label}, ${value}` : label} sink={0.985} style={style}>
+      {body}
+    </Press>
+  ) : (
+    <View style={style}>{body}</View>
+  );
+}
+
+const SHADOW = '0px 2px 10px rgba(20, 23, 26, 0.05)';
+
 const s = StyleSheet.create({
-  modeNow: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, paddingHorizontal: 4 },
-  danger: { gap: 10, padding: 14, borderRadius: radius.big, backgroundColor: '#f6e3dc' },
+  profile: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderRadius: 24, backgroundColor: colour.green },
+  initial: { width: 60, height: 60, borderRadius: 30, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
+  initialText: { fontFamily: font.display, fontSize: 26, color: colour.ink },
+  name: { fontFamily: font.display, fontSize: 22, lineHeight: 27, color: colour.white },
+  who: { fontFamily: font.bodyMedium, fontSize: 14, color: '#d7e6e3' },
+  side: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 3, borderRadius: radius.pill, backgroundColor: 'rgba(255, 255, 255, 0.16)' },
+  sideText: { fontFamily: font.bodySemi, fontSize: 12.5, color: colour.white },
+  card: { paddingHorizontal: 14, borderRadius: 24, backgroundColor: colour.white, boxShadow: SHADOW },
+  mode: { gap: 12, paddingVertical: 16 },
+  modeNow: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.steel },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 68, paddingVertical: 12 },
+  rule: { borderBottomWidth: 1, borderBottomColor: colour.rule },
+  tile: { width: 42, height: 42, borderRadius: 14, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
+  tileDanger: { backgroundColor: '#fbe6df' },
+  label: { fontFamily: font.bodySemi, fontSize: 15.5, color: colour.ink },
+  value: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
+  change: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green, textDecorationLine: 'underline' },
+  chip: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill },
+  chipOn: { backgroundColor: colour.greenSoft },
+  chipOff: { backgroundColor: colour.canvas },
+  chipText: { fontFamily: font.bodySemi, fontSize: 12.5, color: colour.inkSoft },
+  chipTextOn: { color: colour.greenDark },
+  edit: { gap: 8, paddingTop: 14, paddingBottom: 14 },
+  danger: { gap: 10, padding: 14, marginBottom: 14, borderRadius: 18, backgroundColor: '#f6e3dc' },
   dangerText: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.ink },
 });

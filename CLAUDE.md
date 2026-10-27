@@ -324,6 +324,16 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the real signature that records each request in `net.sent`, and fails on
   demand through `net.fail`; and for `pg_cron` with a `cron.schedule()` that
   writes `cron.job`. Tests call `alert_needs_you()` themselves.
+- **Settings (`app/me.tsx`, "Me" in older notes) is laid out as the menu
+  is**, redesigned at the owner's request: the person on a green card
+  (initial on a yellow disc, name, the bare number — "(not checked)" is said
+  on the number's row, where it has room — Customer or Technician), then
+  white cards of rows — two-tone icon on a
+  soft yellow tile, words, chevron — with no group headings: number and
+  email; the `ModeSwitch pill`; Notifications (an On / Off chip, the
+  sentence saying what this phone does), the legal page for that side;
+  Sign out and Delete my account (brick tile and words). `ThisCopy` is a
+  white card at the foot.
 - The Me screen shows and turns on notifications for anyone, so the owner's
   own phone can receive the office alerts without having a job open.
   `useNotify(null)` waits: a technician's language must be read from the

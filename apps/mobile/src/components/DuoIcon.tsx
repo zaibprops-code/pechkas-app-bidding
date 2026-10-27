@@ -9,7 +9,7 @@ import { colour } from '../theme';
  * colours. Drawn on the same 24-unit grid; they say what the words beside
  * them say, so screen readers skip them.
  */
-export type DuoName = 'home' | 'jobs' | 'bell' | 'shield' | 'help' | 'support' | 'settings' | 'share' | 'briefcase' | 'wallet' | 'swap' | 'mic' | 'video' | 'lock' | 'search' | 'phone' | 'chat' | 'pin' | 'flag' | 'star' | 'camera' | 'clock';
+export type DuoName = 'home' | 'jobs' | 'bell' | 'shield' | 'help' | 'support' | 'settings' | 'share' | 'briefcase' | 'wallet' | 'swap' | 'mic' | 'video' | 'lock' | 'search' | 'phone' | 'chat' | 'pin' | 'flag' | 'star' | 'camera' | 'clock' | 'mail' | 'doc' | 'logout' | 'trash';
 
 export function DuoIcon({ name, size = 26, accent = colour.yellow, ink = colour.ink }: { name: DuoName; size?: number; accent?: string; ink?: string }) {
   const line = { stroke: ink, strokeWidth: 1.8, fill: 'none' as const, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -168,6 +168,32 @@ export function DuoIcon({ name, size = 26, accent = colour.yellow, ink = colour.
           <Circle {...fill} cx={12} cy={12} r={9} />
           <Circle {...line} cx={12} cy={12} r={9} />
           <Path {...line} strokeWidth={2} d="M12 7.5V12l3 2" />
+        </>
+      )}
+      {name === 'mail' && (
+        <>
+          <Rect {...fill} x={3} y={5.5} width={18} height={13} rx={2.5} />
+          <Rect {...line} x={3} y={5.5} width={18} height={13} rx={2.5} />
+          <Path {...line} d="M3.8 7l8.2 6 8.2-6" />
+        </>
+      )}
+      {name === 'doc' && (
+        <>
+          <Path {...fill} d="M14 3.5V8h4.5z" />
+          <Path {...line} d="M6 3.5h8l4.5 4.5V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19V5A1.5 1.5 0 0 1 6 3.5zM14 3.5V8h4.5M8 12.5h8M8 16h5" />
+        </>
+      )}
+      {name === 'logout' && (
+        <>
+          <Rect {...fill} x={3.5} y={3.5} width={10} height={17} rx={2} />
+          <Rect {...line} x={3.5} y={3.5} width={10} height={17} rx={2} />
+          <Path {...line} strokeWidth={2} d="M10 12h10.5M17 8.5l3.5 3.5-3.5 3.5" />
+        </>
+      )}
+      {name === 'trash' && (
+        <>
+          <Path {...fill} d="M6 7.5h12l-1 12a1.5 1.5 0 0 1-1.5 1.4h-7A1.5 1.5 0 0 1 7 19.5z" />
+          <Path {...line} d="M6 7.5h12l-1 12a1.5 1.5 0 0 1-1.5 1.4h-7A1.5 1.5 0 0 1 7 19.5zM4 7.5h16M9.5 7.5V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2.5M10.5 11v6M13.5 11v6" />
         </>
       )}
       {name === 'swap' && <Path {...line} strokeWidth={2.1} d="M7 4L3.5 7.5 7 11M3.5 7.5H17M17 13l3.5 3.5L17 20M20.5 16.5H7" />}
