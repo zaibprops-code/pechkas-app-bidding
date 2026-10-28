@@ -7,6 +7,40 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Book a day and time, see the technician's profile, and Book again (new —
+ONE database step, then a new build).**
+
+1. **Supabase → SQL Editor**: open
+   `supabase/migrations/20261101000000_days_profiles_again.sql`, copy all of
+   it, paste, **Run**. It should say **Success**. (It is safe to run twice.)
+2. Make a new **preview** build and install it.
+
+Then try:
+
+- **Post a job → When**: tap **As soon as possible**, or a day — Today,
+  Tomorrow, then the next five days by name — and then a two-hour time
+  (8–10am up to 8–10pm). Times that have already started today are not
+  shown. The job, My jobs, the technician's list and the admin panel all
+  say it the same way, for example "Sat 31 Oct, 10am–12pm", and so does the
+  technician's notification.
+- **An offer → See Bilal's profile**: his years, trades, the three checks
+  you did and since when, jobs done, his rating ("New" until he has enough
+  ratings), and the last things customers wrote about him — never his
+  surname or number, and never who wrote it. **Choose Bilal** works from
+  there too.
+- **A finished or cancelled job → Book again**: Post a job opens with the
+  same work, words, address, pin and price filled in. You choose the day
+  and time again, and add new photos if you want.
+- **Saved addresses** (Home, Office, Other) came with the map-first
+  address, in the last update.
+
+Because customers' written words can now be shown to other customers
+(without names), the rating box says so, and the privacy policy too.
+
+Older copies of the app do not understand a job booked for a later day,
+so this copy is **edition 2**. Do **not** raise *Settings → App switches →
+lowest edition* to 2 until this version is in the Play Store.
+
 **The address is map first now (new — no database step, needs a new
 build).** In **Post a job**, the Address card starts with the map: tap
 **Set the address on the map**, move the map until the pin is on the house

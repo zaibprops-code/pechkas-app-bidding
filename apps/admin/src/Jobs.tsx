@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { rupees } from '@pechkas/shared';
+import { rupees, whenLabel } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
 import { shown } from './phones.ts';
 
@@ -20,8 +20,10 @@ type Job = {
   description: string | null;
   offered_paisa: number;
   list_paisa: number | null;
-  when_kind: 'now' | 'today' | 'tomorrow';
-  when_part: string | null;
+  when_kind: 'now' | 'today' | 'tomorrow' | 'later';
+  when_part: 'morning' | 'afternoon' | 'evening' | null;
+  when_date: string | null;
+  when_from: number | null;
   sector: string;
   street: string;
   house: string;
@@ -67,7 +69,6 @@ const TABS = [
 
 const STAGE = { chosen: 'Chosen, not set off yet', on_way: 'On his way', arrived: 'At the house', working: 'Working' } as const;
 
-const WHEN = { now: 'As soon as possible', today: 'Today', tomorrow: 'Tomorrow' } as const;
 
 export function Jobs({ trades }: { trades: Record<string, string> }) {
   const [tab, setTab] = useState<(typeof TABS)[number]['key']>('needs');
@@ -182,8 +183,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
       </div>
       {j.description ? <p className="about">“{j.description}”</p> : null}
       <p>
-        <strong>When:</strong> {WHEN[j.when_kind]}
-        {j.when_part ? `, ${j.when_part}` : ''}
+        <strong>When:</strong> {whenLabel(j)}
       </p>
       <p>
         <strong>Where:</strong> {j.house}, {j.street}, {j.sector}

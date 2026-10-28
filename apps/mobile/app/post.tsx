@@ -5,7 +5,7 @@ import { Image, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import * as Location from 'expo-location';
 import { ISLAMABAD, MapBox, mapsReady, Pin, PinPicker, readPlace, type Point } from '../src/components/Map';
-import { rupees, sectorIn, streetIn } from '@pechkas/shared';
+import { addDays, DAYS_AHEAD, dayLabel, openWindows, pkNow, rupees, sectorIn, streetIn, windowLabel } from '@pechkas/shared';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { Button, Chip, Field, Loading, Notice, Screen, useScreenScroll } from '../src/components/ui';
@@ -13,7 +13,7 @@ import { Sheet, SheetOption } from '../src/components/Sheet';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
 import { ask, supabase } from '../src/supabase';
-import { clearDraft, EMPTY, loadDraft, saveDraft, type Draft } from '../src/post/draft';
+import { clearDraft, EMPTY, freshWhen, loadDraft, saveDraft, type Draft } from '../src/post/draft';
 import { forgetPlace, loadPlaces, placeLine, rememberPlace, type Place, type PlaceLabel } from '../src/post/places';
 import { switchedOff, type Message } from '../src/message';
 import { afterSheet, clock, detailOf, LIMITS, recoverLostPick, takePhoto, takeVideo, tooBigWords, upload, type Media } from '../src/post/media';
@@ -49,17 +49,12 @@ const ANSWERS: Partial<Record<keyof Draft, string[]>> = {
   trade: ['trade', 'job_type'], jobType: ['job_type'],
   media: ['media'], description: ['media', 'description'],
   sector: ['sector'], lat: ['location', 'sector'], street: ['street'], house: ['house'], landmark: ['landmark'], gateNote: ['gate_note'],
-  whenKind: ['when'], whenPart: ['when'], power: ['power'], parts: ['parts'], offer: ['offer'],
+  whenKind: ['when'], whenDate: ['when'], whenFrom: ['when'], power: ['power'], parts: ['parts'], offer: ['offer'],
 };
 const SHOWN = new Set(Object.keys(CARD_OF).filter((k) => k !== 'location'));
 const FIX = 'Some details are missing. They are marked in red.';
 // The database keeps an "ask again" for an hour (job_preferred()); so does the form.
 const ASK_LASTS = 60 * 60 * 1000;
-const PARTS_OF_DAY = [
-  ['morning', 'Morning'],
-  ['afternoon', 'Afternoon'],
-  ['evening', 'Evening'],
-] as const;
 
 /** A video that cannot go as it is: too long or too big, said as a warning with a title. */
 function videoTrouble(e: unknown): Message | null {
@@ -78,7 +73,7 @@ function videoTrouble(e: unknown): Message | null {
 const artOf = artFor;
 
 export default function Post() {
-  const params = useLocalSearchParams<{ trade?: string; start?: string; ask?: string; minutes?: string; lat?: string; lng?: string }>();
+  const params = useLocalSearchParams<{ trade?: string; start?: string; ask?: string; minutes?: string; lat?: string; lng?: string; again?: string }>();
   const { ready, session, account } = useAccount();
   const lists = useLists();
   const [d, setD] = useState<Draft | null>(null);
@@ -129,7 +124,32 @@ export default function Post() {
       let next: Draft = saved ?? { ...EMPTY };
       // A new form starts at the address used last, pin and all; one tap changes it.
       if (!saved && known[0]) next = { ...next, ...fromPlace(known[0]) };
-      if (params.trade && params.trade !== next.trade) {
+      // "Book again" on a finished job: the same work and address, filled in. The
+      // files, the day and the time are left for her: they belong to this visit.
+      if (params.again && supabase) {
+        const { data } = await supabase.rpc('my_jobs');
+        const old = Array.isArray(data) ? (data as Record<string, unknown>[]).find((j) => j.id === params.again) : null;
+        if (old) {
+          const hasPin = typeof old.lat === 'number' && typeof old.lng === 'number';
+          next = {
+            ...EMPTY,
+            trade: old.trade as string,
+            jobType: (old.job_type_id as number | null) ?? null,
+            description: (old.description as string | null) ?? '',
+            sector: old.sector as string,
+            sectorRead: false,
+            street: (old.street as string) ?? '',
+            house: (old.house as string) ?? '',
+            landmark: (old.landmark as string | null) ?? '',
+            gateNote: (old.gate_note as string | null) ?? '',
+            lat: hasPin ? (old.lat as number) : null,
+            lng: hasPin ? (old.lng as number) : null,
+            offer: (old.offered_paisa as number) ?? null,
+          };
+          saveDraft(next);
+        }
+      }
+      if (params.trade && params.trade !== next.trade && !params.again) {
         next = { ...next, trade: params.trade, jobType: null, offer: null };
         // Kept on the phone at once, so a trade chosen before signing in is
         // still chosen when the form comes back after it.
@@ -142,9 +162,9 @@ export default function Post() {
       } else if (next.askFor && !(Date.now() - (next.askFor.at ?? 0) < ASK_LASTS)) {
         next = { ...next, askFor: null };
       }
-      setD(next);
+      setD(freshWhen(next));
     })();
-  }, [params.trade, params.ask, params.minutes]);
+  }, [params.trade, params.ask, params.minutes, params.again]);
 
   /**
    * Media is changed from the newest copy of the form, never from the one the
@@ -356,6 +376,7 @@ export default function Post() {
       if (!d.house.trim()) early.house = 'Write the house or flat number.';
       if (!d.street.trim()) early.street = 'Write the street.';
     }
+    if (d.whenKind === 'day' && !(d.whenDate && d.whenFrom !== null && openWindows(d.whenDate).includes(d.whenFrom))) early.when = 'Choose a day and a time.';
     if (d.media.length === 0 && d.description.trim().length < 10) early.media = 'Show us what is wrong: a voice note, a video, a photo, or a few words.';
     if (Object.keys(early).length) {
       refuse(early);
@@ -387,8 +408,11 @@ export default function Post() {
       p_job_type: d.jobType,
       p_description: d.description,
       p_offer_paisa: offer,
-      p_when_kind: d.whenKind,
-      p_when_part: d.whenKind === 'now' ? null : d.whenPart,
+      // The database works out today / tomorrow / later and the part of the day itself.
+      p_when_kind: d.whenKind === 'now' ? 'now' : 'today',
+      p_when_part: null,
+      p_when_date: d.whenKind === 'now' ? null : d.whenDate,
+      p_when_from: d.whenKind === 'now' ? null : d.whenFrom,
       p_sector: d.sector,
       p_street: d.street,
       p_house: d.house,
@@ -434,6 +458,9 @@ export default function Post() {
   // The landmark and the gate note are tucked away until wanted — or until they hold something.
   const extrasOpen = more || Boolean(d.landmark || d.gateNote || errors.landmark || errors.gate_note);
   const pinned = d.lat !== null && d.lng !== null;
+  // The days a job can be booked for: today (while a window is still open) and the six after it.
+  const now = pkNow();
+  const days = Array.from({ length: DAYS_AHEAD + 1 }, (_, i) => addDays(now.date, i)).filter((day) => openWindows(day, now).length > 0);
 
   return (
     <Screen
@@ -656,16 +683,29 @@ export default function Post() {
       </Card>
 
       <Card id="when" icon="clock" onY={atY} title="When" error={errors.when}>
+        {/* As soon as possible, or a day of the coming week and a two-hour window. */}
         <View style={s.wrap}>
-          <Chip label="Now" on={d.whenKind === 'now'} onPress={() => update({ whenKind: 'now', whenPart: null })} />
-          <Chip label="Today" on={d.whenKind === 'today'} onPress={() => update({ whenKind: 'today', whenPart: d.whenPart ?? 'evening' })} />
-          <Chip label="Tomorrow" on={d.whenKind === 'tomorrow'} onPress={() => update({ whenKind: 'tomorrow', whenPart: d.whenPart ?? 'morning' })} />
+          <Chip label="As soon as possible" on={d.whenKind === 'now'} onPress={() => update({ whenKind: 'now' })} />
+          {days.map((day) => (
+            <Chip
+              key={day}
+              label={dayLabel(day, now.date)}
+              on={d.whenKind === 'day' && d.whenDate === day}
+              onPress={() => {
+                const open = openWindows(day, now);
+                update({ whenKind: 'day', whenDate: day, whenFrom: d.whenFrom !== null && open.includes(d.whenFrom) ? d.whenFrom : (open.includes(18) && day === now.date ? 18 : open[0] ?? null) });
+              }}
+            />
+          ))}
         </View>
-        {d.whenKind !== 'now' ? (
-          <View style={s.wrap}>
-            {PARTS_OF_DAY.map(([k, label]) => (
-              <Chip key={k} label={label} on={d.whenPart === k} onPress={() => update({ whenPart: k })} />
-            ))}
+        {d.whenKind === 'day' && d.whenDate ? (
+          <View style={{ gap: 8 }}>
+            <Text style={s.hint}>What time, {dayLabel(d.whenDate, now.date).replace(/^(Today|Tomorrow)$/, (x) => x.toLowerCase())}?</Text>
+            <View style={s.wrap}>
+              {openWindows(d.whenDate, now).map((w) => (
+                <Chip key={w} label={windowLabel(w)} on={d.whenFrom === w} onPress={() => update({ whenFrom: w })} />
+              ))}
+            </View>
           </View>
         ) : null}
       </Card>

@@ -30,8 +30,10 @@ export type ActiveJob = {
   ref: string;
   trade: string;
   title: string;
-  when_kind: 'now' | 'today' | 'tomorrow';
+  when_kind: 'now' | 'today' | 'tomorrow' | 'later';
   when_part: 'morning' | 'afternoon' | 'evening' | null;
+  when_date?: string | null;
+  when_from?: number | null;
   sector: string;
   street: string;
   house: string;

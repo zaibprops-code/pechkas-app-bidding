@@ -147,6 +147,13 @@ disc with an arrow on the right.
   down. Then what was read from the pin, said as such ("Sector F‑11 · read
   from the map", with Change), and only what a pin cannot know: the house
   or flat number. Saved places are one link that opens a sheet.
+- **Time is a day, then a window**: one row of chips — "As soon as
+  possible", Today, Tomorrow, then "Sat 1 Nov"… — and under the chosen day
+  only the windows still open ("8–10am" … "8–10pm"). Every screen writes a
+  time with `whenLabel()`, never its own words.
+- **A person is a sheet before a choice**: a link under an offer ("See
+  Bilal's profile") opens a sheet with figures in three grey tiles, ticked
+  checks, quoted words, and the same Choose button as the offer.
 - **Empty is a card, not a blank**: an icon on a soft tile, one line, and
   the button that fills it.
 - A screen whose first load fails shows `Trouble` under its own header;

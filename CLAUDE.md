@@ -212,6 +212,27 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   that phone must not see them. The privacy page and both stores' answers
   say the pin is required and that the pin goes to the phone's map service
   to read the sector.
+- **A job is wanted as soon as possible, or on a day and in a window**
+  (migration `…_days_profiles_again`, the owner's request): today and the
+  six days after it, two hours at a time from 8–10am to 8–10pm
+  (`WINDOWS`, `DAYS_AHEAD`, `openWindows()` in `packages/shared`; the
+  database checks the same seven in `post_job()` and words them in
+  `window_text()`). Everything is on **Pakistan's clock** (`pkNow()`,
+  `Asia/Karachi`), never the phone's. A window that has started cannot be
+  chosen. The day is kept as `when_date`, so "tomorrow" no longer stays
+  tomorrow for ever; `when_kind` / `when_part` are still filled
+  (today / tomorrow / **later**, and the part of the day) for anything that
+  reads them, and older copies still post the old way and get a date.
+  **Every screen says it with `whenLabel()`** ("Sat 1 Nov, 10am–12pm"),
+  and notifications with `when_text()`, in the same words — never a screen's
+  own wording. A job booked for a later day stays in `pro_feed()` until its
+  day; one wanted now still leaves after two days. Older copies cannot read
+  'later', so `APP_EDITION` is 2.
+- **Book again** (a finished, stopped or cancelled job's foot card) opens
+  Post a job with `again=<job id>`: the trade, job type, words, address,
+  pin and price from `my_jobs()` (which gives a customer her own job's
+  `job_type_id`, `lat` and `lng`); never the files, the day or the time,
+  which belong to that visit. Open to everyone, unlike Ask again.
 - **Files live in the private `job-media` bucket under `<user id>/…`.** The
   storage policies let a person write and read only their own folder and the
   office read all of it — no policy for `anon`, ever. `post_job()` checks every
@@ -284,6 +305,14 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `max_counter_bps` of the customer's price, lives `offer_minutes`, and must
   say how soon for an "as soon as possible" job. Its note refuses phone
   numbers and CNICs: contact details pass only once he is chosen.
+- **His profile, before she chooses**: "See Bilal's profile" on each offer
+  opens `ProProfile.tsx`, which asks `offer_profile(offer)` — only for the
+  customer whose job he offered on. First name, years, trades, which checks
+  were done and since when, jobs done, the rating ("New" until
+  `rating_min_count`), jobs done for her before, and the last five things
+  customers wrote, **revealed ones only, with no writer's name**. Never his
+  surname, number or sectors (`days.test.mjs`). Rating words can be shown
+  this way, so the rating form says so, and the privacy page too.
 - One offer per technician per job (unique), changed in place. The customer
   sees first name, years in the trade and whether it is the customer's own price or his —
   never his surname or number until he is chosen.

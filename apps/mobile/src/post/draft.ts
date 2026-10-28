@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { addDays, openWindows, pkNow } from '@pechkas/shared';
 import type { Media } from './media';
 
 /**
@@ -20,8 +21,10 @@ export type Draft = {
   lat: number | null;
   lng: number | null;
   accuracy: number | null;
-  whenKind: 'now' | 'today' | 'tomorrow';
-  whenPart: 'morning' | 'afternoon' | 'evening' | null;
+  /** As soon as possible, or a day ("YYYY-MM-DD", Pakistan's) and a two-hour window from `whenFrom` o'clock. */
+  whenKind: 'now' | 'day';
+  whenDate: string | null;
+  whenFrom: number | null;
   power: 'on' | 'off' | null;
   parts: 'pro_buys' | 'customer_has' | null;
   gateNote: string;
@@ -48,8 +51,9 @@ export const EMPTY: Draft = {
   lat: null,
   lng: null,
   accuracy: null,
-  whenKind: 'today',
-  whenPart: 'evening',
+  whenKind: 'day',
+  whenDate: null,
+  whenFrom: null,
   power: null,
   parts: null,
   gateNote: '',
@@ -62,10 +66,24 @@ const KEY = 'pechkas.draft.job';
 export async function loadDraft(): Promise<Draft | null> {
   try {
     const raw = await AsyncStorage.getItem(KEY);
-    return raw ? { ...EMPTY, ...(JSON.parse(raw) as Partial<Draft>) } : null;
+    return raw ? freshWhen({ ...EMPTY, ...(JSON.parse(raw) as Partial<Draft>) }) : null;
   } catch {
     return null;
   }
+}
+
+/**
+ * A day and a window that can still be chosen: a draft from yesterday, or
+ * from before days could be booked, starts again at the first open window —
+ * this evening if there is one, otherwise tomorrow morning.
+ */
+export function freshWhen(d: Draft): Draft {
+  if (d.whenKind === 'now') return d;
+  const now = pkNow();
+  if (d.whenKind === 'day' && d.whenDate && d.whenFrom !== null && openWindows(d.whenDate, now).includes(d.whenFrom) && d.whenDate <= addDays(now.date, 6)) return d;
+  const today = openWindows(now.date, now);
+  if (today.length) return { ...d, whenKind: 'day', whenDate: now.date, whenFrom: today.includes(18) ? 18 : today[0] };
+  return { ...d, whenKind: 'day', whenDate: addDays(now.date, 1), whenFrom: 10 };
 }
 
 export function saveDraft(d: Draft) {

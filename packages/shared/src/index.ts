@@ -20,7 +20,7 @@
  *
  * Copies built before editions existed never ask, so they are never stopped.
  */
-export const APP_EDITION = 1;
+export const APP_EDITION = 2;
 
 /** What a screen shows when nobody has agreed a price. Never "Rs 0". */
 export const NO_PRICE = 'no price yet';
@@ -257,4 +257,70 @@ export function streetIn(street: string | null | undefined, sector: string | nul
   if (/^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{0,3}\b/i.test(s)) return '';
   if (sector && sectorIn([s], [sector]) === sector && s.replace(/[\s-]/g, '').length <= sector.replace(/[\s-]/g, '').length + 3) return '';
   return s;
+}
+
+/**
+ * When a job is wanted: as soon as possible, or a day of the coming week
+ * (today and the six after it) in a two-hour window. The database keeps the
+ * same seven windows (post_job(), window_text()), and both work on
+ * Pakistan's clock, UTC+5 all year, whatever the phone's own clock says.
+ */
+export const WINDOWS = [8, 10, 12, 14, 16, 18, 20] as const;
+export const DAYS_AHEAD = 6;
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const clock = (h: number) => `${h % 12 === 0 ? 12 : h % 12}${h < 12 ? 'am' : 'pm'}`;
+
+/** "8–10am", "10am–12pm", "12–2pm": the window starting at `from`. */
+export function windowLabel(from: number): string {
+  const to = from + 2;
+  const sameHalf = (from < 12) === (to < 12) && to !== 12;
+  return sameHalf ? `${from % 12 === 0 ? 12 : from % 12}–${clock(to)}` : `${clock(from)}–${clock(to)}`;
+}
+
+/** Today's date and the hour, in Pakistan. */
+export function pkNow(at: Date = new Date()): { date: string; hour: number } {
+  const pk = new Date(at.getTime() + 5 * 60 * 60 * 1000);
+  return { date: pk.toISOString().slice(0, 10), hour: pk.getUTCHours() };
+}
+
+/** The date `n` days after `date` (both "YYYY-MM-DD"). */
+export function addDays(date: string, n: number): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+/** "Today", "Tomorrow", or "Sat 1 Nov". */
+export function dayLabel(date: string, today: string = pkNow().date): string {
+  if (date === today) return 'Today';
+  if (date === addDays(today, 1)) return 'Tomorrow';
+  const d = new Date(`${date}T00:00:00Z`);
+  return `${DAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+}
+
+/** The windows that may still be chosen on `date`: on today, only those not yet started. */
+export function openWindows(date: string, now: { date: string; hour: number } = pkNow()): number[] {
+  return WINDOWS.filter((w) => date !== now.date || w > now.hour);
+}
+
+export type WhenFields = {
+  when_kind: 'now' | 'today' | 'tomorrow' | 'later';
+  when_part?: 'morning' | 'afternoon' | 'evening' | null;
+  when_date?: string | null;
+  when_from?: number | null;
+};
+
+/**
+ * When a job is wanted, in the screens' words: "As soon as possible",
+ * "Today, 10am–12pm", "Sat 1 Nov, 6–8pm". A job posted before days could be
+ * booked has no window: "Today, evening", read from its date when it has one,
+ * so a job posted for tomorrow does not still say tomorrow the day after.
+ */
+export function whenLabel(j: WhenFields, today: string = pkNow().date): string {
+  if (j.when_kind === 'now') return 'As soon as possible';
+  const day = j.when_date ? dayLabel(j.when_date, today) : j.when_kind === 'tomorrow' ? 'Tomorrow' : 'Today';
+  if (j.when_from !== null && j.when_from !== undefined) return `${day}, ${windowLabel(j.when_from)}`;
+  return j.when_part ? `${day}, ${j.when_part}` : day;
 }

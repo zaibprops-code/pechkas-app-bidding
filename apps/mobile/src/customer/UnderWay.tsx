@@ -294,6 +294,8 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
           {stars ? (
             <>
               <TextInput value={words} onChangeText={setWords} maxLength={300} placeholder="Anything to say? (optional)" placeholderTextColor={colour.steel} accessibilityLabel="Anything to say" style={[s.input, { minHeight: 52 }]} />
+              {/* offer_profile() shows these words to customers choosing him, never with her name. */}
+              <Text style={s.small}>Customers choosing {name} later may read what you write, without your name.</Text>
               <Button kind="green" label="Send rating" busy={busy} onPress={rate} />
             </>
           ) : null}

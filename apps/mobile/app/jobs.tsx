@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { Linking, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { rupees } from '@pechkas/shared';
+import { rupees, whenLabel } from '@pechkas/shared';
 import { MenuButton } from '../src/components/Menu';
 import { Hero, Loading, Notice, NotifyCard, SystemBars, useScrollEnd } from '../src/components/ui';
 import { Icon } from '../src/components/Icon';
@@ -158,7 +158,6 @@ export default function Jobs() {
 const isLive = (j: Job) => j.status === 'open' || j.status === 'assigned';
 const open = (j: Job) => router.push(`/job/${j.id}`);
 const day = (iso: string) => new Date(iso).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' });
-const WHEN = { now: 'As soon as possible', today: 'Today', tomorrow: 'Tomorrow' } as const;
 /** What she will actually pay once there is a figure for it; her offer until then. */
 const priceOf = (j: Job) => j.collect_paisa ?? j.agreed_paisa ?? j.offered_paisa;
 
@@ -219,8 +218,7 @@ function LiveJob({ job, trade, narrow }: { job: Job; trade: string; narrow: bool
         <View style={{ flex: 1, gap: 1 }}>
           <Text style={s.statusTitle}>{headline}</Text>
           <Text style={s.statusSub} numberOfLines={2}>
-            {WHEN[job.when_kind]}
-            {job.when_part ? `, ${job.when_part}` : ''} · {job.sector}
+            {whenLabel(job)} · {job.sector}
           </Text>
         </View>
         {todo ? null : <Icon name="chevronRight" size={20} color={colour.steel} strokeWidth={2.2} />}

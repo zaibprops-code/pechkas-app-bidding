@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "4242465";
+export const LEGAL_FROM = "900fba5";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -307,7 +307,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": ", that one technician sees the address, the landmark, the gate note, the map location if one was added, and the customer's number, while the job is on. They leave his app when the job ends."
+              "t": ", that one technician sees the address, the landmark, the gate note, the map pin, and the customer's number, while the job is on. They leave his app when the job ends."
             }
           ],
           [
@@ -316,7 +316,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " sees the technician's first name, years in the trade, his stars once he has enough ratings, and his number while the job is on."
+              "t": " sees the technician's first name, years in the trade, his trades, the checks Pechkas did and since when, how many jobs he has done, his stars once he has enough ratings, what customers wrote about him, and his number while the job is on."
             }
           ],
           [
@@ -325,7 +325,14 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " stay hidden from the other person until both have rated, or two days have passed. A technician's rating of a customer is seen only by Pechkas."
+              "t": " stay hidden from the other person until both have rated, or two days have passed. A technician's rating of a customer is seen only by Pechkas. The stars and any words a customer gives a technician may be shown to other customers choosing him,"
+            },
+            {
+              "t": "without the writer's name",
+              "b": true
+            },
+            {
+              "t": "."
             }
           ],
           [

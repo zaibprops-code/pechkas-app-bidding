@@ -3,7 +3,7 @@ import { Linking, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View 
 import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { rupees, showMobile, technicianKeeps } from '@pechkas/shared';
+import { rupees, showMobile, technicianKeeps, whenLabel, type WhenFields } from '@pechkas/shared';
 import { MenuButton } from '../components/Menu';
 import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
@@ -44,8 +44,10 @@ type FeedJob = {
   description: string | null;
   offered_paisa: number;
   list_paisa: number | null;
-  when_kind: 'now' | 'today' | 'tomorrow';
+  when_kind: 'now' | 'today' | 'tomorrow' | 'later';
   when_part: 'morning' | 'afternoon' | 'evening' | null;
+  when_date?: string | null;
+  when_from?: number | null;
   sector: string;
   power: 'on' | 'off' | null;
   parts: 'pro_buys' | 'customer_has' | null;
@@ -371,8 +373,9 @@ function RequestRow({ j, w, trade, onOpen }: { j: FeedJob; w: ProWords; trade: s
  * dimmed screen, as inDrive's ride request does. It moves by transform only;
  * the words never fade. Tapping outside or Close puts it away.
  */
-function whenText(j: { when_kind: FeedJob['when_kind']; when_part: FeedJob['when_part'] }, w: ProWords) {
-  return j.when_kind === 'now' ? w.now : `${j.when_kind === 'today' ? w.today : w.tomorrow} ${j.when_part ? w[j.when_part] : ''}`.trim();
+/** When the job is wanted, in the same words the customer sees: "Sat 1 Nov, 10am–12pm". */
+function whenText(j: WhenFields, _w?: ProWords) {
+  return whenLabel(j);
 }
 
 function Facts({ j, w }: { j: { power: FeedJob['power']; parts: FeedJob['parts'] }; w: ProWords }) {

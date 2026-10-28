@@ -3,14 +3,16 @@ import { done } from '../message';
 import { useEffect, useState } from 'react';
 import { Linking, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
-import { rupees } from '@pechkas/shared';
+import { rupees, whenLabel } from '@pechkas/shared';
 import { ScrewSpinner } from '../components/ScrewSpinner';
 import { Button, Field, Notice } from '../components/ui';
 import { DuoIcon, type DuoName } from '../components/DuoIcon';
 import { SHADOW, TradeTile } from './bits';
 import { Stars } from '../components/Stars';
 import { Press } from '../components/Press';
+import { Icon } from '../components/Icon';
 import { Ended, UnderWay, type JobNow } from './UnderWay';
+import { ProProfile } from './ProProfile';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { ask, supabase } from '../supabase';
 import { colour, font, radius } from '../theme';
@@ -27,8 +29,15 @@ export type Job = JobNow & {
   trade: string;
   title: string;
   offered_paisa: number;
-  when_kind: 'now' | 'today' | 'tomorrow';
-  when_part: string | null;
+  when_kind: 'now' | 'today' | 'tomorrow' | 'later';
+  when_part: 'morning' | 'afternoon' | 'evening' | null;
+  /** The day and the window it was booked for; older jobs have no window. */
+  when_date?: string | null;
+  when_from?: number | null;
+  /** For "Book again": the job type and the pin. */
+  job_type_id?: number | null;
+  lat?: number | null;
+  lng?: number | null;
   sector: string;
   street: string;
   house: string;
@@ -51,7 +60,6 @@ export type Job = JobNow & {
 
 const clock = (iso: string) => new Date(iso).toLocaleTimeString('en-PK', { hour: 'numeric', minute: '2-digit' });
 
-const WHEN = { now: 'As soon as possible', today: 'Today', tomorrow: 'Tomorrow' } as const;
 
 export type Offer = {
   id: string;
@@ -142,6 +150,8 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
 
   const narrow = useWindowDimensions().width < 360;
   const canAskAgain = Boolean(job.can_ask_again && job.pro);
+  // Over, however it ended: the same work at the same address, posted again for everyone.
+  const canBookAgain = ['done', 'stopped', 'cancelled'].includes(job.status);
   const canBlock = Boolean(job.can_block && job.block_name);
   const officeOnly = assigned && !canCancel;
   const status =
@@ -204,7 +214,7 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
           )}
         </View>
         <View style={s.facts}>
-          <Fact icon="clock" text={`${WHEN[job.when_kind]}${job.when_part ? `, ${job.when_part}` : ''}`} />
+          <Fact icon="clock" text={whenLabel(job)} />
           <Fact icon="pin" text={`${job.house}, ${job.street}, ${job.sector}`} />
           {files ? <Fact icon="camera" text={files} /> : null}
         </View>
@@ -231,12 +241,23 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
       {ended ? <Ended job={job} onChanged={onChanged} /> : null}
 
       {/* Everything else she can do with this job, together at the foot, where nobody taps it by mistake. */}
-      {canAskAgain || canBlock || canCancel || officeOnly ? (
+      {canAskAgain || canBookAgain || canBlock || canCancel || officeOnly ? (
         <View style={s.panel}>
           {canAskAgain ? (
             <View style={{ gap: 6 }}>
               <Button kind="green" icon="arrowRight" label={`Ask ${job.pro!.first_name} again`} onPress={askAgain} busy={busy} />
               <Text style={s.small}>You post a new job, and it goes to him first if he is free.</Text>
+            </View>
+          ) : null}
+          {canBookAgain ? (
+            <View style={{ gap: 6 }}>
+              <Button
+                kind={canAskAgain ? 'outline' : 'yellow'}
+                icon="arrowRight"
+                label="Book again"
+                onPress={() => router.push({ pathname: '/post', params: { again: job.id, trade: job.trade } })}
+              />
+              <Text style={s.small}>The same work at the same address, filled in for you. You choose the day and the price.</Text>
             </View>
           ) : null}
           {canBlock && job.blocked ? (
@@ -333,6 +354,9 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
     onChosen();
   }
 
+  // The offer whose technician's profile is open, if any.
+  const [profile, setProfile] = useState<string | null>(null);
+
   async function choose(id: string) {
     setBusy(true);
     setMsg(null);
@@ -386,6 +410,11 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
             </View>
             <View style={s.offerFacts}>
               <Fact icon="shield" text={`Checked by Pechkas · ${o.years} ${o.years === 1 ? 'year' : 'years'} in the trade`} />
+              {/* His profile: checks, jobs done, what customers wrote — before choosing, as a big app shows a driver. */}
+              <Press onPress={() => setProfile(o.id)} accessibilityRole="button" style={s.profileLink}>
+                <Text style={s.profileLinkText}>See {o.pro_first_name}’s profile</Text>
+                <Icon name="chevronRight" size={16} color={colour.green} strokeWidth={2.4} />
+              </Press>
               <Fact icon="clock" text={o.eta_minutes ? `Can be there in ${o.eta_minutes} minutes` : 'Can come at the time you asked'} />
               {o.note ? <Text style={s.quote}>“{o.note}”</Text> : null}
             </View>
@@ -421,6 +450,17 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
         );
       })}
       <Notice text={msg} />
+      {profile ? (
+        <ProProfile
+          offerId={profile}
+          price={offers.find((o) => o.id === profile)?.price_paisa ?? 0}
+          onClose={() => setProfile(null)}
+          onChoose={() => {
+            setPicking(profile);
+            setProfile(null);
+          }}
+        />
+      ) : null}
     </View>
   );
 }
@@ -428,6 +468,8 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
 /** Once chosen: who is coming, what was agreed, and how to reach him. */
 
 const s = StyleSheet.create({
+  profileLink: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', minHeight: 44 },
+  profileLinkText: { fontFamily: font.bodySemi, fontSize: 14.5, color: colour.green },
   panel: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: SHADOW },
   panelClosed: { backgroundColor: colour.paper },
   top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
