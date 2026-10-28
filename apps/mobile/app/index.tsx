@@ -463,7 +463,7 @@ const s = StyleSheet.create({
   tiles: { flexDirection: 'row', gap: 10 },
   column: { flex: 1.2, gap: 10 },
   row: { flexDirection: 'row', gap: 10 },
-  tile: { borderRadius: 22, backgroundColor: '#f6f2e8', padding: 12, overflow: 'hidden' },
+  tile: { borderRadius: 22, backgroundColor: colour.cream, padding: 12, overflow: 'hidden' },
   tileBig: { flex: 1, minHeight: 212 },
   tileWide: { flex: 1, minHeight: 100 },
   tileSmall: { flex: 1, minHeight: 100, paddingHorizontal: 8, paddingVertical: 10 },
@@ -478,7 +478,7 @@ const s = StyleSheet.create({
 
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 14, paddingHorizontal: 2 },
   small: { alignItems: 'center', gap: 6 },
-  smallArt: { borderRadius: 18, backgroundColor: '#f6f2e8', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  smallArt: { borderRadius: 18, backgroundColor: colour.cream, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   smallText: { fontFamily: font.bodySemi, fontSize: 12.5, color: colour.ink },
 
   cta: { flexDirection: 'row', alignItems: 'center', gap: 14, marginHorizontal: 10, paddingVertical: 18, paddingLeft: 18, paddingRight: 14, borderRadius: 24, backgroundColor: colour.green },
@@ -492,7 +492,7 @@ const s = StyleSheet.create({
   seeAll: { minHeight: TAP, minWidth: TAP, justifyContent: 'center', alignItems: 'flex-end', paddingHorizontal: 6 },
   seeAllText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green },
   rule: { borderBottomWidth: 1, borderBottomColor: colour.rule },
-  soft: { width: 44, height: 44, borderRadius: 14, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
+  soft: { width: 44, height: 44, borderRadius: 14, backgroundColor: colour.softYellow, alignItems: 'center', justifyContent: 'center' },
   recent: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingHorizontal: 4 },
   recentTitle: { fontFamily: font.bodySemi, fontSize: 15.5, color: colour.ink },
   recentSub: { fontFamily: font.body, fontSize: 13, color: colour.steel },

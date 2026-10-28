@@ -5,11 +5,13 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '../../src/components/Icon';
 import { Press } from '../../src/components/Press';
-import { Button, Loading } from '../../src/components/ui';
+import { Loading } from '../../src/components/ui';
+import { DuoIcon } from '../../src/components/DuoIcon';
+import { ScrewSpinner } from '../../src/components/ScrewSpinner';
 import { useAccount } from '../../src/account';
 import { ask, supabase } from '../../src/supabase';
 import { fill, useProWords } from '../../src/words';
-import { colour, font, radius } from '../../src/theme';
+import { colour, font } from '../../src/theme';
 
 /**
  * The chat on one job, between the customer and the technician she chose.
@@ -80,28 +82,46 @@ export default function ChatScreen() {
   const fg = colour.ink;
   if (!chat) return <Loading />;
 
+  const name = chat.ok ? chat.other_name : '';
+
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <StatusBar style="dark" />
-      <View style={[s.top, { paddingTop: insets.top + 12 }]}>
-        <Press onPress={() => (router.canGoBack() ? router.back() : router.replace(pro ? '/pro' : '/jobs'))} accessibilityRole="button" accessibilityLabel={w.back} style={[s.back, { backgroundColor: colour.white }]}>
+      {/* A messenger's header: back, who you are talking to, and the job. It covers the clock on its own. */}
+      <View style={[s.top, { paddingTop: insets.top + 10 }]}>
+        <Press onPress={() => (router.canGoBack() ? router.back() : router.replace(pro ? '/pro' : '/jobs'))} accessibilityRole="button" accessibilityLabel={w.back} sink={0.9} style={s.back}>
           <Icon name="arrowLeft" size={20} color={fg} strokeWidth={2.2} />
         </Press>
+        {chat.ok ? (
+          <View style={s.avatar}>
+            <Text style={s.avatarText}>{name.charAt(0).toUpperCase()}</Text>
+          </View>
+        ) : null}
         <View style={{ flex: 1 }}>
           <Text style={[s.title, { color: fg }]} accessibilityRole="header" numberOfLines={1}>
-            {chat.ok ? fill(w.chatWith, { name: chat.other_name }) : w.chatClosed}
+            {chat.ok ? fill(w.chatWith, { name }) : w.chatClosed}
           </Text>
-          {chat.ok ? <Text style={[s.sub, { color: colour.steel }]}>{chat.ref}</Text> : null}
+          {chat.ok ? <Text style={s.sub}>{chat.ref}</Text> : null}
         </View>
       </View>
 
       <ScrollView ref={scroll} contentContainerStyle={{ padding: 16, gap: 8, flexGrow: 1 }}>
-        <Text style={[s.note, { color: colour.steel }]}>{w.chatNote}</Text>
-        {chat.ok && chat.messages.length === 0 ? <Text style={[s.note, { color: colour.steel }]}>{w.chatEmpty}</Text> : null}
+        <View style={s.noteCard}>
+          <DuoIcon name="lock" size={18} />
+          <Text style={s.noteText}>{w.chatNote}</Text>
+        </View>
+        {chat.ok && chat.messages.length === 0 ? (
+          <View style={s.empty}>
+            <View style={s.emptyTile}>
+              <DuoIcon name="chat" size={30} />
+            </View>
+            <Text style={s.emptyText}>{w.chatEmpty}</Text>
+          </View>
+        ) : null}
         {chat.ok
           ? chat.messages.map((m) => (
               <View key={m.id} style={[s.bubble, m.mine ? s.mine : s.theirs]}>
-                <Text style={[s.body, { color: m.mine ? colour.ink : fg }]}>{m.body}</Text>
+                <Text style={s.body}>{m.body}</Text>
                 <Text style={[s.time, { color: m.mine ? colour.inkSoft : colour.steel }]}>
                   {new Date(m.at).toLocaleTimeString('en-PK', { hour: 'numeric', minute: '2-digit' })}
                 </Text>
@@ -111,7 +131,7 @@ export default function ChatScreen() {
       </ScrollView>
 
       {chat.ok && chat.can_send ? (
-        <View style={[s.bar, { paddingBottom: Math.max(insets.bottom, 12), borderTopColor: colour.rule }]}>
+        <View style={[s.bar, { paddingBottom: Math.max(insets.bottom, 10) }]}>
           {problem ? <Text style={s.error}>{problem}</Text> : null}
           <View style={s.row}>
             <TextInput
@@ -124,14 +144,15 @@ export default function ChatScreen() {
               accessibilityLabel={w.chatPlaceholder}
               style={s.input}
             />
-            <View style={{ width: 96 }}>
-              <Button kind="yellow" label={w.sendMessage} busy={busy} onPress={send} />
-            </View>
+            {/* One round yellow button, as every messenger has. It says "Send" to a screen reader. */}
+            <Press onPress={busy ? undefined : send} accessibilityRole="button" accessibilityLabel={w.sendMessage} accessibilityState={{ busy }} sink={0.9} style={s.send}>
+              {busy ? <ScrewSpinner size={22} label={w.sendMessage} /> : <Icon name="arrowRight" size={22} color={colour.ink} strokeWidth={2.6} />}
+            </Press>
           </View>
         </View>
       ) : (
-        <View style={{ padding: 16, paddingBottom: Math.max(insets.bottom, 16) }}>
-          <Text style={[s.note, { color: colour.steel }]}>{w.chatClosed}</Text>
+        <View style={[s.bar, { paddingBottom: Math.max(insets.bottom, 16), paddingTop: 14 }]}>
+          <Text style={[s.noteText, { textAlign: 'center' }]}>{w.chatClosed}</Text>
         </View>
       )}
     </KeyboardAvoidingView>
@@ -139,18 +160,25 @@ export default function ChatScreen() {
 }
 
 const s = StyleSheet.create({
-  top: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingBottom: 8 },
-  back: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  title: { fontFamily: font.display, fontSize: 20 },
-  sub: { fontFamily: font.body, fontSize: 12 },
-  note: { fontFamily: font.body, fontSize: 13, lineHeight: 18, textAlign: 'center', marginBottom: 4 },
-  bubble: { maxWidth: '82%', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, gap: 2 },
-  mine: { alignSelf: 'flex-end', backgroundColor: colour.yellow, borderBottomRightRadius: 4 },
-  theirs: { alignSelf: 'flex-start', backgroundColor: colour.white, borderBottomLeftRadius: 4, borderWidth: 1, borderColor: colour.rule },
-  body: { fontFamily: font.body, fontSize: 15, lineHeight: 21 },
+  top: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingBottom: 12, backgroundColor: colour.white, borderBottomWidth: 1, borderBottomColor: colour.rule },
+  back: { width: 44, height: 44, borderRadius: 22, backgroundColor: colour.canvas, alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontFamily: font.display, fontSize: 18, color: colour.yellow },
+  title: { fontFamily: font.display, fontSize: 18 },
+  sub: { fontFamily: font.mono, fontSize: 12, color: colour.steel },
+  noteCard: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center', maxWidth: 360, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 16, backgroundColor: colour.softYellow, marginBottom: 6 },
+  noteText: { flexShrink: 1, fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.inkSoft },
+  empty: { alignItems: 'center', gap: 12, paddingVertical: 28, paddingHorizontal: 20 },
+  emptyTile: { width: 72, height: 72, borderRadius: 24, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },
+  emptyText: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.steel, textAlign: 'center', maxWidth: 280 },
+  bubble: { maxWidth: '82%', paddingHorizontal: 14, paddingVertical: 9, borderRadius: 20, gap: 2 },
+  mine: { alignSelf: 'flex-end', backgroundColor: colour.yellow, borderBottomRightRadius: 6 },
+  theirs: { alignSelf: 'flex-start', backgroundColor: colour.white, borderBottomLeftRadius: 6, boxShadow: '0px 1px 4px rgba(20, 23, 26, 0.06)' },
+  body: { fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.ink },
   time: { fontFamily: font.body, fontSize: 11, alignSelf: 'flex-end' },
-  bar: { paddingHorizontal: 12, paddingTop: 8, borderTopWidth: 1, gap: 6 },
+  bar: { paddingHorizontal: 12, paddingTop: 10, gap: 6, backgroundColor: colour.white, borderTopWidth: 1, borderTopColor: colour.rule },
   row: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
-  input: { flex: 1, minHeight: 52, maxHeight: 120, borderRadius: radius.card, paddingHorizontal: 12, paddingTop: 14, backgroundColor: colour.white, color: colour.ink, fontFamily: font.bodyMedium, fontSize: 16, borderWidth: 1.5, borderColor: colour.rule },
+  input: { flex: 1, minHeight: 48, maxHeight: 120, borderRadius: 24, paddingHorizontal: 16, paddingTop: 13, paddingBottom: 12, backgroundColor: colour.canvas, color: colour.ink, fontFamily: font.bodyMedium, fontSize: 16 },
+  send: { width: 48, height: 48, borderRadius: 24, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
   error: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
 });

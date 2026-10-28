@@ -644,6 +644,23 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 
 ## The look (`apps/mobile/src/theme.ts`)
 
+- **The design rules are `docs/DESIGN.md`. Read it before touching any
+  screen.** The same text is the Claude skill
+  `.claude/skills/pechkas-design/SKILL.md`, and `npm run design:check`
+  (part of `npm run check`) fails if the two differ — change both
+  together. Colours by name only (`colour.cream`, `colour.softYellow`,
+  `colour.softBrick`, `shadow.card` were added so no screen types a hex
+  code); the shared pieces are `Panel` / `Action`
+  (`components/Panel.tsx`), `RowCard` / `DuoRow` (`components/Rows.tsx`),
+  `EmergencyTiles`, `TradeTile` / `Steps` (`customer/bits.tsx`). Every
+  screen now follows the rules: Emergency draws the same `EmergencyTiles`
+  as Safety; Notifications is a status card (green when on, soft yellow
+  when off) and tick rows; the technician's application and its "received"
+  screen are `Panel`s and `DuoRow`s under a ☰ hero; Chat has a white
+  messenger header with his initial and a round yellow send button. A
+  `Select` in Post a job shows its price **under** the name, never beside
+  it — beside it squeezed "Something else, or not sure" into "Somethin /
+  g else" at 320.
 - The website's colours: green `#0b5148` trust, yellow `#ffc53d` action and
   money, ink, paper, brick for warnings only. Every text pair ≥ 4.5:1.
 - **No decoration.** The owner rejected truck-art and ajrak as unprofessional.

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { APP_EDITION } from '@pechkas/shared';
 import { supabase } from '../supabase';
 import { APP_VERSION, BUILT_AT, COMMIT, NEWEST_MIGRATION } from '../version';
-import { colour, font, radius } from '../theme';
+import { colour, font, radius, shadow } from '../theme';
 
 type Db = { state: 'checking' } | { state: 'ok' } | { state: 'behind'; newest: string | null } | { state: 'unknown' };
 
@@ -59,7 +59,7 @@ export function ThisCopy({ dark = false }: { dark?: boolean }) {
 
 const s = StyleSheet.create({
   box: { gap: 6, padding: 16, borderRadius: radius.big },
-  light: { backgroundColor: colour.white, borderRadius: 24, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.05)' },
+  light: { backgroundColor: colour.white, borderRadius: 24, boxShadow: shadow.card },
   title: { fontFamily: font.bodySemi, fontSize: 14 },
   line: { fontFamily: font.body, fontSize: 13, lineHeight: 18 },
   warn: { padding: 10, borderRadius: 12 },

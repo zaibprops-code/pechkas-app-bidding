@@ -4,20 +4,19 @@ import { Redirect, router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MenuButton } from '../../src/components/Menu';
-import { Mark } from '../../src/components/Mark';
-import { Icon } from '../../src/components/Icon';
-import { Press } from '../../src/components/Press';
+import { DuoIcon } from '../../src/components/DuoIcon';
+import { DuoRow, RowCard } from '../../src/components/Rows';
 import { Button, Loading, SystemBars } from '../../src/components/ui';
 import { useAccount } from '../../src/account';
 import { supabase } from '../../src/supabase';
 import { useProWords } from '../../src/words';
-import { colour, font, radius } from '../../src/theme';
+import { colour, font, shadow } from '../../src/theme';
 import { Work } from '../../src/pro/Work';
 
 /**
  * The technician's home. Approved: his work — online, new jobs, the jobs he
  * was chosen for (src/pro/Work.tsx). Otherwise: where his application
- * stands. Dark, so it never looks like the customer side of the same phone.
+ * stands, in the same white cards as everything else.
  */
 export default function ProHome() {
   const { ready, session, account, refresh } = useAccount();
@@ -51,68 +50,77 @@ export default function ProHome() {
   if (pro.status === 'approved') return <Work firstName={pro.full_name.split(' ')[0]} />;
 
   const state = {
-    applied: { title: w.appliedTitle, text: w.appliedText, tone: colour.yellow },
-    rejected: { title: w.rejectedTitle, text: w.rejectedText, tone: colour.brick },
-    suspended: { title: w.suspendedTitle, text: w.suspendedText, tone: colour.brick },
+    applied: { title: w.appliedTitle, text: w.appliedText, icon: 'jobs' as const, bad: false },
+    rejected: { title: w.rejectedTitle, text: w.rejectedText, icon: 'lock' as const, bad: true },
+    suspended: { title: w.suspendedTitle, text: w.suspendedText, icon: 'lock' as const, bad: true },
   }[pro.status];
+  const first = pro.full_name.split(' ')[0];
 
   return (
     <View style={{ flex: 1, backgroundColor: colour.canvas }}>
       <StatusBar style="dark" />
       <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + 14, paddingHorizontal: 18, paddingBottom: insets.bottom + 32, gap: 16 }}
+        contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: 16, paddingBottom: insets.bottom + 32, gap: 14 }}
         refreshControl={<RefreshControl refreshing={false} onRefresh={refresh} tintColor={colour.green} />}
       >
-        <View style={s.top}>
-          <MenuButton />
-          <View style={s.brand}>
-            <Mark size={30} />
-            <View>
-              <Text style={s.brandText}>pechkas pro</Text>
-              <Text style={s.who}>{pro.full_name.split(' ')[0]}</Text>
-            </View>
-          </View>
+        <MenuButton />
+        <View style={s.greet}>
+          <Text style={s.hello}>
+            {greeting(w)}, {first}
+          </Text>
+          <Text style={s.title} accessibilityRole="header">
+            {state.title}
+          </Text>
         </View>
 
-        <View style={s.card}>
-          <View style={[s.badge, { backgroundColor: state.tone }]}>
-            <Icon name={pro.status === 'applied' ? 'jobs' : 'lock'} size={22} color={colour.ink} strokeWidth={2.2} />
+        {/* Where the application stands, on one card, with the one thing he can do about it. */}
+        <View style={[s.card, state.bad && s.cardBad]}>
+          <View style={[s.tile, state.bad && s.tileBad]}>
+            <DuoIcon name={state.icon} size={28} accent={state.bad ? '#f3b9a8' : colour.yellow} ink={state.bad ? colour.brick : colour.ink} />
           </View>
-          <Text style={s.title} accessibilityRole="header">{state.title}</Text>
           <Text style={s.text}>{state.text}</Text>
           {pro.status_reason ? <Text style={s.reason}>{pro.status_reason}</Text> : null}
-          {pro.status === 'applied' ? <Text style={s.steps}>{w.appliedSteps}</Text> : null}
+          {pro.status === 'applied' ? (
+            <View style={s.steps}>
+              <DuoIcon name="shield" size={20} />
+              <Text style={s.stepsText}>{w.appliedSteps}</Text>
+            </View>
+          ) : null}
+          {pro.status === 'applied' ? <Button kind="outline" label={w.editForm} onPress={() => router.push('/pro/apply')} /> : null}
+          {pro.status === 'rejected' ? <Button label={w.applyAgain} icon="arrowRight" onPress={() => router.push('/pro/apply')} /> : null}
         </View>
 
-        {pro.status === 'applied' ? <Button kind="outline" label={w.editForm} onPress={() => router.push('/pro/apply')} /> : null}
-        {pro.status === 'rejected' ? <Button label={w.applyAgain} onPress={() => router.push('/pro/apply')} /> : null}
-
-        <View style={s.details}>
-          <Text style={s.detailsTitle}>{w.yourDetails}</Text>
-          <Text style={s.detail}>{pro.full_name}</Text>
-          <Text style={s.detailMuted}>{pro.trades.map((t) => names[t] ?? t).join(' · ')}</Text>
-          <Text style={s.detailMuted}>{pro.sectors.join(' · ')}</Text>
-        </View>
-
+        <Text style={s.h2} accessibilityRole="header">
+          {w.yourDetails}
+        </Text>
+        <RowCard>
+          <DuoRow icon="doc" label={pro.full_name} />
+          <DuoRow icon="briefcase" label={pro.trades.map((t) => names[t] ?? t).join(' · ')} />
+          <DuoRow icon="pin" label={pro.sectors.join(' · ')} last />
+        </RowCard>
       </ScrollView>
       <SystemBars bg={colour.canvas} />
     </View>
   );
 }
 
+/** A greeting by the phone's clock, the same as on his work screen. */
+function greeting(w: { goodMorning: string; goodAfternoon: string; goodEvening: string }) {
+  const h = new Date().getHours();
+  return h < 12 ? w.goodMorning : h < 17 ? w.goodAfternoon : w.goodEvening;
+}
+
 const s = StyleSheet.create({
-  top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  brandText: { fontFamily: font.display, fontSize: 18, color: colour.ink },
-  who: { fontFamily: font.body, fontSize: 12, color: colour.steel },
-  card: { gap: 10, padding: 18, borderRadius: 24, backgroundColor: colour.white },
-  badge: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  title: { fontFamily: font.display, fontSize: 26, lineHeight: 30, color: colour.ink, letterSpacing: -0.5 },
-  text: { fontFamily: font.body, fontSize: 15, lineHeight: 22, color: colour.ink },
-  reason: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 22, color: colour.green },
-  steps: { fontFamily: font.body, fontSize: 13, lineHeight: 19, color: colour.steel },
-  details: { gap: 4, padding: 16, borderRadius: radius.big, borderWidth: 1, borderColor: colour.rule },
-  detailsTitle: { fontFamily: font.bodySemi, fontSize: 13, color: colour.steel, marginBottom: 4 },
-  detail: { fontFamily: font.bodySemi, fontSize: 15, color: colour.ink },
-  detailMuted: { fontFamily: font.body, fontSize: 13, color: colour.steel },
+  greet: { gap: 2, paddingHorizontal: 4, marginTop: 4 },
+  hello: { fontFamily: font.bodyMedium, fontSize: 15, color: colour.steel },
+  title: { fontFamily: font.display, fontSize: 28, lineHeight: 34, color: colour.ink },
+  card: { gap: 14, padding: 18, borderRadius: 24, backgroundColor: colour.white, boxShadow: shadow.card },
+  cardBad: { backgroundColor: '#fbeee9' },
+  tile: { width: 56, height: 56, borderRadius: 18, backgroundColor: colour.softYellow, alignItems: 'center', justifyContent: 'center' },
+  tileBad: { backgroundColor: colour.white },
+  text: { fontFamily: font.body, fontSize: 15.5, lineHeight: 22, color: colour.ink },
+  reason: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 22, color: colour.greenDark },
+  steps: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.canvas },
+  stepsText: { flex: 1, fontFamily: font.body, fontSize: 13.5, lineHeight: 19, color: colour.inkSoft },
+  h2: { fontFamily: font.display, fontSize: 19, color: colour.ink, paddingHorizontal: 4, marginTop: 4, marginBottom: -6 },
 });

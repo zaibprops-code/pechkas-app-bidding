@@ -9,7 +9,7 @@ import { Press } from '../src/components/Press';
 import { useAccount } from '../src/account';
 import { openLegal } from '../src/legal';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN, OFFICE_WHATSAPP } from '../src/office';
-import { colour, font } from '../src/theme';
+import { colour, font, shadow } from '../src/theme';
 
 /**
  * Help, from the menu, laid out as Settings and the menu are: the Pechkas
@@ -147,13 +147,13 @@ export default function Help() {
 const s = StyleSheet.create({
   office: { gap: 16, padding: 18, borderRadius: 24, backgroundColor: colour.green },
   officeHead: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  officeIcon: { width: 52, height: 52, borderRadius: 18, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
+  officeIcon: { width: 52, height: 52, borderRadius: 18, backgroundColor: colour.softYellow, alignItems: 'center', justifyContent: 'center' },
   officeTitle: { fontFamily: font.display, fontSize: 19, lineHeight: 24, color: colour.white },
   officeText: { fontFamily: font.bodyMedium, fontSize: 13.5, lineHeight: 19, color: '#d7e6e3' },
   buttons: { flexDirection: 'row', gap: 10 },
   buttonsNarrow: { flexDirection: 'column' },
   h2: { fontFamily: font.display, fontSize: 19, color: colour.ink, paddingHorizontal: 4, marginTop: 4, marginBottom: -6 },
-  card: { paddingHorizontal: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.05)' },
+  card: { paddingHorizontal: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: shadow.card },
   rule: { borderBottomWidth: 1, borderBottomColor: colour.rule },
   question: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, paddingVertical: 14 },
   questionText: { flex: 1, fontFamily: font.bodySemi, fontSize: 15.5, lineHeight: 21, color: colour.ink },

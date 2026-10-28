@@ -11,7 +11,7 @@ import { JobCard, type Job } from '../../src/customer/JobCard';
 import { supabase } from '../../src/supabase';
 import { Trouble } from '../../src/components/Trouble';
 import { noAnswer, type NoAnswer } from '../../src/net';
-import { colour, font, radius } from '../../src/theme';
+import { colour, font, radius, shadow } from '../../src/theme';
 
 /**
  * One job, live — the screen inDrive shows once a ride is requested.
@@ -234,7 +234,7 @@ function Searching({ found }: { found: number }) {
 }
 
 const s = StyleSheet.create({
-  search: { borderRadius: 24, backgroundColor: colour.white, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.05)' },
+  search: { borderRadius: 24, backgroundColor: colour.white, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', boxShadow: shadow.card },
   ring: { position: 'absolute', width: 120, height: 120, borderRadius: 60, borderWidth: 2, borderColor: 'rgba(11, 81, 72, 0.22)' },
   centre: { width: 96, height: 96, borderRadius: 48, backgroundColor: colour.canvas, alignItems: 'center', justifyContent: 'center' },
   note: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft, paddingHorizontal: 4 },

@@ -191,7 +191,7 @@ const s = StyleSheet.create({
   owedTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   owedIcon: { width: 54, height: 54, borderRadius: 18, backgroundColor: 'rgba(20, 23, 26, 0.08)', alignItems: 'center', justifyContent: 'center' },
   head: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 },
-  soft: { width: 38, height: 38, borderRadius: 12, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
+  soft: { width: 38, height: 38, borderRadius: 12, backgroundColor: colour.softYellow, alignItems: 'center', justifyContent: 'center' },
   headText: { flex: 1, fontFamily: font.display, fontSize: 17, color: colour.ink },
   owedBlocked: { backgroundColor: colour.brick },
   owedLabel: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },

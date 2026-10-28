@@ -737,8 +737,10 @@ function Select({ label, value, placeholder, right, art, onPress }: { label: str
         <Text style={[s.selectValue, !value && { color: colour.steel }]} numberOfLines={2}>
           {value ?? placeholder}
         </Text>
+        {/* The price goes under the name, never beside it: beside it squeezed
+            "Something else, or not sure" into "Somethin / g else" on a 320 phone. */}
+        {right ? <Text style={s.selectRight}>{right}</Text> : null}
       </View>
-      {right ? <Text style={s.selectRight}>{right}</Text> : null}
       <Icon name="chevronDown" size={20} color={colour.ink} strokeWidth={2.2} />
     </Press>
   );
@@ -780,19 +782,19 @@ function Remove({ label, onPress }: { label: string; onPress: () => void }) {
 
 const s = StyleSheet.create({
   card: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.04)' },
-  cardMoney: { backgroundColor: '#fff6dc' },
+  cardMoney: { backgroundColor: colour.softYellow },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  soft: { width: 44, height: 44, borderRadius: 14, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
+  soft: { width: 44, height: 44, borderRadius: 14, backgroundColor: colour.softYellow, alignItems: 'center', justifyContent: 'center' },
   cardTitle: { fontFamily: font.display, fontSize: 18, color: colour.ink },
   hint: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
   error: { fontFamily: font.bodySemi, fontSize: 13, lineHeight: 18, color: colour.brick },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pair: { flexDirection: 'row', gap: 10 },
   select: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 64, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 18, backgroundColor: colour.canvas },
-  selectArt: { width: 52, height: 44, borderRadius: 12, backgroundColor: '#f6f2e8', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  selectArt: { width: 52, height: 44, borderRadius: 12, backgroundColor: colour.cream, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   selectLabel: { fontFamily: font.body, fontSize: 12, color: colour.steel },
   selectValue: { fontFamily: font.bodySemi, fontSize: 16, lineHeight: 21, color: colour.ink },
-  selectRight: { fontFamily: font.bodySemi, fontSize: 13, color: colour.green, maxWidth: 110, textAlign: 'right' },
+  selectRight: { fontFamily: font.bodySemi, fontSize: 13, color: colour.green, marginTop: 1 },
   tiles: { flexDirection: 'row', gap: 10 },
   words: { minHeight: 72, padding: 12, paddingTop: 12, borderRadius: 16, backgroundColor: colour.canvas, fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.ink, textAlignVertical: 'top', outlineWidth: 0 },
   fileRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, borderRadius: radius.big, backgroundColor: colour.canvas },

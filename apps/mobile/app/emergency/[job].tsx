@@ -6,12 +6,14 @@ import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, SystemBars } from '../../src/components/ui';
 import { Icon } from '../../src/components/Icon';
+import { ScrewSpinner } from '../../src/components/ScrewSpinner';
+import { EmergencyTiles } from '../../src/components/EmergencyTiles';
+import { DuoRow, RowCard } from '../../src/components/Rows';
 import { useAccount } from '../../src/account';
-import { EMERGENCY_NUMBERS } from '../../src/emergency';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../../src/office';
 import { ask } from '../../src/supabase';
 import { useProWords } from '../../src/words';
-import { colour, font, radius } from '../../src/theme';
+import { colour, font, shadow } from '../../src/theme';
 
 /**
  * The emergency button. Opening this screen IS pressing it: Pechkas is told
@@ -84,26 +86,44 @@ export default function Emergency() {
 
   const status = state === 'sending' ? w.emSending : state === 'sent' ? w.emSent : w.emNotSent;
 
+  const tone = mistake || state === 'sent' ? 'ok' : state === 'failed' ? 'bad' : 'wait';
+
   return (
     <View style={{ flex: 1, backgroundColor: colour.canvas }}>
       <StatusBar style="dark" />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: 20, paddingBottom: insets.bottom + 28, gap: 14 }}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: 16, paddingBottom: insets.bottom + 28, gap: 14 }}>
+        {/* The one screen that is red at the top: nobody should wonder where they are. */}
         <View style={s.head}>
-          <Icon name="alert" size={30} color={colour.white} strokeWidth={2.2} />
+          <View style={s.headDisc}>
+            <Icon name="alert" size={26} color={colour.brick} strokeWidth={2.4} />
+          </View>
           <Text style={s.title} accessibilityRole="header">
             {w.emTitle}
           </Text>
         </View>
-        <View style={[s.status, { backgroundColor: state === 'failed' ? '#f6e3dc' : colour.greenSoft }]} accessibilityRole="alert">
-          <Text style={[s.statusText, { color: state === 'failed' ? colour.brick : colour.greenDark }]}>{mistake ? w.emMistakeDone : status}</Text>
-          {state === 'failed' && why ? <Text style={s.why}>{why}</Text> : null}
+
+        {/* Whether Pechkas has been told, said first and plainly. */}
+        <View style={[s.status, tone === 'bad' && s.statusBad]} accessibilityRole="alert">
+          <View style={[s.statusIcon, tone === 'ok' ? s.statusIconOk : tone === 'bad' ? s.statusIconBad : null]}>
+            {tone === 'wait' ? (
+              <ScrewSpinner size={24} label={w.emSending} />
+            ) : (
+              <Icon name={tone === 'ok' ? 'check' : 'alert'} size={22} color={colour.white} strokeWidth={2.6} />
+            )}
+          </View>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={[s.statusText, tone === 'bad' && { color: colour.brick }]}>{mistake ? w.emMistakeDone : status}</Text>
+            {state === 'failed' && why ? <Text style={s.why}>{why}</Text> : null}
+          </View>
         </View>
 
-        <Text style={[s.lead, { color: colour.ink }]}>{w.emCallFirst}</Text>
-        {EMERGENCY_NUMBERS.map((e) => (
-          <Button key={e.number} kind="danger" label={`${w[e.key]} · ${e.number}`} onPress={() => Linking.openURL(`tel:${e.number}`)} />
-        ))}
-        <Button kind="green" label={`${w.emOffice} · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+        <Text style={s.lead} accessibilityRole="header">
+          {w.emCallFirst}
+        </Text>
+        <EmergencyTiles label={(k) => w[k]} />
+        <RowCard>
+          <DuoRow icon="support" label={w.emOffice} value={OFFICE_PHONE_SHOWN} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} last />
+        </RowCard>
 
         {state === 'sent' && !mistake ? <Button kind="outline" label={w.emMistake} onPress={takeBack} /> : null}
         <Button kind="outline" label={w.back} onPress={() => (router.canGoBack() ? router.back() : router.replace(pro ? '/pro' : '/jobs'))} />
@@ -114,10 +134,15 @@ export default function Emergency() {
 }
 
 const s = StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: radius.big, backgroundColor: colour.brick },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderRadius: 24, backgroundColor: colour.brick },
+  headDisc: { width: 48, height: 48, borderRadius: 24, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },
   title: { fontFamily: font.display, fontSize: 28, color: colour.white },
-  status: { padding: 14, borderRadius: radius.card, gap: 4 },
-  statusText: { fontFamily: font.bodySemi, fontSize: 16, lineHeight: 22 },
+  status: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: shadow.card },
+  statusBad: { backgroundColor: '#f6e3dc' },
+  statusIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: colour.canvas, alignItems: 'center', justifyContent: 'center' },
+  statusIconOk: { backgroundColor: colour.green },
+  statusIconBad: { backgroundColor: colour.brick },
+  statusText: { fontFamily: font.bodySemi, fontSize: 16, lineHeight: 22, color: colour.greenDark },
   why: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.brick },
-  lead: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 21 },
+  lead: { fontFamily: font.display, fontSize: 18, lineHeight: 24, color: colour.ink, paddingHorizontal: 4, marginTop: 4 },
 });

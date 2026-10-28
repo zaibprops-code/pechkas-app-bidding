@@ -7,6 +7,26 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Every other screen, redesigned the same way, and the design rules
+written down (new — no database step, needs a new build).**
+
+- **Emergency** (the red button during a job) now shows the same big
+  number tiles as Safety, with a clear card saying whether Pechkas has
+  been told. It still tells the office first, exactly as before.
+- **Notifications** (menu ☰): a card saying whether this phone is told —
+  green when on, soft yellow with **Turn on notifications** when off — and
+  the list of what Pechkas tells you, each with a tick.
+- **Work with Pechkas** (a technician's application) is white cards with
+  icons, like Post a job, and **Application received** matches it.
+- **Chat**: a proper messenger header with his initial, and a round yellow
+  send button.
+- **Post a job**: on small phones "Something else, or not sure" was being
+  squeezed into "Somethin / g else". The price now goes under the job's
+  name, so it always fits.
+- **The design rules** are written in `docs/DESIGN.md` on GitHub, and the
+  same rules are a Claude skill in `.claude/skills/pechkas-design/`. To add
+  them to Claude on claude.ai as well, see the steps in my message.
+
 **Safety, redesigned the same way (new — no database step, needs a new
 build).** Menu (☰) → **Safety**. The four emergency numbers (Police 15,
 Rescue 1122, Fire brigade 16, Edhi ambulance 115) are now big tiles, two

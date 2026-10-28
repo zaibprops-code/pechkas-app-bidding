@@ -268,7 +268,7 @@ const s = StyleSheet.create({
   sideText: { fontFamily: font.bodySemi, fontSize: 11.5, color: colour.white },
   sideTextPro: { color: colour.ink },
   item: { flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 56, marginHorizontal: 10, paddingHorizontal: 14, borderRadius: 16 },
-  itemOn: { backgroundColor: '#fff6dc' },
+  itemOn: { backgroundColor: colour.softYellow },
   itemText: { flex: 1, fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
   itemTextOn: { fontFamily: font.displayBold },
   bottom: { gap: 10, paddingTop: 12, paddingHorizontal: 14 },

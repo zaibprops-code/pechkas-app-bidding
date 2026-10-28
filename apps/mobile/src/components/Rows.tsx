@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { DuoIcon, type DuoName } from './DuoIcon';
 import { Icon } from './Icon';
 import { Press } from './Press';
-import { colour, font } from '../theme';
+import { colour, font, shadow } from '../theme';
 
 /**
  * Settings-style rows the way the menu draws them: a two-tone icon on a soft
@@ -62,11 +62,11 @@ export function DuoRow({
 }
 
 const s = StyleSheet.create({
-  card: { paddingHorizontal: 14, borderRadius: 24, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.05)' },
+  card: { paddingHorizontal: 14, borderRadius: 24, backgroundColor: colour.white, boxShadow: shadow.card },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 68, paddingVertical: 12 },
   rule: { borderBottomWidth: 1, borderBottomColor: colour.rule },
-  tile: { width: 42, height: 42, borderRadius: 14, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
-  tileDanger: { backgroundColor: '#fbe6df' },
+  tile: { width: 42, height: 42, borderRadius: 14, backgroundColor: colour.softYellow, alignItems: 'center', justifyContent: 'center' },
+  tileDanger: { backgroundColor: colour.softBrick },
   label: { fontFamily: font.bodySemi, fontSize: 15.5, color: colour.ink },
   value: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
 });

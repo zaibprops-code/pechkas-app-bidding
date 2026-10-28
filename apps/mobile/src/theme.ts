@@ -23,6 +23,12 @@ export const colour = {
   canvas: '#f2f1ed',
   /** A tile's own grey, a step darker than the canvas. */
   tile: '#e9e7e1',
+  /** Warm cream behind a drawing: the trade tiles, the media tiles, the choose cards. */
+  cream: '#f6f2e8',
+  /** Soft yellow: the tile behind a two-tone icon, a money card, the menu's current row. */
+  softYellow: '#fff6dc',
+  /** Soft brick: the tile behind the one row that cannot be undone. */
+  softBrick: '#fbe6df',
   brick: '#9e3b22',
   white: '#ffffff',
   rule: 'rgba(20,23,26,0.1)',
@@ -56,6 +62,9 @@ export const radius = {
   sheet: 28,
   pill: 999,
 } as const;
+
+/** The one shadow under a white card: barely there, as inDrive's. */
+export const shadow = { card: '0px 2px 10px rgba(20, 23, 26, 0.05)' } as const;
 
 /** Nothing anybody taps is smaller than this, in either direction. */
 export const TAP = 44;

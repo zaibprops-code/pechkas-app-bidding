@@ -20,7 +20,7 @@ import { ask, supabase } from '../supabase';
 import { Trouble } from '../components/Trouble';
 import { noAnswer, type NoAnswer } from '../net';
 import { fill, useProWords, type ProWords } from '../words';
-import { colour, font, radius } from '../theme';
+import { colour, font, radius, shadow } from '../theme';
 
 /**
  * An approved technician's work, laid out as inDrive's driver side (the
@@ -595,7 +595,7 @@ const s = StyleSheet.create({
   offlineTitle: { fontFamily: font.display, fontSize: 20, color: colour.white },
   offlineText: { fontFamily: font.bodyMedium, fontSize: 13.5, lineHeight: 19, color: '#cfe2de' },
   listHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  soft: { width: 48, height: 48, borderRadius: 15, backgroundColor: '#fff6dc', alignItems: 'center', justifyContent: 'center' },
+  soft: { width: 48, height: 48, borderRadius: 15, backgroundColor: colour.softYellow, alignItems: 'center', justifyContent: 'center' },
   emptyCard: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 22, backgroundColor: colour.white },
   emptyTitle: { fontFamily: font.displayBold, fontSize: 16, color: colour.ink },
   reqFoot: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 12, borderTopWidth: 1, borderTopColor: colour.rule },
@@ -603,7 +603,7 @@ const s = StyleSheet.create({
   offerPillText: { fontFamily: font.bodySemi, fontSize: 13.5, color: colour.ink },
   count: { minWidth: 26, height: 26, paddingHorizontal: 8, borderRadius: 13, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
   countText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
-  req: { gap: 12, padding: 14, borderRadius: 22, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.05)' },
+  req: { gap: 12, padding: 14, borderRadius: 22, backgroundColor: colour.white, boxShadow: shadow.card },
   reqMarked: { borderWidth: 2, borderColor: colour.yellow },
   reqTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },

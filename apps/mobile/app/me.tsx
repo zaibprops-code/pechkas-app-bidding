@@ -12,7 +12,7 @@ import { useAccount } from '../src/account';
 import { useNotify } from '../src/notifications';
 import { openLegal } from '../src/legal';
 import { ask, supabase } from '../src/supabase';
-import { colour, font, radius } from '../src/theme';
+import { colour, font, radius, shadow } from '../src/theme';
 
 /**
  * Settings — the account screen: who you are, your number, which side of
@@ -202,7 +202,7 @@ export default function Me() {
   );
 }
 
-const SHADOW = '0px 2px 10px rgba(20, 23, 26, 0.05)';
+const SHADOW = shadow.card;
 
 const s = StyleSheet.create({
   profile: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderRadius: 24, backgroundColor: colour.green },

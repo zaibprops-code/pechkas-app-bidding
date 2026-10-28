@@ -82,7 +82,7 @@ function Card({ art, title, sub, onPress }: { art: ArtName; title: string; sub: 
 }
 
 const s = StyleSheet.create({
-  card: { borderRadius: 24, backgroundColor: colour.tile, padding: 18, minHeight: 200, overflow: 'hidden', justifyContent: 'space-between' },
+  card: { borderRadius: 24, backgroundColor: colour.cream, padding: 18, minHeight: 200, overflow: 'hidden', justifyContent: 'space-between' },
   words: { gap: 6, maxWidth: 300 },
   title: { fontFamily: font.display, fontSize: 24, lineHeight: 29, color: colour.ink },
   sub: { fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.ink },

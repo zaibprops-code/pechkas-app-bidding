@@ -479,7 +479,7 @@ function RateCustomer({ f, w, onDone }: { f: FinishedJob; w: ProWords; onDone: (
 const s = StyleSheet.create({
   actions: { flexDirection: 'row', gap: 8 },
   action: { flex: 1, minHeight: 76, alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 4, borderRadius: 18, backgroundColor: colour.canvas },
-  actionOn: { backgroundColor: '#fff6dc' },
+  actionOn: { backgroundColor: colour.softYellow },
   actionText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
   map: { height: 160, borderRadius: 16 },
   card: { gap: 10, padding: 14, borderRadius: 22 },

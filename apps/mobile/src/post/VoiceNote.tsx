@@ -126,7 +126,7 @@ export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; o
 
 /** The look every tile in the row shares: voice, video, photo. */
 export const tile = StyleSheet.create({
-  box: { flex: 1, minHeight: 104, alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 6, borderRadius: 20, backgroundColor: '#f6f2e8', overflow: 'hidden' },
+  box: { flex: 1, minHeight: 104, alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 6, borderRadius: 20, backgroundColor: colour.cream, overflow: 'hidden' },
   boxLive: { backgroundColor: colour.brick },
   dot: { width: 48, height: 48, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: colour.white, boxShadow: '0px 2px 6px rgba(20, 23, 26, 0.08)' },
   label: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink, textAlign: 'center' },
