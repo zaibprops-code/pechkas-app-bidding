@@ -7,6 +7,19 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Legal, laid out like your reference app (new — no database step, needs
+a new build).** The menu (☰) has a new **Legal** row. It opens **Legal
+documents**: one card each for the Privacy policy, Terms of use,
+Technician agreement and Deleting your account, each with the page's own
+one-line summary, plus **Contact Pechkas**. Tap one to read it: headings
+in green, and **Last updated** stays at the bottom. If you open a page from
+another, the **×** at the top right closes them all. Settings and Help now
+have one **Legal documents** row instead of a row for each page.
+
+Also fixed: the guarantee button on a finished job is called **It has
+failed again** again, because that is the name the Terms of use tell
+customers to tap. A test now stops the two from ever disagreeing.
+
 **The admin panel, redesigned the same way (new — no database step; it
 updates when Vercel next builds it from `main`).**
 
@@ -95,8 +108,8 @@ clean cards, each with its own icon:
 - A **new price** he asks for is a soft yellow card with **Approve** over
   **Decline**.
 - When it is done: **Pay Bilal in cash** with the amount large, then the
-  photos, **Rate Bilal**, and the guarantee date with **The fault has come
-  back**.
+  photos, **Rate Bilal**, and the guarantee date with **It has failed
+  again**.
 - **Ask again**, **Never send me …** and **Cancel this job** sit together
   in the last card at the bottom, so nobody taps them by mistake.
 
@@ -1256,7 +1269,7 @@ say **Success**. Then a new **preview** build on both phones.
    technician past Rs 3,000. His phone says so, his work screen turns red,
    and **Accept** is refused until you record a payment.
 10. **Guarantee:** a day after a job is done, the customer's card shows
-    **The fault has come back**. A claim lands in Problems.
+    **It has failed again**. A claim lands in Problems.
 
 ---
 

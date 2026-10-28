@@ -314,7 +314,10 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
           {job.claim_open ? <Text style={s.line}>Your guarantee claim is with the Pechkas office. They will call you.</Text> : null}
           {/* In the first day "Something is wrong" covers it; after that, the guarantee. */}
           {guarantee && !job.claim_open && !claiming && !job.can_report ? (
-            <Button kind="outline" label="The fault has come back" onPress={() => setClaiming(true)} />
+            <>
+              {/* The terms (/app/terms) tell customers to tap exactly this; legal.test.ts checks the two agree. */}
+              <Button kind="outline" label="It has failed again" onPress={() => setClaiming(true)} />
+            </>
           ) : null}
           {guarantee && claiming ? (
             <View style={{ gap: 8 }}>

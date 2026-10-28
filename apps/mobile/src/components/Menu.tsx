@@ -50,6 +50,8 @@ const REST: Item[] = [
   { icon: 'help', label: 'Help', to: '/help' },
   support,
   { icon: 'settings', label: 'Settings', to: '/me' },
+  // Every legal page in one list, as the owner's reference app has it.
+  { icon: 'doc', label: 'Legal', to: '/legal' },
 ];
 
 const CUSTOMER: Item[] = [
@@ -95,7 +97,7 @@ export function MenuButton({ dark = false }: { dark?: boolean }) {
 function Drawer({ onClose }: { onClose: () => void }) {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
-  // On a short phone the rows close up a little, so the whole list fits without scrolling.
+  // On a short phone the rows close up a little, so as much as possible shows before anybody scrolls.
   const short = height < 720;
   const { account, session } = useAccount();
   const here = usePathname();
@@ -155,6 +157,10 @@ function Drawer({ onClose }: { onClose: () => void }) {
           </Press>
         </View>
 
+        {/* Below the name and the ×, the menu is one page: on a short phone the
+            person, the rows and the buttons scroll together, so no row is ever
+            hidden behind the buttons. On a tall one the buttons sit at the foot. */}
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} bounces={false} showsVerticalScrollIndicator={false}>
         <Press
           onPress={() => go({ icon: 'settings', label: 'Settings', to: '/me' })}
           accessibilityRole="button"
@@ -183,7 +189,7 @@ function Drawer({ onClose }: { onClose: () => void }) {
           {narrow ? null : <Side pro={pro} />}
         </Press>
 
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: short ? 4 : 8, paddingBottom: 8 }} bounces={false} showsVerticalScrollIndicator={false}>
+        <View style={{ paddingTop: short ? 4 : 8, paddingBottom: 8 }}>
           {items.map((i) => {
             const on = Boolean(i.to) && i.to === here;
             return (
@@ -193,7 +199,7 @@ function Drawer({ onClose }: { onClose: () => void }) {
                 accessibilityRole={i.open ? 'link' : 'button'}
                 accessibilityState={{ selected: on }}
                 accessibilityHint={i.open ? 'Opens WhatsApp' : undefined}
-                style={[s.item, short && { minHeight: 50 }, on && s.itemOn]}
+                style={[s.item, short && s.itemShort, on && s.itemOn]}
                 sink={0.98}
               >
                 <DuoIcon name={i.icon} size={short ? 24 : 26} />
@@ -202,8 +208,9 @@ function Drawer({ onClose }: { onClose: () => void }) {
               </Press>
             );
           })}
-        </ScrollView>
+        </View>
 
+        <View style={{ flexGrow: 1 }} />
         <View style={s.bottom}>
           <Press onPress={() => { onClose(); tellAFriend(); }} accessibilityRole="button" accessibilityHint="Opens your phone's share menu" sink={0.97} style={s.invite}>
             <DuoIcon name="share" size={22} />
@@ -214,6 +221,7 @@ function Drawer({ onClose }: { onClose: () => void }) {
             Version {APP_VERSION ? `${APP_VERSION} · ` : ''}edition {APP_EDITION}
           </Text>
         </View>
+        </ScrollView>
       </Animated.View>
     </View>
   );
@@ -268,6 +276,7 @@ const s = StyleSheet.create({
   sideText: { fontFamily: font.bodySemi, fontSize: 11.5, color: colour.white },
   sideTextPro: { color: colour.ink },
   item: { flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 56, marginHorizontal: 10, paddingHorizontal: 14, borderRadius: 16 },
+  itemShort: { minHeight: 46 },
   itemOn: { backgroundColor: colour.softYellow },
   itemText: { flex: 1, fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
   itemTextOn: { fontFamily: font.displayBold },

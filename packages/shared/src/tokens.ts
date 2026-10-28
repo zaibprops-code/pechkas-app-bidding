@@ -26,6 +26,8 @@ export const colour = {
   softYellow: '#fff6dc',
   /** Soft brick: the tile behind the one row that cannot be undone. */
   softBrick: '#fbe6df',
+  /** The fill of a two-tone icon on a soft brick tile (Delete my account). */
+  brickTint: '#f3b9a8',
   brick: '#9e3b22',
   white: '#ffffff',
   rule: 'rgba(20,23,26,0.1)',

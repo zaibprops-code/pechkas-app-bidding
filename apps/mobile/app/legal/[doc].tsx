@@ -1,11 +1,13 @@
 import { Fragment } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
-import { Redirect, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { isLegalSlug, LEGAL_DOCS, legalLink, legalLinkText, type Block, type Run } from '@pechkas/shared/src/legal';
 import { Icon } from '../../src/components/Icon';
+import { DuoIcon } from '../../src/components/DuoIcon';
+import { Press } from '../../src/components/Press';
 import { Button, Screen } from '../../src/components/ui';
 import { openLegal } from '../../src/legal';
-import { colour, font, radius } from '../../src/theme';
+import { colour, font, radius, shadow } from '../../src/theme';
 
 /**
  * The privacy policy, the terms, the technician agreement and how to delete
@@ -18,12 +20,49 @@ import { colour, font, radius } from '../../src/theme';
  */
 export default function LegalPage() {
   const { doc } = useLocalSearchParams<{ doc?: string }>();
-  if (!isLegalSlug(doc)) return <Redirect href="/help" />;
+  const nav = useNavigation();
+  if (!isLegalSlug(doc)) return <Redirect href="/legal" />;
   const d = LEGAL_DOCS[doc];
+
+  // "Last updated" is the page's first line on the website; here it stays in
+  // sight at the foot, the way the owner's reference app shows it.
+  const isUpdated = (b: Block) => b.k === 'meta' && /^Last updated/i.test(b.c[0]?.t ?? '');
+  const updated = d.blocks.find(isUpdated);
+  const blocks = d.blocks.filter((b) => !isUpdated(b));
+
+  // How many legal pages are open on top of one another (the list, this
+  // page, a page it linked to). Two or more: × closes them all at once.
+  const routes = nav.getState()?.routes ?? [];
+  let deep = 0;
+  for (let i = routes.length - 1; i >= 0 && routes[i].name.startsWith('legal'); i--) deep++;
+  const closeAll = () => (deep < routes.length ? router.dismiss(deep) : router.replace('/'));
+
   return (
-    <Screen hero={{ title: d.title, sub: d.lede, back: true }}>
+    <Screen
+      hero={{
+        title: d.title,
+        sub: d.lede,
+        back: true,
+        right:
+          deep >= 2 ? (
+            <Press onPress={closeAll} accessibilityRole="button" accessibilityLabel="Close the legal pages" sink={0.9} style={s.close}>
+              <Icon name="cross" size={20} color={colour.ink} strokeWidth={2.4} />
+            </Press>
+          ) : undefined,
+      }}
+      footer={
+        updated && updated.k === 'meta' ? (
+          <View style={s.updated}>
+            <DuoIcon name="clock" size={18} />
+            <Text style={s.updatedText}>
+              <Runs runs={updated.c} />
+            </Text>
+          </View>
+        ) : undefined
+      }
+    >
       <View style={s.body}>
-        {d.blocks.map((b, i) => (
+        {blocks.map((b, i) => (
           <Fragment key={i}>{block(b)}</Fragment>
         ))}
         <Text style={s.source}>The same text is published at {d.web.replace('https://', '')}, where the app stores link to it.</Text>
@@ -142,7 +181,8 @@ function block(b: Block) {
 
 const s = StyleSheet.create({
   body: { gap: 12 },
-  h2: { fontFamily: font.display, fontSize: 21, lineHeight: 26, color: colour.ink, marginTop: 14 },
+  // Section headings in the trust colour, as the reference app colours its own.
+  h2: { fontFamily: font.display, fontSize: 20, lineHeight: 26, color: colour.green, marginTop: 14 },
   h3: { fontFamily: font.bodySemi, fontSize: 16, lineHeight: 22, color: colour.ink, marginTop: 4 },
   p: { fontFamily: font.body, fontSize: 15, lineHeight: 23, color: colour.ink },
   meta: { fontFamily: font.body, fontSize: 14, lineHeight: 22, color: colour.steel },
@@ -157,7 +197,10 @@ const s = StyleSheet.create({
   marker: { width: 18, height: 23, alignItems: 'center', justifyContent: 'center' },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colour.green },
   number: { fontFamily: font.bodySemi, fontSize: 15, color: colour.green },
-  card: { padding: 14, borderRadius: radius.big, backgroundColor: colour.white },
-  review: { gap: 8, padding: 14, borderRadius: radius.big, backgroundColor: '#f6e3dc', marginTop: 8 },
+  card: { padding: 16, borderRadius: 20, backgroundColor: colour.white, boxShadow: shadow.card },
+  review: { gap: 8, padding: 14, borderRadius: radius.big, backgroundColor: colour.softBrick, marginTop: 8 },
+  close: { width: 44, height: 44, borderRadius: 22, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', boxShadow: shadow.card },
+  updated: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, paddingHorizontal: 16, borderRadius: 999, backgroundColor: colour.white, boxShadow: shadow.card },
+  updatedText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink, flexShrink: 1 },
   source: { fontFamily: font.body, fontSize: 13, lineHeight: 19, color: colour.steel, marginTop: 16 },
 });

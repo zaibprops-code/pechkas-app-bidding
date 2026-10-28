@@ -517,6 +517,17 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   A link to another of the four opens it in the app (`legalLink()`);
   `legal.test.ts` checks every link goes somewhere real and that the pages
   name screens the app really has. `openLegal()` is the only way in.
+- **Legal is a list, then a reader**, the owner's reference app's way: the
+  menu's **Legal** row opens **Legal documents** (`app/legal/index.tsx`),
+  one card per page with the page's own `title` and `lede` (never typed
+  there) and a **Contact Pechkas** card to Help; Settings and Help each
+  have one **Legal documents** row instead of a row per page. The reader
+  pins **Last updated** (the page's first `meta` line) at the foot, colours
+  its headings green, and shows a × that closes every legal page at once
+  when more than one is open. **The guarantee button is named in the
+  terms** ("tap **It has failed again**"): `legal.test.ts` reads
+  `UnderWay.tsx` and fails if the button is renamed without the terms —
+  it once was, to "The fault has come back".
 - **Permissions are only what is used.** `app.json` blocks storage, media,
   overlay and background-location permissions; the gallery uses the
   system photo picker, which needs none, so `media.ts` asks only for the
@@ -692,13 +703,16 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   Pechkas mark and a close button on top; the person on a green card with
   their initial on a yellow disc and Customer or Technician (tap for
   Settings); then Home or Jobs, My jobs or My account, Notifications,
-  Safety, Help, Support, Settings — each row a **two-tone icon**
+  Safety, Help, Support, Settings, Legal — each row a **two-tone icon**
   (`DuoIcon.tsx`: ink outline, yellow fill on the part that matters), the
   words and a light chevron, the current screen on soft yellow; at the
   foot **Tell a friend about Pechkas** (the phone's share sheet, words
   that claim only what is true) and the big yellow **Technician mode /
   Customer mode** button (`ModeSwitch pill`: swap icon and one line saying
-  what it does), with the version and edition under it. **It is drawn by
+  what it does), with the version and edition under it. Below the mark and
+  the ×, **the menu is one scrolling page**: on a short phone the person,
+  the rows and the buttons scroll together, because a fixed foot once hid
+  the last four rows behind the buttons at 320 × 640. **It is drawn by
   `MenuHost` at the root (`_layout.tsx`), never in a Modal**: a Modal is
   its own window, and on the owner's Android 9 phone it stopped short of
   the status bar and the button bar, so the dimming did not reach the

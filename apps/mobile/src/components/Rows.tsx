@@ -38,7 +38,7 @@ export function DuoRow({
   const body = (
     <>
       <View style={[s.tile, danger && s.tileDanger]}>
-        <DuoIcon name={icon} size={22} accent={danger ? '#f3b9a8' : colour.yellow} ink={danger ? colour.brick : colour.ink} />
+        <DuoIcon name={icon} size={22} accent={danger ? colour.brickTint : colour.yellow} ink={danger ? colour.brick : colour.ink} />
       </View>
       <View style={{ flex: 1, gap: 1 }}>
         <Text style={[s.label, danger && { color: colour.brick }]}>{label}</Text>

@@ -129,6 +129,13 @@ disc with an arrow on the right.
   status, step and counts. Nothing estimated, no "usually replies in".
 - **Long things open one at a time** (Help's questions), so a page never
   becomes a wall of words.
+- **Documents are a list, then a reader** (the owner's reference app):
+  `app/legal/index.tsx` lists every legal page as one white card — icon
+  tile, the page's own title and one-line summary (never typed in the
+  screen), a chevron — and each opens in `app/legal/[doc].tsx`, with its
+  section headings in green and **Last updated** pinned at the foot. When
+  more than one legal page is open, a round × beside the title closes them
+  all at once.
 - **Empty is a card, not a blank**: an icon on a soft tile, one line, and
   the button that fills it.
 - A screen whose first load fails shows `Trouble` under its own header;

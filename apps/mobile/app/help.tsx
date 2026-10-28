@@ -7,7 +7,6 @@ import { DuoRow, RowCard } from '../src/components/Rows';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { useAccount } from '../src/account';
-import { openLegal } from '../src/legal';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN, OFFICE_WHATSAPP } from '../src/office';
 import { colour, font, shadow } from '../src/theme';
 
@@ -44,7 +43,7 @@ const CUSTOMER: QA[] = [
   },
   {
     q: 'The fault has come back.',
-    a: 'Open the job from My jobs. While it is guaranteed, tap The fault has come back, and the office arranges the repair. The date the guarantee ends is on the job.',
+    a: 'Open the job from My jobs. While it is guaranteed, tap It has failed again, and the office arranges the repair. The date the guarantee ends is on the job.',
   },
 ];
 
@@ -132,12 +131,7 @@ export default function Help() {
       </View>
 
       <RowCard>
-        {pro ? (
-          <DuoRow icon="doc" label="Technician agreement" onPress={() => openLegal('technician-agreement')} />
-        ) : (
-          <DuoRow icon="doc" label="Terms of use" onPress={() => openLegal('terms')} />
-        )}
-        <DuoRow icon="lock" label="Privacy policy" onPress={() => openLegal('privacy')} />
+        <DuoRow icon="doc" label="Legal documents" value="Privacy policy, terms and the technician agreement" onPress={() => router.push('/legal')} />
         <DuoRow icon="shield" label="Safety" value="What to do if something goes wrong" onPress={() => router.push('/safety')} last />
       </RowCard>
     </Screen>

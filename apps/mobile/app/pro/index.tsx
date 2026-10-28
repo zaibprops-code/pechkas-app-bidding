@@ -76,7 +76,7 @@ export default function ProHome() {
         {/* Where the application stands, on one card, with the one thing he can do about it. */}
         <View style={[s.card, state.bad && s.cardBad]}>
           <View style={[s.tile, state.bad && s.tileBad]}>
-            <DuoIcon name={state.icon} size={28} accent={state.bad ? '#f3b9a8' : colour.yellow} ink={state.bad ? colour.brick : colour.ink} />
+            <DuoIcon name={state.icon} size={28} accent={state.bad ? colour.brickTint : colour.yellow} ink={state.bad ? colour.brick : colour.ink} />
           </View>
           <Text style={s.text}>{state.text}</Text>
           {pro.status_reason ? <Text style={s.reason}>{pro.status_reason}</Text> : null}

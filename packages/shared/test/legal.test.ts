@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { LEGAL_DOCS, LEGAL_SLUGS, legalLink, legalLinkText, type Block, type Run } from '../src/legal.ts';
 
 const runsOf = (b: Block): Run[] =>
@@ -61,5 +62,10 @@ test('the pages name the screens the app really has', () => {
     assert.ok(!allRuns(slug).some((r) => r.b && r.t === 'Me'), `${slug} still says Me`);
   }
   assert.match(textOf('delete-account'), /Settings/);
+  // The terms tell a customer which button claims the guarantee; the job screen must have it, word for word.
+  const job = readFileSync(new URL('../../../apps/mobile/src/customer/UnderWay.tsx', import.meta.url), 'utf8');
+  const guarantee = allRuns('terms').find((r, i, all) => r.b && /If it fails in that time, tap $/.test(all[i - 1]?.t ?? ''));
+  assert.ok(guarantee, 'the terms name the guarantee button');
+  assert.ok(job.includes(`label="${guarantee!.t}"`), `the job screen has a "${guarantee!.t}" button, as the terms say`);
   assert.ok(allRuns('delete-account').some((r) => r.b && r.t === 'Delete my account'));
 });

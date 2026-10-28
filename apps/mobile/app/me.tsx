@@ -174,12 +174,7 @@ export default function Me() {
             }
           />
         ) : null}
-        <DuoRow icon="lock" label="Privacy policy" onPress={() => openLegal('privacy')} />
-        {pro ? (
-          <DuoRow icon="doc" label="Technician agreement" onPress={() => openLegal('technician-agreement')} last />
-        ) : (
-          <DuoRow icon="doc" label="Terms of use" onPress={() => openLegal('terms')} last />
-        )}
+        <DuoRow icon="doc" label="Legal documents" value="Privacy policy, terms, deleting your account" onPress={() => router.push('/legal')} last />
       </View>
 
       <View style={s.card}>
