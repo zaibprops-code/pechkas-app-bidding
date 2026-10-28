@@ -182,6 +182,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - **Price guidance is the website's prices, never ours.** `job_types` is
   seeded from `src/data/services.js` in the website repository; a job the
   website does not price says "Price after a look" rather than a number.
+  **The screens never say "website"** (the owner's decision): the figure is
+  "Usual price" / "the usual Pechkas price". Where the prices come from is
+  for this file, not for customers.
   The lowest offer is the `min_offer_paisa` setting (Rs 1,000, the website's
   inspection fee). If the website's prices change, a migration updates
   `job_types`.

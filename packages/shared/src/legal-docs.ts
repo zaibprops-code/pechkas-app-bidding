@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "b6f6c71";
+export const LEGAL_FROM = "f635743";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -747,7 +747,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "items": [
           [
             {
-              "t": "You say what is wrong, where and when, and the price you will pay. The app shows the Pechkas website's price for common jobs as a guide. You may offer what you like above the lowest price the app shows."
+              "t": "You say what is wrong, where and when, and the price you will pay. The app shows Pechkas' usual price for common jobs as a guide. You may offer what you like above the lowest price the app shows."
             }
           ],
           [

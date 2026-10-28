@@ -153,6 +153,10 @@ disc with an arrow on the right.
 ## 9. Words on screens
 
 - Formal English. Short sentences. Say which button.
+- **The app never mentions the website** (the owner's decision). A guide
+  price is "the usual Pechkas price" or "Usual price", never "website
+  price"; nothing on a screen sends people to pechkas.net or says what it
+  says. Only the legal pages may name the website, where the law needs it.
 - **Never invent** a price, rating, count or statistic. A new technician is
   "New". Unknown values are a visible `[PLACEHOLDER]`.
 - A number that can change or is still undecided (credit limit, visit fee,

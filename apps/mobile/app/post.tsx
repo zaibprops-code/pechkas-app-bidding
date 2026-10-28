@@ -386,7 +386,7 @@ export default function Post() {
     : offer < chosen.list_paisa * 0.8
       ? 'Low. Fewer technicians will take it at this price.'
       : offer <= chosen.list_paisa * 1.2
-        ? 'Fair. Close to the Pechkas website price.'
+        ? 'Fair. Close to the usual Pechkas price.'
         : 'Generous. You should hear back quickly.';
   const live = lists?.live_sectors ?? [];
   const notYet = (lists?.sectors ?? []).filter((x) => !live.includes(x));
@@ -604,7 +604,7 @@ export default function Post() {
         </View>
         <Text style={s.zone}>{zone}</Text>
         <Text style={s.small}>
-          {chosen?.list_paisa ? `Website price ${rupees(chosen.list_paisa)} · ` : ''}Lowest offer {rupees(min)}, the cost of coming to look.
+          {chosen?.list_paisa ? `Usual price ${rupees(chosen.list_paisa)} · ` : ''}Lowest offer {rupees(min)}, the cost of coming to look.
         </Text>
         {lists?.visit_fee_min_paisa && lists.visit_fee_max_paisa ? (
           <Text style={s.small}>
