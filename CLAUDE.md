@@ -765,9 +765,17 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   Google's map, which stops the app the moment it opens without a key, so
   `mapsReady()` is false unless the build has `GOOGLE_MAPS_API_KEY` (read in
   `app.config.js`, which also adds the key to Android through the
-  `react-native-maps` plugin); every screen keeps its map-free layout then.
-  The iPhone uses Apple's maps and needs no key. `Map.web.tsx` is a drawn
-  stand-in for the browser click-throughs only — never shipped. Location is
+  `react-native-maps` plugin). **The map's box is always there** — the
+  owner's request, so nothing changes shape when the key arrives: without
+  the key `MapBox` draws a street plan (`MapDrawing.tsx`: Islamabad-style
+  grid and green belts, no names, never "you are here") with the pin on it.
+  Home keeps its map layout, locate button and yellow bar (finding the phone
+  needs no key); "Set the job's address" goes to the Address card instead of
+  the pin picker, which needs a real map to move; Post a job and the
+  technician's job show the box once there is a spot, and his tap still
+  opens directions in Google Maps. Never render `MapView` on Android
+  without the key. The iPhone uses Apple's maps and needs no key.
+  `Map.web.tsx` is the browser's stand-in, the same drawing — never shipped. Location is
   asked for only when a button is pressed (`askPosition()`); the home map
   uses `knownPosition()`, which never asks. The pin a customer places is
   the same `lat`/`lng` the job always had; nothing new is collected. The

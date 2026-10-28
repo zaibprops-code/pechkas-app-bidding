@@ -202,7 +202,13 @@ export default function Post() {
     opened.current = true;
     if (params.start === 'video' && !d.media.some((m) => m.kind === 'video')) recordVideo();
     // "Set the job's address" on the home map: straight to the pin, where the map was.
-    if (params.start === 'pin' && mapsReady()) setPicking(true);
+    // Without the Google Maps key there is no map to move, so it goes to the
+    // Address card instead, where the street, the house and the phone's own
+    // location are typed or added.
+    if (params.start === 'pin') {
+      if (mapsReady()) setPicking(true);
+      else setTimeout(() => setJump((j) => ({ card: 'address', n: (j?.n ?? 0) + 1 })), 350);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [d, session]);
 
@@ -487,7 +493,9 @@ export default function Post() {
             <Field label="House" value={d.house} onChangeText={(v) => update({ house: v })} placeholder="House 12" error={errors.house} />
           </View>
         </View>
-        {/* With a map: pin the house by moving the map. Without one: the phone's own position. */}
+        {/* With a map: pin the house by moving the map. Without one: the phone's own
+            position. Either way, once there is a spot, the map's box shows it — a
+            drawn street plan in a build without the Google Maps key. */}
         {pinned && withMap ? (
           <View style={{ gap: 8 }}>
             <MapBox center={{ latitude: d.lat!, longitude: d.lng! }} pin={{ latitude: d.lat!, longitude: d.lng! }} zoom={0.004} style={s.mapPreview} />
@@ -501,10 +509,13 @@ export default function Post() {
             </View>
           </View>
         ) : pinned ? (
-          <View style={s.fileRow}>
-            <Icon name="pin" size={20} strokeWidth={2} />
-            <Text style={s.fileText}>Location added{d.accuracy ? ` (within ${Math.round(d.accuracy)} m)` : ''}</Text>
-            <Remove label="Remove the location" onPress={() => update({ lat: null, lng: null, accuracy: null })} />
+          <View style={{ gap: 8 }}>
+            <MapBox center={{ latitude: d.lat!, longitude: d.lng! }} pin={{ latitude: d.lat!, longitude: d.lng! }} zoom={0.004} style={s.mapPreview} />
+            <View style={s.fileRow}>
+              <Icon name="pin" size={20} strokeWidth={2} />
+              <Text style={s.fileText}>Location added{d.accuracy ? ` (within ${Math.round(d.accuracy)} m)` : ''}</Text>
+              <Remove label="Remove the location" onPress={() => update({ lat: null, lng: null, accuracy: null })} />
+            </View>
           </View>
         ) : withMap ? (
           <LinkRow icon="pin" label="Pin my house on the map" onPress={() => setPicking(true)} />

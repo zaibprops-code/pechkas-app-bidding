@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from './Icon';
+import { MapDrawing } from './MapDrawing';
 import { Press } from './Press';
 import { Button } from './ui';
 import { colour, font } from '../theme';
@@ -16,9 +17,12 @@ import { colour, font } from '../theme';
  * Android draws Google's map, which needs a key, and stops the app the
  * moment a map opens without one. The key is set in Expo (docs/OWNER.md,
  * "Maps") and app.config.js says whether this build has it. Without it,
- * `mapsReady()` is false and every screen keeps its map-free layout. The
- * iPhone draws Apple's map, which needs no key. (Map.web.tsx stands in for
- * both in the browser, where only the screenshots are taken.)
+ * `mapsReady()` is false, and the box is still there — the owner asked for
+ * that — with a drawn street plan in it (MapDrawing.tsx) instead of Google's
+ * map, so no screen changes shape when the key arrives. What cannot be done
+ * on a drawing (moving the map to pin the house) is left out until then.
+ * The iPhone draws Apple's map, which needs no key. (Map.web.tsx stands in
+ * for both in the browser, where only the screenshots are taken.)
  */
 
 export type Point = { latitude: number; longitude: number };
@@ -90,6 +94,30 @@ export function MapBox({ center, pin, zoom = 0.012, interactive = false, showsUs
   zoom?: number;
   interactive?: boolean;
   showsUser?: boolean;
+  style?: StyleProp<ViewStyle>;
+}) {
+  // No key in this build: the drawing, with the pin in the middle, in the same box.
+  if (!mapsReady()) {
+    return (
+      <View style={[s.box, style]}>
+        <MapDrawing />
+        {pin ? (
+          <View style={s.centre} pointerEvents="none">
+            <Pin />
+          </View>
+        ) : null}
+      </View>
+    );
+  }
+  return <RealMap center={center} pin={pin} zoom={zoom} interactive={interactive} showsUser={showsUser} style={style} />;
+}
+
+function RealMap({ center, pin, zoom, interactive, showsUser, style }: {
+  center: Point;
+  pin?: Point | null;
+  zoom: number;
+  interactive: boolean;
+  showsUser: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
   const ref = useRef<MapView>(null);

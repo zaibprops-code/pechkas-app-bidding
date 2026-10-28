@@ -10,7 +10,7 @@ import { OFFICE_PHONE } from '../office';
 import { RemoteMedia, useSignedUrls, type StoredMedia } from '../post/RemoteMedia';
 import { takePhoto, upload } from '../post/media';
 import { ask } from '../supabase';
-import { MapBox, mapsReady } from '../components/Map';
+import { MapBox } from '../components/Map';
 import { fill, proError, type ProWords } from '../words';
 import { colour, font, radius } from '../theme';
 
@@ -181,8 +181,10 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
         {j.stage === 'chosen' || j.stage === 'on_way' ? <Action icon="pin" label={w.actMap} full={w.openMap} onPress={() => Linking.openURL(map)} /> : null}
         <Action icon="flag" label={w.actReport} full={w.reportProblem} on={reporting} onPress={() => setReporting(!reporting)} />
       </View>
-      {/* The customer's own pin, once he is the one chosen; tapping it opens directions. */}
-      {(j.stage === 'chosen' || j.stage === 'on_way') && j.lat !== null && j.lng !== null && mapsReady() ? (
+      {/* The customer's own pin, once he is the one chosen; tapping it opens directions
+          in Google Maps, which needs no key. Without the key the box shows the drawn
+          street plan, and the tap still opens the directions. */}
+      {(j.stage === 'chosen' || j.stage === 'on_way') && j.lat !== null && j.lng !== null ? (
         <Press onPress={() => Linking.openURL(map)} accessibilityRole="button" accessibilityLabel={w.openMap} sink={0.98}>
           <MapBox center={{ latitude: j.lat, longitude: j.lng }} pin={{ latitude: j.lat, longitude: j.lng }} zoom={0.006} style={s.map} />
         </Press>

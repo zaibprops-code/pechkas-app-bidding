@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Linking, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Animated, Linking, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Art, type ArtName } from '../src/components/Art';
 import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
 import { Icon } from '../src/components/Icon';
-import { askPosition, ISLAMABAD, knownPosition, MapBox, mapsReady, Pin, type Point } from '../src/components/Map';
+import { askPosition, ISLAMABAD, knownPosition, MapBox, Pin, type Point } from '../src/components/Map';
 import { MenuButton } from '../src/components/Menu';
 import { Press } from '../src/components/Press';
 import { ScrewSpinner } from '../src/components/ScrewSpinner';
@@ -79,18 +79,19 @@ export default function Home() {
   const recent = jobs.filter((j) => !isLive(j)).slice(0, 2);
   // The map shows where the phone is only if the person has already allowed
   // it; otherwise Islamabad. It asks only when the locate button is pressed.
-  const withMap = mapsReady();
+  // The map's box is always there (the owner's request): a build without
+  // the Google Maps key draws a street plan in it instead (MapBox does that),
+  // and finding the phone still works, because that needs no key.
   const [me, setMe] = useState<Point | null>(null);
   // Whether the phone could be found: 'off' until it is, 'refused' once the
   // person has said no, when only the phone's settings can change it.
   const [where, setWhere] = useState<'looking' | 'found' | 'off' | 'refused'>('looking');
   useEffect(() => {
-    if (!withMap) return;
     knownPosition().then((p) => {
       if (p) setMe(p);
       setWhere(p ? 'found' : 'off');
     });
-  }, [withMap]);
+  }, []);
   const locate = async () => {
     if (where === 'refused') return Linking.openSettings();
     const p = await askPosition();
@@ -235,74 +236,53 @@ export default function Home() {
     </>
   );
 
-  if (withMap) {
-    // Under the yellow bar when it shows, as the menu button is on inDrive.
-    const top = where === 'off' || where === 'refused' ? insets.top + 58 : insets.top;
-    return (
-      <View style={s.screen}>
-        <StatusBar style="dark" />
-        <MapBox center={me ?? ISLAMABAD} zoom={me ? 0.012 : 0.09} showsUser={Boolean(me)} style={[s.map, { height: mapHeight + 40 }]} />
-        <Animated.ScrollView
-          contentContainerStyle={{ paddingTop: mapHeight - 28, paddingBottom: Math.max(insets.bottom, 16) + 8 }}
-          showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
-        >
-          <View style={s.sheetBase}>
-            <View style={s.handle} />
-            {body}
-          </View>
-        </Animated.ScrollView>
-        <View pointerEvents="none" style={[s.cap, { height: insets.top }]}>
-          <Animated.View style={{ height: insets.top, backgroundColor: colour.canvas, transform: [{ translateY: capY }] }} />
-        </View>
-        <SystemBars bg={colour.canvas} top={false} />
-        {/* The pin stays in the middle of what can be seen of the map, with the one thing to do above it. */}
-        <Animated.View
-          pointerEvents="box-none"
-          style={[s.centre, { top: Math.max(top + 66, top + (mapHeight - 28 - top) / 2 - 92), transform: [{ translateY: lift }] }]}
-        >
-          <Press onPress={setAddress} accessibilityRole="button" sink={0.96} style={s.bubble}>
-            <Text style={s.bubbleText}>Set the job's address</Text>
-            <Icon name="chevronRight" size={18} color={colour.ink} strokeWidth={2.4} />
-          </Press>
-          <Pin />
-        </Animated.View>
-        <Animated.View style={[s.top, s.floating, { top: top + 10, transform: [{ translateY: lift }] }]} pointerEvents="box-none">
-          <MenuButton />
-        </Animated.View>
-        <Animated.View style={[s.floating, { top: mapHeight - 28 - 64, alignItems: 'flex-end', paddingRight: 16, transform: [{ translateY: lift }] }]} pointerEvents="box-none">
-          <Press onPress={locate} accessibilityRole="button" accessibilityLabel="Show where I am" sink={0.9} style={s.locate}>
-            <Icon name="locate" size={22} color={colour.ink} strokeWidth={2.2} />
-          </Press>
-        </Animated.View>
-        {/* The phone could not be found: say so across the top, as inDrive does, and let a tap fix it. */}
-        {where === 'off' || where === 'refused' ? (
-          <Press onPress={locate} accessibilityRole="button" sink={1} style={[s.banner, { paddingTop: insets.top + 6 }]}>
-            <Text style={s.bannerTitle}>We could not find you</Text>
-            <Text style={s.bannerText}>{where === 'refused' ? 'Tap to allow location in the phone settings' : 'Tap to turn on location'}</Text>
-          </Press>
-        ) : null}
-      </View>
-    );
-  }
-
+  // Under the yellow bar when it shows, as the menu button is on inDrive.
+  const top = where === 'off' || where === 'refused' ? insets.top + 58 : insets.top;
   return (
     <View style={s.screen}>
       <StatusBar style="dark" />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 10, paddingBottom: Math.max(insets.bottom, 16) + 8 }} bounces={false}>
-        <View style={s.top}>
-          <MenuButton />
-          {/* Islamabad is the only city, so this says where, and is not a button. */}
-          <View style={s.city} accessibilityLabel="Pechkas works in Islamabad">
-            <Icon name="pin" size={16} color={colour.green} strokeWidth={2.2} />
-            <Text style={s.cityText}>Islamabad</Text>
-          </View>
+      <MapBox center={me ?? ISLAMABAD} zoom={me ? 0.012 : 0.09} showsUser={Boolean(me)} style={[s.map, { height: mapHeight + 40 }]} />
+      <Animated.ScrollView
+        contentContainerStyle={{ paddingTop: mapHeight - 28, paddingBottom: Math.max(insets.bottom, 16) + 8 }}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+      >
+        <View style={s.sheetBase}>
+          <View style={s.handle} />
+          {body}
         </View>
-
-        {body}
-      </ScrollView>
-      <SystemBars bg={colour.canvas} />
+      </Animated.ScrollView>
+      <View pointerEvents="none" style={[s.cap, { height: insets.top }]}>
+        <Animated.View style={{ height: insets.top, backgroundColor: colour.canvas, transform: [{ translateY: capY }] }} />
+      </View>
+      <SystemBars bg={colour.canvas} top={false} />
+      {/* The pin stays in the middle of what can be seen of the map, with the one thing to do above it. */}
+      <Animated.View
+        pointerEvents="box-none"
+        style={[s.centre, { top: Math.max(top + 66, top + (mapHeight - 28 - top) / 2 - 92), transform: [{ translateY: lift }] }]}
+      >
+        <Press onPress={setAddress} accessibilityRole="button" sink={0.96} style={s.bubble}>
+          <Text style={s.bubbleText}>Set the job's address</Text>
+          <Icon name="chevronRight" size={18} color={colour.ink} strokeWidth={2.4} />
+        </Press>
+        <Pin />
+      </Animated.View>
+      <Animated.View style={[s.top, s.floating, { top: top + 10, transform: [{ translateY: lift }] }]} pointerEvents="box-none">
+        <MenuButton />
+      </Animated.View>
+      <Animated.View style={[s.floating, { top: mapHeight - 28 - 64, alignItems: 'flex-end', paddingRight: 16, transform: [{ translateY: lift }] }]} pointerEvents="box-none">
+        <Press onPress={locate} accessibilityRole="button" accessibilityLabel="Show where I am" sink={0.9} style={s.locate}>
+          <Icon name="locate" size={22} color={colour.ink} strokeWidth={2.2} />
+        </Press>
+      </Animated.View>
+      {/* The phone could not be found: say so across the top, as inDrive does, and let a tap fix it. */}
+      {where === 'off' || where === 'refused' ? (
+        <Press onPress={locate} accessibilityRole="button" sink={1} style={[s.banner, { paddingTop: insets.top + 6 }]}>
+          <Text style={s.bannerTitle}>We could not find you</Text>
+          <Text style={s.bannerText}>{where === 'refused' ? 'Tap to allow location in the phone settings' : 'Tap to turn on location'}</Text>
+        </Press>
+      ) : null}
     </View>
   );
 }
@@ -440,8 +420,6 @@ const s = StyleSheet.create({
   livePillText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
   screen: { flex: 1, backgroundColor: colour.canvas },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
-  city: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: TAP, paddingHorizontal: 14, borderRadius: radius.pill, backgroundColor: colour.white, boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.10)' },
-  cityText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   map: { position: 'absolute', top: 0, left: 0, right: 0 },
   cap: { position: 'absolute', top: 0, left: 0, right: 0, overflow: 'hidden' },
   floating: { position: 'absolute', left: 0, right: 0 },

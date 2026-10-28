@@ -7,6 +7,13 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The map's box is always on the home screen now (new — no database step,
+needs a new build).** Until you add the Google Maps key, the box shows a
+drawn street plan with the pin, the ☰ button, **Set the job's address**
+and the round locate button, exactly where the real map will be. Add the
+key later (section "Maps: the Google Maps key (once)") and make one more
+build: the real map appears in the same box and nothing else moves.
+
 **Legal, laid out like your reference app (new — no database step, needs
 a new build).** The menu (☰) has a new **Legal** row. It opens **Legal
 documents**: one card each for the Privacy policy, Terms of use,
@@ -1521,7 +1528,12 @@ it has seen the DNS records.
 ## Maps: the Google Maps key (once)
 
 Only Android needs this; iPhones use Apple's maps. Without it, Android
-builds show no maps and everything else works.
+builds still show the map's box on the home screen, with a drawn street
+plan in it instead of Google's map, and everything else works. Once the key
+is in and you make a new build, the real map appears in the same box.
+Until then, **Set the job's address** opens Post a job at the Address card
+(street, house, and **Add my exact location**), because a drawing cannot be
+moved to pin a house.
 
 ### A. Make the key in Google Cloud
 
@@ -1564,7 +1576,8 @@ builds show no maps and everything else works.
 4. With a technician chosen, his job card shows the same pin; tapping it
    opens Google Maps with directions.
 
-If the home screen still has no map, the build was made before the key was
+If the home screen still shows the drawn streets instead of a real map, the
+build was made before the key was
 added: build again.
 
 ---
