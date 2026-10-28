@@ -24,3 +24,14 @@ if (skill.slice(header[0].length) !== design) {
   process.exit(1);
 }
 console.log('✓ The design skill matches docs/DESIGN.md.');
+
+// The office panel takes every colour from packages/shared/src/tokens.ts
+// (look.ts sets them as CSS variables). A hex code in admin.css is a colour
+// that can drift from the app's.
+const css = readFileSync(new URL('../apps/admin/src/admin.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+const hex = css.match(/#[0-9a-fA-F]{3,8}\b/g);
+if (hex) {
+  console.error(`✗ apps/admin/src/admin.css types a colour of its own (${[...new Set(hex)].join(', ')}). Use a var(--…) from packages/shared/src/tokens.ts.`);
+  process.exit(1);
+}
+console.log('✓ The office panel types no colour of its own.');

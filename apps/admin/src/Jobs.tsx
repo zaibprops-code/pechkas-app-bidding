@@ -103,7 +103,6 @@ export function Jobs({ trades }: { trades: Record<string, string> }) {
 
   return (
     <>
-      <h1>Jobs</h1>
       <nav className="tabs" aria-label="Jobs">
         {TABS.map((t) => (
           <button key={t.key} className={t.key === tab ? 'tab on' : 'tab'} aria-pressed={t.key === tab} onClick={() => setTab(t.key)}>

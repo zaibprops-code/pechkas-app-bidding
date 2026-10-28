@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Head } from './Duo.tsx';
 import { rupees } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
 import { shown } from './phones.ts';
@@ -57,7 +58,7 @@ export function Problems() {
 
   return (
     <>
-      <h1>Problems</h1>
+      <Head icon="help" title="Problems" />
       <nav className="tabs" aria-label="Problems">
         <button className={status === 'open' ? 'tab on' : 'tab'} aria-pressed={status === 'open'} onClick={() => setStatus('open')}>Open</button>
         <button className={status === 'closed' ? 'tab on' : 'tab'} aria-pressed={status === 'closed'} onClick={() => setStatus('closed')}>Closed</button>

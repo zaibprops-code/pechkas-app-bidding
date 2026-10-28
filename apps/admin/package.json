@@ -17,6 +17,9 @@
     "vite": "^8.3.4"
   },
   "dependencies": {
+    "@expo-google-fonts/bricolage-grotesque": "^0.4.1",
+    "@expo-google-fonts/ibm-plex-mono": "^0.4.1",
+    "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
     "@pechkas/shared": "^0.1.0",
     "@supabase/supabase-js": "^2.117.3",
     "react": "19.2.3",

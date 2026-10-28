@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Duo } from './Duo.tsx';
 import { pakistaniMobile, showMobile } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
 
@@ -47,7 +48,12 @@ export function Alerts() {
 
   return (
     <section className="alerts">
-      <h2>Alerts on your phone</h2>
+      <div className="alerts-head">
+        <span className="head-tile small-tile">
+          <Duo name="bell" size={22} />
+        </span>
+        <h2>Alerts on your phone</h2>
+      </div>
       {set ? (
         <>
           <p>
@@ -57,7 +63,7 @@ export function Alerts() {
           {state.phones === 0 ? (
             <p className="error">
               No phone signed in as that number has allowed notifications yet. Open the Pechkas app on it, sign in with that
-              number, and on the <strong>Me</strong> screen press <strong>Turn on notifications</strong>.
+              number, open the menu, tap <strong>Settings</strong>, then tap <strong>Notifications</strong> and allow them.
             </p>
           ) : (
             <p className="muted">

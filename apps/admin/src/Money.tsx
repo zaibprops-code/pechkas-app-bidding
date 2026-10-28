@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Head } from './Duo.tsx';
 import { rupees } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
 import { shown } from './phones.ts';
@@ -48,7 +49,7 @@ export function Money() {
 
   return (
     <>
-      <h1>Money</h1>
+      <Head icon="wallet" title="Money" />
       <p className="lead">
         Customers pay technicians in cash. Each technician owes Pechkas 10% of his labour on every finished job, and pays it by
         JazzCash, Easypaisa, bank or cash. Over {d ? rupees(d.credit_limit_paisa) : 'the limit'}, he cannot make new offers until he pays.

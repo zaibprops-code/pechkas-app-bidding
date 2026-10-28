@@ -1,6 +1,6 @@
-# Pechkas app design rules
+# Pechkas design rules
 
-These are the rules every screen of the Pechkas app follows. They were
+These are the rules every screen of the Pechkas app, and the office panel, follows. They were
 worked out screen by screen with the owner, from inDrive's layout and the
 pechkas.net colours, and every screen in the app now follows them. Follow them
 for any new screen or change, and change this file when a rule changes.
@@ -23,9 +23,12 @@ change both together (copy this file's text under the skill's header).
   components in section 6, never from new one-off styles. If the
   pieces cannot do it, add a piece and use it everywhere it fits.
 
-## 2. Colours (`apps/mobile/src/theme.ts`)
+## 2. Colours (`packages/shared/src/tokens.ts`)
 
-Always use the names, never a hex code typed in a screen.
+Always use the names, never a hex code typed in a screen. The colours and the
+card shadow live in `packages/shared/src/tokens.ts`; the app reads them
+through `apps/mobile/src/theme.ts` and the admin panel as CSS variables
+(section 12).
 
 | Name | Use it for |
 | --- | --- |
@@ -76,8 +79,10 @@ a screen; use the token.
 
 - **Two-tone icons (`DuoIcon.tsx`)** for anything that names a section, a
   row or a tile: ink outline, yellow fill on the part that matters, on a
-  `softYellow` tile 40–56 square. Add new ones to `DuoIcon.tsx` in the same
-  24-unit grid and style.
+  `softYellow` tile 40–56 square. Their shapes are data in
+  `packages/shared/src/duo-icons.ts`, drawn by the app's `DuoIcon` and the
+  admin panel's `Duo`; add a new one there, in the same 24-unit grid and
+  style, and both get it.
 - **Line icons (`Icon.tsx`)** only inside buttons, chevrons, ticks and small
   status discs.
 - **Drawings (`Art.tsx`)** for trades: objects, never people, over a yellow
@@ -171,7 +176,35 @@ The app is drawn edge to edge. Every scrolling screen draws `SystemBars`
 and ends with `insets.bottom` of room (`useScrollEnd()`); `Screen` does
 both. A fixed top bar (chat, the technician's bar) covers the clock itself.
 
-## 12. Before a screen is finished
+## 12. The office panel (`apps/admin`)
+
+The admin panel is a website for the office, and it follows the same rules
+in a browser's terms, so the office and the phones look like one business.
+
+- **The same colours, fonts and icons, from the same files.** `look.ts`
+  turns `packages/shared/src/tokens.ts` into CSS variables (`--green`,
+  `--soft-yellow`, `--shadow-card` …) and loads the app's own font files
+  (Plus Jakarta Sans, Bricolage for the word "Pechkas", IBM Plex Mono for
+  codes); `Duo.tsx` draws the shared two-tone icons. **`admin.css` never
+  types a colour** — `npm run design:check` fails if a hex code appears in
+  it.
+- **The menu is the app's menu**: on the left, the Pechkas mark, the
+  person on a green card, then one plain list of rows (two-tone icon on a
+  soft tile, the words, a chevron, the current one on soft yellow) and
+  Sign out at the foot. On a phone (under 900 px wide) it is a drawer
+  behind a round ☰ button, and while closed it cannot be reached with Tab.
+- **Each section opens with its icon and its title** (`Head` in
+  `Duo.tsx`), the same icon as its row in the menu.
+- **White cards, radius 24, the one shadow, no borders**; boxes inside a
+  card are grey or soft and rounded. Buttons are pills; filters are chips,
+  the chosen one green. Sign-in is one white card in the middle.
+- **Nothing scrolls sideways on a phone.** Cards and form boxes are
+  `minmax(0, 1fr)` grids and fields may shrink, because a long name in a
+  drop-down once pushed a whole job card past the edge. Wide tables scroll
+  inside their own box (`.scroll`).
+- Checked at **1280** and **390** wide.
+
+## 13. Before a screen is finished
 
 1. Built from the pieces in section 6, colours and fonts by name.
 2. Looked at in the browser at 412 and 320 wide: no cut word, no sideways

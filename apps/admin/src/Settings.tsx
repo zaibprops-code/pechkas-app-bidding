@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Head } from './Duo.tsx';
 import { APP_EDITION, rupees } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
 
@@ -115,7 +116,7 @@ export function Settings() {
 
   return (
     <>
-      <h1>Settings</h1>
+      <Head icon="settings" title="Settings" />
       <p className="lead">
         Each number can be set only within a safe range, and every change is kept with your name. Money and the 30-day guarantee are
         locked here: ask Claude to change those.

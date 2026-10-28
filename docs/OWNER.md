@@ -7,6 +7,22 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The admin panel, redesigned the same way (new — no database step; it
+updates when Vercel next builds it from `main`).**
+
+- **The menu is on the left, like the app's menu**: the Pechkas logo,
+  your name on a green card, then Jobs, Problems, Money, Technicians,
+  Demand, Flags and Settings as rows with the app's two-tone icons, and
+  **Sign out** at the bottom. On a phone, tap the round **☰** at the top
+  to open it.
+- Each section starts with its icon and title. Everything sits on white
+  rounded cards with the app's fonts and colours; filters are rounded
+  chips and buttons are pills.
+- **Fixed:** on a phone, the Jobs section used to slide sideways. It now
+  fits the screen.
+- The **Alerts on your phone** card now tells you to turn notifications
+  on from **Settings** (the screen that used to be called Me).
+
 **Every other screen, redesigned the same way, and the design rules
 written down (new — no database step, needs a new build).**
 

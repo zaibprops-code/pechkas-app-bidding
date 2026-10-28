@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Head } from './Duo.tsx';
 import { supabase } from './supabase.ts';
 
 /**
@@ -54,7 +55,7 @@ export function Demand() {
 
   return (
     <>
-      <h1>Demand</h1>
+      <Head icon="pin" title="Demand" />
       <nav className="tabs" aria-label="How far back">
         {WINDOWS.map((d) => (
           <button key={d} className={days === d ? 'tab on' : 'tab'} aria-pressed={days === d} onClick={() => setDays(d)}>

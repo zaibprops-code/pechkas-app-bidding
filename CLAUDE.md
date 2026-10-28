@@ -661,6 +661,18 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `Select` in Post a job shows its price **under** the name, never beside
   it — beside it squeezed "Something else, or not sure" into "Somethin /
   g else" at 320.
+- **The office panel (`apps/admin`) follows the same rules** (DESIGN.md
+  section 12), from the same sources: colours and the card shadow are
+  `packages/shared/src/tokens.ts` (the app's `theme.ts` re-exports them;
+  `look.ts` turns them into CSS variables for `admin.css`, which may not
+  type a hex code — `design:check` fails if it does), the two-tone icons'
+  shapes are `packages/shared/src/duo-icons.ts` (the app's `DuoIcon` and
+  the panel's `Duo` both draw them), and the panel bundles the app's own
+  font files. Its menu is the app's menu — mark, the staff member on a
+  green card, one plain list of icon rows, Sign out at the foot — on the
+  left, and a drawer behind ☰ under 900 px wide, `inert` while closed.
+  Cards and form boxes are `minmax(0, 1fr)` grids: a long drop-down once
+  made a job card scroll sideways on a phone.
 - The website's colours: green `#0b5148` trust, yellow `#ffc53d` action and
   money, ink, paper, brick for warnings only. Every text pair ≥ 4.5:1.
 - **No decoration.** The owner rejected truck-art and ajrak as unprofessional.

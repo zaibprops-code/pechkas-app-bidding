@@ -11,6 +11,8 @@ import { Settings } from './Settings.tsx';
 import { Jobs } from './Jobs.tsx';
 import { Money } from './Money.tsx';
 import { Problems } from './Problems.tsx';
+import { Duo, Head } from './Duo.tsx';
+import type { DuoName } from '@pechkas/shared/src/duo-icons.ts';
 
 /**
  * The owner's admin panel. Phase 1: sign in, and decide on technicians.
@@ -45,13 +47,25 @@ const TABS = [
   { status: 'suspended', label: 'Suspended' },
 ] as const;
 
+/** The sections, in the menu's order, each with the two-tone icon it is known by. */
+const SECTIONS = [
+  { key: 'jobs', label: 'Jobs', icon: 'jobs' },
+  { key: 'problems', label: 'Problems', icon: 'help' },
+  { key: 'money', label: 'Money', icon: 'wallet' },
+  { key: 'technicians', label: 'Technicians', icon: 'briefcase' },
+  { key: 'demand', label: 'Demand', icon: 'pin' },
+  { key: 'flags', label: 'Flags', icon: 'flag' },
+  { key: 'settings', label: 'Settings', icon: 'settings' },
+] as const satisfies readonly { key: string; label: string; icon: DuoName }[];
+type Section = (typeof SECTIONS)[number]['key'];
+
 const STEP = { identity: 'Identity seen', trial_job: 'Trial job watched', rules: 'Rules explained' } as const;
 const METHOD = { in_person: 'in person', video_call: 'by video call' } as const;
 
 function Logo() {
   return (
     <header className="brand">
-      <svg width="36" height="36" viewBox="0 0 64 64" role="img" aria-label="Pechkas logo">
+      <svg width="34" height="34" viewBox="0 0 64 64" role="img" aria-label="Pechkas logo">
         {MARK_PATHS.machined.map((p, i) =>
           'stroke' in p ? (
             <path key={i} d={p.d} fill="none" stroke={p.stroke} strokeWidth={p.width} strokeLinecap="round" />
@@ -60,8 +74,24 @@ function Logo() {
           ),
         )}
       </svg>
-      <span>pechkas admin</span>
+      <span>
+        <span className="brand-name">Pechkas</span>
+        <br />
+        <span className="brand-sub">Office</span>
+      </span>
     </header>
+  );
+}
+
+/** A page with one thing on it — signing in, or why the panel cannot open — as one card in the middle. */
+function Solo({ children }: { children: React.ReactNode }) {
+  return (
+    <main className="solo">
+      <div className="solo-card">
+        <Logo />
+        {children}
+      </div>
+    </main>
   );
 }
 
@@ -93,11 +123,10 @@ export function App() {
 
   if (!supabase) {
     return (
-      <main className="shell">
-        <Logo />
+      <Solo>
         <h1>Not connected</h1>
         <p className="lead">This panel has no database address yet. docs/OWNER.md says where to put it.</p>
-      </main>
+      </Solo>
     );
   }
   if (!ready) return null;
@@ -105,12 +134,11 @@ export function App() {
   if (staffName === null) return null;
   if (staffName === '') {
     return (
-      <main className="shell">
-        <Logo />
+      <Solo>
         <h1>Not on the staff list</h1>
         <p className="lead">This login exists but has not been given access to the office. Ask the owner.</p>
         <button className="secondary" onClick={() => supabase?.auth.signOut()}>Sign out</button>
-      </main>
+      </Solo>
     );
   }
   return <Office name={staffName} />;
@@ -133,9 +161,9 @@ function SignIn() {
   }
 
   return (
-    <main className="shell narrow">
-      <Logo />
+    <Solo>
       <h1>Sign in</h1>
+      <p className="lead">The Pechkas office. One login each, made by the owner.</p>
       <form onSubmit={submit} className="stack">
         <label>
           Email
@@ -148,7 +176,7 @@ function SignIn() {
         {error ? <p className="error" role="alert">{error}</p> : null}
         <button type="submit" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
       </form>
-    </main>
+    </Solo>
   );
 }
 
@@ -161,7 +189,7 @@ function Office({ name }: { name: string }) {
     const t = setInterval(load, 60000);
     return () => clearInterval(t);
   }, []);
-  const [section, setSection] = useState<'jobs' | 'problems' | 'money' | 'technicians' | 'demand' | 'flags' | 'settings'>('jobs');
+  const [section, setSection] = useState<Section>('jobs');
   const [trades, setTrades] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -171,43 +199,89 @@ function Office({ name }: { name: string }) {
     });
   }, []);
 
+  // On a phone the menu is a drawer behind ☰, as in the app; choosing a section closes it.
+  const [open, setOpen] = useState(false);
+  const go = (s: Section) => {
+    setSection(s);
+    setOpen(false);
+    window.scrollTo(0, 0);
+  };
+  const current = SECTIONS.find((s) => s.key === section)!;
+  // While the drawer is closed on a phone it is off the screen, and must not
+  // be reachable with Tab or a screen reader either.
+  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 900px)').matches);
+  useEffect(() => {
+    const m = window.matchMedia('(max-width: 900px)');
+    const on = () => setNarrow(m.matches);
+    m.addEventListener('change', on);
+    return () => m.removeEventListener('change', on);
+  }, []);
+
   return (
-    <main className="shell">
+    <div className={open ? 'frame open' : 'frame'}>
       <div className="topbar">
+        <button className="menu-button" aria-label="Open the menu" aria-expanded={open} onClick={() => setOpen(true)}>
+          ☰
+        </button>
         <Logo />
-        <div className="who">
-          <span>{name}</span>
-          <button className="secondary small" onClick={() => supabase?.auth.signOut()}>Sign out</button>
-        </div>
       </div>
-      <nav className="sections" aria-label="Sections">
-        <button className={section === 'jobs' ? 'section on' : 'section'} aria-pressed={section === 'jobs'} onClick={() => setSection('jobs')}>Jobs</button>
-        <button className={section === 'problems' ? 'section on' : 'section'} aria-pressed={section === 'problems'} onClick={() => setSection('problems')}>Problems</button>
-        <button className={section === 'money' ? 'section on' : 'section'} aria-pressed={section === 'money'} onClick={() => setSection('money')}>Money</button>
-        <button className={section === 'technicians' ? 'section on' : 'section'} aria-pressed={section === 'technicians'} onClick={() => setSection('technicians')}>Technicians</button>
-        <button className={section === 'demand' ? 'section on' : 'section'} aria-pressed={section === 'demand'} onClick={() => setSection('demand')}>Demand</button>
-        <button className={section === 'flags' ? 'section on' : 'section'} aria-pressed={section === 'flags'} onClick={() => setSection('flags')}>Flags</button>
-        <button className={section === 'settings' ? 'section on' : 'section'} aria-pressed={section === 'settings'} onClick={() => setSection('settings')}>Settings</button>
-      </nav>
-      {section === 'jobs' ? (
-        <>
-          <Alerts />
-          <Jobs trades={trades} />
-        </>
-      ) : section === 'problems' ? (
-        <Problems />
-      ) : section === 'money' ? (
-        <Money />
-      ) : section === 'demand' ? (
-        <Demand />
-      ) : section === 'flags' ? (
-        <Flags />
-      ) : section === 'settings' ? (
-        <Settings />
-      ) : (
-        <Technicians trades={trades} />
-      )}
-    </main>
+      <button className="backdrop" aria-label="Close the menu" onClick={() => setOpen(false)} />
+
+      {/* The menu, laid out as the app's: the person on a green card, then one plain list. */}
+      <aside className="side" aria-label="Sections" inert={narrow && !open}>
+        <Logo />
+        <div className="person">
+          <span className="initial" aria-hidden="true">{name.trim().charAt(0).toUpperCase() || 'P'}</span>
+          <div>
+            <div className="person-name">{name}</div>
+            <span className="person-side">Office</span>
+          </div>
+        </div>
+        <nav className="nav">
+          {SECTIONS.map((s) => (
+            <button key={s.key} className={s.key === section ? 'nav-row on' : 'nav-row'} aria-current={s.key === section ? 'page' : undefined} onClick={() => go(s.key)}>
+              <span className="tile">
+                <Duo name={s.icon} size={22} />
+              </span>
+              <span className="label">{s.label}</span>
+              <span className="chev" aria-hidden="true">›</span>
+            </button>
+          ))}
+        </nav>
+        <div className="side-foot">
+          <button className="nav-row" onClick={() => supabase?.auth.signOut()}>
+            <span className="tile">
+              <Duo name="logout" size={22} />
+            </span>
+            <span className="label">Sign out</span>
+          </button>
+        </div>
+      </aside>
+
+      <main className="work" aria-label={current.label}>
+        <div className="work-inner">
+          {section === 'jobs' ? (
+            <>
+              <Head icon="jobs" title="Jobs" />
+              <Alerts />
+              <Jobs trades={trades} />
+            </>
+          ) : section === 'problems' ? (
+            <Problems />
+          ) : section === 'money' ? (
+            <Money />
+          ) : section === 'demand' ? (
+            <Demand />
+          ) : section === 'flags' ? (
+            <Flags />
+          ) : section === 'settings' ? (
+            <Settings />
+          ) : (
+            <Technicians trades={trades} />
+          )}
+        </div>
+      </main>
+    </div>
   );
 }
 
@@ -235,7 +309,7 @@ function Technicians({ trades }: { trades: Record<string, string> }) {
 
   return (
     <>
-      <h1>Technicians</h1>
+      <Head icon="briefcase" title="Technicians" />
       <nav className="tabs" aria-label="Applications">
         {TABS.map((t) => (
           <button key={t.status} className={t.status === tab ? 'tab on' : 'tab'} aria-pressed={t.status === tab} onClick={() => setTab(t.status)}>

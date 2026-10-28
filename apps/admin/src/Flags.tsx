@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Head } from './Duo.tsx';
 
 import { ask, supabase } from './supabase.ts';
 import { shown } from './phones.ts';
@@ -77,7 +78,7 @@ export function Flags() {
 
   return (
     <>
-      <h1>Flags</h1>
+      <Head icon="flag" title="Flags" />
       <p className="lead">
         Patterns worth a look over the last {r?.days ?? '…'} days. A flag is not proof of anything, and nothing here changes anybody's
         account. The limits are starting guesses; they are settings, and can be changed once real jobs show what is normal.
