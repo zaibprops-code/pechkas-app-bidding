@@ -7,6 +7,30 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The address is map first now (new — no database step, needs a new
+build).** In **Post a job**, the Address card starts with the map: tap
+**Set the address on the map**, move the map until the pin is on the house
+and tap **Confirm this spot**. (Until you add the Google Maps key, the
+button says **Use my location** and uses where the phone is.) The app then
+reads the **sector** and the **street** from the pin by itself — "Sector
+F‑11 · read from the map", with **Change** if it is wrong — and asks only
+for the **house or flat number**. Tap **Home**, **Office** or **Other** to
+save it: next time, the form starts at the last address, and **Use a saved
+address** switches between them. Saved addresses stay on the phone only,
+and signing out forgets them. A job can no longer be posted without a pin.
+
+Note: reading the sector needs the phone's location to be allowed for
+Pechkas. If it is not, the customer taps the sector instead. Nothing extra
+needs switching on in Google for this.
+
+The privacy policy and both stores' answers now say the pin is required.
+**In Play Console → App content → Data safety**, change *Location → Precise
+location* from *Optional* to **Required** (`docs/store/data-safety.md`
+has the exact wording), and in App Store Connect nothing changes. In
+**Play Console → App content → App access**, replace the reviewers'
+instructions with the new text in `docs/store/review-notes.md` (they now
+say to set the address on the map).
+
 **The map's box is always on the home screen now (new — no database step,
 needs a new build).** Until you add the Google Maps key, the box shows a
 drawn street plan with the pin, the ☰ button, **Set the job's address**
@@ -557,7 +581,7 @@ stay valid. Say yes, with the rule, and it gets built.
 
 **Maps (new — needs your Google Maps key).** The home screen opens on a map
 of Islamabad with the cards in a sheet over it, as in inDrive; the round
-arrow button shows where you are. **Post a job → Pin my house on the map**
+arrow button shows where you are. **Post a job → Set the address on the map**
 lets the customer move the map until the pin is on the house, and the
 technician she chooses sees that pin on a small map (tap it for
 directions). **iPhone needs nothing** — it uses Apple's maps. **Android
@@ -1532,8 +1556,8 @@ builds still show the map's box on the home screen, with a drawn street
 plan in it instead of Google's map, and everything else works. Once the key
 is in and you make a new build, the real map appears in the same box.
 Until then, **Set the job's address** opens Post a job at the Address card
-(street, house, and **Add my exact location**), because a drawing cannot be
-moved to pin a house.
+with the pin where the phone is, and the Address card's button says **Use
+my location**, because a drawing cannot be moved to pin a house.
 
 ### A. Make the key in Google Cloud
 
@@ -1571,8 +1595,9 @@ moved to pin a house.
    bar): the phone asks once for your location, then the map moves to you.
    Tap **Set the job's address ›** above the pin: Post a job opens on the
    pin, starting where the map was.
-3. **Post a job → Pin my house on the map**: move the map until the pin is
-   on your house, **Confirm this spot**; a small map with your pin appears.
+3. **Post a job → Set the address on the map**: move the map until the pin
+   is on your house, **Confirm this spot**; a small map with your pin
+   appears, with your sector read from it.
 4. With a technician chosen, his job card shows the same pin; tapping it
    opens Google Maps with directions.
 

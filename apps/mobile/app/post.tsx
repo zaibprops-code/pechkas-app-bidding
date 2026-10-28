@@ -3,10 +3,9 @@ import { Art, artFor, type ArtName } from '../src/components/Art';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Image, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
-import { ISLAMABAD, MapBox, mapsReady, PinPicker } from '../src/components/Map';
-import { rupees } from '@pechkas/shared';
+import { ISLAMABAD, MapBox, mapsReady, Pin, PinPicker, readPlace, type Point } from '../src/components/Map';
+import { rupees, sectorIn, streetIn } from '@pechkas/shared';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { Button, Chip, Field, Loading, Notice, Screen, useScreenScroll } from '../src/components/ui';
@@ -15,6 +14,7 @@ import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
 import { ask, supabase } from '../src/supabase';
 import { clearDraft, EMPTY, loadDraft, saveDraft, type Draft } from '../src/post/draft';
+import { forgetPlace, loadPlaces, placeLine, rememberPlace, type Place, type PlaceLabel } from '../src/post/places';
 import { switchedOff, type Message } from '../src/message';
 import { afterSheet, clock, detailOf, LIMITS, recoverLostPick, takePhoto, takeVideo, tooBigWords, upload, type Media } from '../src/post/media';
 import { tile, VoicePlayback, VoiceTile } from '../src/post/VoiceNote';
@@ -33,7 +33,6 @@ import { colour, font, radius } from '../src/theme';
 
 // Trades where whether the electricity is on decides if the visit is wasted.
 const NEEDS_POWER = new Set(['ac', 'electrician', 'ups', 'solar', 'appliances', 'cctv', 'wifi', 'computers']);
-const LAST_ADDRESS = 'pechkas.last-address';
 // Every refusal this form can show beside its own box, and the card it is in,
 // top to bottom: a refusal scrolls the page up to the first of them.
 const CARD_OF: Record<string, string> = {
@@ -49,7 +48,7 @@ const CARDS = ['job', 'what', 'address', 'when', 'good', 'price'];
 const ANSWERS: Partial<Record<keyof Draft, string[]>> = {
   trade: ['trade', 'job_type'], jobType: ['job_type'],
   media: ['media'], description: ['media', 'description'],
-  sector: ['sector'], street: ['street'], house: ['house'], landmark: ['landmark'], gateNote: ['gate_note'],
+  sector: ['sector'], lat: ['location', 'sector'], street: ['street'], house: ['house'], landmark: ['landmark'], gateNote: ['gate_note'],
   whenKind: ['when'], whenPart: ['when'], power: ['power'], parts: ['parts'], offer: ['offer'],
 };
 const SHOWN = new Set(Object.keys(CARD_OF).filter((k) => k !== 'location'));
@@ -92,7 +91,14 @@ export default function Post() {
   const withMap = mapsReady();
   const [picking, setPicking] = useState(false);
   // Which drop-down is open, if any.
-  const [sheet, setSheet] = useState<null | 'trade' | 'type' | 'video' | 'photo'>(null);
+  const [sheet, setSheet] = useState<null | 'trade' | 'type' | 'video' | 'photo' | 'places'>(null);
+  // The address: saved ones on this phone, the sector being read from the pin,
+  // a sector the map read that Pechkas does not serve yet, and what to save it as.
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [reading, setReading] = useState(false);
+  const [readElsewhere, setReadElsewhere] = useState<string | null>(null);
+  const [choosingSector, setChoosingSector] = useState(false);
+  const [saveAs, setSaveAs] = useState<PlaceLabel | null>(null);
   const [more, setMore] = useState(false);
   // Where each card sits, and a request to scroll to one (see Jump).
   const ys = useRef<Record<string, number>>({}).current;
@@ -114,17 +120,15 @@ export default function Post() {
   const [asked, setAsked] = useState<string | null>(null);
   const opened = useRef(false);
 
-  // Start from the draft on this phone, or from the last address used.
+  // Start from the draft on this phone, or from the address used last.
   useEffect(() => {
     (async () => {
       const saved = await loadDraft();
+      const known = await loadPlaces();
+      setPlaces(known);
       let next: Draft = saved ?? { ...EMPTY };
-      if (!saved) {
-        try {
-          const raw = await AsyncStorage.getItem(LAST_ADDRESS);
-          if (raw) next = { ...next, ...(JSON.parse(raw) as Partial<Draft>) };
-        } catch {}
-      }
+      // A new form starts at the address used last, pin and all; one tap changes it.
+      if (!saved && known[0]) next = { ...next, ...fromPlace(known[0]) };
       if (params.trade && params.trade !== next.trade) {
         next = { ...next, trade: params.trade, jobType: null, offer: null };
         // Kept on the phone at once, so a trade chosen before signing in is
@@ -207,7 +211,11 @@ export default function Post() {
     // location are typed or added.
     if (params.start === 'pin') {
       if (mapsReady()) setPicking(true);
-      else setTimeout(() => setJump((j) => ({ card: 'address', n: (j?.n ?? 0) + 1 })), 350);
+      else {
+        // No map to move: the phone was already found on home, so that is the pin.
+        if (fromHome) placeAt(fromHome, null);
+        setTimeout(() => setJump((j) => ({ card: 'address', n: (j?.n ?? 0) + 1 })), 350);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [d, session]);
@@ -269,6 +277,37 @@ export default function Post() {
     ask('forget_ask_again', {}).catch(() => {});
   }
 
+  /**
+   * The pin is down — from the map, or the phone's own position without one.
+   * The sector and the street are read from it by the phone's map service,
+   * and the customer can correct either. A sector Pechkas does not serve yet
+   * is said plainly, with the same "count me in" as before.
+   */
+  async function placeAt(p: Point, accuracy: number | null) {
+    setReadElsewhere(null);
+    setChoosingSector(false);
+    setAsked(null);
+    update({ lat: p.latitude, lng: p.longitude, accuracy, sector: null, sectorRead: false });
+    setReading(true);
+    const place = await readPlace(p);
+    setReading(false);
+    const sector = place ? sectorIn(place.texts, lists?.sectors ?? []) : null;
+    const street = place ? streetIn(place.street, sector) : '';
+    const patch: Partial<Draft> = street ? { street } : {};
+    if (sector && (lists?.live_sectors ?? []).includes(sector)) Object.assign(patch, { sector, sectorRead: true });
+    else if (sector) setReadElsewhere(sector);
+    if (Object.keys(patch).length) update(patch);
+  }
+
+  /** A saved address: everything in the card at once. */
+  function choosePlace(p: Place) {
+    setSheet(null);
+    setReadElsewhere(null);
+    setChoosingSector(false);
+    setSaveAs(p.label);
+    update(fromPlace(p));
+  }
+
   /** "Pechkas is not in G-9 yet": counted, and nothing promised in return. */
   async function askForSector(name: string) {
     if (!d?.trade) {
@@ -292,13 +331,13 @@ export default function Post() {
     try {
       const perm = await Location.requestForegroundPermissionsAsync();
       if (!perm.granted) {
-        setErrors((e) => ({ ...e, location: 'Allow location in your phone settings, or leave it out. The address is enough.' }));
+        setNotice(switchedOff('location', 'The technician needs to know where the house is.'));
         return;
       }
-      const here = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      update({ lat: here.coords.latitude, lng: here.coords.longitude, accuracy: here.coords.accuracy ?? null });
+      const here = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      await placeAt({ latitude: here.coords.latitude, longitude: here.coords.longitude }, here.coords.accuracy ?? null);
     } catch {
-      setErrors((e) => ({ ...e, location: 'Your location could not be found. Leave it out; the address is enough.' }));
+      setErrors((e) => ({ ...e, location: 'Your location could not be found. Step outside or near a window, and try again.' }));
     } finally {
       setLocating(false);
     }
@@ -311,9 +350,12 @@ export default function Post() {
 
     const early: Record<string, string> = {};
     if (!d.trade) early.trade = 'Choose what kind of work it is.';
-    if (!d.sector) early.sector = 'Choose your sector.';
-    if (!d.street.trim()) early.street = 'Write your street.';
-    if (!d.house.trim()) early.house = 'Write your house number.';
+    if (d.lat === null || d.lng === null) early.location = mapsReady() ? 'Put the pin on the house: tap Set the address on the map.' : 'Add where the house is: tap Use my location.';
+    else {
+      if (!d.sector) early.sector = 'Choose your sector.';
+      if (!d.house.trim()) early.house = 'Write the house or flat number.';
+      if (!d.street.trim()) early.street = 'Write the street.';
+    }
     if (d.media.length === 0 && d.description.trim().length < 10) early.media = 'Show us what is wrong: a voice note, a video, a photo, or a few words.';
     if (Object.keys(early).length) {
       refuse(early);
@@ -367,10 +409,8 @@ export default function Post() {
       setNotice(shown ? FIX : r.why);
       return;
     }
-    AsyncStorage.setItem(
-      LAST_ADDRESS,
-      JSON.stringify({ sector: d.sector, street: d.street, house: d.house, landmark: d.landmark, gateNote: d.gateNote }),
-    ).catch(() => {});
+    // Kept on this phone only: next time the card starts here, and a named one stays in the list.
+    rememberPlace({ label: saveAs, sector: d.sector!, street: d.street.trim(), house: d.house.trim(), landmark: d.landmark.trim(), gateNote: d.gateNote.trim(), lat: d.lat!, lng: d.lng! }).catch(() => {});
     clearDraft();
     // Straight to the job's own live screen, the way a ride app goes to the
     // search — on top of home, so Back from it is home, not the empty form.
@@ -476,84 +516,143 @@ export default function Post() {
         icon="pin"
         onY={atY}
         title="Address"
-        hint={live.length ? `Pechkas works in ${live.map((n) => n.replace(/-/g, '\u2011')).join(', ')} for now. Only the technician you choose sees your street and house.` : 'Only the technician you choose sees your street and house.'}
+        hint="Put the pin on the house first. Only the technician you choose sees the house number."
       >
-        <View style={s.wrap}>
-          {live.map((name) => (
-            <Chip key={name} label={name} on={d.sector === name} onPress={() => update({ sector: name })} />
-          ))}
-        </View>
-        {/* Right under the sectors, not at the foot of the card, so it is beside what it is about. */}
-        {errors.sector ? <Text style={s.error}>{errors.sector}</Text> : null}
-        <View style={s.pair}>
-          <View style={{ flex: 1 }}>
-            <Field label="Street" value={d.street} onChangeText={(v) => update({ street: v })} placeholder="Street 34" error={errors.street} autoComplete="street-address" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Field label="House" value={d.house} onChangeText={(v) => update({ house: v })} placeholder="House 12" error={errors.house} />
-          </View>
-        </View>
-        {/* With a map: pin the house by moving the map. Without one: the phone's own
-            position. Either way, once there is a spot, the map's box shows it — a
-            drawn street plan in a build without the Google Maps key. */}
-        {pinned && withMap ? (
-          <View style={{ gap: 8 }}>
-            <MapBox center={{ latitude: d.lat!, longitude: d.lng! }} pin={{ latitude: d.lat!, longitude: d.lng! }} zoom={0.004} style={s.mapPreview} />
-            <View style={s.fileRow}>
-              <Icon name="pin" size={20} strokeWidth={2} />
-              <Text style={s.fileText}>Pinned on the map</Text>
-              <Press onPress={() => setPicking(true)} accessibilityRole="button" style={s.change}>
-                <Text style={s.changeText}>Change</Text>
-              </Press>
-              <Remove label="Remove the pin" onPress={() => update({ lat: null, lng: null, accuracy: null })} />
+        {places.length ? <LinkRow icon="pin" label={places.length === 1 ? 'Use a saved address' : `Saved addresses (${places.length})`} onPress={() => setSheet('places')} /> : null}
+        {/* The map first, the way ride apps do it: the pin is the address, the boxes only finish it. */}
+        <Press
+          onPress={withMap ? () => setPicking(true) : locating ? undefined : locate}
+          accessibilityRole="button"
+          accessibilityLabel={pinned ? (withMap ? 'Move the pin' : 'Find my location again') : withMap ? 'Set the address on the map' : 'Use my location'}
+          sink={0.99}
+        >
+          <MapBox center={pinned ? { latitude: d.lat!, longitude: d.lng! } : fromHome ?? ISLAMABAD} pin={pinned ? { latitude: d.lat!, longitude: d.lng! } : null} zoom={pinned ? 0.004 : 0.03} style={s.mapPreview} />
+          {pinned ? null : (
+            <View style={s.mapAsk} pointerEvents="none">
+              <View style={s.mapBubble}>
+                <Text style={s.mapBubbleText}>{withMap ? (width < 360 ? 'Set the address' : 'Set the address on the map') : locating ? 'Finding you…' : 'Use my location'}</Text>
+                <Icon name="chevronRight" size={18} color={colour.ink} strokeWidth={2.4} />
+              </View>
+              <Pin />
             </View>
+          )}
+        </Press>
+        {pinned ? (
+          <View style={s.fileRow}>
+            <Icon name="pin" size={20} strokeWidth={2} />
+            <Text style={s.fileText}>{withMap ? 'Pinned on the map' : `Your location${d.accuracy ? ` (within ${Math.round(d.accuracy)} m)` : ''}`}</Text>
+            <Press onPress={withMap ? () => setPicking(true) : locating ? undefined : locate} accessibilityRole="button" style={s.change}>
+              <Text style={s.changeText}>{withMap ? 'Move the pin' : locating ? 'Finding you…' : 'Find me again'}</Text>
+            </Press>
           </View>
-        ) : pinned ? (
-          <View style={{ gap: 8 }}>
-            <MapBox center={{ latitude: d.lat!, longitude: d.lng! }} pin={{ latitude: d.lat!, longitude: d.lng! }} zoom={0.004} style={s.mapPreview} />
-            <View style={s.fileRow}>
-              <Icon name="pin" size={20} strokeWidth={2} />
-              <Text style={s.fileText}>Location added{d.accuracy ? ` (within ${Math.round(d.accuracy)} m)` : ''}</Text>
-              <Remove label="Remove the location" onPress={() => update({ lat: null, lng: null, accuracy: null })} />
-            </View>
-          </View>
-        ) : withMap ? (
-          <LinkRow icon="pin" label="Pin my house on the map" onPress={() => setPicking(true)} />
-        ) : (
-          <LinkRow icon="locate" label={locating ? 'Finding you…' : 'Add my exact location'} onPress={locating ? undefined : locate} />
-        )}
+        ) : null}
         {errors.location ? <Text style={s.error}>{errors.location}</Text> : null}
-        {extrasOpen ? (
+
+        {/* Once there is a pin: the sector read from it, then the house. */}
+        {pinned ? (
           <>
-            <Field label="Landmark (optional)" value={d.landmark} onChangeText={(v) => update({ landmark: v })} placeholder="Behind the markaz mosque" maxLength={120} error={errors.landmark} />
-            <Field label="Note for the gate (optional)" value={d.gateNote} onChangeText={(v) => update({ gateNote: v })} placeholder="The guard will open. Please ring twice." maxLength={120} error={errors.gate_note} />
-          </>
-        ) : (
-          <LinkRow icon="doc" label="Add a landmark or a note for the gate" onPress={() => setMore(true)} />
-        )}
-        {asked ? (
-          <View style={s.asked} accessibilityRole="alert">
-            <Text style={s.askedTitle}>Thank you. We have counted you in {asked}.</Text>
-            <Text style={s.line}>
-              Pechkas does not work in {asked} yet, so a job cannot be posted there: nobody could honestly be promised. Knowing where people
-              need us helps decide where to go next.
-            </Text>
-          </View>
-        ) : elsewhere ? (
-          <View style={{ gap: 8 }}>
-            <Text style={s.hint}>Tap your sector. It tells Pechkas you need {d.trade ? tradeName(d.trade) : 'this'} there. Nothing else is sent.</Text>
-            <View style={s.wrap}>
-              {notYet.map((name) => (
-                <Chip key={name} label={asking === name ? 'Sending…' : name} on={false} onPress={() => askForSector(name)} />
-              ))}
+            {reading ? (
+              <Text style={s.hint}>Reading the sector from the map…</Text>
+            ) : d.sector && !choosingSector ? (
+              <View style={s.sectorRow}>
+                <Text style={s.sectorText}>
+                  Sector {d.sector.replace(/-/g, '\u2011')}
+                  {d.sectorRead ? <Text style={s.hint}> · read from the map</Text> : null}
+                </Text>
+                <Press onPress={() => setChoosingSector(true)} accessibilityRole="button" accessibilityLabel="Change the sector" style={s.change}>
+                  <Text style={s.changeText}>Change</Text>
+                </Press>
+              </View>
+            ) : readElsewhere && !choosingSector ? (
+              <View style={s.asked}>
+                <Text style={s.askedTitle}>
+                  {asked === readElsewhere ? `Thank you. We have counted you in ${readElsewhere}.` : `This pin is in ${readElsewhere.replace(/-/g, '\u2011')}.`}
+                </Text>
+                <Text style={s.line}>
+                  Pechkas does not work in {readElsewhere} yet, so a job cannot be posted there: nobody could honestly be promised.
+                  {asked === readElsewhere ? ' Knowing where people need us helps decide where to go next.' : ''}
+                </Text>
+                {asked === readElsewhere ? null : (
+                  <Chip label={asking === readElsewhere ? 'Sending…' : `Tell Pechkas I need it in ${readElsewhere}`} on={false} onPress={() => askForSector(readElsewhere)} />
+                )}
+                {errors.elsewhere ? <Text style={s.error}>{errors.elsewhere}</Text> : null}
+                <Press onPress={() => setChoosingSector(true)} accessibilityRole="button" style={s.link}>
+                  <Text style={s.linkInk}>The pin is not in {readElsewhere}</Text>
+                </Press>
+              </View>
+            ) : (
+              <View style={{ gap: 8 }}>
+                <Text style={s.hint}>
+                  {choosingSector ? 'Tap your sector.' : 'The sector could not be read from the map. Tap yours.'} Pechkas works in{' '}
+                  {live.map((n) => n.replace(/-/g, '\u2011')).join(', ')} for now.
+                </Text>
+                <View style={s.wrap}>
+                  {live.map((name) => (
+                    <Chip
+                      key={name}
+                      label={name}
+                      on={d.sector === name}
+                      onPress={() => {
+                        setChoosingSector(false);
+                        setReadElsewhere(null);
+                        update({ sector: name, sectorRead: false });
+                      }}
+                    />
+                  ))}
+                </View>
+                {asked ? (
+                  <View style={s.asked} accessibilityRole="alert">
+                    <Text style={s.askedTitle}>Thank you. We have counted you in {asked}.</Text>
+                    <Text style={s.line}>
+                      Pechkas does not work in {asked} yet, so a job cannot be posted there: nobody could honestly be promised. Knowing where
+                      people need us helps decide where to go next.
+                    </Text>
+                  </View>
+                ) : elsewhere ? (
+                  <View style={{ gap: 8 }}>
+                    <Text style={s.hint}>Tap your sector. It tells Pechkas you need {d.trade ? tradeName(d.trade) : 'this'} there. Nothing else is sent.</Text>
+                    <View style={s.wrap}>
+                      {notYet.map((name) => (
+                        <Chip key={name} label={asking === name ? 'Sending…' : name} on={false} onPress={() => askForSector(name)} />
+                      ))}
+                    </View>
+                    {errors.elsewhere ? <Text style={s.error}>{errors.elsewhere}</Text> : null}
+                  </View>
+                ) : (
+                  <Press onPress={() => setElsewhere(true)} accessibilityRole="button" style={s.link}>
+                    <Text style={s.linkInk}>My sector is not listed</Text>
+                  </Press>
+                )}
+              </View>
+            )}
+            {errors.sector ? <Text style={s.error}>{errors.sector}</Text> : null}
+            <View style={s.pair}>
+              <View style={{ flex: 1 }}>
+                <Field label="House or flat" value={d.house} onChangeText={(v) => update({ house: v })} placeholder="House 12" error={errors.house} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Field label="Street" value={d.street} onChangeText={(v) => update({ street: v })} placeholder="Street 34" error={errors.street} autoComplete="street-address" />
+              </View>
             </View>
-            {errors.elsewhere ? <Text style={s.error}>{errors.elsewhere}</Text> : null}
-          </View>
-        ) : (
-          <Press onPress={() => setElsewhere(true)} accessibilityRole="button" style={s.link}>
-            <Text style={s.linkInk}>My sector is not listed</Text>
-          </Press>
-        )}
+            {extrasOpen ? (
+              <>
+                <Field label="Landmark (optional)" value={d.landmark} onChangeText={(v) => update({ landmark: v })} placeholder="Behind the markaz mosque" maxLength={120} error={errors.landmark} />
+                <Field label="Note for the gate (optional)" value={d.gateNote} onChangeText={(v) => update({ gateNote: v })} placeholder="The guard will open. Please ring twice." maxLength={120} error={errors.gate_note} />
+              </>
+            ) : (
+              <LinkRow icon="doc" label="Add a landmark or a note for the gate" onPress={() => setMore(true)} />
+            )}
+            {/* Saved on this phone only, for one tap next time. */}
+            <View style={{ gap: 8 }}>
+              <Text style={s.hint}>Save this address as</Text>
+              <View style={s.wrap}>
+                {(['Home', 'Office', 'Other'] as const).map((label) => (
+                  <Chip key={label} label={label} on={saveAs === label} onPress={() => setSaveAs(saveAs === label ? null : label)} />
+                ))}
+              </View>
+            </View>
+          </>
+        ) : null}
       </Card>
 
       <Card id="when" icon="clock" onY={atY} title="When" error={errors.when}>
@@ -684,18 +783,36 @@ export default function Post() {
           />
         </Sheet>
       ) : null}
+      {sheet === 'places' ? (
+        <Sheet title="Saved addresses" onClose={() => setSheet(null)}>
+          {places.map((p) => (
+            <View key={`${p.label}-${p.lat}-${p.lng}`} style={s.placeRow}>
+              <View style={{ flex: 1 }}>
+                <SheetOption label={p.label ?? 'Used last time'} sub={`${placeLine(p)} · ${p.sector.replace(/-/g, '\u2011')}`} onPress={() => choosePlace(p)} />
+              </View>
+              <Remove label={`Delete ${p.label ?? 'the address used last time'}`} onPress={() => forgetPlace(p).then(setPlaces)} />
+            </View>
+          ))}
+          <Text style={[s.hint, { paddingHorizontal: 12, paddingTop: 8 }]}>Saved on this phone only.</Text>
+        </Sheet>
+      ) : null}
       {picking ? (
         <PinPicker
           start={pinned ? { latitude: d.lat!, longitude: d.lng! } : fromHome ?? ISLAMABAD}
           onCancel={() => setPicking(false)}
           onConfirm={(p) => {
-            update({ lat: p.latitude, lng: p.longitude, accuracy: null });
             setPicking(false);
+            placeAt(p, null);
           }}
         />
       ) : null}
     </Screen>
   );
+}
+
+/** What a saved address puts in the form. */
+function fromPlace(p: Place): Partial<Draft> {
+  return { sector: p.sector, sectorRead: false, street: p.street, house: p.house, landmark: p.landmark, gateNote: p.gateNote, lat: p.lat, lng: p.lng, accuracy: null };
 }
 
 /** One part of the form: a white card with its title, and its own error at the foot. */
@@ -816,7 +933,14 @@ const s = StyleSheet.create({
   photo: { width: 72, height: 72, borderRadius: 12, backgroundColor: colour.paper2 },
   photoX: { position: 'absolute', top: -12, right: -12, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   photoXDot: { width: 26, height: 26, borderRadius: 999, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
-  mapPreview: { height: 140, borderRadius: 16 },
+  mapPreview: { height: 170, borderRadius: 16 },
+  // The bubble and pin over a map that has no pin yet, as on home.
+  mapAsk: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', gap: 6, paddingBottom: 10 },
+  mapBubble: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 16, borderRadius: 22, backgroundColor: colour.white, boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.18)' },
+  mapBubbleText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.ink },
+  sectorRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  sectorText: { flex: 1, fontFamily: font.bodySemi, fontSize: 15, color: colour.ink },
+  placeRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   change: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 },
   changeText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green, textDecorationLine: 'underline' },
   linkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48 },

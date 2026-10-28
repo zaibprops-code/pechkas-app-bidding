@@ -190,6 +190,28 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `job_types`.
 - **Only `live` sectors take jobs.** Nobody is promised a visit where Pechkas
   has nobody.
+- **The address is map first** (the owner's choice, replacing typed-in
+  sector, street and house). The Address card is a map box with **Set the
+  address on the map** (the pin picker) — or **Use my location** in a build
+  without the Google key — and nothing else until there is a pin: **the pin
+  is required** (`early.location`). Then `readPlace()` (Map.tsx: the phone's
+  own geocoder through `expo-location`, which needs the location
+  permission on Android and never asks for it) and `sectorIn()` /
+  `streetIn()` in `packages/shared` (`place.test.ts`) read the sector and
+  the street: only a sector on the list can come back, never a guess, and
+  "F-1" is never read out of "F-11". A live sector shows as "Sector F‑11 ·
+  read from the map" with Change; one Pechkas does not serve is said
+  plainly with the same `ask_for_sector()` button; nothing read means the
+  live sectors as chips. Then **House or flat** (required) and **Street**
+  (filled from the pin, required by the database — `jobs.street` is NOT
+  NULL — and correctable), landmark and gate note behind a link, and
+  **Save this address as** Home / Office / Other. Saved addresses and the
+  last one used live **on the phone only** (`src/post/places.ts`, four at
+  most) and a new form starts at the last one, pin and all; **signing out
+  forgets them** and the draft (`account.tsx`), because the next person on
+  that phone must not see them. The privacy page and both stores' answers
+  say the pin is required and that the pin goes to the phone's map service
+  to read the sector.
 - **Files live in the private `job-media` bucket under `<user id>/…`.** The
   storage policies let a person write and read only their own folder and the
   office read all of it — no policy for `anon`, ever. `post_job()` checks every
@@ -781,7 +803,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `Map.web.tsx` is the browser's stand-in, the same drawing — never shipped. Location is
   asked for only when a button is pressed (`askPosition()`); the home map
   uses `knownPosition()`, which never asks. The pin a customer places is
-  the same `lat`/`lng` the job always had; nothing new is collected. The
+  the same `lat`/`lng` the job always had, now required (see "The address
+  is map first"). The
   Maps key is inside the app on purpose, as every Android map key is,
   protected by its restriction to `net.pechkas.app` and the signing SHA-1.
   The visit fee does not use distance yet: that is money, and waits on the
@@ -854,8 +877,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   then which job with its price) opening a `Sheet` (`src/components/Sheet.tsx`,
   shared with the technician's job sheet); "What is wrong?" is one row of
   tiles (Voice, Video, Photo — a tile goes once it is used up, so none does
-  nothing) and one text box; Street and House sit side by side, and the
-  landmark and gate note stay behind a link until wanted or filled; the
+  nothing) and one text box; the address is map first (see Jobs), with
+  House or flat and Street side by side under the pin, and the
+  landmark and gate note behind a link until wanted or filled; the
   footer says **Post job · Rs …**. A refusal for a box the page does not
   draw is shown in full, never as "fix what is marked above". **A refusal
   scrolls the page up to the first card that needs fixing** (`CARD_OF`,

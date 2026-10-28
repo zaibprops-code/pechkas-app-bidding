@@ -80,7 +80,7 @@ For each: **Collected: Yes · Shared: No · Processed ephemerally: No.**
 
 | Data type | Required or optional | Purposes | What it is in the app |
 | --- | --- | --- | --- |
-| **Location → Precise location** | Optional | App functionality | The map pin a customer may add to a job; where the phone was when the emergency button was pressed. Only while the app is open, never in the background. |
+| **Location → Precise location** | Required | App functionality | The map pin on the house, which every job a customer posts needs; where the phone was when the emergency button was pressed. Only while the app is open, never in the background. Saved addresses stay on the phone and are not collected. |
 | **Personal info → Name** | Required | App functionality, Account management, Fraud prevention, security and compliance | First name; a technician's full name. |
 | **Personal info → Email address** | Optional | App functionality, Account management | Only for somebody who signs in with an email code, or continues with Google, instead of a mobile number. |
 | **Personal info → User IDs** | Optional | Account management | Only for somebody who continues with Google: the number Google gives their Google account, so the same Google account always opens the same Pechkas account. |
@@ -102,8 +102,8 @@ without the office doing it by hand.
 
 ### Not collected
 
-Approximate location (the app only ever takes the precise pin, and only when
-asked), user IDs from other services, race, religion,
+Approximate location (the app only ever takes the precise pin of the house,
+and the phone's position only when the person taps to use it), user IDs from other services, race, religion,
 political or sexual information, payment card or bank details, credit score,
 health, contacts, calendar, files and documents, web history, installed
 apps, search history, app interactions and in-app search (there is no
@@ -125,7 +125,7 @@ analytics), crash logs and diagnostics (there is no crash reporting).
 | Violence, fear, sexuality, language, controlled substances, crude humour | **No** to every one |
 | Gambling or simulated gambling | **No** |
 | Does the app allow users to interact or exchange content with each other? | **Yes** — the chat between a customer and her chosen technician, and photos of the job |
-| Does the app share the user's current physical location with other users? | **Yes** — a customer may add her map pin, which the chosen technician sees |
+| Does the app share the user's current physical location with other users? | **Yes** — a customer's map pin on the house, which the chosen technician sees |
 | Does the app allow purchases of digital goods? | **No** |
 | Is the app a web browser or search engine? | **No** |
 

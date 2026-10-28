@@ -18,8 +18,17 @@ import { colour, font } from '../theme';
 export type Point = { latitude: number; longitude: number };
 export const ISLAMABAD: Point = { latitude: 33.6844, longitude: 73.0479 };
 
+/**
+ * Click-throughs can play the two other cases a phone meets, from the
+ * browser: `window.__pechkasNoMap` (a build without the Google key) and
+ * `window.__pechkasPlace` (what the phone's map service would say about a
+ * pin). Only this browser stand-in reads them; it is never shipped.
+ */
+type Pretend = { __pechkasNoMap?: boolean; __pechkasPlace?: { texts: string[]; street: string | null } };
+const pretend = globalThis as Pretend;
+
 export function mapsReady(): boolean {
-  return true;
+  return !pretend.__pechkasNoMap;
 }
 
 export async function knownPosition(): Promise<Point | null> {
@@ -28,6 +37,11 @@ export async function knownPosition(): Promise<Point | null> {
 
 export async function askPosition(): Promise<Point | 'refused' | null> {
   return ISLAMABAD;
+}
+
+/** The browser has no geocoder: the customer taps the sector, unless a click-through pretends otherwise. */
+export async function readPlace(_p: Point): Promise<{ texts: string[]; street: string | null } | null> {
+  return pretend.__pechkasPlace ?? null;
 }
 
 export function Pin() {

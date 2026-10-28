@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { isAuthRetryableFetchError, type Session } from '@supabase/supabase-js';
 import { forget } from './notifications';
+import { clearDraft } from './post/draft';
+import { forgetAllPlaces } from './post/places';
 import { whyNoAnswer, type NoAnswer } from './net';
 import { supabase } from './supabase';
 
@@ -162,6 +164,9 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         // First, while the database still knows who is asking: otherwise
         // whoever picks this phone up next is told about this person's jobs.
         await forget();
+        // Their saved addresses and any half-written job stay with them, not with the phone.
+        clearDraft();
+        await forgetAllPlaces();
         await supabase?.auth.signOut();
         setAccount(null);
       },

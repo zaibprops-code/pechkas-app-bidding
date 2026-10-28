@@ -213,3 +213,48 @@ export function firstNameFrom(meta: Record<string, unknown> | null | undefined):
   const name = given || whole.split(/\s+/)[0] || '';
   return name.length >= 1 && name.length <= 40 && !/[@\d]/.test(name) ? name : '';
 }
+
+/**
+ * Which of Pechkas' sectors a place is in, read from what the phone's own
+ * map service says about the pin (Android's geocoder, Apple's on iPhone):
+ * `texts` are its lines, most precise first (district, name, street, the
+ * whole address, then the city). Only a name on `sectors` can come back —
+ * never one the list does not have — and null when none is there, so the
+ * customer taps it instead. "F-11/2", "F 11 Markaz" and "f‑11" are all F-11;
+ * "F-1" is never read out of "F-11", nor "G-1" out of "G-13".
+ */
+export function sectorIn(texts: readonly (string | null | undefined)[], sectors: readonly string[]): string | null {
+  const grid = sectors.filter((s) => /^[A-Z]-\d{1,2}$/.test(s));
+  // Longest first, so a longer name is never cut short by a shorter one inside it.
+  const named = sectors.filter((s) => !grid.includes(s)).sort((a, b) => b.length - a.length);
+  const escape = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const also: Record<string, string[]> = { DHA: ['Defence Housing Authority', 'Defense Housing Authority'] };
+  for (const raw of texts) {
+    const text = (raw ?? '').replace(/[‐-―]/g, '-');
+    if (!text.trim()) continue;
+    for (const s of grid) {
+      const [letter, number] = s.split('-');
+      if (new RegExp(`(?<![A-Za-z0-9])${letter}\\s*-?\\s*${number}(?![0-9])`, 'i').test(text)) return s;
+    }
+    for (const s of named) {
+      for (const name of [s, ...(also[s] ?? [])]) {
+        if (new RegExp(`(?<![A-Za-z0-9])${escape(name)}(?![A-Za-z0-9])`, 'i').test(text)) return s;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * The street the phone's map service names for a pin, to fill the Street box
+ * so the customer need not type it — or '' when it names none worth showing:
+ * nothing, a Plus Code ("8M4R+2V"), the sector itself, or something too long
+ * for the box. The customer can always correct it.
+ */
+export function streetIn(street: string | null | undefined, sector: string | null): string {
+  const s = (street ?? '').trim();
+  if (!s || s.length > 60) return '';
+  if (/^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{0,3}\b/i.test(s)) return '';
+  if (sector && sectorIn([s], [sector]) === sector && s.replace(/[\s-]/g, '').length <= sector.replace(/[\s-]/g, '').length + 3) return '';
+  return s;
+}

@@ -136,6 +136,12 @@ disc with an arrow on the right.
   section headings in green and **Last updated** pinned at the foot. When
   more than one legal page is open, a round × beside the title closes them
   all at once.
+- **An address is a pin first**, the way ride apps take one: a map box
+  with one bubble ("Set the address on the map", or "Use my location"
+  without the map key) and the Pechkas pin, and no boxes until the pin is
+  down. Then what was read from the pin, said as such ("Sector F‑11 · read
+  from the map", with Change), and only what a pin cannot know: the house
+  or flat number. Saved places are one link that opens a sheet.
 - **Empty is a card, not a blank**: an icon on a soft tile, one line, and
   the button that fills it.
 - A screen whose first load fails shows `Trouble` under its own header;

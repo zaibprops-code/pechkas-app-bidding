@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "f635743";
+export const LEGAL_FROM = "4242465";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -138,14 +138,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Your exact location on a map, "
-            },
-            {
-              "t": "only if you choose to add it",
-              "b": true
-            },
-            {
-              "t": ", to help the technician find the house."
+              "t": "The pin you put on the house on a map. Every job needs one, so that the technician can find the house."
             }
           ],
           [
@@ -440,7 +433,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " on iPhone draw the maps inside the app. To draw one they receive the area being shown: the place you pin, or where you are if you tap to show it. Pechkas itself keeps only a pin you choose to add to a job."
+              "t": " on iPhone draw the maps inside the app. To draw one they receive the area being shown: the place you pin, or where you are if you tap to show it. When you put the pin on the house, the phone's own map service (Google's on Android, Apple's on iPhone) is also asked which sector and street the pin is in, so that you do not have to type them; it receives the place you pinned. Pechkas itself keeps only the pin of a job you post."
             }
           ]
         ]
@@ -512,6 +505,39 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
       {
         "k": "ul",
         "items": [
+          [
+            {
+              "t": "Addresses you save as "
+            },
+            {
+              "t": "Home",
+              "b": true
+            },
+            {
+              "t": ", "
+            },
+            {
+              "t": "Office",
+              "b": true
+            },
+            {
+              "t": " or "
+            },
+            {
+              "t": "Other",
+              "b": true
+            },
+            {
+              "t": ", and the address you used last, are kept "
+            },
+            {
+              "t": "on your phone only",
+              "b": true
+            },
+            {
+              "t": ". Pechkas receives one only when you post a job with it. Signing out, or deleting your account, removes them from the phone."
+            }
+          ],
           [
             {
               "t": "Delete your account",

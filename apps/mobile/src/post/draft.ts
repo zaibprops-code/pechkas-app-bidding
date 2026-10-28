@@ -12,6 +12,8 @@ export type Draft = {
   description: string;
   media: Media[];
   sector: string | null;
+  /** True when the sector was read from the pin, so the card can say so. */
+  sectorRead: boolean;
   street: string;
   house: string;
   landmark: string;
@@ -39,6 +41,7 @@ export const EMPTY: Draft = {
   description: '',
   media: [],
   sector: null,
+  sectorRead: false,
   street: '',
   house: '',
   landmark: '',

@@ -59,7 +59,7 @@ Google sign-in on iPhone; if Google is ever shown there, that comes with
 it, and this label gains User ID and the profile picture link, as on Play.
 | Contact Info → **Phone Number** | Sign-in, and given to the other side once a technician is chosen |
 | Contact Info → **Physical Address** | Where the job is: sector, street, house, landmark, gate note; a sector a customer says Pechkas does not serve yet |
-| Location → **Precise Location** | The map pin a customer may add; where the phone was when the emergency button was pressed. Only while the app is open |
+| Location → **Precise Location** | The map pin on the house, which every job needs; where the phone was when the emergency button was pressed. Only while the app is open |
 | Financial Info → **Other Financial Info** | What a technician owes Pechkas in fees and what he paid |
 | User Content → **Photos or Videos** | What is wrong; before and after photos; receipts for parts |
 | User Content → **Audio Data** | The voice note describing the problem |
@@ -165,7 +165,7 @@ Pechkas connects people in Islamabad who need a home repair with technicians Pec
 
 A second test account, an approved technician: [TECHNICIAN REVIEWER NUMBER], code [ITS CODE].
 
-Customer: sign in with the first number, tap a trade (e.g. AC), choose a job, write a few words, choose sector F-11, add any street and house, choose "Now", and post. Jobs can only be posted in sectors F-11, E-11 and G-13.
+Customer: sign in with the first number, tap a trade (e.g. AC), choose a job, write a few words, tap "Set the address on the map" and "Confirm this spot" (or "Use my location"), tap sector F-11 if asked, type any house and street, choose "Now", and post. Jobs can only be posted in sectors F-11, E-11 and G-13.
 
 Technician: on a second device, sign in with the second number. Tap "Offline" to go online; the customer's job appears. Press "Accept" to accept the price. Back on the customer's device, choose the technician in "My jobs".
 

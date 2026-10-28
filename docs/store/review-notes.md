@@ -45,7 +45,7 @@ other information required to access your app**:
 ```
 Pechkas connects people in Islamabad who need a home repair with technicians Pechkas has checked. The app opens on a sign-in screen: tap "Continue with mobile number". Sign-in is a mobile number and a one-time code; the two numbers above are test numbers that accept the code given, with no SMS.
 
-To try the customer side: sign in with the first number. Tap a trade (e.g. AC), choose a job, write a few words, choose sector F-11, add any street and house, choose "Now", and post. Jobs can only be posted in sectors F-11, E-11 and G-13.
+To try the customer side: sign in with the first number. Tap a trade (e.g. AC), choose a job, write a few words, tap "Set the address on the map" and "Confirm this spot" (or "Use my location"), tap sector F-11 if asked, type any house and street, choose "Now", and post. Jobs can only be posted in sectors F-11, E-11 and G-13.
 
 To try the technician side: on a second device, sign in with the second number. You land on the technician's screen. Tap "Offline" to go online; the customer's job appears. Press "Accept" to accept the price. On the customer's device, choose the technician in "My jobs".
 

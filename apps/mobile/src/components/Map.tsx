@@ -72,6 +72,25 @@ export async function knownPosition(): Promise<Point | null> {
   }
 }
 
+/**
+ * What the phone's own map service says about a spot (Android's geocoder,
+ * Apple's on iPhone): its lines, most precise first, for `sectorIn()`, and
+ * the street. Needs the location permission on Android — without it, or with
+ * no answer, it is null and the customer taps the sector instead. Never asks.
+ */
+export async function readPlace(p: Point): Promise<{ texts: string[]; street: string | null } | null> {
+  try {
+    const perm = await Location.getForegroundPermissionsAsync();
+    if (!perm.granted) return null;
+    const [a] = await Location.reverseGeocodeAsync(p);
+    if (!a) return null;
+    const texts = [a.district, a.name, a.street, a.formattedAddress, a.subregion, a.city].filter((x): x is string => Boolean(x));
+    return { texts, street: a.street ?? null };
+  } catch {
+    return null;
+  }
+}
+
 /** Where the phone is, asking first. Only ever from a button the person pressed. */
 export async function askPosition(): Promise<Point | 'refused' | null> {
   try {
