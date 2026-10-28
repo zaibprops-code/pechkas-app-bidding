@@ -1554,8 +1554,11 @@ builds show no maps and everything else works.
 ### C. Try it
 
 1. A new **preview** build from `main`, and install it.
-2. The home screen opens on a map. Tap the round arrow top right: the phone
-   asks once for your location, then the map moves to you.
+2. The home screen opens on a map, the way inDrive's does. Tap the round
+   button at the map's lower right (or the yellow **We could not find you**
+   bar): the phone asks once for your location, then the map moves to you.
+   Tap **Set the job's address ›** above the pin: Post a job opens on the
+   pin, starting where the map was.
 3. **Post a job → Pin my house on the map**: move the map until the pin is
    on your house, **Confirm this spot**; a small map with your pin appears.
 4. With a technician chosen, his job card shows the same pin; tapping it
