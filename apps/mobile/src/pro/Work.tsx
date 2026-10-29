@@ -3,7 +3,7 @@ import { Linking, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View 
 import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { rupees, showMobile, technicianKeeps, whenLabel, type WhenFields } from '@pechkas/shared';
+import { dayLabel, openWindows, rupees, showMobile, technicianKeeps, whenLabel, windowLabel, type WhenFields } from '@pechkas/shared';
 import { MenuButton } from '../components/Menu';
 import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
@@ -35,7 +35,7 @@ import { colour, font, radius, shadow } from '../theme';
  * he keeps — and checks every offer again when it arrives.
  */
 
-type Offer = { price_paisa: number; eta_minutes: number | null; note: string | null; status: string; expires_at: string; live: boolean };
+type Offer = { price_paisa: number; eta_minutes: number | null; arrive_from?: number | null; note: string | null; status: string; expires_at: string; live: boolean };
 type FeedJob = {
   id: string;
   ref: string;
@@ -373,6 +373,15 @@ function RequestRow({ j, w, trade, onOpen }: { j: FeedJob; w: ProWords; trade: s
  * dimmed screen, as inDrive's ride request does. It moves by transform only;
  * the words never fade. Tapping outside or Close puts it away.
  */
+/**
+ * A job with a day and no time — every job the app posts now — needs his
+ * arrival time in the offer. Jobs from older copies (wanted now, or with a
+ * time or part of the day the customer chose) do not.
+ */
+function needsArrival(j: Pick<FeedJob, 'when_kind' | 'when_part' | 'when_date' | 'when_from'>) {
+  return j.when_kind !== 'now' && !j.when_part && (j.when_from === null || j.when_from === undefined) && Boolean(j.when_date);
+}
+
 /** When the job is wanted, in the same words the customer sees: "Sat 1 Nov, 10am–12pm". */
 function whenText(j: WhenFields, _w?: ProWords) {
   return whenLabel(j);
@@ -397,6 +406,9 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
   const [editing, setEditing] = useState(!live);
   const [price, setPrice] = useState(live?.price_paisa ?? j.offered_paisa);
   const [eta, setEta] = useState<number | null>(live?.eta_minutes ?? (j.when_kind === 'now' ? 30 : null));
+  // A job with only a day: he says the two hours he will arrive in (make_offer() insists).
+  const needsTime = needsArrival(j);
+  const [arrive, setArrive] = useState<number | null>(live?.arrive_from ?? null);
   const [note, setNote] = useState(live?.note ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState<string | null>(null);
@@ -421,12 +433,14 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
   async function send(p: number) {
     setErrors({});
     setMsg(null);
+    if (needsTime && arrive === null) return setErrors({ arrive: w.errArrive });
     setBusy(true);
-    const r = await ask('make_offer', { p_job: j.id, p_price_paisa: p, p_eta_minutes: j.when_kind === 'now' ? eta : null, p_note: note });
+    const r = await ask('make_offer', { p_job: j.id, p_price_paisa: p, p_eta_minutes: j.when_kind === 'now' ? eta : null, p_note: note, p_arrive_from: needsTime ? arrive : null });
     setBusy(false);
     if (!r.ok) {
       if (r.field === 'price') setErrors({ price: fill(w.errPrice, { min: rupees(min), max: rupees(max) }) });
       else if (r.field === 'eta') setErrors({ eta: w.errEta });
+      else if (r.field === 'arrive') setErrors({ arrive: w.errArrive });
       else if (r.field === 'note') setErrors({ note: w.errNote });
       else setMsg(w.gone);
       return;
@@ -490,6 +504,9 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
 
       {!editing && live ? (
         <View style={{ gap: 8 }}>
+          {live.arrive_from !== null && live.arrive_from !== undefined && j.when_date ? (
+            <Text style={s.label}>{fill(w.arrives, { time: `${dayLabel(j.when_date)}, ${windowLabel(live.arrive_from)}` })}</Text>
+          ) : null}
           <Text style={s.waiting}>
             {w.waiting} · {fill(w.minutesLeft, { n: minutesLeft })}
           </Text>
@@ -542,6 +559,21 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
                 ))}
               </View>
               {errors.eta ? <Text style={s.error}>{errors.eta}</Text> : null}
+            </View>
+          ) : null}
+
+          {needsTime && j.when_date ? (
+            <View style={{ gap: 6 }}>
+              <Text style={s.label}>{fill(w.arriveWhen, { day: dayLabel(j.when_date).replace(/^(Today|Tomorrow)$/, (x) => x.toLowerCase()) })}</Text>
+              <View style={s.chips}>
+                {openWindows(j.when_date).map((h) => (
+                  <Press key={h} onPress={() => setArrive(h)} sink={0.94} accessibilityRole="radio" accessibilityState={{ selected: arrive === h }} style={[s.chip, arrive === h && s.chipOn]}>
+                    <Text style={[s.chipText, arrive === h && { color: colour.ink }]}>{windowLabel(h)}</Text>
+                  </Press>
+                ))}
+              </View>
+              <Text style={s.fact}>{w.arriveNote}</Text>
+              {errors.arrive ? <Text style={s.error}>{errors.arrive}</Text> : null}
             </View>
           ) : null}
 

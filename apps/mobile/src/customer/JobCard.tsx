@@ -3,7 +3,7 @@ import { done } from '../message';
 import { useEffect, useState } from 'react';
 import { Linking, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
-import { rupees, whenLabel } from '@pechkas/shared';
+import { dayLabel, rupees, whenLabel, windowLabel } from '@pechkas/shared';
 import { ScrewSpinner } from '../components/ScrewSpinner';
 import { Button, Field, Notice } from '../components/ui';
 import { DuoIcon, type DuoName } from '../components/DuoIcon';
@@ -68,6 +68,8 @@ export type Offer = {
   price_paisa: number;
   is_counter: boolean;
   eta_minutes: number | null;
+  /** The two hours he will arrive in, on the job's day: every offer on a job that has only a day. */
+  arrive_from?: number | null;
   note: string | null;
   expires_at: string;
   /** NULL until he has enough ratings: then the screen says "New", never a made-up number. */
@@ -415,7 +417,16 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
                 <Text style={s.profileLinkText}>See {o.pro_first_name}’s profile</Text>
                 <Icon name="chevronRight" size={16} color={colour.green} strokeWidth={2.4} />
               </Press>
-              <Fact icon="clock" text={o.eta_minutes ? `Can be there in ${o.eta_minutes} minutes` : 'Can come at the time you asked'} />
+              <Fact
+                icon="clock"
+                text={
+                  o.arrive_from !== null && o.arrive_from !== undefined && job.when_date
+                    ? `Arrives ${dayLabel(job.when_date)}, ${windowLabel(o.arrive_from)}`
+                    : o.eta_minutes
+                      ? `Can be there in ${o.eta_minutes} minutes`
+                      : 'Can come at the time you asked'
+                }
+              />
               {o.note ? <Text style={s.quote}>“{o.note}”</Text> : null}
             </View>
             <Text style={s.small}>This offer stays open {left} more {left === 1 ? 'minute' : 'minutes'}.</Text>

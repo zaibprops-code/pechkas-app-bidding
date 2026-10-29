@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "900fba5";
+export const LEGAL_FROM = "4f8a535";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -804,7 +804,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "items": [
           [
             {
-              "t": "Checked technicians who do that work in your sector may accept your price or offer their own, saying how soon they can come. You choose one, or none. Offers run out after a few minutes; the app shows how long each has left."
+              "t": "Checked technicians who do that work in your sector may accept your price or offer their own, saying when they can come. You choose one, or none. Offers run out after a few minutes; the app shows how long each has left."
             }
           ],
           [
@@ -1251,7 +1251,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "You accept the customer's price or offer your own, within the limits the app shows, and say how soon you can come. You choose which jobs to offer on."
+              "t": "You accept the customer's price or offer your own, within the limits the app shows, and say when you can come. You choose which jobs to offer on."
             }
           ],
           [

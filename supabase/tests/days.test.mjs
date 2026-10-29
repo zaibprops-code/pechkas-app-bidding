@@ -88,7 +88,7 @@ const refused = async (what, kind, part, date, from) => {
 await refused('a week and a day ahead is refused', 'today', null, await plus(7), 10);
 await refused('yesterday is refused', 'today', null, await plus(-1), 10);
 await refused('a window that is not one of the seven is refused', 'today', null, in3, 9);
-await refused('a day with no window is refused', 'today', null, in3, null);
+ok('a day with no window is taken: the technician says when (offer_says_when)', (await post('today', null, in3, null))?.ok === true);
 await refused('"now" with a day is refused', 'now', null, in3, 10);
 if (today.h >= 8) await refused('a window that has already started today is refused', 'today', null, today.d, Math.min(20, today.h - (today.h % 2)));
 if (today.h < 20) {

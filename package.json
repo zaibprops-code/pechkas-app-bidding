@@ -9,7 +9,7 @@
   "scripts": {
     "test": "npm run test:shared && npm run db:test",
     "test:shared": "node --test packages/shared/test/*.test.ts",
-    "db:test": "node supabase/tests/foundations.test.mjs && node supabase/tests/accounts.test.mjs && node supabase/tests/jobs.test.mjs && node supabase/tests/bidding.test.mjs && node supabase/tests/notifications.test.mjs && node supabase/tests/doing.test.mjs && node supabase/tests/money.test.mjs && node supabase/tests/after.test.mjs && node supabase/tests/settings.test.mjs && node supabase/tests/email.test.mjs && node supabase/tests/declining.test.mjs && node supabase/tests/modes.test.mjs && node supabase/tests/control.test.mjs && node supabase/tests/days.test.mjs",
+    "db:test": "node supabase/tests/foundations.test.mjs && node supabase/tests/accounts.test.mjs && node supabase/tests/jobs.test.mjs && node supabase/tests/bidding.test.mjs && node supabase/tests/notifications.test.mjs && node supabase/tests/doing.test.mjs && node supabase/tests/money.test.mjs && node supabase/tests/after.test.mjs && node supabase/tests/settings.test.mjs && node supabase/tests/email.test.mjs && node supabase/tests/declining.test.mjs && node supabase/tests/modes.test.mjs && node supabase/tests/control.test.mjs && node supabase/tests/days.test.mjs && node supabase/tests/offerwhen.test.mjs",
     "typecheck": "npm run typecheck --workspace apps/mobile && npm run typecheck --workspace apps/admin",
     "check": "npm run typecheck && npm test && npm run version:check && npm run design:check",
     "version:check": "node scripts/version-check.mjs",

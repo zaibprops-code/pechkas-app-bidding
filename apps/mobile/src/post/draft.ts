@@ -21,7 +21,11 @@ export type Draft = {
   lat: number | null;
   lng: number | null;
   accuracy: number | null;
-  /** As soon as possible, or a day ("YYYY-MM-DD", Pakistan's) and a two-hour window from `whenFrom` o'clock. */
+  /**
+   * The day it is wanted ("YYYY-MM-DD", Pakistan's). The app asks only for the
+   * day: each technician says in his offer when he will come. `whenKind` 'now'
+   * and `whenFrom` are left from earlier copies and are turned into a day.
+   */
   whenKind: 'now' | 'day';
   whenDate: string | null;
   whenFrom: number | null;
@@ -78,12 +82,10 @@ export async function loadDraft(): Promise<Draft | null> {
  * this evening if there is one, otherwise tomorrow morning.
  */
 export function freshWhen(d: Draft): Draft {
-  if (d.whenKind === 'now') return d;
   const now = pkNow();
-  if (d.whenKind === 'day' && d.whenDate && d.whenFrom !== null && openWindows(d.whenDate, now).includes(d.whenFrom) && d.whenDate <= addDays(now.date, 6)) return d;
-  const today = openWindows(now.date, now);
-  if (today.length) return { ...d, whenKind: 'day', whenDate: now.date, whenFrom: today.includes(18) ? 18 : today[0] };
-  return { ...d, whenKind: 'day', whenDate: addDays(now.date, 1), whenFrom: 10 };
+  if (d.whenKind === 'day' && d.whenDate && openWindows(d.whenDate, now).length > 0 && d.whenDate <= addDays(now.date, 6)) return { ...d, whenFrom: null };
+  // Today while a technician could still come; tomorrow after that.
+  return { ...d, whenKind: 'day', whenDate: openWindows(now.date, now).length ? now.date : addDays(now.date, 1), whenFrom: null };
 }
 
 export function saveDraft(d: Draft) {

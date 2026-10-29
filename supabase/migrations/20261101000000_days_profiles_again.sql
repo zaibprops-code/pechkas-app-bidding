@@ -42,7 +42,8 @@ ALTER TABLE public.jobs ADD CONSTRAINT jobs_when_kind_check CHECK (when_kind IN 
 ALTER TABLE public.jobs DROP CONSTRAINT IF EXISTS jobs_when_from_check;
 ALTER TABLE public.jobs ADD CONSTRAINT jobs_when_from_check CHECK (when_from IS NULL OR when_from IN (8, 10, 12, 14, 16, 18, 20));
 ALTER TABLE public.jobs DROP CONSTRAINT IF EXISTS jobs_later_has_a_day;
-ALTER TABLE public.jobs ADD CONSTRAINT jobs_later_has_a_day CHECK (when_kind <> 'later' OR (when_date IS NOT NULL AND when_from IS NOT NULL));
+-- A later day needs its date. (Its time may come from the technician's offer: 20261102.)
+ALTER TABLE public.jobs ADD CONSTRAINT jobs_later_has_a_day CHECK (when_kind <> 'later' OR when_date IS NOT NULL);
 
 -- Jobs posted before this have no date: the day they meant, in Pakistan.
 UPDATE public.jobs

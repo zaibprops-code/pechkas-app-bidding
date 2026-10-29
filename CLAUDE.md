@@ -212,22 +212,29 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   that phone must not see them. The privacy page and both stores' answers
   say the pin is required and that the pin goes to the phone's map service
   to read the sector.
-- **A job is wanted as soon as possible, or on a day and in a window**
-  (migration `…_days_profiles_again`, the owner's request): today and the
-  six days after it, two hours at a time from 8–10am to 8–10pm
-  (`WINDOWS`, `DAYS_AHEAD`, `openWindows()` in `packages/shared`; the
-  database checks the same seven in `post_job()` and words them in
-  `window_text()`). Everything is on **Pakistan's clock** (`pkNow()`,
-  `Asia/Karachi`), never the phone's. A window that has started cannot be
-  chosen. The day is kept as `when_date`, so "tomorrow" no longer stays
-  tomorrow for ever; `when_kind` / `when_part` are still filled
-  (today / tomorrow / **later**, and the part of the day) for anything that
-  reads them, and older copies still post the old way and get a date.
-  **Every screen says it with `whenLabel()`** ("Sat 1 Nov, 10am–12pm"),
-  and notifications with `when_text()`, in the same words — never a screen's
-  own wording. A job booked for a later day stays in `pro_feed()` until its
-  day; one wanted now still leaves after two days. Older copies cannot read
-  'later', so `APP_EDITION` is 2.
+- **The customer chooses the day; the technician says when he will come**
+  (migration `…_offer_says_when`, the owner's decision). No "as soon as
+  possible" and no time for the customer to pick: a home repair is not a
+  ride — nobody waits round the corner — and she does not know the
+  technicians' days, so a time she chose often got no offers. Post a job
+  asks only for **the day**: today (while a window is still open — the last
+  starts at 8pm), tomorrow, or a day of the coming week (`DAYS_AHEAD`).
+  **Every offer on such a job names the two hours he will arrive in**
+  (`offers.arrive_from`, one of `WINDOWS` 8–10am … 8–10pm, never one that
+  has started; `make_offer(…, p_arrive_from)` refuses with `field: 'arrive'`
+  otherwise), and the offer card says "Arrives Sat 31 Oct, 2–4pm". **When
+  she chooses, the `offer_time_to_job` trigger copies his window to the
+  job's `when_from`**, so every screen and the office show it from then on.
+  Everything is on **Pakistan's clock** (`pkNow()`, `Asia/Karachi`), never
+  the phone's. The day is `when_date`; `when_kind` is today / tomorrow /
+  later (or `now` from older copies). **Every screen says it with
+  `whenLabel()`**, notifications with `when_text()`, in the same words. A
+  job leaves `pro_feed()` the day after its day. Older copies still post
+  and offer the old ways (now with minutes; a time or part of the day the
+  customer chose, which then needs no time in the offer); the technician
+  side of an older copy cannot offer on a day-only job, so `APP_EDITION`
+  is 3. (`…_days_profiles_again` briefly let the customer pick the
+  window; its rules are still accepted from those copies.)
 - **Book again** (a finished, stopped or cancelled job's foot card) opens
   Post a job with `again=<job id>`: the trade, job type, words, address,
   pin and price from `my_jobs()` (which gives a customer her own job's

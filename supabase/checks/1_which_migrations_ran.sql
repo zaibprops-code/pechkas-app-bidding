@@ -21,7 +21,8 @@ WITH expected(name) AS (VALUES
   ('20261029000000_two_modes'),
   ('20261030000000_bigger_videos'),
   ('20261031000000_update_and_pause'),
-  ('20261101000000_days_profiles_again')
+  ('20261101000000_days_profiles_again'),
+  ('20261102000000_offer_says_when')
 )
 SELECT e.name || '.sql' AS file,
        CASE WHEN a.name IS NULL THEN 'NOT RUN — run this file'

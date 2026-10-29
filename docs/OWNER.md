@@ -7,6 +7,34 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The customer chooses the day; the technician says when he will come
+(new — ONE database step, then a new build).** This replaces the times the
+customer picked in the last update, and "As soon as possible" is gone.
+
+1. **Supabase → SQL Editor**: if you have not run
+   `20261101000000_days_profiles_again.sql` yet, run it first. Then open
+   `supabase/migrations/20261102000000_offer_says_when.sql`, copy all of it,
+   paste, **Run**. It should say **Success**. Always run them in that order;
+   if you ever run the older one again, run this one again after it.
+2. Make a new **preview** build and install it.
+
+Then try:
+
+- **Post a job → When**: only days — Today, Tomorrow, then the next days by
+  name. (Today disappears after 8pm.) No times.
+- **As a technician**, open the job: under the price, **When will you arrive
+  on Sat 31 Oct?** — pick two hours (8–10am up to 8–10pm; times that have
+  started are not shown), then **Accept** or **Offer**. Without a time the
+  offer is not sent.
+- **As the customer**, each offer says **Arrives Sat 31 Oct, 2–4pm** beside
+  the price. Choose one: from then on the job says that time everywhere —
+  your screen, his, and the admin panel.
+
+The terms, the technician agreement and the Play listing now say offers
+give the time they can come, not "how soon". This copy is **edition 3**:
+do not raise the lowest edition in **Settings → App switches** until it is
+in the Play Store.
+
 **Book a day and time, see the technician's profile, and Book again (new —
 ONE database step, then a new build).**
 
@@ -17,12 +45,8 @@ ONE database step, then a new build).**
 
 Then try:
 
-- **Post a job → When**: tap **As soon as possible**, or a day — Today,
-  Tomorrow, then the next five days by name — and then a two-hour time
-  (8–10am up to 8–10pm). Times that have already started today are not
-  shown. The job, My jobs, the technician's list and the admin panel all
-  say it the same way, for example "Sat 31 Oct, 10am–12pm", and so does the
-  technician's notification.
+- **Post a job → When** (changed again since — see the note above: the
+  customer now picks only the day and the technician picks the time).
 - **An offer → See Bilal's profile**: his years, trades, the three checks
   you did and since when, jobs done, his rating ("New" until he has enough
   ratings), and the last things customers wrote about him — never his

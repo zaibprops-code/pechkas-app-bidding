@@ -29,7 +29,7 @@ Something broken at home? Tell Pechkas what it is, say what you will pay, and ch
 HOW IT WORKS
 • Show what is wrong: a voice note (Urdu is fine), a short video, photos, or a few words.
 • Name your price. The app shows the usual Pechkas price for common jobs as a guide.
-• Technicians who do that work in your sector send offers: your price, or theirs, and how soon they can be there.
+• Technicians who do that work in your sector send offers: your price, or theirs, and the time they can come on the day you chose.
 • You choose. Only then does that technician get your address and number.
 
 ONLY CHECKED TECHNICIANS

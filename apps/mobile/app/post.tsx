@@ -5,7 +5,7 @@ import { Image, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import * as Location from 'expo-location';
 import { ISLAMABAD, MapBox, mapsReady, Pin, PinPicker, readPlace, type Point } from '../src/components/Map';
-import { addDays, DAYS_AHEAD, dayLabel, openWindows, pkNow, rupees, sectorIn, streetIn, windowLabel } from '@pechkas/shared';
+import { addDays, DAYS_AHEAD, dayLabel, openWindows, pkNow, rupees, sectorIn, streetIn } from '@pechkas/shared';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { Button, Chip, Field, Loading, Notice, Screen, useScreenScroll } from '../src/components/ui';
@@ -376,7 +376,7 @@ export default function Post() {
       if (!d.house.trim()) early.house = 'Write the house or flat number.';
       if (!d.street.trim()) early.street = 'Write the street.';
     }
-    if (d.whenKind === 'day' && !(d.whenDate && d.whenFrom !== null && openWindows(d.whenDate).includes(d.whenFrom))) early.when = 'Choose a day and a time.';
+    if (!d.whenDate || openWindows(d.whenDate).length === 0) early.when = 'Choose the day you want somebody.';
     if (d.media.length === 0 && d.description.trim().length < 10) early.media = 'Show us what is wrong: a voice note, a video, a photo, or a few words.';
     if (Object.keys(early).length) {
       refuse(early);
@@ -408,11 +408,12 @@ export default function Post() {
       p_job_type: d.jobType,
       p_description: d.description,
       p_offer_paisa: offer,
-      // The database works out today / tomorrow / later and the part of the day itself.
-      p_when_kind: d.whenKind === 'now' ? 'now' : 'today',
+      // Only the day: the database works out today / tomorrow / later, and each
+      // technician's offer says when he will come.
+      p_when_kind: 'today',
       p_when_part: null,
-      p_when_date: d.whenKind === 'now' ? null : d.whenDate,
-      p_when_from: d.whenKind === 'now' ? null : d.whenFrom,
+      p_when_date: d.whenDate,
+      p_when_from: null,
       p_sector: d.sector,
       p_street: d.street,
       p_house: d.house,
@@ -683,31 +684,15 @@ export default function Post() {
       </Card>
 
       <Card id="when" icon="clock" onY={atY} title="When" error={errors.when}>
-        {/* As soon as possible, or a day of the coming week and a two-hour window. */}
+        {/* Only the day. A home repair is not a ride: nobody is waiting round the
+            corner, and the customer does not know the technicians' days. Each
+            offer says when he will come, and she chooses the one that suits her. */}
         <View style={s.wrap}>
-          <Chip label="As soon as possible" on={d.whenKind === 'now'} onPress={() => update({ whenKind: 'now' })} />
           {days.map((day) => (
-            <Chip
-              key={day}
-              label={dayLabel(day, now.date)}
-              on={d.whenKind === 'day' && d.whenDate === day}
-              onPress={() => {
-                const open = openWindows(day, now);
-                update({ whenKind: 'day', whenDate: day, whenFrom: d.whenFrom !== null && open.includes(d.whenFrom) ? d.whenFrom : (open.includes(18) && day === now.date ? 18 : open[0] ?? null) });
-              }}
-            />
+            <Chip key={day} label={dayLabel(day, now.date)} on={d.whenDate === day} onPress={() => update({ whenKind: 'day', whenDate: day, whenFrom: null })} />
           ))}
         </View>
-        {d.whenKind === 'day' && d.whenDate ? (
-          <View style={{ gap: 8 }}>
-            <Text style={s.hint}>What time, {dayLabel(d.whenDate, now.date).replace(/^(Today|Tomorrow)$/, (x) => x.toLowerCase())}?</Text>
-            <View style={s.wrap}>
-              {openWindows(d.whenDate, now).map((w) => (
-                <Chip key={w} label={windowLabel(w)} on={d.whenFrom === w} onPress={() => update({ whenFrom: w })} />
-              ))}
-            </View>
-          </View>
-        ) : null}
+        <Text style={s.hint}>Each technician says in his offer what time he can come that day. You choose the offer that suits you.</Text>
       </Card>
 
       <Card id="good" icon="help" onY={atY} title="Good to know" hint="Optional. Tap what is true." error={errors.power || errors.parts}>
