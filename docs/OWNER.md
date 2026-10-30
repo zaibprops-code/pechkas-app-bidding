@@ -977,6 +977,34 @@ every new build that changes how a job works. You play three people: the
 17. **My jobs** lists it under **Earlier**. Open it and try **Book again**:
     Post a job opens with everything filled in.
 
+### With only one phone
+
+One account cannot offer on its own job, so you still need two numbers;
+the phone takes turns being each person. Changing person takes about half
+a minute: **☰ → Settings → Sign out**, then **Continue with phone**, the
+other test number, its code. He stays **Online** while signed out.
+
+Do the test above in this order, so you change person only five times:
+
+1. **As the technician**: apply (steps 1–2). Approve him in the browser
+   (steps 3–4). Back on the phone: **Go online** (step 5).
+2. **Change to the customer**: post the job (steps 6–9).
+3. **Change to the technician**: make the offer (step 10).
+4. **Change to the customer**, quickly — an offer stays open for 10
+   minutes: choose him (step 11). **Write the start code down.**
+5. **Change to the technician**: on my way, arrived, the start code, the
+   photos, done (steps 12–14).
+6. **Change to the customer**: pay, rate, Book again (steps 15 and 17).
+
+Signing out also clears the phone's saved addresses and any half-written
+job — on purpose, so the next person never sees them.
+
+**Faster, if your phone has it**: **Settings → System → Multiple users**
+(on some phones **Settings → Users & accounts**) → **Add guest** or **Add
+user**. Each user is a separate copy of the phone with its own apps: install
+the Pechkas APK in the second user too, sign in there as the technician,
+and switch users from the notification shade instead of signing out.
+
 ### Also worth trying
 
 - **Turn an offer down** (**No thanks**), and **cancel** a job before he
