@@ -893,6 +893,117 @@ is buzzed, and the screens still update by themselves while open.
 | 7 | After launch: ask a technician again, 7% repeat fee, demand report, fraud flags | Done — **"Trying phase 7"** below |
 | 8 | Settings screen, customers blocking a technician, terms and technician agreement | Done — **"Trying phase 8"** below |
 
+## Test the whole app, start to finish
+
+One full job, from posting it to paying, takes about 30 minutes. Do it after
+every new build that changes how a job works. You play three people: the
+**customer**, the **technician** and **the office**.
+
+### What you need (once)
+
+1. **Two phone numbers in Supabase**, so no SMS is needed: **Authentication
+   → Sign In / Providers → Phone → Test phone numbers and OTPs**. One line
+   each, the number without `+` or the first `0`, then `=` and a six-digit
+   code. Use one for the customer and one for the technician. They can be
+   made-up numbers, because no message is ever sent to them.
+2. **The database up to date**: paste `supabase/checks/1_which_migrations_ran.sql`
+   into **Supabase → SQL Editor** and press **Run**. Every line should say
+   **ran on …**. Run any file that says **NOT RUN**, oldest first.
+3. **Two Android phones** if you can, with the newest **preview** build on
+   both (see "Try the app on your phone"). A family member's old phone is
+   enough. With only one phone, sign out and sign in again with the other
+   number each time the steps change person: **☰ → Settings → Sign out**.
+4. **The admin panel** open in a browser on your computer, signed in.
+
+### The test
+
+**The technician joins (phone B)**
+
+1. Open the app, **Continue with phone**, the technician's number, the code.
+2. Choose **I fix things**. Fill in a name, tick **AC**, the years, sector
+   **F‑11**, a line about yourself, and press **Submit application**.
+
+**The office approves him (browser)**
+
+3. **Technicians → Waiting**: find him, record the three checks (identity,
+   trial job, rules) with **Record**, then press **Approve**.
+4. **Settings → Sectors taking jobs**: make sure **F‑11** is open.
+
+**He goes to work (phone B)**
+
+5. Pull the screen down to refresh. The technician screen opens. Tap **Go
+   online**, and allow notifications if the phone asks.
+
+**The customer posts a job (phone A)**
+
+6. **Continue with phone**, the customer's number, the code, then **I need
+   something fixed** and a first name.
+7. Tap the **AC** tile. Choose a job, record a short **voice note** or add a
+   **photo**, and type a few words.
+8. **Address**: **Set the address on the map** (or **Use my location**
+   until the Maps key is added), **Confirm this spot**, check it says
+   **Sector F‑11 · read from the map**, type a **House or flat**, tap **Home**.
+9. **When**: tap **Tomorrow**. **Your price**: leave it or change it.
+   Press **Post job**. You land on the job's screen, searching.
+
+**He makes an offer (phone B)**
+
+10. The job appears in his list (and buzzes, if notifications are set up).
+    Open it, play the voice note, pick **When will you arrive** — say
+    **2–4pm** — and press **Accept for Rs …**.
+
+**She chooses (phone A)**
+
+11. The offer appears with **Arrives …, 2–4pm**. Tap **See …'s profile**,
+    then **Choose …** and **Yes, choose …**. Her screen now shows his
+    first name, his number, and a **start code** in large figures.
+
+**The visit (phone B, then A)**
+
+12. He taps **I am on my way**, then **I have arrived**. She sees each step.
+13. He types the **start code** she reads him, takes the before photo, and
+    taps **Start the job**.
+14. He takes the after photo and taps **Mark job as done**.
+15. She sees **what to pay**, then **Rate** him with a line of words.
+    He rates her too.
+
+**The office checks (browser)**
+
+16. **Jobs**: the job is there with every step. **Money**: he owes Pechkas
+    10% of the labour.
+
+**After the job (phone A)**
+
+17. **My jobs** lists it under **Earlier**. Open it and try **Book again**:
+    Post a job opens with everything filled in.
+
+### Also worth trying
+
+- **Turn an offer down** (**No thanks**), and **cancel** a job before he
+  arrives.
+- **A new price**: during the job he taps **Request a new price** with a
+  reason and a photo; she **Approves** or **Declines** it.
+- **Emergency**: press it once on a test job and check the office alert;
+  then **Pressed by mistake**.
+- **No signal**: turn on aeroplane mode on one phone; the app should say
+  **No internet connection**, not crash.
+- **Delete my account** with the customer's test number at the end, and
+  check it is gone from the admin panel.
+
+### Not testable yet
+
+- **Notifications** need the Firebase step ("Setting up notifications").
+- **The real map** needs the Google Maps key ("Maps: the Google Maps key").
+  Until then the map box shows a drawing.
+- **Real SMS codes** need Twilio; the test numbers above stand in.
+
+### When something is wrong
+
+Send Claude a **screenshot**, what you tapped just before, and the line
+under **☰ → Settings → This copy of the app** (the version and code).
+
+---
+
 ## The settings you chose
 
 Stored in the database table `settings`. Changing one is a new migration,
