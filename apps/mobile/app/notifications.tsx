@@ -31,7 +31,7 @@ const TECHNICIAN = [
   'A job is cancelled, so you do not travel',
   'The customer answers your new price',
   'A new message about a job',
-  'A payment is recorded, or a balance is due',
+  'A payment is confirmed or not, or a balance is due',
 ];
 
 export default function Notifications() {

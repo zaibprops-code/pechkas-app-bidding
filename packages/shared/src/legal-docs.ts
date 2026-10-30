@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "4f8a535";
+export const LEGAL_FROM = "7b11f9e";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -186,7 +186,14 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "What you owe Pechkas and what you have paid, with the payment reference."
+              "t": "What you owe Pechkas and what you have paid, with the payment reference. If you tap"
+            },
+            {
+              "t": "I have paid",
+              "b": true
+            },
+            {
+              "t": ", the amount, how you paid, the transaction ID and the screenshot you add, which only the office sees, to check the money arrived. A screenshot may show the account you paid from."
             }
           ]
         ]
@@ -1343,7 +1350,14 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "You owe the fee to Pechkas when the job is done. The app shows what you owe, line by line. Pay it by JazzCash, Easypaisa, bank or cash, as the app tells you, and tell the office the transaction ID."
+              "t": "You owe the fee to Pechkas when the job is done. The app shows what you owe, line by line. Pay it by JazzCash, Easypaisa, bank or cash, as the app tells you. Then tap"
+            },
+            {
+              "t": "I have paid",
+              "b": true
+            },
+            {
+              "t": " on My account with the transaction ID and a screenshot, or for cash give it to the office in person. What you owe goes down once the office has confirmed the money arrived."
             }
           ],
           [

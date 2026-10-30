@@ -8,6 +8,7 @@ import { rupees } from '@pechkas/shared';
 import { Hero, Loading, Notice, SystemBars } from '../../src/components/ui';
 import { MenuButton } from '../../src/components/Menu';
 import { Stars } from '../../src/components/Stars';
+import { PayPechkas, type Claim } from '../../src/pro/PayPechkas';
 import { supabase } from '../../src/supabase';
 import { fill, useProWords } from '../../src/words';
 import { colour, font, radius } from '../../src/theme';
@@ -40,10 +41,13 @@ export default function MoneyScreen() {
   const insets = useSafeAreaInsets();
   const [m, setM] = useState<Money | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  const [claims, setClaims] = useState<Claim[]>([]);
 
   const load = useCallback(async () => {
     if (!supabase) return;
-    const { data, error } = await supabase.rpc('pro_money');
+    const [{ data, error }, sent] = await Promise.all([supabase.rpc('pro_money'), supabase.rpc('my_payment_claims')]);
+    // A database without the Pay Pechkas change answers with an error: then there is simply no list.
+    setClaims(Array.isArray(sent.data) ? (sent.data as Claim[]) : []);
     if (error || !data?.ok) setProblem(error ? 'No connection. Pull down to try again.' : (data?.why ?? null));
     else {
       setProblem(null);
@@ -87,13 +91,7 @@ export default function MoneyScreen() {
               ) : null}
             </View>
 
-            {m.owed_paisa > 0 ? (
-              <View style={s.card}>
-                <CardHead icon="wallet" title={w.howToPay} />
-                <Text style={s.payTo}>{m.pay_to ?? w.payAsk}</Text>
-                <Text style={s.note}>{w.payNote}</Text>
-              </View>
-            ) : null}
+            <PayPechkas owed={m.owed_paisa} payTo={m.pay_to} claims={claims} w={w} onSent={load} />
 
             <View style={s.card}>
               <CardHead icon="jobs" title={w.thisMonth} />
@@ -199,7 +197,6 @@ const s = StyleSheet.create({
   blockedText: { fontFamily: font.bodyMedium, fontSize: 14, lineHeight: 20, color: colour.white },
   card: { gap: 8, padding: 16, borderRadius: 22, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.04)' },
   cardTitle: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel },
-  payTo: { fontFamily: font.bodySemi, fontSize: 17, lineHeight: 24, color: colour.ink },
   big: { fontFamily: font.display, fontSize: 20, color: colour.ink },
   note: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
   row: { flexDirection: 'row', justifyContent: 'space-between' },

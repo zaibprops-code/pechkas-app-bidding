@@ -215,3 +215,14 @@ details summary { cursor: pointer; font-weight: 600; min-height: 44px; display: 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* A payment screenshot a technician sent: big enough to read the amount and the ID. */
+.shot {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  max-height: 480px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: var(--canvas);
+}

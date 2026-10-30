@@ -63,6 +63,7 @@ export function Money() {
             <Tile label="Earned (commission)" value={rupees(d.totals.commission_paisa)} />
             <Tile label="Guarantee reserve" value={rupees(d.totals.reserve_paisa)} />
           </div>
+          <Claims onChanged={load} />
           <PayTo current={d.pay_to} onSaved={load} />
           <div className="list">
             {d.pros.length === 0 ? <p className="lead">No technicians yet.</p> : null}
@@ -73,6 +74,141 @@ export function Money() {
         </>
       ) : null}
     </>
+  );
+}
+
+type Claim = {
+  id: string;
+  pro_name: string;
+  pro_phone: string | null;
+  owed_paisa: number;
+  amount_paisa: number;
+  method: string;
+  reference: string;
+  screenshot_path: string;
+  status: 'pending' | 'confirmed' | 'rejected';
+  reason: string | null;
+  created_at: string;
+};
+
+/**
+ * "I have paid", sent by technicians from their account screen. Check the
+ * money has arrived in your own account first: Confirm records it exactly
+ * like Record a payment; Not confirmed tells him to look in the app for why.
+ */
+function Claims({ onChanged }: { onChanged: () => void }) {
+  const [list, setList] = useState<Claim[] | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase.rpc('admin_payment_claims', { p_status: 'pending' });
+    // A database without the Pay Pechkas change: say nothing rather than an error.
+    if (error) return setProblem(/admin_payment_claims/.test(error.message) ? null : `Could not load payments to confirm: ${error.message}`);
+    setProblem(null);
+    setList((data as Claim[] | null) ?? []);
+  }, []);
+
+  useEffect(() => {
+    load();
+    const t = setInterval(load, 30000);
+    return () => clearInterval(t);
+  }, [load]);
+
+  if (problem) return <p className="error" role="alert">{problem}</p>;
+  if (!list) return null;
+  return (
+    <section className="alerts">
+      <h2>Payments to confirm{list.length ? ` (${list.length})` : ''}</h2>
+      {list.length === 0 ? (
+        <p className="muted">None waiting. When a technician taps I have paid, his payment appears here with its screenshot.</p>
+      ) : (
+        <>
+          <p className="muted">Check each payment has arrived in your account, then confirm it. Nothing changes until you do.</p>
+          <div className="list">
+            {list.map((c) => (
+              <ClaimCard key={c.id} c={c} onDone={() => { load(); onChanged(); }} />
+            ))}
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+function ClaimCard({ c, onDone }: { c: Claim; onDone: () => void }) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [rejecting, setRejecting] = useState(false);
+  const [reason, setReason] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    // The same call Jobs uses for a job's files: a link that works for an hour.
+    supabase?.storage
+      .from('job-media')
+      .createSignedUrls([c.screenshot_path], 3600)
+      .then(({ data }) => setUrl(data?.[0]?.signedUrl ?? null));
+  }, [c.screenshot_path]);
+
+  async function confirm() {
+    setBusy(true);
+    const r = await ask('admin_confirm_claim', { p_claim: c.id });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    onDone();
+  }
+
+  async function reject() {
+    setBusy(true);
+    const r = await ask('admin_reject_claim', { p_claim: c.id, p_reason: reason });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    onDone();
+  }
+
+  const method = METHODS.find(([k]) => k === c.method)?.[1] ?? c.method;
+  return (
+    <article className="card">
+      <div className="card-head">
+        <div>
+          <h2>{c.pro_name}</h2>
+          <p className="muted">
+            {c.pro_phone ? shown(c.pro_phone) : 'no number'} · sent {time(c.created_at)} · owes {rupees(c.owed_paisa)}
+          </p>
+        </div>
+        <div className="price">
+          <strong>{rupees(c.amount_paisa)}</strong>
+          <span className="muted">{method}</span>
+        </div>
+      </div>
+      <p>
+        <strong>Transaction ID:</strong> {c.reference}
+      </p>
+      {url ? (
+        <a href={url} target="_blank" rel="noreferrer">
+          <img src={url} alt={`Screenshot of ${c.pro_name}'s payment`} className="shot" />
+        </a>
+      ) : (
+        <p className="muted">Loading the screenshot…</p>
+      )}
+      {rejecting ? (
+        <div className="row">
+          <label className="grow">
+            Why it is not confirmed (he reads this in the app)
+            <input value={reason} maxLength={200} onChange={(e) => setReason(e.target.value)} placeholder="Nothing has arrived in the account yet." />
+          </label>
+          <button disabled={busy} onClick={reject}>Not confirmed</button>
+          <button className="secondary" disabled={busy} onClick={() => setRejecting(false)}>Back</button>
+        </div>
+      ) : (
+        <div className="buttons">
+          <button disabled={busy} onClick={confirm}>Confirm {rupees(c.amount_paisa)} received</button>
+          <button className="secondary" disabled={busy} onClick={() => setRejecting(true)}>Not received</button>
+        </div>
+      )}
+      {msg ? <p className="error" role="alert">{msg}</p> : null}
+    </article>
   );
 }
 

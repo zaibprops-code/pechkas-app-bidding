@@ -54,7 +54,7 @@ const TECHNICIAN: QA[] = [
   },
   {
     q: 'How do I pay what I owe Pechkas?',
-    a: 'My account shows what you owe and how to pay it. Only the office records a payment; what you owe goes down once they have.',
+    a: 'My account shows what you owe and where to send it. After paying, tap I have paid there and add the transaction ID and a screenshot. What you owe goes down once the office confirms the money arrived.',
   },
   {
     q: 'Why can I not make offers?',

@@ -7,6 +7,42 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Pay Pechkas: technicians tell you in the app that they have paid (new —
+ONE database step, then a new build).** Nothing in the app holds or moves
+money: a technician still pays you by JazzCash, Easypaisa or bank, outside
+the app. What is new is that he can tell you so, with proof, and you
+confirm it with one click.
+
+1. **Supabase → SQL Editor**: open
+   `supabase/migrations/20261103000000_pay_pechkas.sql`, copy all of it,
+   paste, **Run**. It should say **Success**. (Safe to run twice.)
+2. Make a new **preview** build and install it. The admin panel updates by
+   itself when Vercel builds it from `main`.
+3. In the admin panel, **Money → Where technicians pay**: make sure your
+   account is typed in (for example "JazzCash 0300 1234567, Zohaib Khan").
+
+Then try it (with one phone, see "Test the whole app → With only one
+phone"):
+
+- **As the technician**, owing something: **☰ → My account → Pay Pechkas**
+  shows what to send and where; press and hold the account to copy it. Tap
+  **I have paid**, write the amount, choose **JazzCash**, type a
+  transaction ID, **Add the screenshot** from the gallery, then **Send to
+  the office**. The card now says the office is checking it. What he owes
+  has NOT changed yet.
+- **In the admin panel → Money**, **Payments to confirm** shows his name,
+  the amount, the ID and the screenshot (click it to see it full size).
+  Check the money really is in your account, then **Confirm Rs …
+  received**: what he owes goes down and he is told. Or **Not received**,
+  with a reason he reads in the app.
+- Your phone is told when a technician sends one, if your alert number is
+  set (admin panel, **Jobs → Alerts on your phone**) and notifications are set up.
+
+The privacy policy, the technician agreement, Help and both stores' answers
+now mention the payment screenshot. **In Play Console → App content → Data
+safety**, nothing new needs ticking: *Other financial info* and *Photos*
+were already declared; only their descriptions changed.
+
 **The customer chooses the day; the technician says when he will come
 (new — ONE database step, then a new build).** This replaces the times the
 customer picked in the last update, and "As soon as possible" is gone.

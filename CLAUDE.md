@@ -539,6 +539,20 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   job becomes `done`, whoever marked it.
 - **Credit limit**: `make_offer()` refuses (`field: 'owed'`) while
   `pro_owed() > credit_limit_paisa`. He is told once, when he crosses it.
+- **Pay Pechkas** (migration `…_pay_pechkas`, the owner's request instead
+  of a wallet): on My account, `PayPechkas.tsx` shows where to send the
+  money (`pay_to`, selectable so a long press copies it) and **I have
+  paid** — amount, JazzCash / Easypaisa / bank, the transaction ID and a
+  screenshot from the gallery, uploaded to his own folder. `claim_payment()`
+  refuses more than he owes, a screenshot that is not his, not uploaded or
+  used before, and a second claim while one waits; the office's phones are
+  told. **A claim is a message, never a payment: nothing lowers what he
+  owes until the office presses Confirm** in admin **Money → Payments to
+  confirm**, which goes through `admin_settle()` keyed `claim:<id>`, so the
+  ledger rules, the limit check and the "received" message to him are the
+  same as typing it in, and it records once. **Not received** needs a
+  reason; he is told it was not confirmed and reads the reason only in the
+  app (`pay.test.mjs`). Cash is still given in person and recorded by hand.
 - **Payments are recorded by the office only** (`admin_settle()`), with a
   method, a reference and the form's own key; more than he owes is refused
   as a typing mistake; concurrent payments for one man are serialised with
