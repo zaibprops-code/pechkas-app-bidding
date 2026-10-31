@@ -10,6 +10,8 @@ import { Press } from '../components/Press';
 import { DuoIcon } from '../components/DuoIcon';
 import { Icon } from '../components/Icon';
 import { Sheet } from '../components/Sheet';
+import { PriceRangeCard } from '../components/PriceRange';
+import type { PriceRange } from '../prices';
 import { Button, Notice, NotifyCard, SystemBars } from '../components/ui';
 import { RemoteMedia, type StoredMedia } from '../post/RemoteMedia';
 import { Chosen, Finished, type ActiveJob, type FinishedJob } from './OnTheJob';
@@ -414,6 +416,17 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const wasLive = useRef(Boolean(live));
+  // What jobs like this went for, and his own last price for one (pro_price_help()).
+  const [help, setHelp] = useState<{ range: PriceRange | null; last: { labour_paisa: number; done_on: string } | null } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    ask('pro_price_help', { p_job: j.id }).then((r) => {
+      if (alive && r.ok) setHelp({ range: (r.range as PriceRange) ?? null, last: (r.last as { labour_paisa: number; done_on: string }) ?? null });
+    });
+    return () => {
+      alive = false;
+    };
+  }, [j.id]);
 
   // An offer that just went live closes the editor; one that ran out opens it.
   useEffect(() => {
@@ -545,6 +558,24 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
             })}
           </View>
           {errors.price ? <Text style={s.error}>{errors.price}</Text> : null}
+          {help?.range ? (
+            <PriceRangeCard
+              range={help.range}
+              title={w.rangeTitle}
+              foot={fill(w.rangeFoot, { n: help.range.n, days: help.range.days })}
+              mark={price}
+              markLabel={w.rangeYours}
+              onWhite
+            />
+          ) : null}
+          {help?.last ? (
+            <Text style={s.fee}>
+              {fill(w.lastPrice, {
+                price: rupees(help.last.labour_paisa),
+                date: new Date(`${help.last.done_on}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+              })}
+            </Text>
+          ) : null}
 
           {j.when_kind === 'now' ? (
             <View style={{ gap: 6 }}>

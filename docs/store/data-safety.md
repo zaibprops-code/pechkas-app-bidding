@@ -100,6 +100,14 @@ such as many jobs cancelled after a technician was chosen. A person reads
 them; nothing is decided automatically, and nobody's account changes
 without the office doing it by hand.
 
+**Prices of finished jobs** are also kept as a separate record: the kind of
+job, the sector, the day and the prices — no name, number, address, account
+or technician. It is not linked to anybody, so it is not a data type to tick
+here; the privacy policy describes it, and that it stays after an account is
+deleted. Customers and technicians see ranges from it only once a kind of
+job has 10 finished jobs. One of the office's flags reads it too: a
+technician whose price for the work is often well above the range.
+
 ### Not collected
 
 Approximate location (the app only ever takes the precise pin of the house,

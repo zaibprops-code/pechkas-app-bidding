@@ -12,6 +12,8 @@ import { Button, Chip, Field, Loading, Notice, Screen, useScreenScroll } from '.
 import { Sheet, SheetOption } from '../src/components/Sheet';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
+import { usePriceRanges } from '../src/prices';
+import { PriceRangeCard } from '../src/components/PriceRange';
 import { ask, supabase } from '../src/supabase';
 import { clearDraft, EMPTY, freshWhen, loadDraft, saveDraft, type Draft } from '../src/post/draft';
 import { forgetPlace, loadPlaces, placeLine, rememberPlace, type Place, type PlaceLabel } from '../src/post/places';
@@ -76,6 +78,7 @@ export default function Post() {
   const params = useLocalSearchParams<{ trade?: string; start?: string; ask?: string; minutes?: string; lat?: string; lng?: string; again?: string }>();
   const { ready, session, account } = useAccount();
   const lists = useLists();
+  const ranges = usePriceRanges();
   const [d, setD] = useState<Draft | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState<string | Message | null>(null);
@@ -727,6 +730,16 @@ export default function Post() {
           </Press>
         </View>
         <Text style={s.zone}>{zone}</Text>
+        {/* What jobs like this really went for — only once there are enough of them to say. */}
+        {chosen && ranges[String(chosen.id)] ? (
+          <PriceRangeCard
+            range={ranges[String(chosen.id)]}
+            title="Recent Pechkas jobs like this"
+            foot={`The middle half of ${ranges[String(chosen.id)].n} finished jobs in the last ${ranges[String(chosen.id)].days} days, for the work only. Parts are extra.`}
+            mark={offer}
+            markLabel="Your price"
+          />
+        ) : null}
         <Text style={s.small}>
           {chosen?.list_paisa ? `Usual price ${rupees(chosen.list_paisa)} · ` : ''}Lowest offer {rupees(min)}, the cost of coming to look.
         </Text>

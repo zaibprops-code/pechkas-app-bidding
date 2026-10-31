@@ -506,6 +506,44 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `jsonb_build_object`s joined with `||` because one may take at most 100
   arguments (`nooffers.test.mjs`).
 
+### Prices — what jobs really go for (migration `…_prices`)
+- **The owner's decision: Pechkas keeps what every finished job went for,
+  and uses it carefully.** The `job_done_price` trigger writes each newly
+  `done` job into `price_record`: trade, `job_type_id`, sector, day, the
+  customer's first price, the agreed price, parts, the price for the work
+  (`agreed − parts`) and the usual price of the day. **No foreign keys and
+  no person**: no customer, technician, address, phone or ref — so it
+  survives account deletion (the jobs themselves cascade away), and
+  `prices.test.mjs` fails if a personal column appears. Nobody can read the
+  table; it is written by the trigger only, and a failure to write it
+  never undoes the finished job (caught, `RAISE WARNING`).
+- **A range is `price_range_of(type)`, the one rule**: the middle half
+  (25th–75th percentile) of the price for the WORK, finished jobs in the
+  last `price_window_days` (90), ends rounded out to Rs 100. **NULL below
+  `price_min_jobs`, and never below 10 whatever the setting says** — a
+  "range" of a handful of jobs is one customer's price. "Something else"
+  (`job_type_id` NULL) never has one. Granted to nobody; the three
+  functions below decide who sees it.
+- **Customers**: `price_ranges()` (signed in) → `PriceRangeCard` on Post a
+  job, inside "Your price", with her price as the marker and the count in
+  words ("The middle half of 15 finished jobs in the last 90 days, for the
+  work only. Parts are extra."). Shown only when the database sends one.
+- **Technicians**: `pro_price_help(job)` — only for a job `pro_may_see()` —
+  gives the range while `price_range_to_pros` is 1 (the office can switch
+  it off from Settings if quotes start bunching at the middle), and his
+  own last price for that kind of job, from his own jobs. Same card in the
+  offer sheet, grey on the white sheet (`onWhite`).
+- **The office**: `admin_prices()` and the admin **Prices** page — per kind
+  of job, jobs, usual price, middle price, cheapest–dearest, what
+  customers first asked, and the range shown or "Not yet: n of 10".
+  Changing a usual price is still a migration to `job_types`.
+- **The flag `price_over`**: a technician whose price for the work was more
+  than `flag_price_over_bps` (50%) above the top of the range on
+  `flag_price_over_jobs` (3) jobs in `flag_days`. A flag only, like the
+  rest. Its sentence is in `Flags.tsx`.
+- The privacy page, the delete-account page and both stores' notes say the
+  record exists and outlives an account. Change them together.
+
 ### Doing the job (phase 4)
 - **Status and step are separate.** `status` is open → assigned → done |
   stopped | cancelled; while `assigned`, `stage` is chosen → on_way →

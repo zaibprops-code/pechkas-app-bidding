@@ -110,6 +110,11 @@ export const DUO_ICONS = {
     { shape: "path", paint: "accent", d: "M5 4.5h12.5l-2.5 4 2.5 4H5z" },
     { shape: "path", paint: "line", d: "M5 21V4.5h12.5l-2.5 4 2.5 4H5" },
   ],
+  tag: [
+    { shape: "path", paint: "accent", d: "M3.5 5a1.5 1.5 0 0 1 1.5-1.5h6.9a1.5 1.5 0 0 1 1.06.44l7.6 7.6a1.5 1.5 0 0 1 0 2.12l-6.9 6.9a1.5 1.5 0 0 1-2.12 0l-7.6-7.6A1.5 1.5 0 0 1 3.5 11.9z" },
+    { shape: "path", paint: "line", d: "M3.5 5a1.5 1.5 0 0 1 1.5-1.5h6.9a1.5 1.5 0 0 1 1.06.44l7.6 7.6a1.5 1.5 0 0 1 0 2.12l-6.9 6.9a1.5 1.5 0 0 1-2.12 0l-7.6-7.6A1.5 1.5 0 0 1 3.5 11.9z" },
+    { shape: "circle", paint: "ink", cx: 8, cy: 8, r: 1.6 },
+  ],
   star: [
     { shape: "path", paint: "accent", d: "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" },
     { shape: "path", paint: "line", d: "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" },

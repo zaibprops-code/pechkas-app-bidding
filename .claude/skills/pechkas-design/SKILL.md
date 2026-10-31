@@ -113,6 +113,7 @@ a screen; use the token.
 | `Trouble` | `components/Trouble.tsx` | No internet, not answering, crash, missing page, update, paused. |
 | `ScrewSpinner` | `components/ScrewSpinner.tsx` | Anything working. There is no other spinner. |
 | `Sheet` | `components/Sheet.tsx` | A choice that slides up from the bottom. |
+| `PriceRangeCard` | `components/PriceRange.tsx` | What recent jobs of one kind went for: the range in words, a bar with the middle half in green and a yellow marker for the price being set, and how many jobs it comes from. White on a coloured card; `onWhite` makes it grey on a white sheet. Shown only when the database sends a range. |
 
 A green call-to-action card (home's "What needs fixing & for how much?",
 My jobs' "Post a new job") is: green card, white title, one line, a yellow
@@ -156,6 +157,10 @@ disc with an arrow on the right.
 - **A person is a sheet before a choice**: a link under an offer ("See
   Bilal's profile") opens a sheet with figures in three grey tiles, ticked
   checks, quoted words, and the same Choose button as the offer.
+- **A figure from real jobs always says where it came from**: "The middle
+  half of 15 finished jobs in the last 90 days". A range is never shown
+  without its count, and nothing is shown when the database has too few
+  jobs to say — never a placeholder range.
 - **Empty is a card, not a blank**: an icon on a soft tile, one line, and
   the button that fills it.
 - A screen whose first load fails shows `Trouble` under its own header;

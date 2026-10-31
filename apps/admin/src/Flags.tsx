@@ -53,6 +53,10 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     `${f.n} customers blocked him: they never want him sent again.`,
     'Ring them and ask why. Open "Who blocked him" below for their names and words.',
   ],
+  price_over: (f, l) => [
+    `${f.n} jobs where his price for the work was more than ${Math.round((l.flag_price_over_bps ?? 0) / 100)}% above what jobs of that kind usually go for.`,
+    'Some jobs really are bigger than they look. Open them, read the photos and any new price he asked for, and ring the customers to ask whether it felt fair.',
+  ],
   cancels: (f) => [`This customer cancelled ${f.n} jobs.`, 'Each one may have cost a technician a trip.'],
   reports: (f) => [`Technicians reported ${f.n} problems on this customer's jobs.`, 'Read them under Problems.'],
 };

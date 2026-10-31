@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "4e4a21e";
+export const LEGAL_FROM = "e97ee4c";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -344,6 +344,15 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
+              "t": "Prices of finished jobs.",
+              "b": true
+            },
+            {
+              "t": " When a job is finished, Pechkas keeps a separate price record of it: the kind of job, the sector, the day, the customer's first price, the agreed price and what of it was parts. It holds no name, phone number, address or technician. From it, customers and technicians are shown what recent jobs of the same kind went for, as a range, and only once there are at least 10 such jobs, so no one person's price can be picked out."
+            }
+          ],
+          [
+            {
               "t": "The Pechkas office",
               "b": true
             },
@@ -484,6 +493,15 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": " the record of what a technician owed Pechkas and paid, which we keep for accounting. It holds the job number, the amounts and the technician's name, and nothing about the customer."
+            }
+          ],
+          [
+            {
+              "t": "Also kept after deletion:",
+              "b": true
+            },
+            {
+              "t": " the price record of finished jobs described above. It says nothing about who anybody was, so it is not linked to you once your account is gone."
             }
           ],
           [
@@ -1727,6 +1745,15 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           [
             {
               "t": "A job a technician did for a customer who still has an account stays on that customer's record, without the technician's details."
+            }
+          ],
+          [
+            {
+              "t": "For everyone:",
+              "b": true
+            },
+            {
+              "t": " the price record of finished jobs, which keeps the kind of job, the sector, the day and the prices, and nothing about who anybody was. Pechkas uses it to show what jobs of the same kind usually go for."
             }
           ]
         ]

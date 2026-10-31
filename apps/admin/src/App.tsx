@@ -6,6 +6,7 @@ import { ask, supabase } from './supabase.ts';
 import { loadUnchecked, shown } from './phones.ts';
 import { Alerts } from './Alerts.tsx';
 import { Demand } from './Demand.tsx';
+import { Prices } from './Prices.tsx';
 import { Flags } from './Flags.tsx';
 import { Settings } from './Settings.tsx';
 import { Jobs } from './Jobs.tsx';
@@ -54,6 +55,7 @@ const SECTIONS = [
   { key: 'money', label: 'Money', icon: 'wallet' },
   { key: 'technicians', label: 'Technicians', icon: 'briefcase' },
   { key: 'demand', label: 'Demand', icon: 'pin' },
+  { key: 'prices', label: 'Prices', icon: 'tag' },
   { key: 'flags', label: 'Flags', icon: 'flag' },
   { key: 'settings', label: 'Settings', icon: 'settings' },
 ] as const satisfies readonly { key: string; label: string; icon: DuoName }[];
@@ -272,6 +274,8 @@ function Office({ name }: { name: string }) {
             <Money />
           ) : section === 'demand' ? (
             <Demand />
+          ) : section === 'prices' ? (
+            <Prices />
           ) : section === 'flags' ? (
             <Flags />
           ) : section === 'settings' ? (

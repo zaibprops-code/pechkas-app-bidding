@@ -7,6 +7,47 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Prices: Pechkas now keeps what every finished job went for (new — ONE
+database step, then a new build).**
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261105000000_prices.sql`. It should say
+   **Success**. (Safe to run twice.) If you have not yet run
+   `20261104000000_when_nobody_offers.sql`, run that first.
+2. Make a new **preview** build and install it.
+
+What it does:
+
+- Every finished job goes into a **price record** with no name, number,
+  address or technician in it: the kind of job, the sector, the day, the
+  customer's first price, the agreed price and the parts. It stays when an
+  account is deleted. The privacy page says so.
+- **Customers** see, on **Post a job** under **Your price**, what recent
+  Pechkas jobs of that kind went for, as a range with a marker for their
+  own price: "Rs 2,300 – Rs 3,000 … The middle half of 15 finished jobs in
+  the last 90 days, for the work only. Parts are extra."
+- **Technicians** see the same range in the offer sheet, and their own last
+  price for that kind of job.
+- **You** see everything in the admin panel's new **Prices** page: for
+  each kind of job, how many were finished, the usual price, the middle
+  price, the cheapest and dearest, and what customers first asked. When a
+  kind of job keeps going for well above or below the usual price, the
+  usual price may be out of date — ask for a migration to change it.
+- **A new flag** in **Flags**: a technician whose price for the work was
+  more than 50% above the top of the range on 3 jobs.
+- **Nothing shows until a kind of job has 10 finished jobs** in the last
+  90 days, so at the start you will see nothing on the phones. That is
+  correct: two or three jobs would show one customer's price. It turns on
+  by itself as the app gets busier. "Something else" never gets a range.
+- In admin **Settings → Prices** you can change how far back it looks
+  (30 to 365 days), raise the 10 (never lower it), and switch the
+  technicians' range off (0) if their offers start all landing on the
+  middle figure.
+
+To try it before there are real jobs, there is nothing to see on the
+phones yet. The admin **Prices** page will list finished jobs as they
+happen.
+
 **When nobody offers, the customer decides and the job closes by itself
 (new — ONE database step, then a new build). You are no longer rung or
 buzzed about jobs without offers.**

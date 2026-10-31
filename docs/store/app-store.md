@@ -69,6 +69,11 @@ it, and this label gains User ID and the profile picture link, as on Play.
 | Identifiers → **Device ID** | The notification address of the phone, only if notifications are allowed |
 | Other Data → **Other Data Types** | A technician's trades, years in the trade, sectors, and the record that Pechkas checked his identity (never a CNIC number) |
 
+The **price record of finished jobs** (kind of job, sector, day, prices) is
+kept with no name, number, address, account or technician, so it is not
+linked to anybody and is not a type on this label. The privacy policy says
+it exists and that it outlives a deleted account.
+
 **Not collected:** health, payment cards or bank details,
 contacts, browsing or search history, purchases, coarse location, product
 interaction or other usage data (there is no analytics), crash data,

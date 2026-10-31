@@ -56,6 +56,14 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
     },
   },
   {
+    title: 'Prices',
+    keys: {
+      price_min_jobs: 'Finished jobs of one kind before a price range is shown (never below 10)',
+      price_window_days: 'Price ranges look back',
+      price_range_to_pros: 'Technicians see the range: 1 for yes, 0 for no',
+    },
+  },
+  {
     title: 'Flags',
     keys: {
       flag_days: 'Flags look back',
@@ -71,6 +79,8 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
       flag_same_pair: 'Jobs for one customer',
       flag_customer_cancels: "A customer's cancellations",
       flag_blocked: 'Customers who blocked him',
+      flag_price_over_bps: 'A price counts as high when the work is above the top of its range by',
+      flag_price_over_jobs: 'Jobs priced high like that',
     },
   },
   {
