@@ -525,14 +525,23 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (`job_type_id` NULL) never has one. Granted to nobody; the three
   functions below decide who sees it.
 - **Customers**: `price_ranges()` (signed in) → `PriceRangeCard` on Post a
-  job, inside "Your price", with her price as the marker and the count in
-  words ("The middle half of 15 finished jobs in the last 90 days, for the
-  work only. Parts are extra."). Shown only when the database sends one.
+  job, inside "Your price". **One answer first, then the picture** (the
+  owner found the first version confusing): a dot and a verdict read from
+  the range — "In line with / Below / Above most jobs like this" and one
+  line of what it means — then the bar with the green middle, her price as
+  the marker and the two ends written under it, then where it comes from
+  ("From 15 finished Pechkas jobs in the last 90 days. For the work only;
+  parts are extra."). Without a range the same box says the old
+  usual-price sentence and "Usual Pechkas price Rs …". How paying works is
+  three short ticked lines under it, not paragraphs.
 - **Technicians**: `pro_price_help(job)` — only for a job `pro_may_see()` —
   gives the range while `price_range_to_pros` is 1 (the office can switch
   it off from Settings if quotes start bunching at the middle), and his
   own last price for that kind of job, from his own jobs. Same card in the
-  offer sheet, grey on the white sheet (`onWhite`).
+  offer sheet, grey on the white sheet (`onWhite`), with his own verdict
+  words in `words.ts`. While he sets an offer, the sheet's top figure is
+  **her** price ("Customer's offer") and "You keep at Rs …" — never his
+  price twice, once at the top and again in the stepper.
 - **The office**: `admin_prices()` and the admin **Prices** page — per kind
   of job, jobs, usual price, middle price, cheapest–dearest, what
   customers first asked, and the range shown or "Not yet: n of 10".

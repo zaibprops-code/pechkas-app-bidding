@@ -449,6 +449,7 @@ export default function Post() {
     } else router.replace(live);
   }
 
+  const range = chosen ? ranges[String(chosen.id)] : undefined;
   const zone = !chosen?.list_paisa
     ? 'There is no fixed price for this. Technicians may reply with their own.'
     : offer < chosen.list_paisa * 0.8
@@ -729,27 +730,34 @@ export default function Post() {
             <Text style={s.stepText}>+</Text>
           </Press>
         </View>
-        <Text style={s.zone}>{zone}</Text>
-        {/* What jobs like this really went for — only once there are enough of them to say. */}
-        {chosen && ranges[String(chosen.id)] ? (
+        {/* One answer about the price. From real jobs once there are enough; from the usual price until then. */}
+        {range ? (
           <PriceRangeCard
-            range={ranges[String(chosen.id)]}
-            title="Recent Pechkas jobs like this"
-            foot={`The middle half of ${ranges[String(chosen.id)].n} finished jobs in the last ${ranges[String(chosen.id)].days} days, for the work only. Parts are extra.`}
-            mark={offer}
-            markLabel="Your price"
+            range={range}
+            price={offer}
+            say={{
+              below: ['Below most jobs like this', 'Fewer technicians may take it at this price.'],
+              within: ['In line with most jobs like this', 'A fair price for this job.'],
+              above: ['Above most jobs like this', 'You should hear back quickly.'],
+            }}
+            foot={`From ${range.n} finished Pechkas jobs in the last ${range.days} days. For the work only; parts are extra.`}
           />
-        ) : null}
-        <Text style={s.small}>
-          {chosen?.list_paisa ? `Usual price ${rupees(chosen.list_paisa)} · ` : ''}Lowest offer {rupees(min)}, the cost of coming to look.
-        </Text>
-        {lists?.visit_fee_min_paisa && lists.visit_fee_max_paisa ? (
-          <Text style={s.small}>
-            If the job turns out bigger, he must ask you a new price in the app. Say no, and you pay only a visit fee for his petrol:{' '}
-            {rupees(lists.visit_fee_min_paisa)} to {rupees(lists.visit_fee_max_paisa)}.
-          </Text>
-        ) : null}
-        <Text style={s.small}>You pay after the job, in cash or by JazzCash or Easypaisa. Nothing in advance.</Text>
+        ) : (
+          <View style={s.zoneBox}>
+            <Text style={s.zone}>{zone}</Text>
+            {chosen?.list_paisa ? <Text style={s.small}>Usual Pechkas price {rupees(chosen.list_paisa)}</Text> : null}
+          </View>
+        )}
+        {/* How paying works, as three short lines instead of three paragraphs. */}
+        <View style={s.facts}>
+          <PayFact text={`The lowest price is ${rupees(min)}: the cost of coming to look.`} />
+          {lists?.visit_fee_min_paisa && lists.visit_fee_max_paisa ? (
+            <PayFact
+              text={`Bigger than it looked? He must ask you a new price in the app. Say no, and you pay only his visit fee: ${rupees(lists.visit_fee_min_paisa)} to ${rupees(lists.visit_fee_max_paisa)}.`}
+            />
+          ) : null}
+          <PayFact text="You pay after the job, in cash or by JazzCash or Easypaisa. Nothing in advance." />
+        </View>
       </Card>
 
       {/* A new key each refusal, so the same sentence comes back after its banner was closed. */}
@@ -946,6 +954,16 @@ function Remove({ label, onPress }: { label: string; onPress: () => void }) {
   );
 }
 
+/** One line of how paying works: a green tick and the words. */
+function PayFact({ text }: { text: string }) {
+  return (
+    <View style={s.fact}>
+      <Icon name="check" size={16} color={colour.green} strokeWidth={2.4} />
+      <Text style={s.factText}>{text}</Text>
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
   card: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.04)' },
   cardMoney: { backgroundColor: colour.softYellow },
@@ -1001,6 +1019,10 @@ const s = StyleSheet.create({
   stepPlus: { backgroundColor: colour.yellow, borderColor: colour.yellow },
   stepText: { fontFamily: font.display, fontSize: 26, color: colour.ink, marginTop: -2 },
   price: { flex: 1, textAlign: 'center', fontFamily: font.display, fontSize: 38, color: colour.ink, letterSpacing: -1 },
-  zone: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.green, textAlign: 'center' },
+  zone: { fontFamily: font.bodySemi, fontSize: 14.5, lineHeight: 20, color: colour.ink },
+  zoneBox: { gap: 4, padding: 14, borderRadius: 18, backgroundColor: colour.white },
+  facts: { gap: 8, paddingTop: 2 },
+  fact: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
+  factText: { flex: 1, fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.inkSoft },
   small: { fontFamily: font.body, fontSize: 12, lineHeight: 17, color: colour.steel },
 });

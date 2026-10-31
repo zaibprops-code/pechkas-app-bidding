@@ -113,7 +113,7 @@ a screen; use the token.
 | `Trouble` | `components/Trouble.tsx` | No internet, not answering, crash, missing page, update, paused. |
 | `ScrewSpinner` | `components/ScrewSpinner.tsx` | Anything working. There is no other spinner. |
 | `Sheet` | `components/Sheet.tsx` | A choice that slides up from the bottom. |
-| `PriceRangeCard` | `components/PriceRange.tsx` | What recent jobs of one kind went for: the range in words, a bar with the middle half in green and a yellow marker for the price being set, and how many jobs it comes from. White on a coloured card; `onWhite` makes it grey on a white sheet. Shown only when the database sends a range. |
+| `PriceRangeCard` | `components/PriceRange.tsx` | Where a price sits against what recent jobs of its kind went for: a dot and one verdict first (in line / below / above) with a line of what it means, then a bar with the middle half in green, a yellow marker for the price being set and the two ends written under it, then how many jobs it comes from. White on a coloured card; `onWhite` makes it grey on a white sheet. Shown only when the database sends a range. |
 
 A green call-to-action card (home's "What needs fixing & for how much?",
 My jobs' "Post a new job") is: green card, white title, one line, a yellow
@@ -157,6 +157,11 @@ disc with an arrow on the right.
 - **A person is a sheet before a choice**: a link under an offer ("See
   Bilal's profile") opens a sheet with figures in three grey tiles, ticked
   checks, quoted words, and the same Choose button as the offer.
+- **One answer first, then the detail.** A card that helps somebody
+  decide leads with a single plain verdict ("In line with most jobs like
+  this"), then the picture, then where it comes from. Never the same
+  figure twice on one screen, and fine print as a few ticked lines, not
+  paragraphs.
 - **A figure from real jobs always says where it came from**: "The middle
   half of 15 finished jobs in the last 90 days". A range is never shown
   without its count, and nothing is shown when the database has too few

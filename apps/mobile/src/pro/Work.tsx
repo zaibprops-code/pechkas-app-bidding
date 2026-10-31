@@ -505,11 +505,12 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
 
       <View style={s.money}>
         <View>
-          <Text style={s.moneyLabel}>{editing ? (price === j.offered_paisa ? w.customerOffers : w.yourPrice) : w.yourOffer}</Text>
-          <Text style={s.moneyBig}>{rupees(editing ? price : live?.price_paisa ?? price)}</Text>
+          {/* While he sets his offer, her price stays here to compare with; the stepper below is his. */}
+          <Text style={s.moneyLabel}>{editing ? w.customerOffers : w.yourOffer}</Text>
+          <Text style={s.moneyBig}>{rupees(editing ? j.offered_paisa : live?.price_paisa ?? price)}</Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <Text style={s.moneyLabel}>{w.youKeep}</Text>
+          <Text style={s.moneyLabel}>{editing ? fill(w.youKeepAt, { price: rupees(price) }) : w.youKeep}</Text>
           <Text style={s.keep}>{rupees(technicianKeeps(editing ? price : live?.price_paisa ?? price, bps))}</Text>
         </View>
       </View>
@@ -561,10 +562,9 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
           {help?.range ? (
             <PriceRangeCard
               range={help.range}
-              title={w.rangeTitle}
+              price={price}
+              say={{ below: [w.rangeBelow, w.rangeBelowSub], within: [w.rangeWithin, w.rangeWithinSub], above: [w.rangeAbove, w.rangeAboveSub] }}
               foot={fill(w.rangeFoot, { n: help.range.n, days: help.range.days })}
-              mark={price}
-              markLabel={w.rangeYours}
               onWhite
             />
           ) : null}
@@ -595,7 +595,7 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
 
           {needsTime && j.when_date ? (
             <View style={{ gap: 6 }}>
-              <Text style={s.label}>{fill(w.arriveWhen, { day: dayLabel(j.when_date).replace(/^(Today|Tomorrow)$/, (x) => x.toLowerCase()) })}</Text>
+              <Text style={s.label}>{fill(w.arriveWhen, { day: /^(Today|Tomorrow)$/.test(dayLabel(j.when_date)) ? dayLabel(j.when_date).toLowerCase() : `on ${dayLabel(j.when_date)}` })}</Text>
               <View style={s.chips}>
                 {openWindows(j.when_date).map((h) => (
                   <Press key={h} onPress={() => setArrive(h)} sink={0.94} accessibilityRole="radio" accessibilityState={{ selected: arrive === h }} style={[s.chip, arrive === h && s.chipOn]}>
