@@ -423,8 +423,10 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 
 ### A job, live (`app/job/[id].tsx`)
 - **Posting lands on the job's own screen**, the way a ride app lands on
-  the search: `Searching` (the screw turning in rings that only grow) while
-  it is open, the offers right under it, then the same screen follows the
+  the search: `Searching` while it is open — one compact white card: the screw
+  turning in a round radar whose rings grow only to the radar's own edge
+  (a rectangle once cut them in half), the words beside it, and a thin
+  yellow bar running along its foot, all by transform — the offers right under it, then the same screen follows the
   visit. It renders `JobCard` from `src/customer/JobCard.tsx`, and is the
   one place a job is acted on: choosing, declining, cancelling, the start
   code, a new price, paying, rating, blocking. It asks `my_jobs()` every

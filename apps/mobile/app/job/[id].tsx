@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Linking, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ScrewSpinner } from '../../src/components/ScrewSpinner';
@@ -114,17 +114,18 @@ export default function LiveJob() {
         <View style={{ paddingHorizontal: 14, gap: 14 }}>
           {open ? (
             <>
-              <Searching found={offers} small={!!job.nudged} />
-              {/* Who can see it, in one line. The job itself, with its offers, is the card below. */}
-              <Text style={s.note}>
-                {job.preferred
-                  ? `Sent to ${job.preferred.first_name} first. The card below says until when.`
-                  : job.asked_for
-                    ? `Posted ${ago(job.created_at)}. It has gone to every checked technician who does this work.`
-                    : asked
-                      ? `${asked} is not taking jobs right now, so it went to every checked technician who does this work.`
-                      : `Posted ${ago(job.created_at)}. Checked technicians who do this work can see it.`}
-              </Text>
+              <Searching
+                found={offers}
+                line={
+                  job.preferred
+                    ? `Sent to ${job.preferred.first_name} first. The card below says until when.`
+                    : job.asked_for
+                      ? `Posted ${ago(job.created_at)}. It has gone to every checked technician who does this work.`
+                      : asked
+                        ? `${asked} is not taking jobs right now, so it went to every checked technician who does this work.`
+                        : `Posted ${ago(job.created_at)}. Checked technicians who do this work can see it.`
+                }
+              />
             </>
           ) : null}
 
@@ -184,15 +185,22 @@ function ago(iso: string): string {
 }
 
 /**
- * The search, inDrive's radar in Pechkas's own shape: the screw turning in
- * the middle, three rings going out from it. Rings carry no words and only
- * grow (transform), never fade, like every other movement in the app; the
- * panel clips them. With "remove animations" on, they stand still.
+ * The search, inDrive's way: one compact white card. On the left the screw
+ * turning inside a round radar, its rings growing out to the radar's own
+ * edge — a circle inside a circle, so no corner ever cuts a ring in half.
+ * Beside it what is happening and who can see the job. Along the foot a
+ * thin bar runs, the way a ride app shows it is still searching.
+ *
+ * Rings and bar carry no words and only move by transform, never fade,
+ * like every other movement in the app. With "remove animations" on they
+ * stand still, and the words still say what is happening.
  */
-function Searching({ found, small }: { found: number; small?: boolean }) {
-  // Smaller once offers are in, or once she has choices to make, so those sit higher on the screen.
-  const tall = found || small ? 130 : 190;
-  const rings = useRef([0, 1, 2].map(() => new Animated.Value(0))).current;
+function Searching({ found, line }: { found: number; line: string }) {
+  const rings = useRef([0, 1].map(() => new Animated.Value(0))).current;
+  const run = useRef(new Animated.Value(0)).current;
+  const [track, setTrack] = useState(0);
+  // On a narrow phone the radar gives the words more room.
+  const d = useWindowDimensions().width < 360 ? 64 : 84;
 
   useEffect(() => {
     let loops: Animated.CompositeAnimation[] = [];
@@ -201,44 +209,75 @@ function Searching({ found, small }: { found: number; small?: boolean }) {
       .catch(() => false)
       .then((still) => {
         if (!alive || still) {
-          rings.forEach((r, i) => r.setValue((i + 1) / 3));
+          rings.forEach((r, i) => r.setValue((i + 1) / 2));
           return;
         }
-        loops = rings.map((r, i) =>
+        loops = [
+          ...rings.map((r, i) =>
+            Animated.loop(
+              Animated.sequence([
+                Animated.delay(i * 1200),
+                Animated.timing(r, { toValue: 1, duration: 2400, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+                Animated.timing(r, { toValue: 0, duration: 0, useNativeDriver: true }),
+              ]),
+            ),
+          ),
           Animated.loop(
             Animated.sequence([
-              Animated.delay(i * 900),
-              Animated.timing(r, { toValue: 1, duration: 2700, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-              Animated.timing(r, { toValue: 0, duration: 0, useNativeDriver: true }),
+              Animated.timing(run, { toValue: 1, duration: 1600, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+              Animated.timing(run, { toValue: 0, duration: 0, useNativeDriver: true }),
             ]),
           ),
-        );
+        ];
         loops.forEach((l) => l.start());
       });
     return () => {
       alive = false;
       loops.forEach((l) => l.stop());
     };
-  }, [rings]);
+  }, [rings, run]);
+
+  const title = found ? 'Offers are arriving' : 'Looking for a technician';
+  const bar = track * 0.3;
 
   return (
-    <View style={[s.search, { height: tall }]} accessibilityRole="progressbar" accessibilityLabel={found ? 'Offers are arriving' : 'Looking for a technician'}>
-      {rings.map((r, i) => (
-        <Animated.View
-          key={i}
-          style={[s.ring, { transform: [{ scale: r.interpolate({ inputRange: [0, 1], outputRange: [0.35, 2.2] }) }] }]}
-        />
-      ))}
-      <View style={s.centre}>
-        <ScrewSpinner size={72} label={found ? 'Offers are arriving' : 'Looking for a technician'} />
+    <View style={s.search} accessibilityRole="progressbar" accessibilityLabel={title}>
+      <View style={s.searchRow}>
+        <View style={[s.radar, { width: d, height: d, borderRadius: d / 2 }]}>
+          {rings.map((r, i) => (
+            <Animated.View
+              key={i}
+              style={[s.ring, { width: d, height: d, borderRadius: d / 2, transform: [{ scale: r.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] }) }] }]}
+            />
+          ))}
+          <ScrewSpinner size={d === 64 ? 36 : 44} label={title} />
+        </View>
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={s.searchTitle}>{title}</Text>
+          <Text style={s.note}>{line}</Text>
+        </View>
+      </View>
+      <View style={s.track} onLayout={(e) => setTrack(e.nativeEvent.layout.width)}>
+        {track ? (
+          <Animated.View
+            style={[
+              s.runner,
+              { width: bar, transform: [{ translateX: run.interpolate({ inputRange: [0, 1], outputRange: [-bar, track] }) }] },
+            ]}
+          />
+        ) : null}
       </View>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  search: { borderRadius: 24, backgroundColor: colour.white, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', boxShadow: shadow.card },
-  ring: { position: 'absolute', width: 120, height: 120, borderRadius: 60, borderWidth: 2, borderColor: 'rgba(11, 81, 72, 0.22)' },
-  centre: { width: 96, height: 96, borderRadius: 48, backgroundColor: colour.canvas, alignItems: 'center', justifyContent: 'center' },
-  note: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft, paddingHorizontal: 4 },
+  search: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: shadow.card },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  radar: { backgroundColor: colour.canvas, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  ring: { position: 'absolute', borderWidth: 2, borderColor: 'rgba(11, 81, 72, 0.22)' },
+  searchTitle: { fontFamily: font.display, fontSize: 17, color: colour.ink },
+  note: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft },
+  track: { height: 4, borderRadius: radius.pill, backgroundColor: colour.canvas, overflow: 'hidden' },
+  runner: { height: 4, borderRadius: radius.pill, backgroundColor: colour.yellow },
 });
