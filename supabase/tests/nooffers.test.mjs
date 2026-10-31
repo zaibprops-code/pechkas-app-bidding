@@ -76,6 +76,12 @@ if (soon === now.d) {
 await back(a.id, 200);
 await nudge();
 const again = await sentSince();
+// The owner's rule: the customer is never told a place. Who can take her job is the
+// database's business, and a sector in the message only makes her anxious.
+{
+  const { rows } = await setup(`SELECT en FROM public.push_words WHERE key LIKE 'no_offers.%' OR key LIKE 'unclaimed.%'`);
+  ok('her messages name no sector', rows.length === 4 && rows.every((r) => !r.en.includes('{sector}')), JSON.stringify(rows));
+}
 ok('only once, however long it waits', soon === now.d ? again.length === 0 : again.some((m) => m.title.startsWith('No offers yet')));
 await nudge();
 ok('and not a second time', (await sentSince()).length === 0);

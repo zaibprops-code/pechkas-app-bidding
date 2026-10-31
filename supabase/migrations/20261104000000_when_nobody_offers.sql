@@ -54,8 +54,8 @@ ON CONFLICT (key) DO NOTHING;
 
 INSERT INTO public.push_words (key, sort, ur, en, who) VALUES
   ('no_offers.title', 300, 'No offers yet on {ref}', 'No offers yet on {ref}', 'customer'),
-  ('no_offers.body',  301, 'Your {trade} job in {sector} has no offers yet. Open it to raise your price, choose another day, or keep waiting.',
-                           'Your {trade} job in {sector} has no offers yet. Open it to raise your price, choose another day, or keep waiting.', 'customer'),
+  ('no_offers.body',  301, 'Your {trade} job has no offers yet. Open it to raise your price, choose another day, or keep waiting.',
+                           'Your {trade} job has no offers yet. Open it to raise your price, choose another day, or keep waiting.', 'customer'),
   ('unclaimed.title', 302, 'No technician was free: {ref}', 'No technician was free: {ref}', 'customer'),
   ('unclaimed.body',  303, 'Your {trade} job closed without an offer. Open it and tap Book again to post it for another day.',
                            'Your {trade} job closed without an offer. Open it and tap Book again to post it for another day.', 'customer'),

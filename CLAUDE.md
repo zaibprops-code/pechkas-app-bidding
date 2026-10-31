@@ -486,7 +486,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (`raise_price()`, the technicians' steps — never a price we suggest; the
   usual price is shown only when hers is below it), at most `max_raises`
   (3), upwards only and only while no offer is live; **choose another
-  day** (`change_day()`, day-only jobs); or **keep waiting**. Either
+  day** (`change_day()`, day-only jobs, picked in a `Sheet`); or **keep
+  waiting**. **Nothing the customer reads names a sector or an area** —
+  not the card, the search line under it, nor the `no_offers` and
+  `unclaimed` messages (the owner's rule: who can take her job is the
+  database's business, and a place on the card only makes her rush;
+  `nooffers.test.mjs` checks the messages). Her own address is the only
+  place a sector appears. The money card is the one soft-yellow card:
+  her price now beside the new one, three equal step pills, and a button
+  that says the new figure. Either
   change announces the job again (`announce_again()`, the feed's rule,
   kind `job_again`) and restarts the clock (`announced_at`). **A job nobody
   took closes at 8pm on its day** (`close_unclaimed()`, every minute),

@@ -114,16 +114,16 @@ export default function LiveJob() {
         <View style={{ paddingHorizontal: 14, gap: 14 }}>
           {open ? (
             <>
-              <Searching found={offers} />
+              <Searching found={offers} small={!!job.nudged} />
               {/* Who can see it, in one line. The job itself, with its offers, is the card below. */}
               <Text style={s.note}>
                 {job.preferred
                   ? `Sent to ${job.preferred.first_name} first. The card below says until when.`
                   : job.asked_for
-                    ? `Posted ${ago(job.created_at)}. It has gone to every checked technician in ${job.sector}.`
+                    ? `Posted ${ago(job.created_at)}. It has gone to every checked technician who does this work.`
                     : asked
-                      ? `${asked} is not taking jobs right now, so it went to every checked technician in ${job.sector}.`
-                      : `Posted ${ago(job.created_at)}. Checked technicians who work in ${job.sector} can see it. If nobody offers, you can raise your price or choose another day.`}
+                      ? `${asked} is not taking jobs right now, so it went to every checked technician who does this work.`
+                      : `Posted ${ago(job.created_at)}. Checked technicians who do this work can see it.`}
               </Text>
             </>
           ) : null}
@@ -163,6 +163,8 @@ function headline(job: Job): { title: string; sub?: string } {
         sub: `${job.live_offers} ${job.live_offers === 1 ? 'offer' : 'offers'} so far. More may still come.`,
       };
     }
+    // Told once that nobody has offered (when_nobody_offers): say so, plainly, at the top.
+    if (job.nudged) return { title: 'No offers yet', sub: 'Still looking. You can raise your price or choose another day.' };
     return { title: 'Finding a technician', sub: 'Offers appear here the moment one is sent.' };
   }
   if (job.status === 'assigned') return { title: job.pro ? `${job.pro.first_name} is your technician` : 'Technician chosen' };
@@ -187,9 +189,9 @@ function ago(iso: string): string {
  * grow (transform), never fade, like every other movement in the app; the
  * panel clips them. With "remove animations" on, they stand still.
  */
-function Searching({ found }: { found: number }) {
-  // Smaller once offers are in, so the offers sit higher on the screen.
-  const tall = found ? 130 : 190;
+function Searching({ found, small }: { found: number; small?: boolean }) {
+  // Smaller once offers are in, or once she has choices to make, so those sit higher on the screen.
+  const tall = found || small ? 130 : 190;
   const rings = useRef([0, 1, 2].map(() => new Animated.Value(0))).current;
 
   useEffect(() => {

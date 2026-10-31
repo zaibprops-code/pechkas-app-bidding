@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { addDays, dayLabel, DAYS_AHEAD, openWindows, pkNow, rupees } from '@pechkas/shared';
-import { Button, Chip, Notice } from '../components/ui';
+import { Button, Notice } from '../components/ui';
 import { DuoIcon } from '../components/DuoIcon';
+import { DuoRow, RowCard } from '../components/Rows';
+import { Press } from '../components/Press';
+import { Sheet, SheetOption } from '../components/Sheet';
 import { ask } from '../supabase';
-import { colour, font } from '../theme';
+import { colour, font, radius, shadow } from '../theme';
 
 /**
  * Nobody has offered yet (migration when_nobody_offers). Shown once the
@@ -13,14 +16,14 @@ import { colour, font } from '../theme';
  * raise the price by one of the steps technicians use, choose another day,
  * or keep waiting. The app never says what the "right" price is; it says
  * the usual Pechkas price only when hers is below it, because that is a
- * real figure. The office is not involved.
+ * real figure. It names no sector or area: who can take the job is the
+ * database's business, and naming a place only makes people anxious.
  */
 
 const STEPS = [20000, 50000, 100000] as const;
 
 export type NoOffersJob = {
   id: string;
-  sector: string;
   offered_paisa: number;
   when_date?: string | null;
   list_paisa?: number | null;
@@ -31,19 +34,19 @@ export type NoOffersJob = {
 
 export function NoOffers({ job, onChanged }: { job: NoOffersJob; onChanged: () => void }) {
   const [step, setStep] = useState<number | null>(null);
-  const [moving, setMoving] = useState(false);
+  const [days, setDays] = useState(false);
   const [waiting, setWaiting] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  // Under 360 wide the long label broke the amount over two lines.
   const narrow = useWindowDimensions().width < 360;
   if (waiting) return null;
 
   const now = pkNow();
-  const days = Array.from({ length: DAYS_AHEAD + 1 }, (_, i) => addDays(now.date, i)).filter(
+  const choices = Array.from({ length: DAYS_AHEAD + 1 }, (_, i) => addDays(now.date, i)).filter(
     (d) => d !== job.when_date && openWindows(d, now).length > 0,
   );
   const below = job.list_paisa && job.offered_paisa < job.list_paisa;
+  const left = job.raises_left ?? 0;
 
   async function raise() {
     if (!step) return;
@@ -62,72 +65,111 @@ export function NoOffers({ job, onChanged }: { job: NoOffersJob; onChanged: () =
     const r = await ask('change_day', { p_job: job.id, p_date: day });
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
-    setMoving(false);
+    setDays(false);
     onChanged();
   }
 
   return (
-    <View style={s.card}>
-      <View style={s.head}>
-        <View style={s.tile}>
-          <DuoIcon name="clock" size={24} />
-        </View>
-        <View style={{ flex: 1, gap: 2 }}>
-          <Text style={s.title} accessibilityRole="header">
-            No offers yet
-          </Text>
-          <Text style={s.line}>
-            Technicians in {job.sector.replace(/-/g, '‑')} have not taken this job at {rupees(job.offered_paisa)} yet.
-          </Text>
-        </View>
-      </View>
-      {below ? <Text style={s.usual}>The usual Pechkas price for this job is {rupees(job.list_paisa!)}.</Text> : null}
-
+    <View style={{ gap: 14 }}>
       {job.can_raise ? (
-        <View style={{ gap: 8 }}>
-          <Text style={s.label}>Raise your price</Text>
-          <View style={s.chips}>
-            {STEPS.map((d) => (
-              <Chip key={d} label={`+${rupees(d)}`} on={step === d} onPress={() => setStep(step === d ? null : d)} />
-            ))}
-          </View>
-          {step ? <Button icon="arrowRight" label={`${narrow ? 'Raise to' : 'Raise my price to'} ${rupees(job.offered_paisa + step)}`} busy={busy} onPress={raise} /> : null}
-          <Text style={s.note}>
-            You choose the amount. You can raise it {job.raises_left === 1 ? 'once more' : `${job.raises_left ?? 0} more times`}, and it can only go up.
-          </Text>
-        </View>
-      ) : null}
-
-      {job.can_move ? (
-        moving ? (
-          <View style={{ gap: 8 }}>
-            <Text style={s.label}>Which day instead?</Text>
-            <View style={s.chips}>
-              {days.map((d) => (
-                <Chip key={d} label={dayLabel(d, now.date)} on={false} onPress={() => (busy ? undefined : move(d))} />
-              ))}
+        // The one money card on the screen: soft yellow, the price large, as on Post a job.
+        <View style={s.money}>
+          <View style={s.head}>
+            <View style={s.tile}>
+              <DuoIcon name="wallet" size={24} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.title} accessibilityRole="header">
+                Raise your price
+              </Text>
+              <Text style={s.leftText}>{left === 1 ? '1 raise left' : `${left} raises left`}</Text>
             </View>
           </View>
-        ) : (
-          <Button kind="outline" label="Choose another day" onPress={() => setMoving(true)} />
-        )
+
+          <View style={s.prices}>
+            <View>
+              <Text style={s.priceLabel}>Your price now</Text>
+              <Text style={[s.price, step ? s.priceOld : null]}>{rupees(job.offered_paisa)}</Text>
+            </View>
+            {step ? (
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={s.priceLabel}>New price</Text>
+                <Text style={s.price}>{rupees(job.offered_paisa + step)}</Text>
+              </View>
+            ) : null}
+          </View>
+
+          {/* Three equal steps, the ones technicians use: never a price we suggest. */}
+          <View style={[s.steps, narrow && { gap: 6 }]}>
+            {STEPS.map((d) => {
+              const on = step === d;
+              return (
+                <Press
+                  key={d}
+                  onPress={() => setStep(on ? null : d)}
+                  sink={0.95}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: on }}
+                  accessibilityLabel={`Add ${rupees(d)}`}
+                  style={[s.step, narrow && s.stepNarrow, on && s.stepOn]}
+                >
+                  <Text style={[s.stepText, narrow && { fontSize: 13.5 }, on && s.stepTextOn]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>
+                    +{rupees(d)}
+                  </Text>
+                </Press>
+              );
+            })}
+          </View>
+          {below ? <Text style={s.usual}>The usual Pechkas price for this job is {rupees(job.list_paisa!)}.</Text> : null}
+          <Button
+            icon="arrowRight"
+            label={step ? `${narrow ? 'Raise to' : 'Raise my price to'} ${rupees(job.offered_paisa + step)}` : 'Choose an amount above'}
+            disabled={!step}
+            busy={busy}
+            onPress={raise}
+          />
+          <Text style={s.note}>You choose the amount, and it can only go up. Technicians are told at once.</Text>
+        </View>
       ) : null}
 
-      <Button kind="outline" label="Keep waiting" onPress={() => setWaiting(true)} />
-      <Text style={s.note}>If nobody takes it, it closes by itself at 8pm on its day, and you can post it again in one tap.</Text>
+      <RowCard>
+        {job.can_move ? (
+          <DuoRow icon="clock" label="Choose another day" value={job.when_date ? `Now: ${dayLabel(job.when_date, now.date)}` : undefined} onPress={() => setDays(true)} />
+        ) : null}
+        <DuoRow icon="bell" label="Keep waiting" value="Your phone tells you when an offer comes." onPress={() => setWaiting(true)} last />
+      </RowCard>
+      <Text style={s.foot}>If nobody takes it, it closes by itself at 8pm on its day. You can post it again in one tap.</Text>
       <Notice text={msg} />
+
+      {days ? (
+        <Sheet title="Which day instead?" onClose={() => setDays(false)}>
+          {choices.map((d) => (
+            <SheetOption key={d} label={dayLabel(d, now.date)} onPress={() => (busy ? undefined : move(d))} />
+          ))}
+          <Notice text={msg} inline />
+        </Sheet>
+      ) : null}
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  card: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.softYellow },
-  head: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  money: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.softYellow },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   tile: { width: 44, height: 44, borderRadius: 14, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },
   title: { fontFamily: font.display, fontSize: 18, color: colour.ink },
-  line: { fontFamily: font.body, fontSize: 14.5, lineHeight: 20, color: colour.inkSoft },
-  usual: { fontFamily: font.bodySemi, fontSize: 14.5, lineHeight: 20, color: colour.ink },
-  label: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  leftText: { fontFamily: font.bodyMedium, fontSize: 13, color: colour.steel },
+  prices: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12 },
+  priceLabel: { fontFamily: font.bodyMedium, fontSize: 13, color: colour.steel },
+  price: { fontFamily: font.display, fontSize: 28, color: colour.ink },
+  priceOld: { fontSize: 20, color: colour.steel, textDecorationLine: 'line-through' },
+  steps: { flexDirection: 'row', gap: 8 },
+  step: { flex: 1, minHeight: 48, borderRadius: radius.pill, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6, boxShadow: shadow.card },
+  stepNarrow: { paddingHorizontal: 2 },
+  stepOn: { backgroundColor: colour.green },
+  stepText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.ink },
+  stepTextOn: { color: colour.white },
+  usual: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.ink },
   note: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
+  foot: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel, paddingHorizontal: 4 },
 });

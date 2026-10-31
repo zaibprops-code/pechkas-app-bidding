@@ -27,6 +27,12 @@ What happens now:
   - **Choose another day.**
   - **Keep waiting.**
   A raise or a new day tells the technicians again.
+- The card and the customer's messages **never name a sector or an area**
+  (your rule): they only say that checked technicians who do this work
+  can see her job. Her own address is the only place a sector shows.
+  If you already ran the `when_nobody_offers` file before 1 November,
+  **run it once more** — that only changes the wording of the "no offers
+  yet" notification, which used to name her sector.
 - **At 8pm on its day**, a job nobody took closes by itself as **No
   technician was free**, she is told, and **Book again** posts it for
   another day.
