@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "7b11f9e";
+export const LEGAL_FROM = "4e4a21e";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -826,7 +826,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If nobody offers, Pechkas may ring technicians and arrange one for you, at a price agreed with you first."
+              "t": "If nobody offers, the app tells you and lets you raise your price or choose another day. A job nobody takes closes by itself at 8pm on its day; nothing is owed, and you can post it again."
             }
           ]
         ]

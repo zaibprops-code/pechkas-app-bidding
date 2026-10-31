@@ -123,7 +123,7 @@ export default function LiveJob() {
                     ? `Posted ${ago(job.created_at)}. It has gone to every checked technician in ${job.sector}.`
                     : asked
                       ? `${asked} is not taking jobs right now, so it went to every checked technician in ${job.sector}.`
-                      : `Posted ${ago(job.created_at)}. Checked technicians who work in ${job.sector} can see it. If nobody offers soon, Pechkas will call you.`}
+                      : `Posted ${ago(job.created_at)}. Checked technicians who work in ${job.sector} can see it. If nobody offers, you can raise your price or choose another day.`}
               </Text>
             </>
           ) : null}
@@ -168,6 +168,7 @@ function headline(job: Job): { title: string; sub?: string } {
   if (job.status === 'assigned') return { title: job.pro ? `${job.pro.first_name} is your technician` : 'Technician chosen' };
   if (job.status === 'done') return { title: 'Job done' };
   if (job.status === 'stopped') return { title: 'Stopped at the door' };
+  if (job.cancelled_by === 'nobody') return { title: 'Closed', sub: 'No technician was free for this job. Book it again for another day.' };
   return { title: 'Cancelled' };
 }
 

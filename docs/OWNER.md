@@ -7,6 +7,36 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**When nobody offers, the customer decides and the job closes by itself
+(new — ONE database step, then a new build). You are no longer rung or
+buzzed about jobs without offers.**
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261104000000_when_nobody_offers.sql`. It should
+   say **Success**. (Safe to run twice.)
+2. Make a new **preview** build and install it.
+
+What happens now:
+
+- **20 minutes** after a job for **today** gets no offer (**3 hours** for a
+  later day), the customer is told once. Her job screen shows **No offers
+  yet** with three choices:
+  - **Raise your price** by +Rs 200, +Rs 500 or +Rs 1,000, then **Raise my
+    price to Rs …**. At most 3 times, only upwards, and only while nobody
+    has offered. If her price is below the usual Pechkas price, it says so.
+  - **Choose another day.**
+  - **Keep waiting.**
+  A raise or a new day tells the technicians again.
+- **At 8pm on its day**, a job nobody took closes by itself as **No
+  technician was free**, she is told, and **Book again** posts it for
+  another day.
+- **Admin → Demand** still shows which trades and sectors get no offers:
+  that is where to find more technicians.
+
+To try it: post a job for today with a low price and wait 20 minutes
+without offering. The **No offers yet** card appears; raise the price and
+check the technician's phone gets the new price.
+
 **Pay Pechkas: technicians tell you in the app that they have paid (new —
 ONE database step, then a new build).** Nothing in the app holds or moves
 money: a technician still pays you by JazzCash, Easypaisa or bank, outside
@@ -669,9 +699,8 @@ switch it on:
    the notification arrives. **Me → This copy of the app** should say
    **Database: up to date**.
 
-Still waiting on you: **raising your price while you wait.** That is money:
-it needs a rule for how much, how often, and whether offers already sent
-stay valid. Say yes, with the rule, and it gets built.
+Raising her price while she waits: **built** (see "When nobody offers" at
+the top).
 
 **Maps (new — needs your Google Maps key).** The home screen opens on a map
 of Islamabad with the cards in a sheet over it, as in inDrive; the round

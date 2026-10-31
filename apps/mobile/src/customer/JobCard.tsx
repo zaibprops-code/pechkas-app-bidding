@@ -13,6 +13,7 @@ import { Press } from '../components/Press';
 import { Icon } from '../components/Icon';
 import { Ended, UnderWay, type JobNow } from './UnderWay';
 import { ProProfile } from './ProProfile';
+import { NoOffers } from './NoOffers';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { ask, supabase } from '../supabase';
 import { colour, font, radius } from '../theme';
@@ -42,7 +43,13 @@ export type Job = JobNow & {
   street: string;
   house: string;
   live_offers: number;
-  cancelled_by: 'customer' | 'office' | null;
+  cancelled_by: 'customer' | 'office' | 'nobody' | null;
+  /** Nobody has offered yet: told once, and what she may do about it (when_nobody_offers). */
+  nudged?: boolean;
+  raises_left?: number;
+  can_raise?: boolean;
+  can_move?: boolean;
+  list_paisa?: number | null;
   cancel_reason: string | null;
   created_at: string;
   media: { kind: 'voice' | 'video' | 'photo' }[];
@@ -169,7 +176,9 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
               : 'Waiting for offers'
             : job.cancelled_by === 'office'
               ? 'Cancelled by Pechkas'
-              : 'Cancelled';
+              : job.cancelled_by === 'nobody'
+                ? 'No technician was free'
+                : 'Cancelled';
   // What the figure beside the title is, so nobody reads her own offer as the bill.
   const priceLabel = open || job.status === 'cancelled' ? 'Your price' : assigned ? 'Agreed' : job.status === 'stopped' ? 'Visit fee' : 'Total';
 
@@ -185,6 +194,8 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
           Your job
         </Text>
       ) : null}
+      {/* Nobody has offered yet: her three choices, before anything else. */}
+      {open && job.live_offers === 0 && job.nudged ? <NoOffers job={job} onChanged={onChanged} /> : null}
       {/* The job itself: what, where, when — the part that never changes. */}
       <Press
         onPress={onOpen}

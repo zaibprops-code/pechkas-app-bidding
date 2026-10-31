@@ -350,7 +350,10 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   again; a new or renewed offer does. A technician whose offer was **live**
   is told when someone else is chosen or the job is called off; one whose
   offer had run out, or who took it back, is not — he has moved on.
-- **The office is told once per job** when it has waited
+- **The office is no longer told about jobs without offers** (the owner's
+  choice, `…_when_nobody_offers`: the customer is told instead, above).
+  `alert_needs_you()` still exists and works if it is ever scheduled again
+  — when it ran, it told the office once per job when it had waited
   `escalate_minutes` with no live offer: `alert_needs_you()`, run every
   minute by `pg_cron`, marks `needs_you_told_at` first. It goes to the app
   signed in as each active staff member's `alert_phone`, set in the admin
@@ -473,8 +476,25 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `pro_may_see_as()` closes that one job to him — feed, new offer, files,
   notifications — without blocking him from her other jobs. It is logged
   as `offer_declined`. `declining.test.mjs` breaks if that rule goes.
-- Not built, waiting on the owner (`docs/OWNER.md`): raising her price
-  while waiting (money).
+- **When nobody offers, she decides and the job closes itself** (migration
+  `…_when_nobody_offers`, the owner's rule; the office is not involved).
+  `nudge_no_offers()` (pg_cron, every minute) tells her once when nobody
+  has offered since the job was announced: `nudge_today_minutes` (20) for
+  a job on today, `nudge_later_minutes` (180) for a later day, never while
+  it is held for the man she asked for. Her job screen then shows
+  `NoOffers.tsx`: **raise my price** by +Rs 200 / 500 / 1,000 only
+  (`raise_price()`, the technicians' steps — never a price we suggest; the
+  usual price is shown only when hers is below it), at most `max_raises`
+  (3), upwards only and only while no offer is live; **choose another
+  day** (`change_day()`, day-only jobs); or **keep waiting**. Either
+  change announces the job again (`announce_again()`, the feed's rule,
+  kind `job_again`) and restarts the clock (`announced_at`). **A job nobody
+  took closes at 8pm on its day** (`close_unclaimed()`, every minute),
+  `cancelled_by = 'nobody'`, and she is told; Book again reposts it. The
+  `pechkas-needs-you` office alert is taken off the clock; the admin
+  Demand page shows where it keeps happening. `my_jobs()` is two
+  `jsonb_build_object`s joined with `||` because one may take at most 100
+  arguments (`nooffers.test.mjs`).
 
 ### Doing the job (phase 4)
 - **Status and step are separate.** `status` is open → assigned → done |

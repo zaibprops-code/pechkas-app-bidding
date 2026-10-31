@@ -293,7 +293,10 @@ await setup(`INSERT INTO auth.users (id, phone) VALUES ($1, '923009999999')`, [Z
 await setup(`INSERT INTO public.profiles (id, role, first_name) VALUES ($1, 'customer', 'Zohaib')`, [ZOHAIB_PHONE]);
 await call('authenticated', ZOHAIB_PHONE, SAVE, [token('zohaib'), 'android', 'en']);
 
-ok('the clock is set to look every minute', (await setup(`SELECT schedule, command FROM cron.job WHERE jobname = 'pechkas-needs-you'`)).rows[0]?.schedule === '* * * * *');
+// The owner chose not to be told about jobs without offers (migration
+// when_nobody_offers): the customer is nudged instead, so the office alert is
+// no longer on the clock. alert_needs_you() itself still works, below.
+ok('the office alert is off the clock: the customer is told instead', (await setup(`SELECT 1 FROM cron.job WHERE jobname = 'pechkas-needs-you'`)).rows.length === 0 && (await setup(`SELECT 1 FROM cron.job WHERE jobname = 'pechkas-no-offers'`)).rows.length === 1);
 ok('nobody can set off the alerts themselves', Boolean((await as('authenticated', OWNER, `SELECT public.alert_needs_you()`)).error));
 ok('a technician cannot set an alert number', (await call('authenticated', BILAL, `SELECT public.admin_set_alert_phone('03001234567')`)).value?.ok === false);
 ok('a number that is not a mobile is refused', (await call('authenticated', OWNER, `SELECT public.admin_set_alert_phone('12345')`)).value?.field === 'phone');

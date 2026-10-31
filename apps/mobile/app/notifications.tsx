@@ -22,10 +22,12 @@ const CUSTOMER = [
   'The job is done',
   'A new message about your job',
   'The technician you asked for cannot take it',
+  'Nobody has offered yet, or your job closed without an offer',
 ];
 
 const TECHNICIAN = [
   'A new job in your areas, while you are online',
+  'A job\u2019s price goes up or its day changes',
   'A customer asks for you again',
   'You are chosen — or another offer is',
   'A job is cancelled, so you do not travel',

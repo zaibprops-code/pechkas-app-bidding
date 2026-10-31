@@ -48,6 +48,7 @@ type Recent = {
   title: string;
   trade: string;
   status: string;
+  cancelled_by?: 'customer' | 'office' | 'nobody' | null;
   live_offers: number;
   offered_paisa: number;
   stage: 'chosen' | 'on_way' | 'arrived' | 'working' | null;
@@ -66,6 +67,7 @@ function statusLine(j: Recent): string {
   if (j.status === 'assigned') return 'Technician chosen';
   if (j.status === 'done') return 'Done';
   if (j.status === 'stopped') return 'Stopped';
+  if (j.cancelled_by === 'nobody') return 'No technician was free';
   return 'Cancelled';
 }
 

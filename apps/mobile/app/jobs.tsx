@@ -240,7 +240,7 @@ function LiveJob({ job, trade, narrow }: { job: Job; trade: string; narrow: bool
 function PastJob({ job, trade, last, narrow }: { job: Job; trade: string; last: boolean; narrow: boolean }) {
   const cancelled = job.status === 'cancelled';
   const label =
-    job.status === 'done' ? 'Done' : job.status === 'stopped' ? 'Stopped' : job.cancelled_by === 'office' ? 'Cancelled by Pechkas' : 'Cancelled';
+    job.status === 'done' ? 'Done' : job.status === 'stopped' ? 'Stopped' : job.cancelled_by === 'office' ? 'Cancelled by Pechkas' : job.cancelled_by === 'nobody' ? 'No technician was free' : 'Cancelled';
   // Only a real, open chance to rate: the database says whether she still may.
   const rate = job.can_rate && !job.my_rating && job.pro ? `Rate ${job.pro.first_name}` : null;
   return (
