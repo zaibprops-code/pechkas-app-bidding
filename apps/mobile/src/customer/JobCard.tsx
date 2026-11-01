@@ -160,7 +160,8 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
   const narrow = useWindowDimensions().width < 360;
   const canAskAgain = Boolean(job.can_ask_again && job.pro);
   // Over, however it ended: the same work at the same address, posted again for everyone.
-  const canBookAgain = ['done', 'stopped', 'cancelled'].includes(job.status);
+  // Never on a guarantee repair: posting it again would be a job she pays for. Her claim offers another day instead.
+  const canBookAgain = ['done', 'stopped', 'cancelled'].includes(job.status) && !job.paid_by_pechkas;
   const canBlock = Boolean(job.can_block && job.block_name);
   const officeOnly = assigned && !canCancel;
   const status =
@@ -180,10 +181,13 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
                 ? 'No technician was free'
                 : 'Cancelled';
   // What the figure beside the title is, so nobody reads her own offer as the bill.
-  const priceLabel = open || job.status === 'cancelled' ? 'Your price' : assigned ? 'Agreed' : job.status === 'stopped' ? 'Visit fee' : 'Total';
+  // A guarantee repair is Pechkas' to pay: her figure is nothing, never what Pechkas pays the technician.
+  const priceLabel = job.paid_by_pechkas
+    ? 'Paid by Pechkas'
+    : open || job.status === 'cancelled' ? 'Your price' : assigned ? 'Agreed' : job.status === 'stopped' ? 'Visit fee' : 'Total';
 
   const offersFirst = open && job.live_offers > 0;
-  const shown = rupees(job.collect_paisa ?? job.agreed_paisa ?? job.offered_paisa);
+  const shown = job.paid_by_pechkas ? 'Free' : rupees(job.collect_paisa ?? job.agreed_paisa ?? job.offered_paisa);
 
   return (
     <>

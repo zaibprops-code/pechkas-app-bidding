@@ -11,7 +11,10 @@ import { shown } from './phones.ts';
  * and the customer checks it; a job she has not checked closes after 24
  * hours. It comes to a person only when somebody disagrees — he says it is
  * not his work, she says it is still broken after his visit, he appeals a
- * charge, or she said "not finished yet" twice. Every decision needs a
+ * charge, she said "not finished yet" twice, or nobody offers on a
+ * replacement repair — then the office can raise what Pechkas pays for it
+ * (admin_raise_cap). A charge is only added to what he owes after 7 days
+ * without an appeal, or when the office upholds one (guarantee_followups). Every decision needs a
  * note, and both sides read it in the app. The database decides what each
  * button may do; this page only asks.
  */
@@ -51,7 +54,21 @@ type Claim = {
   decided_by_name: string | null;
   decided_at: string | null;
   charge_paisa: number | null;
+  charge_due: string | null;
+  /** Added to what he owes. False while it waits for its date or for an appeal. */
+  charge_final: boolean;
   charged_at: string | null;
+  replacement_status: string | null;
+  replacement_offers: number | null;
+  /** Open, announced long enough ago, and nobody has offered. */
+  replacement_waiting: boolean;
+  cap_paisa: number | null;
+  first_cap_paisa: number | null;
+  max_cap_paisa: number | null;
+  can_raise_cap: boolean;
+  cap_raised_at: string | null;
+  cap_raised_by_name: string | null;
+  cap_note: string | null;
   appeal_text: string | null;
   appeal_photos: string[] | null;
   appeal_at: string | null;
@@ -89,7 +106,7 @@ type Dispute = {
   photos: Photo[] | null;
   checks: Check[] | null;
 };
-type Report = { claims: Claim[]; disputes: Dispute[]; reserve_paisa: number };
+type Report = { claims: Claim[]; disputes: Dispute[]; reserve_paisa: number; charges_waiting_paisa?: number };
 
 const CLOSED = new Set<Claim['status']>(['fixed', 'not_covered']);
 const WHY_REPLACING = {
@@ -102,6 +119,8 @@ const OUTCOME = {
   stopped: 'Decided: not finished. The customer pays the visit fee only, and there is no commission.',
   return: 'Decided: he goes back to fix it.',
 } as const;
+/** A charge recorded and not yet added: waiting for its date, or for the office's decision on his appeal. */
+const pending = (c: Claim) => Boolean(c.charge_paisa) && !c.charge_final && c.appeal_outcome !== 'cancelled';
 const ANSWER = { yes: 'She said yes, it works.', clock: 'Nobody answered; it closed by itself after 24 hours.', office: 'Decided by the office.' } as const;
 
 /** "Sat 2 Nov, 3:40pm", always on Pakistan's clock whatever the computer's clock says. */
@@ -137,7 +156,7 @@ export function Guarantee() {
     if (error) {
       return setProblem(
         /admin_guarantee|schema cache|does not exist/i.test(error.message)
-          ? 'This page needs the database change 20261106000000_checks_and_guarantee.sql. Run it in Supabase first.'
+          ? 'This page needs the database changes 20261106000000_checks_and_guarantee.sql and 20261107000000_guarantee_followups.sql. Run them in Supabase first.'
           : `Could not load: ${error.message}`,
       );
     }
@@ -154,11 +173,12 @@ export function Guarantee() {
   const claims = r?.claims ?? [];
   const disputes = r?.disputes ?? [];
   const waitingDisputes = disputes.filter((d) => d.status === 'assigned' && d.stage === 'disputed');
-  const needClaims = claims.filter((c) => c.needs_you);
-  const openClaims = claims.filter((c) => !c.needs_you && !CLOSED.has(c.status));
-  const closedClaims = claims.filter((c) => !c.needs_you && CLOSED.has(c.status));
+  const needClaims = claims.filter((c) => c.needs_you && !(c.replacement_waiting && c.status === 'replacing'));
+  const waitingRepairs = claims.filter((c) => c.needs_you && c.replacement_waiting && c.status === 'replacing');
+  const openClaims = claims.filter((c) => !c.needs_you && (!CLOSED.has(c.status) || pending(c)));
+  const closedClaims = claims.filter((c) => !c.needs_you && CLOSED.has(c.status) && !pending(c));
   const decidedDisputes = disputes.filter((d) => !(d.status === 'assigned' && d.stage === 'disputed'));
-  const needCount = needClaims.length + waitingDisputes.length;
+  const needCount = needClaims.length + waitingDisputes.length + waitingRepairs.length;
 
   return (
     <>
@@ -175,7 +195,7 @@ export function Guarantee() {
 
       {r ? (
         <div className="stack">
-          <Reserve paisa={Number(r.reserve_paisa)} />
+          <Reserve paisa={Number(r.reserve_paisa)} waiting={Number(r.charges_waiting_paisa ?? 0)} />
 
           <section className="stack" aria-labelledby="needs-you">
             <h2 id="needs-you">Needs you{needCount ? ` (${needCount})` : ''}</h2>
@@ -186,6 +206,9 @@ export function Guarantee() {
               ))}
               {needClaims.map((c) => (
                 <ClaimCard key={c.id} c={c} onChanged={load} />
+              ))}
+              {waitingRepairs.map((c) => (
+                <WaitingRepair key={c.id} c={c} onChanged={load} />
               ))}
             </div>
           </section>
@@ -221,7 +244,7 @@ export function Guarantee() {
   );
 }
 
-function Reserve({ paisa }: { paisa: number }) {
+function Reserve({ paisa, waiting }: { paisa: number; waiting: number }) {
   return (
     <section className="card">
       <div className="card-head">
@@ -234,6 +257,11 @@ function Reserve({ paisa }: { paisa: number }) {
         20% of every commission is set aside here. It pays for guarantee repairs done by another technician, and it is filled again when
         the technician whose work failed is charged.
       </p>
+      {waiting > 0 ? (
+        <p className="muted">
+          {money(waiting)} more is recorded against technicians and comes back to the reserve once their 7 days to appeal have passed.
+        </p>
+      ) : null}
       {paisa <= 0 ? (
         <p className="why">
           The reserve is empty. Guarantee repairs are still Pechkas's promise and are still paid: the money comes from Pechkas until the
@@ -452,7 +480,7 @@ function ClaimCard({ c, onChanged }: { c: Claim; onChanged: () => void }) {
         </div>
         <div className="price">
           <strong>{money(appeal ? c.charge_paisa : c.original_labour_paisa)}</strong>
-          <span className="muted">{appeal ? 'he was charged' : 'his labour on the job'}</span>
+          <span className="muted">{appeal ? (c.charge_final ? 'he was charged' : 'not yet charged') : 'his labour on the job'}</span>
         </div>
       </div>
       <People customer={c.customer} customerPhone={c.customer_phone} pro={c.pro} proPhone={c.pro_phone} />
@@ -489,9 +517,10 @@ function ClaimCard({ c, onChanged }: { c: Claim; onChanged: () => void }) {
               {name}'s appeal{c.appeal_at ? `, ${when(c.appeal_at)}` : ''}
             </h3>
             <p>
-              He was charged {money(c.charge_paisa)}
-              {c.charged_at ? ` on ${when(c.charged_at)}` : ''} because{' '}
-              {c.why_replacing ? WHY_REPLACING[c.why_replacing] : 'another technician had to do the repair'}.
+              {c.charge_final
+                ? `He was charged ${money(c.charge_paisa)}${c.charged_at ? ` on ${when(c.charged_at)}` : ''}`
+                : `He is to be charged ${money(c.charge_paisa)} — nothing is added to what he owes until you decide —`}{' '}
+              because {c.why_replacing ? WHY_REPLACING[c.why_replacing] : 'another technician had to do the repair'}.
             </p>
             {c.office_note ? <p className="muted">The office's earlier note: “{c.office_note}”</p> : null}
             <p className="about">“{c.appeal_text}”</p>
@@ -500,12 +529,16 @@ function ClaimCard({ c, onChanged }: { c: Claim; onChanged: () => void }) {
           <Decide
             label="Why (he reads this in the app). This is decided once."
             choices={[
-              { text: 'Keep the charge', run: decideAppeal(false) },
+              { text: c.charge_final ? 'Keep the charge' : `Keep the charge: add ${money(c.charge_paisa)} now`, run: decideAppeal(false) },
               { text: `Cancel the charge (${money(c.charge_paisa)})`, secondary: true, run: decideAppeal(true) },
             ]}
             onDone={onChanged}
           />
-          <p className="muted small">Cancelling takes the charge off what he owes, in the record, with your note beside it.</p>
+          <p className="muted small">
+            {c.charge_final
+              ? 'Cancelling takes the charge off what he owes, in the record, with your note beside it.'
+              : 'Cancelling means it is never added. Keeping it adds it to what he owes today; past the credit limit his new offers stop until he pays.'}
+          </p>
         </>
       ) : (
         <>
@@ -518,9 +551,9 @@ function ClaimCard({ c, onChanged }: { c: Claim; onChanged: () => void }) {
             onDone={onChanged}
           />
           <p className="muted small">
-            Covered: {c.customer} chooses a day, the job goes to the other technicians, and Pechkas pays from the reserve. {name} is
-            charged for it when it is done, never more than {money(c.original_labour_paisa)}, and he may appeal once. Not covered: the
-            claim closes and {c.customer} reads your note.
+            Covered: {c.customer} chooses a day, the job goes to the other technicians, and Pechkas pays from the reserve. When it is
+            done, {name} is charged never more than {money(c.original_labour_paisa)}; it is added to what he owes after 7 days, and he
+            may appeal once before then. Not covered: the claim closes and {c.customer} reads your note.
           </p>
         </>
       )}
@@ -545,7 +578,11 @@ function claimNow(c: Claim): string {
         c.replacement_ref ? `Booked as ${c.replacement_ref}.` : `Not booked yet: ${c.customer} chooses the day in the app.`
       }`;
     default:
-      return '';
+      return pending(c)
+        ? c.appeal_at
+          ? `Fixed by another technician. ${name} has appealed his ${money(c.charge_paisa)} charge; nothing is added until you decide.`
+          : `Fixed by another technician. ${name} will be charged ${money(c.charge_paisa)} on ${c.charge_due ? when(c.charge_due) : 'the due date'} unless he appeals before then.`
+        : '';
   }
 }
 
@@ -581,10 +618,11 @@ function OpenClaim({ c, onChanged }: { c: Claim; onChanged: () => void }) {
       {c.status === 'replacing' ? (
         <p className="muted small">
           {c.charge_original
-            ? `${first(c.pro)} will be charged when the repair is done, never more than ${money(c.original_labour_paisa)}.`
+            ? `${first(c.pro)} will be charged when the repair is done, never more than ${money(c.original_labour_paisa)}, with 7 days to appeal.`
             : `${first(c.pro)} is not charged for this one.`}
         </p>
       ) : null}
+      {c.can_raise_cap ? <RaiseCap c={c} onChanged={onChanged} /> : null}
       {c.blocking ? (
         <>
           <p className="error">{first(c.pro)}'s new offers are stopped because of this claim.</p>
@@ -631,8 +669,8 @@ function ClosedClaim({ c }: { c: Claim }) {
       ) : null}
       {c.charge_paisa ? (
         <p className="muted">
-          {first(c.pro)} was charged {money(c.charge_paisa)}
-          {c.charged_at ? ` on ${when(c.charged_at)}` : ''}.
+          {c.charge_final || c.appeal_outcome === 'cancelled' ? (c.charge_final ? `${first(c.pro)} was charged ${money(c.charge_paisa)}` : `${first(c.pro)}'s ${money(c.charge_paisa)} charge was never added`) : `${first(c.pro)} is to be charged ${money(c.charge_paisa)}`}
+          {c.charge_final && c.charged_at ? ` on ${when(c.charged_at)}` : ''}.
           {c.appeal_outcome === 'cancelled' ? ' He appealed, and the charge was cancelled.' : c.appeal_outcome === 'upheld' ? ' He appealed, and the charge was kept.' : ''}
           {c.appeal_note ? ` “${c.appeal_note}”` : ''}
         </p>
@@ -655,6 +693,118 @@ function ClosedDispute({ d }: { d: Dispute }) {
       </p>
       <p>{d.outcome ? OUTCOME[d.outcome] : 'Settled without the office.'}</p>
       {d.note ? <p className="muted">“{d.note}”</p> : null}
+    </div>
+  );
+}
+
+/** A replacement repair nobody has offered on: the office's to know about, and its limit the office's to raise. */
+function WaitingRepair({ c, onChanged }: { c: Claim; onChanged: () => void }) {
+  return (
+    <article className="card urgent">
+      <div className="card-head">
+        <div>
+          <p className="kind">Guarantee repair · nobody has offered</p>
+          <h2>
+            {c.replacement_ref ?? c.ref} · {c.title}
+          </h2>
+          <p className="muted">
+            {c.trade} · {c.sector} · for {c.customer}'s claim on {c.ref} · {first(c.pro)}'s work
+          </p>
+        </div>
+        <div className="price">
+          <strong>{money(c.cap_paisa)}</strong>
+          <span className="muted">what Pechkas pays now</span>
+        </div>
+      </div>
+      <p>
+        No technician has offered at {money(c.cap_paisa)}. You can raise what Pechkas pays so more of them can take it, or ring{' '}
+        {c.customer} to agree another day.
+      </p>
+      <People customer={c.customer} customerPhone={c.customer_phone} pro={c.pro} proPhone={c.pro_phone} />
+      <RaiseCap c={c} onChanged={onChanged} open />
+    </article>
+  );
+}
+
+/**
+ * "Raise the limit": upwards only, whole rupees, at most three times the
+ * first limit, with a reason kept on record. The job is announced to the
+ * technicians again at once. The extra is Pechkas' cost: the technician
+ * whose work failed is never charged more than his own labour, and the
+ * customer pays nothing.
+ */
+function RaiseCap({ c, onChanged, open = false }: { c: Claim; onChanged: () => void; open?: boolean }) {
+  const [editing, setEditing] = useState(open);
+  const [rs, setRs] = useState('');
+  const [note, setNote] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function raise() {
+    const n = Number(rs.replace(/[,\s]/g, ''));
+    if (!Number.isInteger(n) || n <= 0) return setMsg('Write the new limit in whole rupees, for example 5000.');
+    if (note.trim().length < 5) return setMsg('Write why, in a sentence. It stays on the record.');
+    setBusy(true);
+    setMsg(null);
+    const r = await ask('admin_raise_cap', { p_claim: c.id, p_cap_paisa: n * 100, p_note: note.trim() });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    setRs('');
+    setNote('');
+    setEditing(open);
+    onChanged();
+  }
+
+  const raised = c.cap_raised_at ? (
+    <p className="muted small">
+      Raised from {money(c.first_cap_paisa)} to {money(c.cap_paisa)} by {c.cap_raised_by_name ?? 'the office'}, {when(c.cap_raised_at)}: “{c.cap_note}”
+    </p>
+  ) : null;
+
+  if (!editing) {
+    return (
+      <>
+        {raised}
+        <p className="muted small">
+          Pechkas pays up to {money(c.cap_paisa)} for {c.replacement_ref ?? 'the repair'}
+          {c.replacement_offers ? ` · ${c.replacement_offers} ${c.replacement_offers === 1 ? 'offer' : 'offers'} so far` : ' · no offers yet'}.
+        </p>
+        <div className="buttons">
+          <button className="secondary small" onClick={() => setEditing(true)}>Raise the limit</button>
+        </div>
+      </>
+    );
+  }
+  return (
+    <div className="evidence">
+      <h3>Raise the limit</h3>
+      {raised}
+      <p className="muted small">
+        Now {money(c.cap_paisa)}. At most {money(c.max_cap_paisa)}, three times the first limit, to catch a typing slip. Whatever is above{' '}
+        {money(c.original_labour_paisa)} is Pechkas' own cost: {first(c.pro)} is never charged more than his labour on the job, and{' '}
+        {c.customer} pays nothing.
+      </p>
+      <div className="row">
+        <label>
+          New limit, in rupees
+          <input inputMode="numeric" value={rs} maxLength={9} onChange={(e) => setRs(e.target.value)} placeholder={String(Math.round(Number(c.cap_paisa ?? 0) / 100) + 500)} />
+        </label>
+        <label className="grow">
+          Why (kept in the record)
+          <input value={note} maxLength={300} onChange={(e) => setNote(e.target.value)} />
+        </label>
+      </div>
+      <div className="buttons">
+        <button className="small" disabled={busy} onClick={raise}>
+          Raise the limit
+        </button>
+        {open ? null : (
+          <button className="secondary small" disabled={busy} onClick={() => setEditing(false)}>
+            Back
+          </button>
+        )}
+      </div>
+      {msg ? <p className="error" role="alert">{msg}</p> : null}
     </div>
   );
 }

@@ -160,6 +160,8 @@ const open = (j: Job) => router.push(`/job/${j.id}`);
 const day = (iso: string) => new Date(iso).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' });
 /** What she will actually pay once there is a figure for it; her offer until then. */
 const priceOf = (j: Job) => j.collect_paisa ?? j.agreed_paisa ?? j.offered_paisa;
+/** What she pays: nothing on a guarantee repair, whatever Pechkas pays the technician. */
+const priceText = (j: Job) => (j.paid_by_pechkas ? 'Free' : rupees(priceOf(j)));
 
 /**
  * A job still happening. Open: the screw turning while nobody has offered,
@@ -211,7 +213,7 @@ function LiveJob({ job, trade, narrow }: { job: Job; trade: string; narrow: bool
             {job.title}
           </Text>
         </View>
-        <Text style={[s.price, narrow && s.priceNarrow]}>{rupees(priceOf(job))}</Text>
+        <Text style={[s.price, narrow && s.priceNarrow]}>{priceText(job)}</Text>
       </View>
 
       <View style={s.status}>
@@ -268,7 +270,7 @@ function PastJob({ job, trade, last, narrow }: { job: Job; trade: string; last: 
           <Text style={[s.pastTitle, { flex: 1 }]} numberOfLines={2}>
             {job.title}
           </Text>
-          <Text style={[s.pastPrice, cancelled && s.pastPriceOff]}>{rupees(priceOf(job))}</Text>
+          <Text style={[s.pastPrice, cancelled && s.pastPriceOff]}>{priceText(job)}</Text>
         </View>
         <Text style={s.pastSub} numberOfLines={1}>
           {day(job.created_at)} · {narrow ? job.ref : `${trade} · ${job.ref}`}

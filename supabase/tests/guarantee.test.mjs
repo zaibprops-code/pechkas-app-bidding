@@ -8,7 +8,8 @@
  * missed visit: his new offers stop and a replacement is arranged — she
  * chooses the day, the job goes to the others (never him), capped at the
  * original labour, paid by Pechkas from the reserve, and he is charged —
- * never more than his original labour — with one appeal. The office can
+ * never more than his original labour — recorded first, and final only
+ * after 7 days without an appeal, or the office upholding one. The office can
  * lift a block and pay out what Pechkas owes. Before he accepts he sees no
  * address; every message is free of addresses and numbers; patterns are
  * flags; nobody reads the tables directly; and it runs twice.
@@ -272,32 +273,37 @@ ok('she confirms it works', (await me(AYESHA, `SELECT public.confirm_work($1)`, 
 c = await claimOf(third.id);
 ok('the claim is fixed', c.status === 'fixed');
 ok('Pechkas pays Asad Rs 3,500: what he owes drops by that', (await owed(ASAD)) === asadBefore - 350000);
-ok('Bilal is charged Rs 3,500 — less than his Rs 4,000 labour', (await owed(BILAL)) === bilalBefore + 350000 && Number(c.charge_paisa) === 350000);
-ok('the reserve paid and was refilled', -Number((await setup(`SELECT coalesce(sum(amount_paisa), 0) AS n FROM public.ledger_entries WHERE account = 'reserve'`)).rows[0].n) === reserveBefore);
+ok('Bilal\'s charge is recorded — Rs 3,500, less than his Rs 4,000 labour — but not yet added', (await owed(BILAL)) === bilalBefore && Number(c.charge_paisa) === 350000 && c.charge_txn === null && c.charge_due !== null);
+ok('it becomes final in 7 days unless he appeals', Math.round((new Date(c.charge_due) - Date.now()) / 86400000) === 7);
+ok('the reserve paid Asad, and waits for the charge', -Number((await setup(`SELECT coalesce(sum(amount_paisa), 0) AS n FROM public.ledger_entries WHERE account = 'reserve'`)).rows[0].n) === reserveBefore - 350000);
 ok('the ledger adds up to nothing', await balanced());
 m = await sent();
-ok('Bilal is told the charge and that he can appeal', to(m, 'bilal').some((x) => x.title === 'Guarantee repair charged: Rs 3,500' && /appeal within 7 days/.test(x.body)));
+ok('Bilal is told the amount, the date, and that he can appeal before it', to(m, 'bilal').some((x) => x.title === 'Guarantee repair: Rs 3,500 to be charged' && /unless you appeal/.test(x.body)));
 ok('Asad is told Pechkas paid him', to(m, 'asad').some((x) => x.title === `Pechkas has paid you for job ${booked.ref ?? rj.ref}`));
 ok('a guarantee repair is not a market price', Number((await setup(`SELECT count(*) AS n FROM public.price_record WHERE job_id = $1`, [booked.job_id])).rows[0].n) === 0);
 ok('the block lifts when the claim closes', (await setup(`SELECT public.claim_blocks($1) AS b`, [BILAL])).rows[0].b === null);
 
-heading('The appeal');
+heading('The appeal, before the charge is final');
 pc = (await claims(BILAL)).find((x) => x.id === c3.claim_id);
-ok('he can appeal, within 7 days', pc?.can_appeal === true && pc?.charge_paisa === 350000);
-await setup(`UPDATE public.guarantee_claims SET charged_at = now() - interval '8 days' WHERE id = $1`, [c3.claim_id]);
-ok('not after 7 days', (await me(BILAL, `SELECT public.appeal_charge($1, $2)`, [c3.claim_id, 'I was in hospital that day, here is the slip'])).value?.ok === false);
-await setup(`UPDATE public.guarantee_claims SET charged_at = now() WHERE id = $1`, [c3.claim_id]);
+ok('he can appeal while it is waiting', pc?.can_appeal === true && pc?.charge_paisa === 350000 && pc?.charge_final === false);
 ok('a few words are not enough', (await me(BILAL, `SELECT public.appeal_charge($1, $2)`, [c3.claim_id, 'unfair'])).value?.field === 'text');
 ok('Bilal appeals', (await me(BILAL, `SELECT public.appeal_charge($1, $2, $3::jsonb)`, [c3.claim_id, 'I was in hospital that day and rang the office to say so', JSON.stringify([await upload(BILAL)])])).value?.ok === true);
 ok('once', (await me(BILAL, `SELECT public.appeal_charge($1, $2)`, [c3.claim_id, 'Again, I was in hospital'])).value?.ok === false);
 ok('the office is told', to(await sent(), 'zohaib').some((x) => x.title === `Guarantee claim needs you: ${third.ref}`));
+await setup(`UPDATE public.guarantee_claims SET charge_due = now() - interval '1 minute' WHERE id = $1`, [c3.claim_id]);
+await setup(`SELECT public.charge_clock()`);
+ok('while his appeal waits, the date passing posts nothing', (await owed(BILAL)) === bilalBefore && (await claimOf(third.id)).charge_txn === null);
+ok('the office sees it as needing a decision', (await me(OWNER, `SELECT public.admin_guarantee()`)).value?.claims?.find((x) => x.id === c3.claim_id)?.needs_you === true);
 ok('Asad cannot decide it', (await me(ASAD, `SELECT public.admin_decide_appeal($1, true, 'Cancelled')`, [c3.claim_id])).value?.ok === false);
 const beforeAppeal = await owed(BILAL);
 ok('the office cancels the charge', (await me(OWNER, `SELECT public.admin_decide_appeal($1, true, 'Hospital slip seen. Charge cancelled.')`, [c3.claim_id])).value?.ok === true);
-ok('it is reversed in the ledger, not edited', (await owed(BILAL)) === beforeAppeal - 350000 && Number((await setup(`SELECT count(*) AS n FROM public.ledger_txns WHERE reverses = $1`, [(await claimOf(third.id)).charge_txn])).rows[0].n) === 1);
+ok('nothing was ever added: no charge and no reversal in the ledger', (await owed(BILAL)) === beforeAppeal && Number((await setup(`SELECT count(*) AS n FROM public.ledger_txns WHERE idempotency_key = $1`, [`guarantee_charge:${c3.claim_id}`])).rows[0].n) === 0);
+await setup(`SELECT public.charge_clock()`);
+ok('and the clock never adds it later', (await owed(BILAL)) === beforeAppeal);
 ok('the ledger adds up to nothing', await balanced());
 ok('decided once', (await me(OWNER, `SELECT public.admin_decide_appeal($1, false, 'Changed my mind')`, [c3.claim_id])).value?.ok === false);
 ok('he is told', to(await sent(), 'bilal').some((x) => x.title === `Your appeal on job ${third.ref} has been decided`));
+ok('and reads that it was cancelled', (await claims(BILAL)).find((x) => x.id === c3.claim_id)?.appeal_outcome === 'cancelled');
 
 heading('Pechkas pays out what it owes');
 {

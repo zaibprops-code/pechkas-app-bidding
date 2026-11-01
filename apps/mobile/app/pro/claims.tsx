@@ -21,7 +21,9 @@ import { colour, font, radius } from '../../src/theme';
  * his work has come back. He has 24 hours to answer "I'll come" — a
  * two-hour window starting within 48 hours — or "This isn't my work", for
  * the office to decide. At the house, "It's fixed" with a photo. A charge
- * for a replacement can be appealed once, within 7 days.
+ * for a replacement is recorded first and only added to what he owes after
+ * 7 days; until then he can appeal once, and an appeal holds it until the
+ * office decides (guarantee_followups).
  *
  * Before he accepts he has her first name and the sector only; once he is
  * coming, the address and her number, as with any job (pro_claims()).
@@ -51,6 +53,9 @@ type Claim = {
   still_broken: string | null;
   office_note: string | null;
   charge_paisa: number | null;
+  charge_due: string | null;
+  /** Added to what he owes. False while it waits for its date, or for the office's decision on his appeal. */
+  charge_final: boolean;
   appeal_until: string | null;
   can_appeal: boolean;
   appeal_at: string | null;
@@ -100,7 +105,9 @@ export default function Claims() {
   );
 
   if (!rows && !problem) return <Loading />;
-  const open = (rows ?? []).filter((c) => !['fixed', 'not_covered'].includes(c.status) || c.can_appeal || (c.appeal_at && !c.appeal_outcome));
+  const open = (rows ?? []).filter(
+    (c) => !['fixed', 'not_covered'].includes(c.status) || c.can_appeal || (c.appeal_at && !c.appeal_outcome) || (c.charge_paisa && !c.charge_final && c.appeal_outcome !== 'cancelled'),
+  );
   const closed = (rows ?? []).filter((c) => !open.includes(c));
 
   return (
@@ -263,16 +270,29 @@ function ClaimCard({ c, onChanged }: { c: Claim; onChanged: () => void }) {
 
       {c.charge_paisa ? (
         <View style={s.charge}>
-          <Text style={s.strongLine}>Charged {rupees(c.charge_paisa)} for the replacement repair</Text>
+          <Text style={s.strongLine}>
+            {c.appeal_outcome === 'cancelled'
+              ? `${rupees(c.charge_paisa)} charge cancelled`
+              : c.charge_final
+                ? `${rupees(c.charge_paisa)} added to what you owe`
+                : `${rupees(c.charge_paisa)} to be charged for the replacement repair`}
+          </Text>
           {c.appeal_outcome ? (
             <Text style={s.note}>
-              {c.appeal_outcome === 'cancelled' ? 'Your appeal was accepted and the charge cancelled.' : 'Your appeal was not accepted; the charge stands.'} “{c.appeal_note ?? ''}”
+              {c.appeal_outcome === 'cancelled'
+                ? 'Your appeal was accepted. Nothing is added to what you owe.'
+                : 'Your appeal was not accepted, so the charge has been added to what you owe.'}{' '}
+              “{c.appeal_note ?? ''}”
             </Text>
           ) : c.appeal_at ? (
-            <Text style={s.note}>You appealed. Pechkas will decide.</Text>
+            <Text style={s.note}>You appealed. Nothing is added to what you owe until Pechkas decides.</Text>
+          ) : c.charge_final ? (
+            <Text style={s.note}>It is final. Pay it from My account, through Pay Pechkas.</Text>
           ) : c.can_appeal && mode !== 'appeal' ? (
             <>
-              <Text style={s.note}>You can appeal once, until {c.appeal_until ? at(c.appeal_until) : ''}.</Text>
+              <Text style={s.note}>
+                It is added to what you owe on {c.appeal_until ? at(c.appeal_until) : 'its date'} unless you appeal before then. Never more than your labour on the job.
+              </Text>
               <Button kind="outline" label="Appeal" onPress={() => setMode('appeal')} />
             </>
           ) : null}

@@ -18,6 +18,10 @@ import { colour, font, radius, shadow } from '../theme';
  * the usual Pechkas price only when hers is below it, because that is a
  * real figure. It names no sector or area: who can take the job is the
  * database's business, and naming a place only makes people anxious.
+ *
+ * On a guarantee repair Pechkas is paying for, the raise card is replaced
+ * by one line: the office has been told and can raise what Pechkas pays
+ * (guarantee_followups). She still chooses the day or keeps waiting.
  */
 
 const STEPS = [20000, 50000, 100000] as const;
@@ -30,6 +34,8 @@ export type NoOffersJob = {
   raises_left?: number;
   can_raise?: boolean;
   can_move?: boolean;
+  /** A guarantee repair: Pechkas pays, so there is no price of hers to raise; only the office can raise its limit. */
+  paid_by_pechkas?: boolean;
 };
 
 export function NoOffers({ job, onChanged }: { job: NoOffersJob; onChanged: () => void }) {
@@ -132,13 +138,31 @@ export function NoOffers({ job, onChanged }: { job: NoOffersJob; onChanged: () =
         </View>
       ) : null}
 
+      {job.paid_by_pechkas ? (
+        <View style={s.paid}>
+          <View style={[s.tile, { backgroundColor: colour.softYellow }]}>
+            <DuoIcon name="shield" size={24} />
+          </View>
+          <View style={{ flex: 1, gap: 4 }}>
+            <Text style={s.title} accessibilityRole="header">
+              Pechkas has been told
+            </Text>
+            <Text style={s.note}>Pechkas can raise what it pays for this repair so more technicians can take it. You pay nothing either way.</Text>
+          </View>
+        </View>
+      ) : null}
+
       <RowCard>
         {job.can_move ? (
           <DuoRow icon="clock" label="Choose another day" value={job.when_date ? `Now: ${dayLabel(job.when_date, now.date)}` : undefined} onPress={() => setDays(true)} />
         ) : null}
         <DuoRow icon="bell" label="Keep waiting" value="Your phone tells you when an offer comes." onPress={() => setWaiting(true)} last />
       </RowCard>
-      <Text style={s.foot}>If nobody takes it, it closes by itself at 8pm on its day. You can post it again in one tap.</Text>
+      <Text style={s.foot}>
+        {job.paid_by_pechkas
+          ? 'If nobody takes it, it closes by itself at 8pm on its day, and you choose another day on your guarantee claim.'
+          : 'If nobody takes it, it closes by itself at 8pm on its day. You can post it again in one tap.'}
+      </Text>
       <Notice text={msg} />
 
       {days ? (
@@ -155,6 +179,7 @@ export function NoOffers({ job, onChanged }: { job: NoOffersJob; onChanged: () =
 
 const s = StyleSheet.create({
   money: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.softYellow },
+  paid: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: shadow.card },
   head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   tile: { width: 44, height: 44, borderRadius: 14, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },
   title: { fontFamily: font.display, fontSize: 18, color: colour.ink },

@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "4edf31f";
+export const LEGAL_FROM = "60cac68";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -325,12 +325,12 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If another technician was sent instead: why, and which job that became."
+              "t": "If another technician was sent instead: why, which job that became, and, if the Pechkas office raised what Pechkas would pay for it, by how much, who raised it and why."
             }
           ],
           [
             {
-              "t": "What the Pechkas office decided, its notes and who in the office decided; any amount charged to the original technician; and his appeal, with its words and photos, and the office's answer."
+              "t": "What the Pechkas office decided, its notes and who in the office decided; any amount charged to the original technician, and the date it was due to be added; and his appeal, with its words and photos, and the office's answer."
             }
           ]
         ]
@@ -1316,7 +1316,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If he does not answer in time, or does not come when he said he would, Pechkas sends another technician. You choose the day, and choose the technician in the app as you would for any job."
+              "t": "If he does not answer in time, or does not come when he said he would, Pechkas sends another technician. You choose the day, and choose the technician in the app as you would for any job. If nobody is free that day, the app asks you to choose another, and Pechkas may pay more to find somebody. You never pay more."
             }
           ],
           [
@@ -1955,16 +1955,27 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "That cost is then added to what you owe Pechkas",
+              "t": "You are charged for that repair",
               "b": true
             },
             {
-              "t": " — but only if you did not answer, missed the visit, or said it was not your work and the office found the claim was covered. It is never more than the labour price of your original job, and you are never charged for parts."
+              "t": " — but only if you did not answer, missed the visit you chose, or said it was not your work and the office found the claim was covered. The charge is what the other technician's work cost, "
+            },
+            {
+              "t": "never more than the labour price of your original job",
+              "b": true
+            },
+            {
+              "t": ", and you are never charged for parts. If Pechkas had to pay more than that to find somebody, the difference is Pechkas' own cost."
             }
           ],
           [
             {
-              "t": "You may appeal a charge once, within 7 days: open the claim in "
+              "t": "A charge is not final straight away.",
+              "b": true
+            },
+            {
+              "t": " When the repair is finished you are told the amount and the date it will be added. You have 7 days: if you do not appeal, it is then added to what you owe Pechkas. To appeal, open the claim in "
             },
             {
               "t": "Guarantee claims",
@@ -1978,7 +1989,26 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": ", say why, and add photos. The office's decision on the appeal is final."
+              "t": ", say why, and add photos if you have them. While your appeal waits, nothing is added. If the office cancels the charge, it is never added; if the office keeps it, it is added that day. The office decides once."
+            }
+          ],
+          [
+            {
+              "t": "Once added, it is part of what you owe, like a Pechkas fee. If you owe more than Rs 3,000, your new offers stop until you pay, in "
+            },
+            {
+              "t": "My account",
+              "b": true
+            },
+            {
+              "t": " through "
+            },
+            {
+              "t": "Pay Pechkas",
+              "b": true
+            },
+            {
+              "t": "."
             }
           ],
           [
@@ -2011,7 +2041,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "k": "p",
         "c": [
           {
-            "t": "[DECIDE WITH A LAWYER: whether Pechkas may add the cost of a guarantee repair to what you owe, and take it from what Pechkas owes you; whether you must come back and redo failed work without pay; and whether the office's decision on an appeal can be final.]",
+            "t": "[DECIDE WITH A LAWYER: whether Pechkas may add the cost of a guarantee repair to what you owe, and take it from what Pechkas owes you; whether you must come back and redo failed work without pay; whether 7 days is a fair time to appeal; and whether the office's decision on an appeal can be final, or what further review you have.]",
             "mark": true
           }
         ]
@@ -2025,7 +2055,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "items": [
           [
             {
-              "t": "You may see a job marked as a guarantee repair: work another technician did, which has failed within its guarantee and which he is not putting right himself. You offer on it, and the customer chooses, as for any job. The app shows the most you can ask for it."
+              "t": "You may see a job marked as a guarantee repair: work another technician did, which has failed within its guarantee and which he is not putting right himself. You offer on it, and the customer chooses, as for any job. The app shows the most you can ask for it. If nobody offers, the Pechkas office may raise that limit, and the job is announced again."
             }
           ],
           [

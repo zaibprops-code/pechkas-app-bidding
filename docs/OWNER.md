@@ -7,6 +7,47 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The guarantee, finished: Raise the limit, and charges that wait for the
+appeal (new — ONE database step, then a new build).**
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261107000000_guarantee_followups.sql`. It should
+   say **Success**. (Safe to run twice.) Run `…_checks_and_guarantee.sql`
+   first if you have not yet.
+2. Make a new **preview** build and install it. (Still edition 4.)
+
+What changes:
+
+- **A charge is not final straight away.** When a replacement repair is
+  done, the first technician is told the amount and the date — 7 days
+  later. If he does not appeal, it is added to what he owes on that date.
+  If he appeals, nothing is added until you decide on **Guarantee and
+  disputes**: **Keep the charge** adds it that day; **Cancel the charge**
+  means it is never added. Once added, it is ordinary debt: over
+  Rs 3,000, his new offers stop until he pays through Pay Pechkas.
+- **Raise the limit.** A replacement repair is first offered at the first
+  technician's labour. If nobody offers, **your phone is told** (she is
+  not asked to raise a price she is not paying), and it shows under
+  **Needs you** with a **Raise the limit** button. Type the new figure in
+  rupees and why. It can only go up, up to three times the first figure
+  (to catch a typing slip). The extra is Pechkas' own cost: the first
+  technician is still charged no more than his labour, and the customer
+  pays nothing. Open replacements have the same button.
+- If nobody takes a replacement by 8pm on its day, it closes and she is
+  asked to **choose another day on her claim** — the app no longer offers
+  "Book again" on a guarantee repair, because that would post a job she
+  pays for. The new booking keeps the limit you raised it to.
+- **Fixed:** booking a replacement a second time used to fail.
+- **For your lawyer:** the technician agreement now explains the 7 days
+  and the appeal, and asks whether 7 days is fair and what review he has
+  after the office decides. Those lines are marked [DECIDE WITH A LAWYER].
+
+To try it with one phone: you need a claim left unanswered for 24 hours,
+so the easiest test is in the admin panel once a real one happens. Nothing
+changes for jobs that went well.
+
+---
+
 **The customer checks the work before it counts, and the guarantee now
 brings somebody back (new — ONE database step, then a new build).**
 

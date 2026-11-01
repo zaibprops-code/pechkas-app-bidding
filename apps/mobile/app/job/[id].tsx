@@ -165,6 +165,7 @@ function headline(job: Job): { title: string; sub?: string } {
       };
     }
     // Told once that nobody has offered (when_nobody_offers): say so, plainly, at the top.
+    if (job.nudged && job.paid_by_pechkas) return { title: 'No offers yet', sub: 'Still looking. Pechkas has been told, and you pay nothing.' };
     if (job.nudged) return { title: 'No offers yet', sub: 'Still looking. You can raise your price or choose another day.' };
     return { title: 'Finding a technician', sub: 'Offers appear here the moment one is sent.' };
   }
@@ -174,6 +175,7 @@ function headline(job: Job): { title: string; sub?: string } {
   if (job.status === 'done' && job.claim && !['fixed', 'not_covered'].includes(job.claim.status)) return { title: 'Guarantee claim', sub: 'Where it has got to is below.' };
   if (job.status === 'done') return { title: job.paid_by_pechkas ? 'Repair done' : 'Job done' };
   if (job.status === 'stopped') return { title: job.dispute_outcome === 'stopped' ? 'Stopped' : 'Stopped at the door' };
+  if (job.cancelled_by === 'nobody' && job.paid_by_pechkas) return { title: 'Closed', sub: 'No technician was free. Choose another day on your guarantee claim.' };
   if (job.cancelled_by === 'nobody') return { title: 'Closed', sub: 'No technician was free for this job. Book it again for another day.' };
   return { title: 'Cancelled' };
 }

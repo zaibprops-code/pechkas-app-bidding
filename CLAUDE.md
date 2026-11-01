@@ -602,18 +602,38 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - **The money** (`on_replacement_done()`): the replacement technician is
   paid from the reserve (`guarantee_pay`: his `pro_owes` down, the reserve
   spent); a negative balance means Pechkas owes him, paid by the office with
-  `admin_pay_pro()` (`payout`). The original man is charged
-  (`guarantee_charge`) only when `charge_original` — no answer, missed
-  visit, or office found it covered — never more than his original labour,
-  parts never. One appeal within 7 days (`appeal_charge()`); the office's
-  `admin_decide_appeal()` cancels by a **reversal**, never an edit.
+  `admin_pay_pro()` (`payout`). The original man is charged only when
+  `charge_original` — no answer, missed visit, or office found it covered —
+  never more than his original labour, parts never.
+- **A charge is final only after the chance to appeal** (migration
+  `…_guarantee_followups`, the owner's condition). `on_replacement_done()`
+  only RECORDS it (`charge_paisa`, `charge_due` = 7 days on) and tells him
+  the amount and the date (`charge_pending`). `charge_clock()` (pg_cron)
+  posts it through `post_guarantee_charge()` at `charge_due` if he has not
+  appealed; while an appeal waits nothing is posted. The office's
+  `admin_decide_appeal()`: kept → posted that day; cancelled → never posted
+  (a charge posted by the older migration is still reversed, never edited).
+  Posted, it is ordinary debt: past the credit limit his offers stop and
+  he is told once (`over_limit`). Never post a guarantee charge any other
+  way.
+- **Raise the limit** (`admin_raise_cap()`, the office's button on
+  Guarantee and disputes): a replacement nobody offers on is announced to
+  the office, never to her (`nudge_no_offers()` tells the office for a
+  `paid_by_pechkas` job; `raise_price()` refuses one and `my_jobs()` says
+  `can_raise` false). Upwards only, whole rupees, at most 3× the first
+  limit (a typing guard), with a note on record; the job is announced again.
+  The extra is Pechkas' cost: the charge stays at the original labour and
+  she pays nothing. A replacement nobody took by 8pm closes and she
+  chooses another day on her claim (`replacement_unclaimed`), never Book
+  again (hidden on paid jobs); rebooking keeps the raised limit and moves
+  her media to the new job. Tests: `followups.test.mjs`.
 - Who sees what: before he accepts, her first name, the sector, her words
   and media (`pro_may_see_file` includes claim media and her "not finished"
   photo); once coming, the address and number. She never sees his refusal
   reason. The office sees everything in **Guarantee and disputes**
   (`admin_guarantee()`, with the reserve). Repeated claims are the flags
   `guarantee` (2 in 60 days) and `guarantee_review` (3 in 90). Tests:
-  `checks.test.mjs`, `guarantee.test.mjs`.
+  `checks.test.mjs`, `guarantee.test.mjs`, `followups.test.mjs`.
 
 ### Doing the job (phase 4)
 - **Status and step are separate.** `status` is open → assigned → done |

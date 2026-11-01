@@ -136,7 +136,7 @@ export function useNotify(ready: boolean) {
 }
 
 /** Only screens a notification is allowed to open. */
-const PLACES = new Set(['/pro', '/jobs', '/pro/money']);
+const PLACES = new Set(['/pro', '/jobs', '/pro/money', '/pro/claims']);
 
 /**
  * Tapping a notification opens what it is about. Once per notification: the
@@ -153,7 +153,7 @@ export function useNotificationTaps() {
       .then(async (last) => {
         if (last === id) return;
         await AsyncStorage.setItem('pechkas.lastTap', id);
-        if (typeof url === 'string' && PLACES.has(url)) router.push(url as '/pro' | '/jobs' | '/pro/money');
+        if (typeof url === 'string' && PLACES.has(url)) router.push(url as '/pro' | '/jobs' | '/pro/money' | '/pro/claims');
       })
       .catch(() => {});
   }, [response]);

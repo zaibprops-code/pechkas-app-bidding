@@ -74,7 +74,7 @@ const TECHNICIAN: QA[] = [
   },
   {
     q: 'A guarantee claim on my work.',
-    a: 'Open Guarantee claims from the menu. Answer within 24 hours: I’ll come, with a time within 48 hours, or This isn’t my work, with a reason for Pechkas to decide. If you do not answer or miss the visit, your new offers stop and another technician is sent; the cost may be charged to you, never more than your labour on the job, and you can appeal once.',
+    a: 'Open Guarantee claims from the menu. Answer within 24 hours: I’ll come, with a time within 48 hours, or This isn’t my work, with a reason for Pechkas to decide. If you do not answer or miss the visit, your new offers stop and another technician is sent; the cost may be charged to you, never more than your labour on the job. You are told the amount first and have 7 days to appeal before it is added to what you owe.',
   },
   {
     q: 'Can I change my trades or sectors?',

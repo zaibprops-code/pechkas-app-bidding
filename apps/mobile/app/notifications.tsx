@@ -27,6 +27,7 @@ const CUSTOMER = [
   'A new message about your job',
   'The technician you asked for cannot take it',
   'Nobody has offered yet, or your job closed without an offer',
+  'Nobody was free for a guarantee repair, so you choose another day',
 ];
 
 const TECHNICIAN = [
@@ -40,7 +41,7 @@ const TECHNICIAN = [
   'A payment is confirmed or not, or a balance is due',
   'The customer confirms the work, or says it is not finished',
   'A guarantee claim on your work, and reminders to answer it',
-  'Your new offers stop, or a guarantee charge or appeal is decided',
+  'Your new offers stop, or a guarantee charge is coming, is added, or your appeal is decided',
   'Pechkas pays you for a guarantee repair',
 ];
 

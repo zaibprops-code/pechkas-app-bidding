@@ -51,6 +51,7 @@ type Recent = {
   cancelled_by?: 'customer' | 'office' | 'nobody' | null;
   live_offers: number;
   offered_paisa: number;
+  paid_by_pechkas?: boolean;
   stage: 'chosen' | 'on_way' | 'arrived' | 'working' | 'checking' | 'disputed' | null;
   pro: { first_name: string } | null;
 };
@@ -399,7 +400,7 @@ function LiveCard({ job }: { job: Recent }) {
           {title}
         </Text>
         <Text style={s.liveSub} numberOfLines={1}>
-          {job.title} · {rupees(job.offered_paisa)}
+          {job.title} · {job.paid_by_pechkas ? 'free' : rupees(job.offered_paisa)}
         </Text>
       </View>
       {job.status === 'open' && offers ? (
