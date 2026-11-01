@@ -3,7 +3,7 @@ import { Linking, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View 
 import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { dayLabel, openWindows, rupees, showMobile, technicianKeeps, whenLabel, windowLabel, type WhenFields } from '@pechkas/shared';
+import { dayLabel, openWindows, PRICE_STEP_PAISA, rupees, showMobile, technicianKeeps, whenLabel, windowLabel, type WhenFields } from '@pechkas/shared';
 import { MenuButton } from '../components/Menu';
 import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
@@ -537,11 +537,11 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
         <View style={{ gap: 10 }}>
           {j.my_offer && !j.my_offer.live && j.my_offer.status === 'pending' ? <Text style={s.expired}>{w.expired}</Text> : null}
           <View style={s.stepper}>
-            <Press onPress={() => setPrice(Math.max(min, price - 10000))} sink={0.9} accessibilityRole="button" accessibilityLabel="−100" style={s.step}>
+            <Press onPress={() => setPrice(Math.max(min, price - PRICE_STEP_PAISA))} sink={0.9} accessibilityRole="button" accessibilityLabel={`Lower by ${rupees(PRICE_STEP_PAISA)}`} style={s.step}>
               <Text style={[s.stepText, { color: colour.ink }]}>−</Text>
             </Press>
             <Text style={s.stepPrice}>{rupees(price)}</Text>
-            <Press onPress={() => setPrice(Math.min(max, price + 10000))} sink={0.9} accessibilityRole="button" accessibilityLabel="+100" style={[s.step, s.stepPlus]}>
+            <Press onPress={() => setPrice(Math.min(max, price + PRICE_STEP_PAISA))} sink={0.9} accessibilityRole="button" accessibilityLabel={`Raise by ${rupees(PRICE_STEP_PAISA)}`} style={[s.step, s.stepPlus]}>
               <Text style={s.stepText}>+</Text>
             </Press>
           </View>

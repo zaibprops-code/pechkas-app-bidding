@@ -5,7 +5,7 @@ import { Image, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import * as Location from 'expo-location';
 import { ISLAMABAD, MapBox, mapsReady, Pin, PinPicker, readPlace, type Point } from '../src/components/Map';
-import { addDays, DAYS_AHEAD, dayLabel, openWindows, pkNow, rupees, sectorIn, streetIn } from '@pechkas/shared';
+import { addDays, DAYS_AHEAD, dayLabel, openWindows, pkNow, PRICE_STEP_PAISA, rupees, sectorIn, streetIn } from '@pechkas/shared';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { Button, Chip, Field, Loading, Notice, Screen, useScreenScroll } from '../src/components/ui';
@@ -715,10 +715,10 @@ export default function Post() {
       <Card id="price" icon="wallet" tone="money" onY={atY} title="Your price" error={errors.offer}>
         <View style={[s.offerRow, s.offerBox]}>
           <Press
-            onPress={() => update({ offer: Math.max(min, offer - 10000) })}
+            onPress={() => update({ offer: Math.max(min, offer - PRICE_STEP_PAISA) })}
             sink={0.9}
             accessibilityRole="button"
-            accessibilityLabel="Lower by Rs 100"
+            accessibilityLabel={`Lower by ${rupees(PRICE_STEP_PAISA)}`}
             style={[s.step, width < 360 && s.stepNarrow, offer <= min && { opacity: 0.4 }]}
           >
             <Text style={s.stepText}>−</Text>
@@ -726,7 +726,7 @@ export default function Post() {
           <Text style={[s.price, width < 360 && { fontSize: 26, letterSpacing: -0.5 }]} numberOfLines={1} accessibilityLiveRegion="polite">
             {rupees(offer)}
           </Text>
-          <Press onPress={() => update({ offer: Math.min(50000000, offer + 10000) })} sink={0.9} accessibilityRole="button" accessibilityLabel="Raise by Rs 100" style={[s.step, width < 360 && s.stepNarrow, s.stepPlus]}>
+          <Press onPress={() => update({ offer: Math.min(50000000, offer + PRICE_STEP_PAISA) })} sink={0.9} accessibilityRole="button" accessibilityLabel={`Raise by ${rupees(PRICE_STEP_PAISA)}`} style={[s.step, width < 360 && s.stepNarrow, s.stepPlus]}>
             <Text style={s.stepText}>+</Text>
           </Press>
         </View>

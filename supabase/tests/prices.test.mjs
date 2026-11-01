@@ -158,6 +158,13 @@ ok('a technician in another trade is refused', (await call(KAMRAN, `SELECT publi
 ok('so is a customer', (await call(AYESHA, `SELECT public.pro_price_help($1)`, [open])).value?.ok === false);
 nothing('and a stranger', await as('anon', null, `SELECT public.pro_price_help('${open}')`));
 
+heading('Prices in Rs 50 steps');
+// The − and + buttons move a price by Rs 50 (PRICE_STEP_PAISA); the database only asks for whole rupees.
+const fifty = await post(SERVICE, 255000, SARA);
+ok('a customer can post Rs 2,550', !!fifty);
+const offer50 = (await call(BILAL, `SELECT public.make_offer(p_job => $1, p_price_paisa => 265000, p_eta_minutes => NULL, p_note => NULL, p_arrive_from => 20::smallint)`, [fifty])).value;
+ok('and a technician can offer Rs 2,650', offer50?.ok === true, JSON.stringify(offer50));
+
 // =============================================================================
 heading("The office's report");
 ok('a customer gets nothing', (await call(SARA, `SELECT public.admin_prices()`)).value == null);

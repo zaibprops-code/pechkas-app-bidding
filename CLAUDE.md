@@ -999,7 +999,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   chosen trade's home-tile drawing inside "Kind of work"; Voice, Video and
   Photo on warm cream with two-tone icons in white discs; "Your price" as
   the one soft-yellow card, its stepper in a white pill; an arrow on
-  **Post job**. On a narrow phone the stepper and the tiles' limits shrink
+  **Post job**. **One tap of − or + is Rs 50** (`PRICE_STEP_PAISA` in
+  `packages/shared`, the owner's choice — it was Rs 100), here and in the
+  technician's offer sheet alike; the database only asks for whole rupees. On a narrow phone the stepper and the tiles' limits shrink
   a little and sector names never break at their hyphen. The job is two drop-downs (kind of work,
   then which job with its price) opening a `Sheet` (`src/components/Sheet.tsx`,
   shared with the technician's job sheet); "What is wrong?" is one row of

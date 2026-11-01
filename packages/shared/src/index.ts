@@ -268,6 +268,13 @@ export function streetIn(street: string | null | undefined, sector: string | nul
 export const WINDOWS = [8, 10, 12, 14, 16, 18, 20] as const;
 export const DAYS_AHEAD = 6;
 
+/**
+ * What one tap of − or + changes a price by, on Post a job and in the
+ * technician's offer sheet: Rs 50 (the owner's choice; it was Rs 100). The
+ * database only asks for whole rupees, so any step that is whole rupees works.
+ */
+export const PRICE_STEP_PAISA = 5000;
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const clock = (h: number) => `${h % 12 === 0 ? 12 : h % 12}${h < 12 ? 'am' : 'pm'}`;

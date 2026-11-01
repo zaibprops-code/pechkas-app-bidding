@@ -7,6 +7,10 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The − and + buttons on a price now move it by Rs 50** (it was Rs 100),
+on Post a job and in the technician's offer sheet. Nothing to run in
+Supabase; it comes with the next build.
+
 **Prices: Pechkas now keeps what every finished job went for (new — ONE
 database step, then a new build).**
 
