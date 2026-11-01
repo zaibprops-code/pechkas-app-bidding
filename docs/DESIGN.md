@@ -108,6 +108,7 @@ a screen; use the token.
 | `Trouble` | `components/Trouble.tsx` | No internet, not answering, crash, missing page, update, paused. |
 | `ScrewSpinner` | `components/ScrewSpinner.tsx` | Anything working. There is no other spinner. |
 | `Sheet` | `components/Sheet.tsx` | A choice that slides up from the bottom. |
+| `MediaPick` | `components/MediaPick.tsx` | Photos (and a short video where asked) for a claim, a "not finished yet" or an appeal: Take a photo / From gallery / Video tiles on cream, uploaded the moment they are taken, thumbnails above; a tile goes once the limit is reached. |
 | `PriceRangeCard` | `components/PriceRange.tsx` | Where a price sits against what recent jobs of its kind went for: a dot and one verdict first (in line / below / above) with a line of what it means, then a bar with the middle half in green, a yellow marker for the price being set and the two ends written under it, then how many jobs it comes from. White on a coloured card; `onWhite` makes it grey on a white sheet. Shown only when the database sends a range. |
 
 A green call-to-action card (home's "What needs fixing & for how much?",
@@ -157,6 +158,10 @@ disc with an arrow on the right.
   this"), then the picture, then where it comes from. Never the same
   figure twice on one screen, and fine print as a few ticked lines, not
   paragraphs.
+- **A step that needs the other side's answer says whose turn it is and
+  what happens if nobody answers**: "Is it working?" with Yes, it works /
+  Not finished yet, and "If you do nothing, it counts as finished on Mon
+  2 Nov, 3:42pm". An open guarantee claim is the first card on its job.
 - **A figure from real jobs always says where it came from**: "The middle
   half of 15 finished jobs in the last 90 days". A range is never shown
   without its count, and nothing is shown when the database has too few

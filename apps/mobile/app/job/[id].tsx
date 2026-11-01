@@ -168,9 +168,12 @@ function headline(job: Job): { title: string; sub?: string } {
     if (job.nudged) return { title: 'No offers yet', sub: 'Still looking. You can raise your price or choose another day.' };
     return { title: 'Finding a technician', sub: 'Offers appear here the moment one is sent.' };
   }
+  if (job.status === 'assigned' && job.stage === 'checking') return { title: 'Check the work', sub: 'Pay only once you are happy with it.' };
+  if (job.status === 'assigned' && job.stage === 'disputed') return { title: 'Pechkas is looking at it', sub: 'You and the technician disagree. Pechkas decides and calls you.' };
   if (job.status === 'assigned') return { title: job.pro ? `${job.pro.first_name} is your technician` : 'Technician chosen' };
-  if (job.status === 'done') return { title: 'Job done' };
-  if (job.status === 'stopped') return { title: 'Stopped at the door' };
+  if (job.status === 'done' && job.claim && !['fixed', 'not_covered'].includes(job.claim.status)) return { title: 'Guarantee claim', sub: 'Where it has got to is below.' };
+  if (job.status === 'done') return { title: job.paid_by_pechkas ? 'Repair done' : 'Job done' };
+  if (job.status === 'stopped') return { title: job.dispute_outcome === 'stopped' ? 'Stopped' : 'Stopped at the door' };
   if (job.cancelled_by === 'nobody') return { title: 'Closed', sub: 'No technician was free for this job. Book it again for another day.' };
   return { title: 'Cancelled' };
 }

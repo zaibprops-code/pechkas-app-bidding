@@ -233,7 +233,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   and offer the old ways (now with minutes; a time or part of the day the
   customer chose, which then needs no time in the offer); the technician
   side of an older copy cannot offer on a day-only job, so `APP_EDITION`
-  is 3. (`…_days_profiles_again` briefly let the customer pick the
+  became 3; it is 4 since `…_checks_and_guarantee`, because an older copy
+  cannot show "Is it working?" (its jobs close by the clock after 24 hours). (`…_days_profiles_again` briefly let the customer pick the
   window; its rules are still accepted from those copies.)
 - **Book again** (a finished, stopped or cancelled job's foot card) opens
   Post a job with `again=<job id>`: the trade, job type, words, address,
@@ -553,6 +554,67 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - The privacy page, the delete-account page and both stores' notes say the
   record exists and outlives an account. Change them together.
 
+### Checked before it counts, and the guarantee (migration `…_checks_and_guarantee`)
+- **"Work finished" no longer closes a job.** `finish_work()` (now with an
+  optional `p_video`, "Show it working") fixes the photos, parts, collect
+  and commission figures as before but sets `stage = 'checking'`; status
+  stays `assigned`. Only `confirm_work()` (her **Yes, it works**),
+  `check_clock()` after `check_hours` (24, reminders at 2 h and 4 h before
+  the end, `confirmed_by = 'clock'`) or the office closes it — so the
+  commission, the price record and the guarantee clock all start at the
+  moment it counts as done (`close_checked()`).
+- **"Not finished yet"** (`not_finished()`) needs one of four reasons
+  (`check_reason_text()`), may carry a note and her photo, and sends it back
+  to `working`; he is told the reason (a fixed phrase, never her note) and
+  may answer in one line (`reply_check()`). Every round is a `job_checks`
+  row. **The second time** the job is `disputed` and goes to the office,
+  which decides with `admin_decide_dispute()`: `done`, `stopped` (visit fee,
+  no commission) or `return` (back to working). Its note is read by both in
+  the app, never in a notification. The patterns are flags: `unchecked`
+  (his jobs mostly closed by the clock), `overruled` (a customer the office
+  found wrong twice).
+- **The guarantee is `guarantee_days_of(job)`: 30 days for repairs and
+  installations, 7 for services** (`job_types.guarantee = 'service'`:
+  servicing, cleaning, top-ups, descaling, drain clearing, virus clean-ups,
+  check-ups). Both lengths, the answer time (24 h), the visit time (48 h)
+  and the appeal time (7 days) are locked settings: promises in the terms.
+  The website says the same (`SITE.guaranteeDays` 30,
+  `guaranteeServiceDays` 7) — the old 15-or-30 disagreement is settled.
+- **A claim** (`claim_guarantee()`, screen `app/claim/[id].tsx`, reached
+  only by the button **It has failed again**, whose label the terms quote)
+  needs words and at least one photo or video. `guarantee_claims` holds it:
+  `waiting` → he answers within 24 h (reminded at 12 and 20) with
+  `answer_claim()`: **I'll come** (a window starting within 48 h) → `coming`
+  → **It's fixed** with a photo (`claim_fixed()`) → `checking` → she
+  confirms (`check_claim()`) or it closes after 24 h; **This isn't my work**
+  → `refused` → the office (`admin_decide_claim()`); "still broken" after
+  his visit → `disputed` → the office.
+- **No answer, or a missed visit (window + 4 h): `replacing`, and his new
+  offers stop** — `claim_blocks()` is checked in `make_offer()` (field
+  `guarantee`) and shown in `pro_feed().guarantee_block`. They come back
+  when he answers late (allowed until she books), the claim closes, or the
+  office lifts it (`admin_lift_block()`). **She books the replacement**
+  (`book_replacement()`): a new job, `paid_by_pechkas`, `guarantee_of` the
+  claim, offered at — and offers capped by `pay_cap_paisa` at — the
+  original labour, her claim media copied into `job_media`, never visible to
+  the original man (`pro_may_see_as`). No commission, nothing for her to
+  pay, not in `price_record`.
+- **The money** (`on_replacement_done()`): the replacement technician is
+  paid from the reserve (`guarantee_pay`: his `pro_owes` down, the reserve
+  spent); a negative balance means Pechkas owes him, paid by the office with
+  `admin_pay_pro()` (`payout`). The original man is charged
+  (`guarantee_charge`) only when `charge_original` — no answer, missed
+  visit, or office found it covered — never more than his original labour,
+  parts never. One appeal within 7 days (`appeal_charge()`); the office's
+  `admin_decide_appeal()` cancels by a **reversal**, never an edit.
+- Who sees what: before he accepts, her first name, the sector, her words
+  and media (`pro_may_see_file` includes claim media and her "not finished"
+  photo); once coming, the address and number. She never sees his refusal
+  reason. The office sees everything in **Guarantee and disputes**
+  (`admin_guarantee()`, with the reserve). Repeated claims are the flags
+  `guarantee` (2 in 60 days) and `guarantee_review` (3 in 90). Tests:
+  `checks.test.mjs`, `guarantee.test.mjs`.
+
 ### Doing the job (phase 4)
 - **Status and step are separate.** `status` is open → assigned → done |
   stopped | cancelled; while `assigned`, `stage` is chosen → on_way →
@@ -780,9 +842,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   deliberately not the ones the office can change. Changing a locked
   setting by migration changes those pages in the same week. Every legal
   choice is a visible `[DECIDE WITH A LAWYER]`, never a guess.
-- **Two promises disagree and are the owner's to settle:** the website's
-  guarantee is 15 days (`SITE.guaranteeDays`), the app's is 30. Do not
-  quietly change either.
+- **The guarantee promise is settled (November 2026):** 30 days for
+  repairs and installations, 7 for services, the same on the website and in
+  the app. Change it in both, and the terms, in the same week.
 
 ### Which copy is which
 - **`NEWEST_MIGRATION` in `apps/mobile/src/version.ts` names the newest

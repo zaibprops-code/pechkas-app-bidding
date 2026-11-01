@@ -184,9 +184,20 @@ function LiveJob({ job, trade, narrow }: { job: Job; trade: string; narrow: bool
             ? `${name} has arrived`
             : job.stage === 'working'
               ? `${name} is working on it`
-              : `${name} is your technician`;
+              : job.stage === 'checking'
+                ? `${name} says the work is finished`
+                : job.stage === 'disputed'
+                  ? 'Pechkas is looking at it'
+                  : `${name} is your technician`;
   // The one thing she needs to do, if there is one. Said on the card so she never has to open a job to find out.
-  const todo = job.status === 'open' && offers ? 'Choose a technician' : job.change ? 'Answer the new price' : null;
+  const todo =
+    job.status === 'open' && offers
+      ? 'Choose a technician'
+      : job.change
+        ? 'Answer the new price'
+        : job.stage === 'checking'
+          ? 'Check the work'
+          : null;
 
   return (
     <Press onPress={() => open(job)} accessibilityRole="button" accessibilityLabel={`${job.title}. ${headline}${todo ? `. ${todo}` : ''}`} sink={0.98} style={s.live}>
@@ -224,7 +235,7 @@ function LiveJob({ job, trade, narrow }: { job: Job; trade: string; narrow: bool
         {todo ? null : <Icon name="chevronRight" size={20} color={colour.steel} strokeWidth={2.2} />}
       </View>
 
-      {job.status === 'assigned' ? <Steps stage={job.stage} narrow={narrow} /> : null}
+      {job.status === 'assigned' ? <Steps stage={job.stage === 'checking' || job.stage === 'disputed' ? 'working' : job.stage} narrow={narrow} /> : null}
 
       {todo ? (
         <View style={s.todo}>

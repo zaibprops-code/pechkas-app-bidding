@@ -57,6 +57,22 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     `${f.n} jobs where his price for the work was more than ${Math.round((l.flag_price_over_bps ?? 0) / 100)}% above what jobs of that kind usually go for.`,
     'Some jobs really are bigger than they look. Open them, read the photos and any new price he asked for, and ring the customers to ask whether it felt fair.',
   ],
+  unchecked: (f) => [
+    `${f.n} of his ${f.of} finished jobs closed by themselves after 24 hours, with the customer never checking.`,
+    'He may be finishing when nobody is watching. Ring a few of those customers and ask whether the work was done.',
+  ],
+  guarantee: (f) => [
+    `${f.n} guarantee claims on his work in the last 60 days.`,
+    'Read them under Guarantee and disputes. One claim happens to good technicians; a pattern means poor work.',
+  ],
+  guarantee_review: (f) => [
+    `${f.n} guarantee claims on his work in the last 90 days.`,
+    'Time to review his approval: watch him on a trial job again, or talk to him about what keeps failing. Nothing changes until you decide.',
+  ],
+  overruled: (f) => [
+    `Pechkas found this customer wrong ${f.n} times after she said "not finished yet".`,
+    'Read those disputes. "Not finished" may be how she avoids paying.',
+  ],
   cancels: (f) => [`This customer cancelled ${f.n} jobs.`, 'Each one may have cost a technician a trip.'],
   reports: (f) => [`Technicians reported ${f.n} problems on this customer's jobs.`, 'Read them under Problems.'],
 };

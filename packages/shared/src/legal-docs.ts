@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "e97ee4c";
+export const LEGAL_FROM = "4edf31f";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -96,7 +96,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "i": true
             },
             {
-              "t": "(on Android): Google tells us your email address, your name, the link to your Google profile picture, and a number for your Google account, so that the same Google account always opens the same Pechkas account. Your first name fills in the box on the welcome screen, and you can change it. The app never shows the picture. You then type your mobile number yourself, as with an email."
+              "t": " (on Android): Google tells us your email address, your name, the link to your Google profile picture, and a number for your Google account, so that the same Google account always opens the same Pechkas account. Your first name fills in the box on the welcome screen, and you can change it. The app never shows the picture. You then type your mobile number yourself, as with an email."
             }
           ],
           [
@@ -186,7 +186,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "What you owe Pechkas and what you have paid, with the payment reference. If you tap"
+              "t": "What you owe Pechkas and what you have paid, with the payment reference. If you tap "
             },
             {
               "t": "I have paid",
@@ -207,17 +207,55 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "items": [
           [
             {
-              "t": "Each step and its time: on the way, arrived, started, done."
+              "t": "Each step and its time: on the way, arrived, started, finished, checked."
             }
           ],
           [
             {
-              "t": "Photos the technician takes before and after, and of any shop receipt for parts."
+              "t": "Photos the technician takes before and after, and of any shop receipt for parts, and the short "
+            },
+            {
+              "t": "Show it working",
+              "b": true
+            },
+            {
+              "t": " video if he adds one."
             }
           ],
           [
             {
               "t": "Any new price asked at the door, with its reason and photo, and the answer."
+            }
+          ],
+          [
+            {
+              "t": "The customer's check of the work: whether she tapped "
+            },
+            {
+              "t": "Yes, it works",
+              "b": true
+            },
+            {
+              "t": " or "
+            },
+            {
+              "t": "Not finished yet",
+              "b": true
+            },
+            {
+              "t": ", or neither and the job closed itself after 24 hours; for "
+            },
+            {
+              "t": "Not finished yet",
+              "b": true
+            },
+            {
+              "t": ", the reason she chose, her note and her photo; and the technician's one-line reply."
+            }
+          ],
+          [
+            {
+              "t": "If the job went to the Pechkas office, what the office decided, its note and who in the office decided it."
             }
           ],
           [
@@ -232,7 +270,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Problems reported and guarantee claims."
+              "t": "Problems reported."
             }
           ],
           [
@@ -251,13 +289,68 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
       },
       {
         "k": "h3",
+        "text": "Guarantee claims"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "What the customer writes when she taps "
+            },
+            {
+              "t": "It has failed again",
+              "b": true
+            },
+            {
+              "t": ", and the photos and videos she adds."
+            }
+          ],
+          [
+            {
+              "t": "The technician's answer and when he gave it: the two-hour window he chose to come back in, or, if he said "
+            },
+            {
+              "t": "This isn't my work",
+              "b": true
+            },
+            {
+              "t": ", his reason."
+            }
+          ],
+          [
+            {
+              "t": "The photos of the repair, whether the customer said it worked, and her words if it did not."
+            }
+          ],
+          [
+            {
+              "t": "If another technician was sent instead: why, and which job that became."
+            }
+          ],
+          [
+            {
+              "t": "What the Pechkas office decided, its notes and who in the office decided; any amount charged to the original technician; and his appeal, with its words and photos, and the office's answer."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h3",
         "text": "Looking out for misuse"
       },
       {
         "k": "p",
         "c": [
           {
-            "t": "The office looks at patterns across jobs that can mean somebody is misusing the app: for example many jobs cancelled after a technician was chosen, many wrong start codes, or many jobs cancelled by one customer. It may write a note about what it found. "
+            "t": "The office looks at patterns across jobs that can mean somebody is misusing the app: for example many jobs cancelled after a technician was chosen, many wrong start codes, many jobs cancelled by one customer, a technician whose jobs often close only because nobody checked them, a customer whose "
+          },
+          {
+            "t": "Not finished yet",
+            "b": true
+          },
+          {
+            "t": " the office often finds was not so, or repeated guarantee claims on one technician's work. It may write a note about what it found. "
           },
           {
             "t": "Nothing is decided automatically",
@@ -282,7 +375,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Card or bank details. The app takes no payments; customers pay the technician in cash."
+              "t": "Card or bank details. The app takes no payments: customers pay the technician directly, in cash, by JazzCash or by Easypaisa, and Pechkas never holds their money."
             }
           ],
           [
@@ -332,7 +425,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " stay hidden from the other person until both have rated, or two days have passed. A technician's rating of a customer is seen only by Pechkas. The stars and any words a customer gives a technician may be shown to other customers choosing him,"
+              "t": " stay hidden from the other person until both have rated, or two days have passed. A technician's rating of a customer is seen only by Pechkas. The stars and any words a customer gives a technician may be shown to other customers choosing him, "
             },
             {
               "t": "without the writer's name",
@@ -353,11 +446,43 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
+              "t": "Checking the work.",
+              "b": true
+            },
+            {
+              "t": " The technician sees the reason the customer chose for "
+            },
+            {
+              "t": "Not finished yet",
+              "b": true
+            },
+            {
+              "t": ", her note and her photo. The customer sees his one-line reply."
+            }
+          ],
+          [
+            {
+              "t": "Guarantee claims.",
+              "b": true
+            },
+            {
+              "t": " The technician whose work it was sees what the customer wrote and her photos and videos. The customer sees whether he is coming and when, but "
+            },
+            {
+              "t": "not his reason",
+              "b": true
+            },
+            {
+              "t": " if he says it is not his work. A technician sent instead sees the job as he would any other. When the office decides a disputed job or a claim, its decision and the note explaining it may be shown to both of them. A charge to the technician, and his appeal against it, are seen only by him and the office."
+            }
+          ],
+          [
+            {
               "t": "The Pechkas office",
               "b": true
             },
             {
-              "t": " can see everything about a job, including its chat and photos, to run the service, handle complaints and keep everyone safe. Each person in the office has their own login."
+              "t": " can see everything about a job, including its chat, photos, checks and guarantee claims, to run the service, handle complaints and keep everyone safe. Each person in the office has their own login."
             }
           ]
         ]
@@ -488,11 +613,16 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
+              "t": "A job's checks and guarantee claims are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account."
+            }
+          ],
+          [
+            {
               "t": "Kept after deletion:",
               "b": true
             },
             {
-              "t": " the record of what a technician owed Pechkas and paid, which we keep for accounting. It holds the job number, the amounts and the technician's name, and nothing about the customer."
+              "t": " the record of what a technician owed Pechkas and paid, which we keep for accounting. That includes any guarantee charge to a technician and any payment Pechkas made for a guarantee repair. It holds the job number, the amounts and the technician's name, and nothing about the customer."
             }
           ],
           [
@@ -886,18 +1016,6 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
       },
       {
         "k": "h2",
-        "text": "Paying"
-      },
-      {
-        "k": "p",
-        "c": [
-          {
-            "t": "You pay the technician when the work is finished, in cash. The app shows exactly how much. The app takes no payments and Pechkas never holds your money. Nothing is paid in advance."
-          }
-        ]
-      },
-      {
-        "k": "h2",
         "text": "When he comes"
       },
       {
@@ -938,6 +1056,150 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
       },
       {
         "k": "h2",
+        "text": "Checking the work"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "When he has finished, the technician taps "
+            },
+            {
+              "t": "Work finished",
+              "b": true
+            },
+            {
+              "t": " in the app, with a photo of the finished work and, if he chooses, a short video showing it working. The job is not closed yet: the app asks you to check it."
+            }
+          ],
+          [
+            {
+              "t": "If it works, tap "
+            },
+            {
+              "t": "Yes, it works",
+              "b": true
+            },
+            {
+              "t": ". The job is finished, and you pay him."
+            }
+          ],
+          [
+            {
+              "t": "If it does not, tap "
+            },
+            {
+              "t": "Not finished yet",
+              "b": true
+            },
+            {
+              "t": " and choose the reason: "
+            },
+            {
+              "t": "Still not working",
+              "i": true
+            },
+            {
+              "t": ", "
+            },
+            {
+              "t": "Work left unfinished",
+              "i": true
+            },
+            {
+              "t": ", "
+            },
+            {
+              "t": "Mess left behind",
+              "i": true
+            },
+            {
+              "t": " or "
+            },
+            {
+              "t": "Price is not what we agreed",
+              "i": true
+            },
+            {
+              "t": ". You may add a photo and a few words. He is told your reason, may answer you in one line, puts it right, and taps "
+            },
+            {
+              "t": "Work finished",
+              "b": true
+            },
+            {
+              "t": " again."
+            }
+          ],
+          [
+            {
+              "t": "If you tap "
+            },
+            {
+              "t": "Not finished yet",
+              "b": true
+            },
+            {
+              "t": " a second time, the job goes to the Pechkas office. The office looks at both sides' photos and words, and decides one of three things: the work is finished, and you pay the agreed price; it is not finished, and you pay only the visit fee; or he goes back to finish it."
+            }
+          ],
+          [
+            {
+              "t": "If you do nothing, the app reminds you 2 hours after he taps "
+            },
+            {
+              "t": "Work finished",
+              "b": true
+            },
+            {
+              "t": ", and again 4 hours before the time runs out. After 24 hours the job counts as finished by itself, as if you had tapped "
+            },
+            {
+              "t": "Yes, it works",
+              "b": true
+            },
+            {
+              "t": "."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
+        "text": "Paying the technician"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "You pay the technician directly, once the job is finished: in cash, by JazzCash or by Easypaisa. The app shows exactly how much."
+            }
+          ],
+          [
+            {
+              "t": "If the job stopped because you declined a new price, or the office decided the work was not finished, you pay only the visit fee."
+            }
+          ],
+          [
+            {
+              "t": "The app takes no payments, and Pechkas never holds your money.",
+              "b": true
+            },
+            {
+              "t": " Nothing is paid in advance."
+            }
+          ],
+          [
+            {
+              "t": "A guarantee repair costs you nothing; see below."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
         "text": "Cancelling"
       },
       {
@@ -963,26 +1225,121 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "k": "p",
         "c": [
           {
-            "t": "Work done through the app is guaranteed for 30 days from the day it was finished. If it fails in that time, tap "
+            "t": "Work done through the app is guaranteed for "
+          },
+          {
+            "t": "30 days if it was a repair or an installation",
+            "b": true
+          },
+          {
+            "t": ", and for "
+          },
+          {
+            "t": "7 days if it was a service",
+            "b": true
+          },
+          {
+            "t": ": cleaning, servicing, a gas top-up, descaling, clearing a drain, a virus clean-up or a check-up. A service is the shorter one because it wears off by itself."
+          }
+        ]
+      },
+      {
+        "k": "p",
+        "c": [
+          {
+            "t": "The guarantee starts when the job counts as finished: when you tap "
+          },
+          {
+            "t": "Yes, it works",
+            "b": true
+          },
+          {
+            "t": ", or when the 24 hours pass. You can claim on any day up to and including the last."
+          }
+        ]
+      },
+      {
+        "k": "p",
+        "c": [
+          {
+            "t": "If it fails in that time, tap "
           },
           {
             "t": "It has failed again",
             "b": true
           },
           {
-            "t": " on the job, and Pechkas arranges for it to be put right at no charge. "
-          },
+            "t": " on the job, say what has gone wrong, and add at least one photo or video."
+          }
+        ]
+      },
+      {
+        "k": "h3",
+        "text": "What it covers"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "The same fault coming back, and anything the technician's work caused."
+            }
+          ],
+          [
+            {
+              "t": "A part he fitted: the part itself is covered by the shop's or the maker's warranty, and Pechkas covers the labour to take it out and fit it again."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "cross",
+        "items": [
+          [
+            {
+              "t": "A new fault that has nothing to do with the work he did."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h3",
+        "text": "After you claim"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "The technician who did the work has 24 hours to answer. He either says he will come back, choosing a two-hour window that starts within 48 hours, or says it is not his work and why. If he says it is not his work, the Pechkas office decides, from the photos and what you both wrote."
+            }
+          ],
+          [
+            {
+              "t": "If he does not answer in time, or does not come when he said he would, Pechkas sends another technician. You choose the day, and choose the technician in the app as you would for any job."
+            }
+          ],
+          [
+            {
+              "t": "You pay nothing for a guarantee repair",
+              "b": true
+            },
+            {
+              "t": ", whoever does it. When another technician does it, Pechkas pays him from a reserve it keeps for this: 20% of every Pechkas fee is set aside for it."
+            }
+          ],
+          [
+            {
+              "t": "When the repair is done, the app asks you to check it, as before."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "p",
+        "c": [
           {
-            "t": "[CONFIRM WITH A LAWYER: whether the exclusions on the website's ",
-            "mark": true
-          },
-          {
-            "t": "guarantee page",
-            "mark": true,
-            "href": "/guarantee"
-          },
-          {
-            "t": " apply to app jobs too, such as parts you supplied yourself.]",
+            "t": "[DECIDE WITH A LAWYER: whether parts you supplied yourself are covered, and the limit of what Pechkas owes you under the guarantee.]",
             "mark": true
           }
         ]
@@ -1055,7 +1412,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Arrange to pay a technician outside the app for a job you found through it, to avoid the app."
+              "t": "Arrange work outside the app with a technician you found through it, to avoid the app. (Paying him directly for a job in the app is how the app works, and is fine.)"
             }
           ],
           [
@@ -1324,16 +1681,120 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Finish with a photo of the work. The app tells you exactly what to collect."
-            }
-          ],
-          [
-            {
               "t": "Refuse work you consider unsafe, or that needs a licence or approval you do not hold. "
             },
             {
               "t": "Pechkas does not repair gas leaks.",
               "b": true
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
+        "text": "Finishing, and the customer's check"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "When the work is done, tap "
+            },
+            {
+              "t": "Work finished",
+              "b": true
+            },
+            {
+              "t": " with a photo of the finished work. You may also add a short video, "
+            },
+            {
+              "t": "Show it working",
+              "b": true
+            },
+            {
+              "t": ". The customer sees both."
+            }
+          ],
+          [
+            {
+              "t": "The job is not closed yet. The customer checks the work and taps "
+            },
+            {
+              "t": "Yes, it works",
+              "b": true
+            },
+            {
+              "t": ", or "
+            },
+            {
+              "t": "Not finished yet",
+              "b": true
+            },
+            {
+              "t": " with one of four reasons: "
+            },
+            {
+              "t": "Still not working",
+              "i": true
+            },
+            {
+              "t": ", "
+            },
+            {
+              "t": "Work left unfinished",
+              "i": true
+            },
+            {
+              "t": ", "
+            },
+            {
+              "t": "Mess left behind",
+              "i": true
+            },
+            {
+              "t": " or "
+            },
+            {
+              "t": "Price is not what we agreed",
+              "i": true
+            },
+            {
+              "t": ". She may add a photo and a few words."
+            }
+          ],
+          [
+            {
+              "t": "If she says it is not finished, you are told her reason and see her photo and words. You may answer her in one line. Put it right, then tap "
+            },
+            {
+              "t": "Work finished",
+              "b": true
+            },
+            {
+              "t": " again."
+            }
+          ],
+          [
+            {
+              "t": "If she says it is not finished a second time, the job goes to the Pechkas office. The office looks at both sides' photos and words, and decides one of three things: the work is finished, and she pays the agreed price; it is not finished, and she pays only the visit fee; or you go back to finish it."
+            }
+          ],
+          [
+            {
+              "t": "If she does not answer, the job counts as finished by itself 24 hours after you tapped "
+            },
+            {
+              "t": "Work finished",
+              "b": true
+            },
+            {
+              "t": "."
+            }
+          ],
+          [
+            {
+              "t": "The customer pays you once the job is finished. The app tells you exactly what to collect."
             }
           ]
         ]
@@ -1347,7 +1808,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "items": [
           [
             {
-              "t": "The customer pays you, in cash, when the work is finished. The app holds no money."
+              "t": "The customer pays you directly — in cash, by JazzCash or by Easypaisa — once the job is finished. The app holds no money."
             }
           ],
           [
@@ -1368,7 +1829,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "You owe the fee to Pechkas when the job is done. The app shows what you owe, line by line. Pay it by JazzCash, Easypaisa, bank or cash, as the app tells you. Then tap"
+              "t": "You owe the fee to Pechkas when the job is done. The app shows what you owe, line by line. Pay it by JazzCash, Easypaisa, bank or cash, as the app tells you. Then tap "
             },
             {
               "t": "I have paid",
@@ -1392,11 +1853,11 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Part of each fee is set aside to pay for putting right work that fails within the guarantee. "
+              "t": "20% of each Pechkas fee is set aside as the guarantee reserve.",
+              "b": true
             },
             {
-              "t": "[DECIDE WITH A LAWYER: whether you must come back and redo failed work free, and what happens if you cannot.]",
-              "mark": true
+              "t": " It pays for guarantee repairs that another technician has to do (see below)."
             }
           ],
           [
@@ -1404,6 +1865,198 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "t": "Records of what you owed and paid are kept even after your account is deleted, for accounting."
             }
           ]
+        ]
+      },
+      {
+        "k": "h2",
+        "text": "The guarantee: what you must do"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "Your work is guaranteed for "
+            },
+            {
+              "t": "30 days if it was a repair or an installation",
+              "b": true
+            },
+            {
+              "t": ", and "
+            },
+            {
+              "t": "7 days if it was a service",
+              "b": true
+            },
+            {
+              "t": " — cleaning, servicing, a gas top-up, descaling, clearing a drain, a virus clean-up or a check-up — from when the job counted as finished."
+            }
+          ],
+          [
+            {
+              "t": "It covers the same fault coming back, and anything your work caused. It does not cover a new fault that has nothing to do with your work. A part you fitted is covered by the shop's or the maker's warranty for the part itself; the labour to take it out and fit it again is covered by the guarantee."
+            }
+          ],
+          [
+            {
+              "t": "When a customer claims, you are told, and you see what she wrote and her photos or videos. "
+            },
+            {
+              "t": "Answer within 24 hours",
+              "b": true
+            },
+            {
+              "t": ", in the app. You are reminded at 12 hours and at 20 hours. Either:"
+            }
+          ]
+        ]
+      },
+      {
+        "k": "ol",
+        "items": [
+          [
+            {
+              "t": "tap "
+            },
+            {
+              "t": "I'll come",
+              "b": true
+            },
+            {
+              "t": " and choose a two-hour window that starts within 48 hours, then go and put it right. The customer checks it as she did the first time, and pays nothing for it. Or"
+            }
+          ],
+          [
+            {
+              "t": "tap "
+            },
+            {
+              "t": "This isn't my work",
+              "b": true
+            },
+            {
+              "t": " and say why. The Pechkas office then decides, from the photos and what you both wrote."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "If you do not answer in time, or miss the visit you chose, your new offers stop",
+              "b": true
+            },
+            {
+              "t": ", and Pechkas sends another technician, whom the customer chooses in the app as usual. Pechkas pays him from the guarantee reserve; the customer pays nothing."
+            }
+          ],
+          [
+            {
+              "t": "That cost is then added to what you owe Pechkas",
+              "b": true
+            },
+            {
+              "t": " — but only if you did not answer, missed the visit, or said it was not your work and the office found the claim was covered. It is never more than the labour price of your original job, and you are never charged for parts."
+            }
+          ],
+          [
+            {
+              "t": "You may appeal a charge once, within 7 days: open the claim in "
+            },
+            {
+              "t": "Guarantee claims",
+              "b": true
+            },
+            {
+              "t": ", tap "
+            },
+            {
+              "t": "Appeal",
+              "b": true
+            },
+            {
+              "t": ", say why, and add photos. The office's decision on the appeal is final."
+            }
+          ],
+          [
+            {
+              "t": "Your offers come back when you tap "
+            },
+            {
+              "t": "I'll come",
+              "b": true
+            },
+            {
+              "t": " (as long as another technician has not been booked yet), when the claim is closed, or when the office lifts the stop."
+            }
+          ],
+          [
+            {
+              "t": "Two covered claims on your work in 60 days is a flag for the office to look at. Three in 90 days means the office reviews your approval. "
+            },
+            {
+              "t": "Nothing happens automatically:",
+              "b": true
+            },
+            {
+              "t": " a person looks, and decides."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "p",
+        "c": [
+          {
+            "t": "[DECIDE WITH A LAWYER: whether Pechkas may add the cost of a guarantee repair to what you owe, and take it from what Pechkas owes you; whether you must come back and redo failed work without pay; and whether the office's decision on an appeal can be final.]",
+            "mark": true
+          }
+        ]
+      },
+      {
+        "k": "h2",
+        "text": "Doing a guarantee repair for someone else's job"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "You may see a job marked as a guarantee repair: work another technician did, which has failed within its guarantee and which he is not putting right himself. You offer on it, and the customer chooses, as for any job. The app shows the most you can ask for it."
+            }
+          ],
+          [
+            {
+              "t": "The customer pays nothing for it. Pechkas pays you",
+              "b": true
+            },
+            {
+              "t": ", from the guarantee reserve: the price is taken off what you owe Pechkas, and anything beyond that is paid to you by the office."
+            }
+          ],
+          [
+            {
+              "t": "There is no Pechkas fee on a guarantee repair.",
+              "b": true
+            }
+          ],
+          [
+            {
+              "t": "Do the job and finish it in the app as usual. The customer checks it the same way."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "p",
+        "c": [
+          {
+            "t": "[DECIDE WITH A LAWYER: how and when the office pays you what is beyond what you owe.]",
+            "mark": true
+          }
         ]
       },
       {
@@ -1459,7 +2112,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "The office looks at patterns that can mean misuse, such as jobs often cancelled after you are chosen. "
+              "t": "The office looks at patterns that can mean misuse, such as jobs often cancelled after you are chosen, or jobs that often close only because the customer did not check them in time. "
             },
             {
               "t": "Nothing happens automatically:",
@@ -1698,6 +2351,11 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
+              "t": "For a customer: the checks of your jobs and your guarantee claims — the reasons, notes, photos and videos, the technician's replies and answers, and the office's decisions and notes about them."
+            }
+          ],
+          [
+            {
               "t": "For a technician: your application and the record of the checks Pechkas did."
             }
           ]
@@ -1716,7 +2374,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " the record of what you owed Pechkas and what you paid, with your name, the job numbers and the payment references. Pechkas has to keep its accounts; it holds nothing about any customer. Kept for "
+              "t": " the record of what you owed Pechkas and what you paid, with your name, the job numbers and the payment references. That includes any guarantee charge to you and any payment Pechkas made to you for a guarantee repair. Pechkas has to keep its accounts; it holds nothing about any customer. Kept for "
             },
             {
               "t": "[HOW LONG THE LAW REQUIRES]",
@@ -1744,7 +2402,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "A job a technician did for a customer who still has an account stays on that customer's record, without the technician's details."
+              "t": "A job a technician did for a customer who still has an account stays on that customer's record, with its checks and any guarantee claim, without the technician's details."
             }
           ],
           [

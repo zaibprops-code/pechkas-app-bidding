@@ -81,6 +81,11 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
       flag_blocked: 'Customers who blocked him',
       flag_price_over_bps: 'A price counts as high when the work is above the top of its range by',
       flag_price_over_jobs: 'Jobs priced high like that',
+      flag_unchecked_jobs: 'Jobs closed unchecked by the clock',
+      flag_unchecked_bps: 'Share of his jobs closed unchecked',
+      flag_overruled: 'Times a customer was found wrong about "not finished"',
+      flag_guarantee_jobs: 'Guarantee claims in 60 days',
+      flag_guarantee_review: 'Guarantee claims in 90 days before a review',
     },
   },
   {
@@ -91,6 +96,11 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
       credit_limit_paisa: 'Credit limit',
       reserve_bps: 'Guarantee reserve, of each commission',
       guarantee_days: 'Guarantee',
+      guarantee_service_days: 'Guarantee on a service',
+      check_hours: 'Hours a customer has to check a finished job',
+      claim_answer_hours: 'Hours a technician has to answer a guarantee claim',
+      claim_visit_hours: 'Hours within which his guarantee visit must start',
+      appeal_days: 'Days a technician has to appeal a guarantee charge',
     },
   },
 ];

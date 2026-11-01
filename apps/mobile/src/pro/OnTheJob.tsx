@@ -8,7 +8,7 @@ import { Press } from '../components/Press';
 import { Stars } from '../components/Stars';
 import { OFFICE_PHONE } from '../office';
 import { RemoteMedia, useSignedUrls, type StoredMedia } from '../post/RemoteMedia';
-import { takePhoto, upload } from '../post/media';
+import { takePhoto, takeVideo, upload } from '../post/media';
 import { ask } from '../supabase';
 import { MapBox } from '../components/Map';
 import { fill, proError, type ProWords } from '../words';
@@ -23,7 +23,7 @@ import { colour, font, radius } from '../theme';
  * price is only a request until the customer approves it on her phone.
  */
 
-export type Stage = 'chosen' | 'on_way' | 'arrived' | 'working';
+export type Stage = 'chosen' | 'on_way' | 'arrived' | 'working' | 'checking' | 'disputed';
 export type Change = { id: string; from_paisa: number; price_paisa: number; reason: string; photo: string };
 export type ActiveJob = {
   id: string;
@@ -53,7 +53,14 @@ export type ActiveJob = {
   code_tries_left: number;
   change: Change | null;
   visit_fee_paisa: number;
-  photos: { stage: 'before' | 'after' | 'change'; path: string }[];
+  photos: { stage: string; path: string }[];
+  /** He says finished, she checks (checks_and_guarantee). */
+  check_due?: string | null;
+  not_finished?: number;
+  last_check?: { round: number; reason: string; note: string | null; photo: string | null; pro_reply: string | null; can_reply: boolean } | null;
+  dispute_outcome?: 'done' | 'stopped' | 'return' | null;
+  dispute_note?: string | null;
+  paid_by_pechkas?: boolean;
 };
 export type FinishedJob = {
   id: string;
@@ -67,6 +74,10 @@ export type FinishedJob = {
   parts_paisa?: number | null;
   my_rating?: number | null;
   can_rate?: boolean;
+  paid_by_pechkas?: boolean;
+  agreed_paisa?: number | null;
+  confirmed_by?: 'customer' | 'clock' | 'office' | null;
+  dispute_note?: string | null;
 };
 
 type Props = { j: ActiveJob; w: ProWords; trade: string; when: string; userId: string; commissionBps: number | null; onChanged: () => void };
@@ -89,6 +100,9 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
   const partsPaisa = Number(parts || '0') * 100;
   const labour = Math.max(j.agreed_paisa - partsPaisa, 0);
   const [changing, setChanging] = useState(false);
+  const [video, setVideo] = useState<string | null>(null);
+  const [videoBusy, setVideoBusy] = useState(false);
+  const [reply, setReply] = useState('');
 
   const map =
     j.lat !== null && j.lng !== null
@@ -116,7 +130,22 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
     setCode('');
     setParts('');
     setReceipt([]);
+    setVideo(null);
   };
+
+  async function addVideo() {
+    setMsg(null);
+    setVideoBusy(true);
+    try {
+      const m = await takeVideo(true);
+      if (m) setVideo(await upload(m, userId));
+    } catch {
+      setMsg(w.errPhotos);
+      setMsgField('video');
+    } finally {
+      setVideoBusy(false);
+    }
+  }
 
   async function sendReport() {
     setBusy(true);
@@ -142,9 +171,15 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
             {trade} · {j.ref}
           </Text>
         </View>
-        <Text style={s.when}>{j.stage === 'working' ? w.working : when}</Text>
+        <Text style={s.when}>{j.stage === 'working' || j.stage === 'checking' || j.stage === 'disputed' ? w.working : when}</Text>
       </View>
       <Text style={s.title}>{j.title}</Text>
+      {j.paid_by_pechkas ? (
+        <View style={s.paidBox}>
+          <Text style={s.paidTitle}>{w.guaranteeRepair}</Text>
+          <Text style={s.note}>{w.guaranteeRepairNote}</Text>
+        </View>
+      ) : null}
       <Text style={s.addr}>
         {j.house}, {j.street}, {j.sector}
       </Text>
@@ -260,6 +295,33 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
         </View>
       ) : null}
 
+      {/* She said it is not finished: her reason, her photo, and his one-line answer. */}
+      {j.stage === 'working' && j.last_check && j.dispute_outcome !== 'return' ? (
+        <View style={s.saidBox}>
+          <Text style={s.saidTitle}>{fill(w.saidNotFinished, { name: j.customer_first_name, reason: j.last_check.reason })}</Text>
+          {j.last_check.note ? <Text style={s.saidQuote}>“{j.last_check.note}”</Text> : null}
+          {j.last_check.photo ? <RemoteMedia items={[{ kind: 'photo', path: j.last_check.photo, seconds: null }]} voiceLabel={w.playVoice} videoLabel={w.watchVideo} /> : null}
+          <Text style={s.note}>{w.notFinishedNote}</Text>
+          {(j.not_finished ?? 0) >= 1 ? <Text style={s.note}>{fill(w.notFinishedTwice, { name: j.customer_first_name })}</Text> : null}
+          {j.last_check.pro_reply ? (
+            <Text style={s.note}>{fill(w.replySent, { reply: j.last_check.pro_reply })}</Text>
+          ) : j.last_check.can_reply ? (
+            <View style={{ gap: 8 }}>
+              <TextInput value={reply} onChangeText={setReply} maxLength={200} placeholder={fill(w.replyLabel, { name: j.customer_first_name })} placeholderTextColor={colour.steel} accessibilityLabel={fill(w.replyLabel, { name: j.customer_first_name })} style={s.input} />
+              {msg && msgField === 'reply' ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
+              <Button kind="outline" label={w.replySend} busy={busy} onPress={() => run('reply_check', { p_job: j.id, p_text: reply }, () => setReply(''))} />
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+      {j.dispute_outcome === 'return' && j.dispute_note && j.stage === 'working' ? (
+        <View style={s.saidBox}>
+          <Text style={s.saidTitle}>{w.decidedTitle}</Text>
+          <Text style={s.saidQuote}>“{j.dispute_note}”</Text>
+          <Text style={s.note}>{w.decidedReturn}</Text>
+        </View>
+      ) : null}
+
       {j.change ? (
         <View style={s.step}>
           <Text style={s.waiting}>{fill(w.waitingAnswer, { price: rupees(j.change.price_paisa), was: rupees(j.change.from_paisa) })}</Text>
@@ -274,6 +336,31 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
         ) : (
           <Button kind="outline" label={w.newPrice} onPress={() => setChanging(true)} />
         )
+      ) : null}
+
+      {j.stage === 'checking' ? (
+        <View style={s.step}>
+          <Text style={s.waiting}>{fill(w.checkingTitle, { name: j.customer_first_name })}</Text>
+          <Text style={s.note}>
+            {fill(w.checkingNote, {
+              name: j.customer_first_name,
+              time: j.check_due ? new Date(j.check_due).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Karachi' }) : '',
+            })}
+          </Text>
+          <Text style={s.feeLine}>
+            {j.paid_by_pechkas
+              ? fill(w.checkingPaid, { price: rupees(j.agreed_paisa) })
+              : fill(w.checkingCollect, { price: rupees(j.agreed_paisa), name: j.customer_first_name })}
+          </Text>
+        </View>
+      ) : null}
+
+      {j.stage === 'disputed' ? (
+        <View style={s.saidBox}>
+          <Text style={s.saidTitle}>{w.disputedTitle}</Text>
+          <Text style={s.note}>{fill(w.disputedNote, { name: j.customer_first_name })}</Text>
+          <Button kind="outline" label={w.callOffice} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+        </View>
       ) : null}
 
       {j.stage === 'working' && !j.change && !changing ? (
@@ -296,20 +383,29 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
           ) : null}
           {msg && msgField === 'receipt' ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
           <Text style={s.note}>{w.partsNote}</Text>
-          {commissionBps !== null ? (
+          <View style={{ gap: 6 }}>
+            <Text style={s.label}>{w.showWorking}</Text>
+            {video ? (
+              <Text style={s.note}>✓ Video added</Text>
+            ) : (
+              <Button kind="outline" icon="video" label={videoBusy ? w.uploading : 'Record a video'} busy={videoBusy} onPress={addVideo} />
+            )}
+            <Text style={s.note}>{w.showWorkingNote}</Text>
+          </View>
+          {commissionBps !== null && !j.paid_by_pechkas ? (
             <Text style={s.feeLine}>{fill(w.feeKeep, { fee: rupees(commission(labour, commissionBps)), keep: rupees(j.agreed_paisa - commission(labour, commissionBps)) })}</Text>
           ) : null}
           <Button
             kind="yellow"
             label={w.finish}
             busy={busy}
-            onPress={() => run('finish_work', { p_job: j.id, p_photos: photos, p_parts_paisa: partsPaisa, p_receipt: partsPaisa > 0 ? (receipt[0] ?? null) : null }, reset)}
+            onPress={() => run('finish_work', { p_job: j.id, p_photos: photos, p_parts_paisa: partsPaisa, p_receipt: partsPaisa > 0 ? (receipt[0] ?? null) : null, p_video: video }, reset)}
           />
-          <Text style={s.note}>{fill(w.finishNote, { price: rupees(j.agreed_paisa) })}</Text>
+          <Text style={s.note}>{j.paid_by_pechkas ? w.guaranteeRepairNote : fill(w.finishNote, { price: rupees(j.agreed_paisa) })}</Text>
         </View>
       ) : null}
 
-      {msg && !j.code_locked && !['code', 'photos', 'parts', 'receipt', 'report'].includes(msgField ?? '') ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
+      {msg && !j.code_locked && !['code', 'photos', 'parts', 'receipt', 'report', 'reply'].includes(msgField ?? '') ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
     </View>
   );
 }
@@ -434,7 +530,11 @@ export function Finished({ items, w, tradeName, onChanged }: { items: FinishedJo
               {f.status === 'stopped' ? ` · ${w.stoppedLine}` : ''}
             </Text>
           </View>
-          <Text style={s.doneMoney}>{fill(w.collect, { price: rupees(f.collect_paisa) })}</Text>
+          <Text style={s.doneMoney}>
+            {f.paid_by_pechkas ? `Pechkas pays you ${rupees(f.agreed_paisa ?? null)}` : fill(w.collect, { price: rupees(f.collect_paisa) })}
+          </Text>
+          {f.dispute_note ? <Text style={[s.doneSub, { width: '100%' }]}>Pechkas decided: “{f.dispute_note}”</Text> : null}
+          {f.confirmed_by === 'clock' ? <Text style={[s.doneSub, { width: '100%' }]}>Counted as finished after 24 hours, unchecked.</Text> : null}
           {f.can_rate ? <RateCustomer f={f} w={w} onDone={onChanged} /> : null}
           {f.my_rating ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, width: '100%' }}>
@@ -481,6 +581,11 @@ function RateCustomer({ f, w, onDone }: { f: FinishedJob; w: ProWords; onDone: (
 }
 
 const s = StyleSheet.create({
+  paidBox: { gap: 4, padding: 12, borderRadius: 16, backgroundColor: colour.softYellow },
+  paidTitle: { fontFamily: font.bodySemi, fontSize: 14.5, color: colour.ink },
+  saidBox: { gap: 8, padding: 14, borderRadius: 16, backgroundColor: colour.cream },
+  saidTitle: { fontFamily: font.display, fontSize: 16, lineHeight: 21, color: colour.ink },
+  saidQuote: { fontFamily: font.bodyMedium, fontSize: 15, lineHeight: 21, color: colour.ink },
   actions: { flexDirection: 'row', gap: 8 },
   action: { flex: 1, minHeight: 76, alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 4, borderRadius: 18, backgroundColor: colour.canvas },
   actionOn: { backgroundColor: colour.softYellow },

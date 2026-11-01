@@ -103,6 +103,13 @@ async function working(pro, price, customer = AYESHA) {
   return posted;
 }
 const FINISH = `SELECT public.finish_work($1, $2::jsonb, $3, $4)`;
+// Since checks_and_guarantee a finished job waits for the customer to check
+// it. These tests are about the money, so she says "Yes, it works" at once.
+async function finished(who, sql, params) {
+  const r = await me(who, sql, params);
+  if (r.value?.ok) await setup(`SELECT public.close_checked($1, 'customer')`, [params[0]]);
+  return r;
+}
 
 // =============================================================================
 heading('Parts, and commission on the labour only');
@@ -110,12 +117,12 @@ heading('Parts, and commission on the labour only');
 const j1 = await working(BILAL, 550000);
 {
   const after = await upload(BILAL);
-  ok('parts without a receipt are refused', (await me(BILAL, FINISH, [j1.id, JSON.stringify([after]), 150000, null])).value?.field === 'receipt');
-  ok('parts in paisa are refused', (await me(BILAL, FINISH, [j1.id, JSON.stringify([after]), 150050, await upload(BILAL)])).value?.field === 'parts');
-  ok('parts cannot be the whole price', (await me(BILAL, FINISH, [j1.id, JSON.stringify([after]), 550000, await upload(BILAL)])).value?.field === 'parts');
-  ok('the receipt cannot be the after photo', (await me(BILAL, FINISH, [j1.id, JSON.stringify([after]), 150000, after])).value?.field === 'receipt');
+  ok('parts without a receipt are refused', (await finished(BILAL, FINISH, [j1.id, JSON.stringify([after]), 150000, null])).value?.field === 'receipt');
+  ok('parts in paisa are refused', (await finished(BILAL, FINISH, [j1.id, JSON.stringify([after]), 150050, await upload(BILAL)])).value?.field === 'parts');
+  ok('parts cannot be the whole price', (await finished(BILAL, FINISH, [j1.id, JSON.stringify([after]), 550000, await upload(BILAL)])).value?.field === 'parts');
+  ok('the receipt cannot be the after photo', (await finished(BILAL, FINISH, [j1.id, JSON.stringify([after]), 150000, after])).value?.field === 'receipt');
   const receipt = await upload(BILAL);
-  const r = (await me(BILAL, FINISH, [j1.id, JSON.stringify([after]), 150000, receipt])).value;
+  const r = (await finished(BILAL, FINISH, [j1.id, JSON.stringify([after]), 150000, receipt])).value;
   ok('Bilal finishes: Rs 5,500, of which Rs 1,500 parts with the receipt', r?.ok === true, JSON.stringify(r));
   ok('commission is 10% of the Rs 4,000 labour: Rs 400', r?.commission_paisa === 40000 && r?.keeps_paisa === 510000);
   const row = await job(j1.id);
@@ -130,7 +137,7 @@ const j1 = await working(BILAL, 550000);
 }
 {
   const j = await working(ASAD, 123400);
-  await me(ASAD, FINISH, [j.id, JSON.stringify([await upload(ASAD)]), 0, null]);
+  await finished(ASAD, FINISH, [j.id, JSON.stringify([await upload(ASAD)]), 0, null]);
   ok('rounding is DOWN: 10% of Rs 1,234 is Rs 123.40, owed exactly', (await owed(ASAD)) === 12340);
   ok('20% of that set aside, also rounded down: 2,468 paisa', Number((await setup(`SELECT -sum(e.amount_paisa) AS n FROM public.ledger_entries e JOIN public.ledger_txns t ON t.id = e.txn_id WHERE t.job_id = $1 AND e.account = 'reserve'`, [j.id])).rows[0].n) === 2468);
 }
@@ -168,13 +175,13 @@ heading('The credit limit');
   // Rs 3,000 limit. Bilal owes Rs 400; jobs worth Rs 13,000 of labour add Rs 1,300 each.
   for (let i = 0; i < 2; i += 1) {
     const j = await working(BILAL, 1300000, await stranger());
-    await me(BILAL, FINISH, [j.id, JSON.stringify([await upload(BILAL)]), 0, null]);
+    await finished(BILAL, FINISH, [j.id, JSON.stringify([await upload(BILAL)]), 0, null]);
   }
   ok('he owes Rs 3,000: at the limit, not over it', (await owed(BILAL)) === 300000);
   const m0 = await sent();
   ok('not told yet: he has not crossed it', to(m0, 'bilal').every((x) => !/Balance due/.test(x.title)));
   const j = await working(BILAL, 100000, await stranger());
-  await me(BILAL, FINISH, [j.id, JSON.stringify([await upload(BILAL)]), 0, null]);
+  await finished(BILAL, FINISH, [j.id, JSON.stringify([await upload(BILAL)]), 0, null]);
   ok('one more job puts him over: Rs 3,100', (await owed(BILAL)) === 310000);
   ok('and he is told, once', to(await sent(), 'bilal').some((x) => x.title === 'Balance due to Pechkas: Rs 3,100'));
   const feed = (await me(BILAL, `SELECT public.pro_feed()`)).value;
@@ -296,7 +303,7 @@ heading('Problems, claims and the emergency button');
   ok('closing needs a note of what was done', (await me(OWNER, `SELECT public.admin_close_problem($1, '')`, [E.id])).value?.field === 'note');
   ok('the office closes it with a note', (await me(OWNER, `SELECT public.admin_close_problem($1, 'Rang Sara, all fine, pressed in her bag')`, [E.id])).value?.ok === true);
 
-  await me(ASAD, FINISH, [j.id, JSON.stringify([await upload(ASAD)]), 0, null]);
+  await finished(ASAD, FINISH, [j.id, JSON.stringify([await upload(ASAD)]), 0, null]);
   ok('Sara claims the guarantee on the finished job', (await me(SARA, `SELECT public.report($1, 'guarantee', 'Not cooling again after three days')`, [j.id])).value?.ok === true);
   ok('the owner is told', to(await sent(), 'zohaib').some((x) => x.title === `Guarantee claim on ${j.ref}`));
   ok('one open claim at a time', (await me(SARA, `SELECT public.report($1, 'guarantee', 'Still not cooling')`, [j.id])).value?.ok === false);

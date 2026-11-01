@@ -7,6 +7,55 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The customer checks the work before it counts, and the guarantee now
+brings somebody back (new — ONE database step, then a new build).**
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261106000000_checks_and_guarantee.sql`. It should
+   say **Success**. (Safe to run twice.) Run `…_prices.sql` first if you
+   have not yet.
+2. Make a new **preview** build and install it.
+
+What happens now:
+
+- **Work finished does not close the job.** The customer sees **Is it
+  working?** and taps **Yes, it works** or **Not finished yet** (with a
+  reason, and a photo if she likes). He is told why, can answer in one
+  line, fixes it and taps Work finished again. **The second "not finished"
+  comes to you** in the admin panel's new **Guarantee and disputes** page,
+  with both sides' photos and words; you choose **Finished** (she pays the
+  agreed price), **Not finished** (only the visit fee) or **He goes back**,
+  and write one sentence both of them read. If she does nothing, she is
+  reminded, and after 24 hours it counts as finished by itself.
+- **The guarantee: 30 days on repairs and installations, 7 on services**
+  (servicing, cleaning, gas top-ups and the like). The website now says the
+  same. She taps **It has failed again**, describes it and adds a photo or
+  video. He has **24 hours** to answer **I'll come** (within 48 hours) or
+  **This isn't my work** — the second comes to you to decide.
+- **If he does not answer or misses the visit**, his new offers stop and
+  the customer chooses a day for **another technician, paid by Pechkas**
+  from the guarantee reserve. The first technician is charged that cost,
+  never more than his labour on the original job, and can **Appeal** once
+  within 7 days — that comes to you too. You can also **Give his offers
+  back** with a note.
+- **Money → Pechkas owes these technicians**: a technician who did a
+  guarantee repair for somebody else is paid from the reserve. If he owed
+  Pechkas less than that, the rest is owed to him; record paying him there.
+- New **Flags**: jobs mostly closed with nobody checking; 2 guarantee claims
+  in 60 days; 3 in 90 days (review his approval); a customer you found wrong
+  twice about "not finished".
+- **For your lawyer:** the technician agreement now says he can be charged
+  for a replacement repair and how it is taken from his balance. Those
+  lines are marked [DECIDE WITH A LAWYER].
+
+This build is **edition 4**. Older copies still work — their jobs simply
+close by themselves 24 hours after Work finished — so only switch on
+"please update" in Settings → App switches once edition 4 is in the stores.
+
+To try it with one phone: post a job as the customer, switch to technician
+mode and take it to Work finished, switch back, and tap Not finished yet;
+switch again and you see her reason.
+
 **The − and + buttons on a price now move it by Rs 50** (it was Rs 100),
 on Post a job and in the technician's offer sheet. Nothing to run in
 Supabase; it comes with the next build.

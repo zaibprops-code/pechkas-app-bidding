@@ -31,7 +31,7 @@ type Money = {
   month: { jobs: number; collected_paisa: number; parts_paisa: number; commission_paisa: number };
   rating: { count: number; avg: number | null; jobs_done: number };
   comments: { stars: number; words: string | null; at: string; ref: string }[];
-  lines: { kind: 'commission' | 'settlement' | 'reversal'; ref: string | null; amount_paisa: number; method: string | null; reference: string | null; at: string }[];
+  lines: { kind: 'commission' | 'settlement' | 'reversal' | 'guarantee_pay' | 'guarantee_charge' | 'payout'; ref: string | null; amount_paisa: number; method: string | null; reference: string | null; at: string }[];
 };
 
 const METHOD: Record<string, string> = { jazzcash: 'JazzCash', easypaisa: 'Easypaisa', bank: 'Bank', cash: 'Cash' };
@@ -79,8 +79,10 @@ export default function MoneyScreen() {
             <View style={[s.owed, m.blocked && s.owedBlocked]}>
               <View style={s.owedTop}>
                 <View style={{ flex: 1 }}>
-                  <Text style={[s.owedLabel, m.blocked && { color: colour.white }]}>{w.owe}</Text>
-                  <Text style={[s.owedBig, m.blocked && { color: colour.white }]}>{rupees(m.owed_paisa)}</Text>
+                  {/* Below nothing, Pechkas owes him: a guarantee repair he did for somebody else. */}
+                  <Text style={[s.owedLabel, m.blocked && { color: colour.white }]}>{m.owed_paisa < 0 ? 'Pechkas owes you' : w.owe}</Text>
+                  <Text style={[s.owedBig, m.blocked && { color: colour.white }]}>{rupees(Math.abs(m.owed_paisa))}</Text>
+                  {m.owed_paisa < 0 ? <Text style={s.owedLabel}>For a guarantee repair. The Pechkas office pays it to you.</Text> : null}
                 </View>
                 <View style={s.owedIcon}>
                   <DuoIcon name="wallet" size={28} accent={colour.white} />
@@ -137,7 +139,13 @@ export default function MoneyScreen() {
                         ? fill(w.lineCommission, { ref: l.ref ?? '' })
                         : l.kind === 'settlement'
                           ? fill(w.lineSettlement, { method: METHOD[l.method ?? ''] ?? '' })
-                          : w.lineReversal}
+                          : l.kind === 'guarantee_pay'
+                            ? `Guarantee repair ${l.ref ?? ''}, paid by Pechkas`
+                            : l.kind === 'guarantee_charge'
+                              ? `Guarantee charge, job ${l.ref ?? ''}`
+                              : l.kind === 'payout'
+                                ? `Paid to you by ${METHOD[l.method ?? ''] ?? 'Pechkas'}`
+                                : w.lineReversal}
                     </Text>
                     <Text style={s.note}>
                       {new Date(l.at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' })}

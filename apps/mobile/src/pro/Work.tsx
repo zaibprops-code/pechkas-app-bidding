@@ -73,6 +73,10 @@ type Feed = {
   owed_paisa?: number;
   credit_limit_paisa?: number;
   blocked?: boolean;
+  /** A guarantee claim on his work he let run out: it stops new offers (checks_and_guarantee). */
+  guarantee_block?: { claim_id: string; ref: string; customer: string; can_answer: boolean } | null;
+  /** Claims waiting for his answer or his visit. */
+  open_claims?: number;
   jobs: FeedJob[];
 };
 
@@ -203,6 +207,20 @@ export function Work({ firstName }: { firstName: string }) {
           <Press onPress={() => router.push('/pro/money')} accessibilityRole="button" style={s.blocked}>
             <Text style={s.blockedTitle}>{w.blockedTitle}</Text>
             <Text style={s.blockedText}>{fill(w.blockedText, { owed: rupees(feed.owed_paisa ?? 0), limit: rupees(feed.credit_limit_paisa ?? 0) })}</Text>
+          </Press>
+        ) : null}
+
+        {feed?.guarantee_block ? (
+          <Press onPress={() => router.push('/pro/claims')} accessibilityRole="button" style={s.blocked}>
+            <Text style={s.blockedTitle}>{w.claimBlockedTitle}</Text>
+            <Text style={s.blockedText}>
+              {fill(feed.guarantee_block.can_answer ? w.claimBlockedNote : w.claimBlockedNoteLate, { ref: feed.guarantee_block.ref })}
+            </Text>
+          </Press>
+        ) : feed?.open_claims ? (
+          <Press onPress={() => router.push('/pro/claims')} accessibilityRole="button" style={s.claimCard}>
+            <Text style={s.claimCardTitle}>{fill(feed.open_claims === 1 ? w.claimsCard : w.claimsCardMany, { n: feed.open_claims })}</Text>
+            <Text style={s.claimCardText}>{w.answerIt} ›</Text>
           </Press>
         ) : null}
 
@@ -650,6 +668,9 @@ const s = StyleSheet.create({
   owedPillLabel: { fontFamily: font.body, fontSize: 11, color: colour.steel },
   owedPillAmount: { fontFamily: font.display, fontSize: 15, color: colour.green },
   blocked: { gap: 4, padding: 14, borderRadius: radius.big, backgroundColor: colour.brick },
+  claimCard: { gap: 4, padding: 14, borderRadius: radius.big, backgroundColor: colour.yellow },
+  claimCardTitle: { fontFamily: font.display, fontSize: 17, color: colour.ink },
+  claimCardText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   blockedTitle: { fontFamily: font.display, fontSize: 17, color: colour.white },
   blockedText: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.white },
   greet: { paddingHorizontal: 6, paddingTop: 4, gap: 2 },

@@ -34,7 +34,7 @@ type Job = {
   parts: 'pro_buys' | 'customer_has' | null;
   gate_note: string | null;
   status: 'open' | 'assigned' | 'done' | 'stopped' | 'cancelled';
-  stage: 'chosen' | 'on_way' | 'arrived' | 'working' | null;
+  stage: 'chosen' | 'on_way' | 'arrived' | 'working' | 'checking' | 'disputed' | null;
   live_offers: number;
   needs_you: boolean;
   why: string | null;
@@ -67,7 +67,14 @@ const TABS = [
   { key: 'cancelled', status: 'cancelled', label: 'Cancelled' },
 ] as const;
 
-const STAGE = { chosen: 'Chosen, not set off yet', on_way: 'On his way', arrived: 'At the house', working: 'Working' } as const;
+const STAGE = {
+  chosen: 'Chosen, not set off yet',
+  on_way: 'On his way',
+  arrived: 'At the house',
+  working: 'Working',
+  checking: 'Customer checking',
+  disputed: 'Disputed',
+} as const;
 
 
 export function Jobs({ trades }: { trades: Record<string, string> }) {
@@ -287,7 +294,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
 type Detail = {
   events: { at: string; actor: string; what: string; detail: Record<string, unknown> | null }[];
   messages: { at: string; from: 'customer' | 'pro' | 'gone'; body: string }[];
-  photos: { stage: 'before' | 'after' | 'change'; path: string }[];
+  photos: { stage: 'before' | 'after' | 'change' | 'receipt' | 'video' | 'fix'; path: string }[];
   changes: { from_paisa: number; price_paisa: number; reason: string; status: string; at: string }[];
   money?: { collect_paisa: number | null; parts_paisa: number | null; commission_paisa: number | null; commission_bps?: number | null };
   asked_for?: string | null;
@@ -319,6 +326,23 @@ const WHAT: Record<string, string> = {
   asked_first: 'Sent to the technician she asked for, alone',
   opened_to_all: 'Opened to every technician',
   offer_declined: 'Turned down an offer',
+  confirmed: 'Customer said yes, it works',
+  not_finished: 'Customer said not finished yet',
+  pro_reply: 'Technician replied',
+  disputed: 'Disputed: came to the office',
+  dispute_decided: 'Dispute decided',
+  claim_coming: 'Technician will come back',
+  claim_refused: "Technician said it isn't his work",
+  claim_fixed: 'Technician came back',
+  claim_still_broken: 'Customer said still broken',
+  claim_no_answer: 'Technician did not answer the claim',
+  claim_missed_visit: 'Technician missed the visit',
+  claim_decided: 'Claim decided by the office',
+  claim_closed: 'Claim closed',
+  replacement_booked: 'Replacement repair booked',
+  appeal: 'Technician appealed the charge',
+  appeal_decided: 'Appeal decided',
+  block_lifted: 'Offers given back by the office',
 };
 const WHO: Record<string, string> = { customer: 'customer', pro: 'technician', office: 'office', system: 'system' };
 const time = (t: string) => new Date(t).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });

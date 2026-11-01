@@ -19,6 +19,10 @@ const CUSTOMER = [
   'A technician sends an offer on your job',
   'He is on his way, and when he has arrived',
   'He asks a new price — nothing changes until you answer',
+  'The technician says the work is finished — check it before you pay',
+  'A reminder to check, and when it counts as finished by itself',
+  'Your guarantee claim: his answer, his visit, his repair, or another technician',
+  'Pechkas has decided a disagreement or a guarantee claim',
   'The job is done',
   'A new message about your job',
   'The technician you asked for cannot take it',
@@ -34,6 +38,10 @@ const TECHNICIAN = [
   'The customer answers your new price',
   'A new message about a job',
   'A payment is confirmed or not, or a balance is due',
+  'The customer confirms the work, or says it is not finished',
+  'A guarantee claim on your work, and reminders to answer it',
+  'Your new offers stop, or a guarantee charge or appeal is decided',
+  'Pechkas pays you for a guarantee repair',
 ];
 
 export default function Notifications() {

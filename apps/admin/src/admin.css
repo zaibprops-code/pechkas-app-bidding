@@ -116,7 +116,7 @@ button:focus-visible, .call:focus-visible, .nav-row:focus-visible, input:focus-v
 
 /* A grid track grows to fit its widest child unless told not to: a long
    name in a drop-down once pushed a whole job card past a phone's edge. */
-.list, .card, .stack, .decide, .assign, .checks, .alerts, .history { grid-template-columns: minmax(0, 1fr); }
+.list, .card, .stack, .decide, .assign, .checks, .alerts, .history, .evidence, .lines, .line-item { grid-template-columns: minmax(0, 1fr); }
 .list { display: grid; gap: 14px; }
 .card { background: var(--white); border-radius: 24px; padding: 20px; display: grid; gap: 10px; box-shadow: var(--shadow-card); min-width: 0; }
 .card p { margin: 0; }
@@ -131,6 +131,15 @@ button:focus-visible, .call:focus-visible, .nav-row:focus-visible, input:focus-v
 .checks ul { margin: 0 0 8px; padding-left: 18px; }
 .assign { background: var(--canvas); border-radius: 18px; padding: 14px 16px; }
 .why { margin: 0; padding: 10px 14px; border-radius: 16px; background: var(--soft-brick); color: var(--brick); }
+/* Guarantee and disputes: each piece of evidence in its own grey box; open claims one line each. */
+.evidence { display: grid; gap: 8px; background: var(--canvas); border-radius: 18px; padding: 14px 16px; min-width: 0; }
+.evidence h3 { margin: 0; }
+.evidence p { overflow-wrap: anywhere; }
+.lines { display: grid; }
+.line-item { display: grid; gap: 6px; padding: 14px 0; border-top: 1px solid var(--rule); min-width: 0; }
+.line-item:first-child { border-top: 0; }
+.line-item p { overflow-wrap: anywhere; }
+.decide textarea { resize: vertical; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
 .row .grow { flex: 1 1 200px; }
 .decide { display: grid; gap: 10px; }

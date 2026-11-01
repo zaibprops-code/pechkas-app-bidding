@@ -12,6 +12,7 @@ import { Settings } from './Settings.tsx';
 import { Jobs } from './Jobs.tsx';
 import { Money } from './Money.tsx';
 import { Problems } from './Problems.tsx';
+import { Guarantee } from './Guarantee.tsx';
 import { Duo, Head } from './Duo.tsx';
 import type { DuoName } from '@pechkas/shared/src/duo-icons.ts';
 
@@ -52,6 +53,7 @@ const TABS = [
 const SECTIONS = [
   { key: 'jobs', label: 'Jobs', icon: 'jobs' },
   { key: 'problems', label: 'Problems', icon: 'help' },
+  { key: 'guarantee', label: 'Guarantee and disputes', icon: 'shield' },
   { key: 'money', label: 'Money', icon: 'wallet' },
   { key: 'technicians', label: 'Technicians', icon: 'briefcase' },
   { key: 'demand', label: 'Demand', icon: 'pin' },
@@ -270,6 +272,8 @@ function Office({ name }: { name: string }) {
             </>
           ) : section === 'problems' ? (
             <Problems />
+          ) : section === 'guarantee' ? (
+            <Guarantee />
           ) : section === 'money' ? (
             <Money />
           ) : section === 'demand' ? (

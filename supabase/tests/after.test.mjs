@@ -104,9 +104,16 @@ async function working(pro, customer, price) {
   return j;
 }
 const FINISH = `SELECT public.finish_work($1, $2::jsonb, $3, $4)`;
+// Since checks_and_guarantee a finished job waits for the customer to check
+// it. These tests are about the money, so she says "Yes, it works" at once.
+async function finished(who, sql, params) {
+  const r = await me(who, sql, params);
+  if (r.value?.ok) await setup(`SELECT public.close_checked($1, 'customer')`, [params[0]]);
+  return r;
+}
 async function done(pro, customer, price, parts = 0) {
   const j = await working(pro, customer, price);
-  const r = (await me(pro, FINISH, [j.id, JSON.stringify([await upload(pro)]), parts, parts ? await upload(pro) : null])).value;
+  const r = (await finished(pro, FINISH, [j.id, JSON.stringify([await upload(pro)]), parts, parts ? await upload(pro) : null])).value;
   if (!r?.ok) throw new Error(`finish failed: ${JSON.stringify(r)}`);
   await sent();
   return { ...j, finish: r };
@@ -137,7 +144,7 @@ heading('The repeat fee: 7% of the labour for a returning customer');
   await me(BILAL, `SELECT public.tech_step($1, 'on_way')`, [next.id]);
   await me(BILAL, `SELECT public.start_work($1, $2, $3::jsonb)`, [next.id, (await job(next.id)).start_code, JSON.stringify([await upload(BILAL)])]);
   const before = await owed(BILAL);
-  const r = (await me(BILAL, FINISH, [next.id, JSON.stringify([await upload(BILAL)]), 0, null])).value;
+  const r = (await finished(BILAL, FINISH, [next.id, JSON.stringify([await upload(BILAL)]), 0, null])).value;
   ok('done: 7% of Rs 1,234, rounded DOWN, is 8,638 paisa', r?.commission_bps === 700 && r?.commission_paisa === 8638, JSON.stringify(r));
   const row = await job(next.id);
   ok('the share is fixed on the job with the commission', row.commission_bps === 700 && Number(row.commission_paisa) === 8638);

@@ -13,6 +13,7 @@ import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { useSignedUrls } from '../post/RemoteMedia';
 import { ask } from '../supabase';
 import { colour, font, radius } from '../theme';
+import { CheckCard, ClaimCard, DecisionCard, DisputeCard, GuaranteeRepairNote, LastRound, type CheckFields } from './Checking';
 
 /**
  * The customer's side of a job once a technician is chosen: where he is, the
@@ -23,8 +24,8 @@ import { colour, font, radius } from '../theme';
  * the visit fee worked out by the database; this screen shows what it says.
  */
 
-export type Stage = 'chosen' | 'on_way' | 'arrived' | 'working';
-export type Photo = { stage: 'before' | 'after' | 'change'; path: string };
+export type Stage = 'chosen' | 'on_way' | 'arrived' | 'working' | 'checking' | 'disputed';
+export type Photo = { stage: 'before' | 'after' | 'change' | 'receipt' | 'video' | 'fix'; path: string };
 export type JobNow = {
   id: string;
   ref: string;
@@ -48,8 +49,10 @@ export type JobNow = {
   my_rating?: number | null;
   can_rate?: boolean;
   guarantee_until?: string | null;
+  guarantee_days?: number | null;
+  can_claim?: boolean;
   claim_open?: boolean;
-};
+} & Omit<CheckFields, 'id' | 'ref' | 'stage' | 'status' | 'collect_paisa' | 'photos' | 'pro'>;
 
 /** Where he has got to, as the heading of the "your technician" card. */
 const HEAD: Record<Stage, (name: string) => string> = {
@@ -57,6 +60,8 @@ const HEAD: Record<Stage, (name: string) => string> = {
   on_way: (n) => `${n} is on his way`,
   arrived: (n) => `${n} has arrived`,
   working: (n) => `${n} is working on it`,
+  checking: (n) => `${n} has finished`,
+  disputed: (n) => `Pechkas is looking at ${n}’s work`,
 };
 
 export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => void }) {
@@ -115,7 +120,7 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
             </View>
           </View>
         </View>
-        <Steps stage={job.stage} narrow={narrow} />
+        <Steps stage={job.stage === 'checking' || job.stage === 'disputed' ? 'working' : job.stage} narrow={narrow} />
         {job.stage === 'chosen' || !job.stage ? <Text style={s.line}>Your phone tells you when he sets off.</Text> : null}
         <View style={s.actions}>
           {pro.phone ? <Action icon="phone" label="Call" full={`Call ${pro.first_name}`} onPress={() => Linking.openURL(`tel:+${pro.phone!.replace(/^\+/, '')}`)} /> : null}
@@ -186,6 +191,13 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
         </Panel>
       ) : null}
 
+      {/* He says finished: she checks before she pays (checks_and_guarantee). */}
+      <GuaranteeRepairNote job={job} />
+      {job.stage === 'checking' ? <CheckCard job={job} onChanged={onChanged} /> : null}
+      {job.stage === 'disputed' ? <DisputeCard job={job} /> : null}
+      <LastRound job={job} />
+      {job.stage === 'working' && job.dispute_outcome === 'return' ? <DecisionCard job={job} /> : null}
+
       <Notice text={msg} />
     </>
   );
@@ -196,10 +208,8 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
   const photos = job.photos.filter((p) => p.stage !== 'change');
   const [stars, setStars] = useState(0);
   const [words, setWords] = useState('');
-  const [claiming, setClaiming] = useState(false);
-  const [claimText, setClaimText] = useState('');
   const guarantee = job.status === 'done' && job.guarantee_until && new Date(job.guarantee_until) > new Date() ? new Date(job.guarantee_until) : null;
-  const urls = useSignedUrls(photos.map((p) => ({ kind: 'photo', path: p.path, seconds: null })));
+  const urls = useSignedUrls(photos.map((p) => ({ kind: p.stage === 'video' ? 'video' : 'photo', path: p.path, seconds: null })));
   const [writing, setWriting] = useState(false);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
@@ -219,17 +229,6 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
     onChanged();
   }
 
-  async function claim() {
-    setBusy(true);
-    setMsg(null);
-    const r = await ask('report', { p_job: job.id, p_kind: 'guarantee', p_text: claimText });
-    setBusy(false);
-    if (!r.ok) return setMsg(r.why);
-    setClaiming(false);
-    toast.show(done('Your claim has gone to the Pechkas office.'));
-    onChanged();
-  }
-
   async function report() {
     setBusy(true);
     setMsg(null);
@@ -241,16 +240,24 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
     onChanged();
   }
 
-  const stages = (['before', 'after', 'receipt'] as const).filter((stage) => photos.some((p) => p.stage === stage));
+  const stages = (['before', 'after', 'video', 'fix', 'receipt'] as const).filter((stage) => photos.some((p) => p.stage === stage));
+  const claim = job.claim && (job.claim.status !== 'fixed' && job.claim.status !== 'not_covered' ? true : job.claim.closed_at && Date.now() - new Date(job.claim.closed_at).getTime() < 7 * 864e5) ? job.claim : null;
   const help = job.claim_open || guarantee || job.problem_at || job.can_report;
 
   return (
     <>
+      {/* An open guarantee claim is why she opened this job: it comes first. */}
+      {claim && !['fixed', 'not_covered'].includes(claim.status) ? <ClaimCard job={job} onChanged={onChanged} /> : null}
       {/* What to pay, large: the one figure she needs at the door. */}
       <View style={[s.panel, s.pay]}>
-        <Text style={s.payLabel}>{job.status === 'done' ? `Pay ${name} in cash` : `Pay ${name} the visit fee`}</Text>
-        <Text style={s.payAmount}>{rupees(job.collect_paisa)}</Text>
-        {job.status === 'stopped' ? <Text style={s.line}>You declined the new price, so the job stopped there.</Text> : null}
+        <Text style={s.payLabel}>
+          {job.paid_by_pechkas ? 'Guarantee repair' : job.status === 'done' ? `Pay ${name} directly` : `Pay ${name} the visit fee`}
+        </Text>
+        <Text style={s.payAmount}>{job.paid_by_pechkas ? 'Nothing to pay' : rupees(job.collect_paisa)}</Text>
+        {job.paid_by_pechkas ? <Text style={s.line}>Pechkas pays {name} for this repair.</Text> : null}
+        {!job.paid_by_pechkas && job.status === 'done' ? <Text style={s.line}>In cash, or by JazzCash or Easypaisa, straight to {name}.</Text> : null}
+        {job.status === 'done' && job.confirmed_by === 'clock' ? <Text style={s.line}>Nobody checked it within a day, so it counts as finished.</Text> : null}
+        {job.status === 'stopped' && !job.dispute_outcome ? <Text style={s.line}>You declined the new price, so the job stopped there.</Text> : null}
         {job.parts_paisa ? (
           <View style={s.split}>
             <View style={s.splitRow}>
@@ -269,12 +276,18 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
         <Panel icon="camera" title="Photos" hint="Tap one to see it full size.">
           {stages.map((stage) => (
             <View key={stage} style={{ gap: 8 }}>
-              <Text style={s.small}>{stage === 'before' ? 'Before' : stage === 'after' ? 'After' : 'Shop receipt'}</Text>
+              <Text style={s.small}>{{ before: 'Before', after: 'After', video: 'Video of it working', fix: 'Guarantee repair', receipt: 'Shop receipt' }[stage]}</Text>
               <View style={s.photos}>
                 {photos
                   .filter((p) => p.stage === stage)
                   .map((p) =>
-                    urls[p.path] ? (
+                    p.stage === 'video' && urls[p.path] ? (
+                      <Press key={p.path} onPress={() => Linking.openURL(urls[p.path])} accessibilityRole="button" accessibilityLabel="Watch his video">
+                        <View style={[s.photo, s.videoTile]}>
+                          <Text style={s.videoText}>▶ Video</Text>
+                        </View>
+                      </Press>
+                    ) : urls[p.path] ? (
                       <Press key={p.path} onPress={() => Linking.openURL(urls[p.path])} accessibilityRole="imagebutton" accessibilityLabel={`${stage} photo`}>
                         <Image source={{ uri: urls[p.path] }} style={s.photo} />
                       </Press>
@@ -307,27 +320,27 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
         </Panel>
       ) : null}
 
+      <DecisionCard job={job} />
+      {claim && !['fixed', 'not_covered'].includes(claim.status) ? null : claim ? <ClaimCard job={job} onChanged={onChanged} /> : null}
+
       {help ? (
         <Panel
           icon="shield"
           title={guarantee ? `Guaranteed until ${guarantee.toLocaleDateString('en-PK', { day: 'numeric', month: 'long' })}` : 'Something not right?'}
-          hint={guarantee ? 'If the same fault comes back, Pechkas arranges the repair.' : undefined}
+          hint={
+            guarantee
+              ? `${job.guarantee_days ?? ''} days on this job. If the same fault comes back, ${name} must come back and fix it, free.`
+              : undefined
+          }
         >
-          {job.claim_open ? <Text style={s.line}>Your guarantee claim is with the Pechkas office. They will call you.</Text> : null}
+          {job.claim_open && !claim ? <Text style={s.line}>Your guarantee claim is with the Pechkas office. They will call you.</Text> : null}
           {/* In the first day "Something is wrong" covers it; after that, the guarantee. */}
-          {guarantee && !job.claim_open && !claiming && !job.can_report ? (
+          {guarantee && job.can_claim && !job.can_report ? (
             <>
               {/* The terms (/app/terms) tell customers to tap exactly this; legal.test.ts checks the two agree. */}
-              <Button kind="outline" label="It has failed again" onPress={() => setClaiming(true)} />
+              <Button kind="outline" label="It has failed again" onPress={() => router.push({ pathname: '/claim/[id]', params: { id: job.id } })} />
+              <Text style={s.small}>Describe it and add a photo or video. {name} has 24 hours to answer.</Text>
             </>
-          ) : null}
-          {guarantee && claiming ? (
-            <View style={{ gap: 8 }}>
-              <Text style={s.line}>What has gone wrong? Pechkas reads it, calls you, and arranges the repair.</Text>
-              <TextInput value={claimText} onChangeText={setClaimText} maxLength={500} multiline accessibilityLabel="What has gone wrong" style={s.input} />
-              <Button kind="green" label="Claim the guarantee" busy={busy} onPress={claim} />
-              <Button kind="outline" label="Go back" onPress={() => setClaiming(false)} />
-            </View>
           ) : null}
           {job.problem_at ? <Text style={s.line}>You told us something is wrong. The Pechkas office will call you.</Text> : null}
           {job.can_report && !writing ? <Button kind="outline" label="Something is wrong" onPress={() => setWriting(true)} /> : null}
@@ -375,5 +388,7 @@ const s = StyleSheet.create({
   splitFigure: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   photos: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   photo: { width: 84, height: 84, borderRadius: 14 },
+  videoTile: { backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
+  videoText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.paper },
   input: { minHeight: 80, borderRadius: 14, padding: 12, backgroundColor: colour.white, color: colour.ink, fontFamily: font.bodyMedium, fontSize: 15, borderWidth: 1.5, borderColor: colour.rule },
 });

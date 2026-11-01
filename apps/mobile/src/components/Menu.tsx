@@ -64,7 +64,7 @@ const CUSTOMER: Item[] = [
 const technician = (approved: boolean): Item[] => [
   { icon: 'briefcase', label: 'Jobs', to: '/pro' },
   // An unapproved technician has no account screen yet.
-  ...(approved ? [{ icon: 'wallet', label: 'My account', to: '/pro/money' } as Item] : []),
+  ...(approved ? [{ icon: 'wallet', label: 'My account', to: '/pro/money' } as Item, { icon: 'flag', label: 'Guarantee claims', to: '/pro/claims' } as Item] : []),
   { icon: 'bell', label: 'Notifications', to: '/notifications' },
   ...REST,
 ];

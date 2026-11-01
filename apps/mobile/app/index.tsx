@@ -51,7 +51,7 @@ type Recent = {
   cancelled_by?: 'customer' | 'office' | 'nobody' | null;
   live_offers: number;
   offered_paisa: number;
-  stage: 'chosen' | 'on_way' | 'arrived' | 'working' | null;
+  stage: 'chosen' | 'on_way' | 'arrived' | 'working' | 'checking' | 'disputed' | null;
   pro: { first_name: string } | null;
 };
 
@@ -380,7 +380,11 @@ function LiveCard({ job }: { job: Recent }) {
             ? `${name} has arrived`
             : job.stage === 'working'
               ? `${name} is working on it`
-              : `${name} is your technician`;
+              : job.stage === 'checking'
+                ? `Check ${name}’s work`
+                : job.stage === 'disputed'
+                  ? 'Pechkas is looking at it'
+                  : `${name} is your technician`;
   return (
     <Press onPress={() => router.push(`/job/${job.id}`)} accessibilityRole="button" accessibilityLabel={`${title}. ${job.title}`} sink={0.98} style={s.live}>
       {job.status === 'open' ? (

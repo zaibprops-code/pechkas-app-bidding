@@ -21,7 +21,7 @@ type MoneyData = {
   totals: { owed_paisa: number; commission_paisa: number; reserve_paisa: number; received_paisa: number };
   pros: ProRow[];
 };
-type Line = { txn: string; kind: 'commission' | 'settlement' | 'reversal'; ref: string | null; amount_paisa: number; method: string | null; reference: string | null; memo: string | null; at: string; by: string | null; reversed: boolean };
+type Line = { txn: string; kind: 'commission' | 'settlement' | 'reversal' | 'guarantee_pay' | 'guarantee_charge' | 'payout'; ref: string | null; amount_paisa: number; method: string | null; reference: string | null; memo: string | null; at: string; by: string | null; reversed: boolean };
 
 const METHODS = [
   ['jazzcash', 'JazzCash'],
@@ -29,6 +29,17 @@ const METHODS = [
   ['bank', 'Bank transfer'],
   ['cash', 'Cash'],
 ] as const;
+/** What each kind of line in a technician's account is, in words. */
+const LINE: Record<Line['kind'], (l: Line) => string> = {
+  commission: (l) => `Commission on ${l.ref}`,
+  settlement: (l) => `Paid by ${l.method}`,
+  reversal: () => 'Undone',
+  guarantee_pay: (l) => `Guarantee repair paid by Pechkas${l.ref ? ` · ${l.ref}` : ''}`,
+  guarantee_charge: (l) => `Guarantee charge${l.ref ? ` · ${l.ref}` : ''}`,
+  payout: (l) => `Paid out to technician${l.method ? ` by ${l.method}` : ''}`,
+};
+/** Guarantee lines are changed through Guarantee and disputes (his appeal), never with Undo here. */
+const UNDOABLE = new Set<Line['kind']>(['commission', 'settlement', 'payout']);
 const time = (t: string) => new Date(t).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
 
 export function Money() {
@@ -64,6 +75,7 @@ export function Money() {
             <Tile label="Guarantee reserve" value={rupees(d.totals.reserve_paisa)} />
           </div>
           <Claims onChanged={load} />
+          <OwedToPros onChanged={load} />
           <PayTo current={d.pay_to} onSaved={load} />
           <div className="list">
             {d.pros.length === 0 ? <p className="lead">No technicians yet.</p> : null}
@@ -212,6 +224,125 @@ function ClaimCard({ c, onDone }: { c: Claim; onDone: () => void }) {
   );
 }
 
+type OwedPro = { pro_id: string; name: string; phone: string | null; owed_to_him_paisa: number };
+
+/**
+ * After a guarantee repair, Pechkas can owe a technician more than he owes
+ * Pechkas. Those are listed here, and paying him is recorded the same way
+ * as a payment from him: once per form, in the ledger nobody can edit.
+ */
+function OwedToPros({ onChanged }: { onChanged: () => void }) {
+  const [list, setList] = useState<OwedPro[] | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase.rpc('admin_owed_to_pros');
+    // A database without the guarantee change: say nothing rather than an error.
+    if (error) return setProblem(/admin_owed_to_pros/.test(error.message) ? null : `Could not load what Pechkas owes: ${error.message}`);
+    setProblem(null);
+    setList((data as OwedPro[] | null) ?? []);
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  if (problem) return <p className="error" role="alert">{problem}</p>;
+  if (!list) return null;
+  return (
+    <section className="alerts">
+      <h2>Pechkas owes these technicians{list.length ? ` (${list.length})` : ''}</h2>
+      {list.length === 0 ? (
+        <p className="muted">Pechkas owes no technician anything.</p>
+      ) : (
+        <>
+          <p className="muted">
+            Money for guarantee repairs they did, beyond what they owed Pechkas. Send it, then record it here with the transaction ID.
+          </p>
+          <div className="list">
+            {list.map((p) => (
+              <PayPro key={p.pro_id} p={p} onDone={() => { load(); onChanged(); }} />
+            ))}
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+function PayPro({ p, onDone }: { p: OwedPro; onDone: () => void }) {
+  // One key per form: pressing twice, or again after bad signal, records it once.
+  const [key, setKey] = useState(() => crypto.randomUUID());
+  const owed = Number(p.owed_to_him_paisa);
+  const [amount, setAmount] = useState(String(owed / 100));
+  const [method, setMethod] = useState('');
+  const [reference, setReference] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => setAmount(String(owed / 100)), [owed]);
+
+  async function save() {
+    const rupeesWhole = Number(amount.replace(/[, ]/g, ''));
+    if (!Number.isInteger(rupeesWhole) || rupeesWhole <= 0) return setMsg('Write the amount in whole rupees.');
+    setBusy(true);
+    setMsg(null);
+    const r = await ask<{ recorded: boolean }>('admin_pay_pro', {
+      p_pro: p.pro_id,
+      p_amount_paisa: rupeesWhole * 100,
+      p_method: method,
+      p_reference: reference,
+      p_key: key,
+    });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    setMsg(r.recorded ? 'Recorded.' : 'This payment was already recorded.');
+    setKey(crypto.randomUUID());
+    setReference('');
+    onDone();
+  }
+
+  return (
+    <article className="card">
+      <div className="card-head">
+        <div>
+          <h2>{p.name}</h2>
+          <p className="muted">{p.phone ? shown(p.phone) : 'no number'}</p>
+        </div>
+        <div className="price">
+          <strong>{rupees(owed)}</strong>
+          <span className="muted">Pechkas owes him</span>
+        </div>
+      </div>
+      <div className="row">
+        <label>
+          Amount (Rs)
+          <input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
+        </label>
+        <label>
+          How
+          <select value={method} onChange={(e) => setMethod(e.target.value)}>
+            <option value="">Choose…</option>
+            {METHODS.map(([v, l]) => (
+              <option key={v} value={v}>{l}</option>
+            ))}
+          </select>
+        </label>
+        <label className="grow">
+          Transaction ID (for cash: who handed it over)
+          <input value={reference} maxLength={80} onChange={(e) => setReference(e.target.value)} />
+        </label>
+      </div>
+      <div className="buttons">
+        <button disabled={busy} onClick={save}>Record payment</button>
+        {p.phone ? <a className="call" href={`tel:+${p.phone.replace(/^\+/, '')}`}>Call</a> : null}
+      </div>
+      {msg ? <p className={msg === 'Recorded.' ? 'muted' : 'error'} role="alert">{msg}</p> : null}
+    </article>
+  );
+}
+
 function Tile({ label, value }: { label: string; value: string }) {
   return (
     <div className="tile">
@@ -266,8 +397,10 @@ function ProMoney({ p, onChanged }: { p: ProRow; onChanged: () => void }) {
           </p>
         </div>
         <div className="price">
-          <strong>{rupees(p.owed_paisa)}</strong>
-          <span className={p.blocked ? 'error' : 'muted'}>{p.blocked ? 'over the limit: cannot offer' : 'owed'}</span>
+          <strong>{rupees(Math.abs(p.owed_paisa))}</strong>
+          <span className={p.blocked ? 'error' : 'muted'}>
+            {p.blocked ? 'over the limit: cannot offer' : p.owed_paisa < 0 ? 'Pechkas owes him' : 'owed'}
+          </span>
         </div>
       </div>
       <p className="muted">{p.last_paid_at ? `Last paid ${time(p.last_paid_at)}` : 'Has not paid yet'}</p>
@@ -370,13 +503,13 @@ function Lines({ pro, onChanged }: { pro: string; onChanged: () => void }) {
           <tr key={i} className={l.reversed ? 'struck' : ''}>
             <td>{time(l.at)}</td>
             <td>
-              {l.kind === 'commission' ? `Commission on ${l.ref}` : l.kind === 'settlement' ? `Paid by ${l.method}` : 'Undone'}
+              {LINE[l.kind]?.(l) ?? l.kind}
               {l.reference ? ` · ${l.reference}` : ''}
               {l.memo ? ` · “${l.memo}”` : ''}
               {l.by ? <span className="muted"> · {l.by}</span> : null}
             </td>
             <td className="num">{l.amount_paisa > 0 ? '+' : '−'} {rupees(Math.abs(l.amount_paisa))}</td>
-            <td>{l.kind !== 'reversal' && !l.reversed ? <button className="secondary small" onClick={() => undo(l)}>Undo</button> : null}</td>
+            <td>{UNDOABLE.has(l.kind) && !l.reversed ? <button className="secondary small" onClick={() => undo(l)}>Undo</button> : null}</td>
           </tr>
         ))}
       </tbody>

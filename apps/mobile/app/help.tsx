@@ -27,7 +27,11 @@ type QA = { q: string; a: string };
 const CUSTOMER: QA[] = [
   {
     q: 'How do I pay?',
-    a: 'In cash, to the technician, once the job is done. Your job shows the amount. Pechkas never asks you to pay inside the app.',
+    a: 'Straight to the technician, in cash or by JazzCash or Easypaisa, once you have checked the work. Your job shows the amount. Pechkas never asks you to pay inside the app.',
+  },
+  {
+    q: 'He says the work is finished. What now?',
+    a: 'Check it before you pay. Your job shows Yes, it works and Not finished yet. If it is not finished, choose why; he is told and puts it right. If you say so twice, Pechkas looks at both sides’ photos and decides. If you do nothing for 24 hours, it counts as finished.',
   },
   {
     q: 'Can I cancel a job?',
@@ -43,14 +47,14 @@ const CUSTOMER: QA[] = [
   },
   {
     q: 'The fault has come back.',
-    a: 'Open the job from My jobs. While it is guaranteed, tap It has failed again, and the office arranges the repair. The date the guarantee ends is on the job.',
+    a: 'Open the job from My jobs. While it is guaranteed — 30 days for repairs and installations, 7 for services, and the end date is on the job — tap It has failed again, describe it and add a photo or video. He has 24 hours to answer and must come back within 48 hours. If he does not, Pechkas sends another technician and pays for the repair.',
   },
 ];
 
 const TECHNICIAN: QA[] = [
   {
     q: 'How am I paid?',
-    a: 'The customer pays you in cash when the job is done. Pechkas’s fee is 10% of the labour — the price less any parts bought with a shop receipt — or 7% when you have finished a job for the same customer before.',
+    a: 'The customer pays you directly once they have checked the work: tap Work finished, and they confirm it. Pechkas’s fee is 10% of the labour — the price less any parts bought with a shop receipt — or 7% when you have finished a job for the same customer before.',
   },
   {
     q: 'How do I pay what I owe Pechkas?',
@@ -58,11 +62,19 @@ const TECHNICIAN: QA[] = [
   },
   {
     q: 'Why can I not make offers?',
-    a: 'While what you owe is over your limit, new offers stop until you pay. My account then says so, with both figures.',
+    a: 'While what you owe is over your limit, new offers stop until you pay; My account then says so, with both figures. They also stop while a guarantee claim on your work is left unanswered: answer it under Guarantee claims.',
   },
   {
     q: 'The job needs more than the agreed price.',
     a: 'On the job, tap Request a new price and send the reason and a photo. The price changes only if the customer approves. If they decline, the job stops there and they pay the visit fee.',
+  },
+  {
+    q: 'The customer says it is not finished.',
+    a: 'Your job shows their reason and any photo. Put it right, take a new photo and tap Work finished again; you can answer them in one line. If they say it twice, Pechkas looks at both sides’ photos and decides. A short video of it working at the finish protects you.',
+  },
+  {
+    q: 'A guarantee claim on my work.',
+    a: 'Open Guarantee claims from the menu. Answer within 24 hours: I’ll come, with a time within 48 hours, or This isn’t my work, with a reason for Pechkas to decide. If you do not answer or miss the visit, your new offers stop and another technician is sent; the cost may be charged to you, never more than your labour on the job, and you can appeal once.',
   },
   {
     q: 'Can I change my trades or sectors?',
