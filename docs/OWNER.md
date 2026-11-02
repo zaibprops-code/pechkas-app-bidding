@@ -7,6 +7,9 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Business decisions:** what is decided and what is still open is in
+**`docs/DECISIONS.md`**, numbered. Pick one at a time.
+
 **The guarantee, finished: Raise the limit, and charges that wait for the
 appeal (new — ONE database step, then a new build).**
 
@@ -1248,8 +1251,8 @@ not a new app.
 | Commission | 10% of the agreed price, labour only |
 | Credit limit | Rs 3,000 owed, then no new offers until settled |
 | Offer stays open | 10 minutes |
-| Untaken job comes to you after | 15 minutes |
-| Guarantee | 30 days |
+| Untaken job | The customer is told after 20 minutes (today) or 3 hours (later day); the office is told only about guarantee repairs |
+| Guarantee | 30 days on repairs and installations, 7 on services |
 | **Lowest offer a customer can make** | **Rs 1,000** — your published inspection fee. **Confirm or change.** |
 | **Highest counter-offer** | **2× the customer's price** (Rs 2,000 job → at most Rs 4,000). **Confirm or change.** |
 | Open jobs one customer may have | 5 |
@@ -1275,69 +1278,9 @@ not a new app.
 | Flag: a customer's cancellations | **5** |
 | App identifier | `net.pechkas.app` — permanent |
 
-**Still open:**
-- **Email codes through Resend.** Until it is connected, Supabase's own
-  test sender delivers only a few emails an hour, and only to your own
-  Supabase team's addresses — real customers would never get their code.
-  Steps: **"Sending email codes through Resend (once)"** below.
-- **The guarantee: 15 days or 30?** The website (its /guarantee and /terms
-  pages) promises **15 days**. The app, both store listings and the new app
-  terms promise **30 days**. Customers will see both. Tell Claude which is
-  right and everything will be made to say the same.
-- **The big legal question in the new terms:** is a customer's agreement
-  for the repair **with Pechkas** (the website's terms say the technician
-  works for Pechkas and Pechkas is responsible) or **with the technician**,
-  Pechkas introducing and checking him? A lawyer should answer it; the
-  terms, the technician agreement and tax all follow from it. The other
-  bracketed points — damage, limits of responsibility, notice before
-  suspension, redoing failed work — go to the same lawyer.
-- **The flag limits are guesses.** Watch **Admin → Flags** for the first
-  month or two. When honest people keep showing up, or something you know
-  was wrong never did, tell Claude which limit and it becomes a new
-  migration.
-- **The repeat fee counts any earlier finished job** between the same
-  customer and technician, however long ago. Say if it should only count,
-  say, the last 12 months.
-- **A lawyer reads the privacy page again** for the three new lines in
-  phase 7 (who a customer asked for, a sector she asked about, notes on a
-  flag). The Google Play Data safety answers changed too:
-  `docs/store/data-safety.md`.
-- **A lawyer reads the two app pages** — pechkas.net/app/privacy and
-  /app/delete-account — and the Data safety answers, before the app goes
-  public. Fill in the bracketed gaps: the registered business name and
-  address, the Supabase region (**Supabase → Project Settings → General →
-  Region**), how many days a deletion request takes, how long the
-  technicians' money records are kept, and how long photos taken at a
-  customer's home are kept after she deletes her account. Then tell Claude
-  and the review boxes come off.
-- **Twilio** for real sign-in codes, before the public can sign in (steps
-  below).
-- **Where technicians pay.** Type it in **Admin → Money → Where
-  technicians pay** (for example your JazzCash number and account name).
-  Until then they are told to ask the office.
-- **No commission on a visit fee.** That was taken as the default — it is
-  petrol, not work. Say if you want commission on it.
-- **The visit fee by distance.** The maps are built, but the fee is money,
-  so it waits for your decisions: **how many km per litre** to assume,
-  where the **petrol price** comes from (you set it, and update it when the
-  government changes it), and **straight-line or road distance** — road
-  distance means turning on Google's paid Distance Matrix service as well.
-  Until then the fee stays Rs 300, your rule for "no distance".
-- **Cancelling once he has arrived.** For now a customer can cancel free
-  until he reaches the house; after that the app tells her to call you.
-  Say if cancelling after he has set off should cost her the visit fee.
-- **The lowest offer (Rs 1,000), the highest counter (2×) and the live
-  sectors** above.
-- **Online stays on until he switches it off.** A technician who forgets
-  will still see jobs and can still offer — nobody is sent anywhere without
-  the customer choosing him, so the harm is small. Say if you want it to
-  switch off by itself after some hours.
-- **Price guidance.** Within 20% of the website price the app says "Fair";
-  below that "Low"; above "Generous". Say if you want different words or
-  limits.
-- **Who sends the real sign-in codes** (an SMS company, or WhatsApp). Until
-  then, only the test numbers you add in Supabase can sign in.
-- Launch sectors (where your first technicians live).
+**Still open:** every open business decision is now in one numbered list,
+**`docs/DECISIONS.md`**, with what is already decided underneath it. Go
+through it one number at a time ("let's do D10").
 - **Approval needs all three checks** — identity, a trial job, the rules. If
   you want to approve without a trial job, say so; it is one line to change.
 

@@ -23,7 +23,10 @@ brief disagree, ask.
   `public.applied_migrations`.
 - Each phase: short plan → his yes → build with tests → steps to try it on his
   phone → stop. When something touches safety, money or the law, stop and ask.
-- Keep `docs/OWNER.md` current, including the open decisions at the top.
+- Keep `docs/OWNER.md` current. **Business decisions live in
+  `docs/DECISIONS.md`**: open ones numbered D1…, decided ones A1…. When the
+  owner decides one, build it, then move it to the decided list with the
+  date in the same commit. Never record a decision he has not made.
 
 ## Before you commit
 
