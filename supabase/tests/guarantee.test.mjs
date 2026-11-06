@@ -169,7 +169,9 @@ ok('her card shows the claim waiting for his answer', (await mine(AYESHA, repair
 
 heading('He comes back');
 ok('Asad cannot answer Bilal\'s claim', (await me(ASAD, ANSWER, [c1.claim_id, true, tomorrow, 10, null])).value?.ok === false);
-ok('a time that has started is refused', (await me(BILAL, ANSWER, [c1.claim_id, true, pk.d, 8, null])).value?.field === 'visit' || pk.h < 8);
+// Before 8am Pakistan time no window has started yet, so there is nothing
+// to refuse: asking would book the visit and break every step after it.
+ok('a time that has started is refused', pk.h < 8 || (await me(BILAL, ANSWER, [c1.claim_id, true, pk.d, 8, null])).value?.field === 'visit');
 ok('a time beyond 48 hours is refused', (await me(BILAL, ANSWER, [c1.claim_id, true, await plus(4), 10, null])).value?.field === 'visit');
 ok('"I\'ll come" tomorrow, 10am to 12pm', (await me(BILAL, ANSWER, [c1.claim_id, true, tomorrow, 10, null])).value?.ok === true);
 m = await sent();

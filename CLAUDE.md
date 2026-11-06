@@ -124,7 +124,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `profiles.role` is the mode in use — which side of the app this phone
   shows — and nothing about a job reads it: every job function works out
   the asker's side from the job's own `customer_id` and `pro_id`. The first
-  question is `app/choose.tsx` (two big cards), then `welcome.tsx` takes
+  question is `app/choose.tsx` (two big cards that must never look alike: the
+  customer's white, the technician's green, each naming its side, an "or"
+  between), then `welcome.tsx` takes
   the name with the choice as `as`. Changing it later is only
   `switch_mode()` (`src/mode.ts`, `ModeSwitch` at the foot of the menu and
   on Me), never `start_as()`, which refuses a different mode. Technician

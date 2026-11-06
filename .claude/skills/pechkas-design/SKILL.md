@@ -42,7 +42,7 @@ through `apps/mobile/src/theme.ts` and the admin panel as CSS variables
 | `colour.green` | Trust and "this is you / this is us": the person card in the menu and Settings, the office card in Help, a technician's initial, a done step, "notifications are on", the green call to action. **At most one big green card per screen.** |
 | `colour.yellow` | Action and money: the main button, a count, an arrow disc. **Never as text on a light background** (it cannot be read). |
 | `colour.softYellow` | The tile behind a two-tone icon; a money card ("Your price", "Pay Bilal in cash", a new price to approve); the current row in the menu. |
-| `colour.cream` | Behind a drawing: trade tiles, media tiles (Voice, Video, Photo), the two "How will you use Pechkas?" cards. |
+| `colour.cream` | Behind a drawing: trade tiles, media tiles (Voice, Video, Photo), the drawing tiles on the "How will you use Pechkas?" cards. Never a whole card on the canvas: cream on `canvas` has no edge you can see. |
 | `colour.brick` | Warnings, danger and emergencies **only**: Emergency, Delete my account, a refusal, the emergency numbers. |
 | `colour.softBrick` | The tile behind the one row that cannot be undone. |
 | `colour.greenSoft` | Small "good" chips: Done, On, a tick. |
@@ -171,6 +171,11 @@ disc with an arrow on the right.
   half of 15 finished jobs in the last 90 days". A range is never shown
   without its count, and nothing is shown when the database has too few
   jobs to say — never a placeholder range.
+- **Two choices never look alike.** "How will you use Pechkas?" once
+  showed two cream cards with the same layout, and they read as one block.
+  Now the customer's is a white card and the technician's the screen's one
+  green card, each with its own icon and its side named ("Customer",
+  "Technician"), and an "or" between them.
 - **Empty is a card, not a blank**: an icon on a soft tile, one line, and
   the button that fills it.
 - A screen whose first load fails shows `Trouble` under its own header;
