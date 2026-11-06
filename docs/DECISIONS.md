@@ -20,7 +20,8 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 2 November 2026._
+_Last updated: 6 November 2026. The same list as a map you can tap through:
+https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
 
@@ -327,6 +328,70 @@ show whether they are right.
 - **Today:** 20%. When the reserve is empty, Pechkas pays from its own
   money. The office page shows the balance.
 - **Who decides:** You, once there are a few months of claims.
+
+### Found on a second pass: no rule yet (you)
+
+These came up when the app was checked for situations nobody has decided.
+Each one happens in real life; today the office handles it by hand.
+
+#### D34. Nobody home when the technician arrives
+- **The question:** He arrives in his window and nobody opens the door, or
+  the customer does not answer. Does she owe the visit fee? How long must
+  he wait, and how many times must he call first?
+- **Today:** No rule and no button. He can ring her or the office. The
+  office can call the job off by hand, and nothing is charged.
+- **Options:**
+  - (a) The office decides each case.
+  - (b) After he has waited and called, he taps "Nobody home" with a photo
+    of the gate, and she owes the visit fee.
+  - (c) No charge, only a flag.
+- **Linked to:** D10 (cancelling) and D12 (the visit fee).
+- **Who decides:** You.
+
+#### D35. A customer who does not pay the technician
+- **The question:** The job is done, but she refuses to pay him or pays
+  less. His 10% commission is still added to what he owes. What happens to
+  the commission, and to her?
+- **Today:** No rule. He can report a problem, and the office can undo the
+  commission by hand in Money.
+- **Options:**
+  - (a) The office decides each case.
+  - (b) He gets a "Not paid" button, which holds the commission until the
+    office has looked.
+  - Separately: is she stopped from posting new jobs until it is settled?
+- **Linked to:** D1 (who her agreement is with decides who can chase the
+  money).
+- **Who decides:** You. Chasing the money is you + lawyer.
+
+#### D36. A due date for paying Pechkas
+- **The question:** Must a technician pay what he owes by a set day (weekly
+  or monthly), or only when he goes over Rs 3,000?
+- **Today:** Only the Rs 3,000 limit. A man owing Rs 2,900 can owe it for
+  ever.
+- **Options:**
+  - (a) The limit only, as now.
+  - (b) A weekly pay day with a reminder.
+  - (c) A monthly pay day.
+- **Linked to:** A3 (the credit limit), D15 (where he pays).
+- **Who decides:** You.
+
+#### D37. The trial job for a new technician
+- **The question:** Approval needs a trial job.
+  - Where does it happen: a real customer's job with you there, or a test
+    job you set up?
+  - Is he paid for it, and who pays for any parts?
+- **Today:** The admin panel records "Trial job watched". How the trial
+  job is run is not written down anywhere.
+- **Who decides:** You.
+
+#### D38. Launch offers
+- **The question:** Do you want anything to win the first technicians and
+  customers? For example no commission for a technician's first month or
+  first few jobs, or a reward for referring a friend.
+- **Today:** None. The app shows no discounts, and the 10% and 7% are
+  written into the technician agreement, so an offer would change that
+  page too.
+- **Who decides:** You. A lawyer reads the agreement's wording.
 
 ---
 
