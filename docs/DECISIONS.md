@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 6 November 2026. The same list as a map you can tap through:
+_Last updated: 9 November 2026. The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -127,6 +127,11 @@ others depend on its answer.
   - (b) The visit fee once he has set off.
   - (c) The visit fee only once he has arrived.
 - **Who decides:** You.
+- **Follow-up questions:** D10.1 before he sets off (free today); D10.2 after
+  "On my way" (free today, counts towards the cancellation flag); D10.3
+  after he arrives (only the office or a declined new price today); D10.4
+  the website's blank cancellation policy. Kept separate from the visit fee,
+  as you asked on 9 November.
 
 #### D11. A chosen technician who never comes
 - **The question:** What happens to a technician who is chosen and does not
@@ -140,16 +145,42 @@ others depend on its answer.
   - (c) Also charge him something.
 - **Who decides:** You. Option (c) is you + lawyer.
 
-#### D12. The visit fee by distance
-- **The question:** Your rule is petrol for the trip, Rs 300 to Rs 1,000.
-  Three things are needed to measure it:
-  - how many km per litre to assume;
-  - where the petrol price comes from (you type it in and update it when
-    the government changes it);
-  - straight-line or road distance. Road distance needs Google's paid
-    distance service.
-- **Today:** A flat Rs 300, your rule for "no distance".
-- **Who decides:** You.
+#### D12. The visit fee — decided 9 November 2026, being built
+- **Your decision:**
+  - A flat Rs 300, which the office can change in Settings.
+  - The technician keeps all of it; Pechkas takes no commission on it.
+  - No distance, GPS, maps or petrol price at this stage.
+  - Owed only when he arrived, inspected, quoted a new price, and the
+    customer declined it.
+  - Not owed when he never came, cancelled, or the failure was his, and
+    never when the repair goes ahead.
+  - A guarantee repair stopped at the door: Pechkas pays it.
+  - The office can waive it, with a reason on record.
+  - Shown to the customer before she chooses a technician, and to the
+    technician before he offers.
+- **Follow-up questions** (the details that decide how it works):
+  - **D12.1 Proof he was at the door.** Today he can ask a new price after
+    tapping "Arrived", which he taps himself. Suggestion: a new price needs
+    the customer's start code first.
+  - **D12.2 The office's "not finished" decision.** Today it charges the
+    visit fee. Suggestion: "not finished, his fault: no fee" or "not
+    finished, not his fault: fee due", each with a reason.
+  - **D12.3 Who confirms it was paid?** Suggestion: he taps Paid or Not
+    paid; she can say "I disagree" within 24 hours; disagreements go to the
+    office.
+  - **D12.4 Waived after she already paid.** Pechkas holds no money.
+    Suggestion: he returns it; if he will not, it is added to what he owes.
+  - **D12.5 A customer who does not pay it.** Suggestion: recorded and
+    flagged; after a second, the office looks before she posts again.
+  - **D12.6 A fee change after she chose him.** Suggestion: fixed at the
+    figure she saw when she chose him.
+  - **D12.7 A new price on a guarantee repair** (a gap found in the audit:
+    she approves it with Pechkas' money). Suggestion: it goes to the office.
+  - **D12.8 The website says "no visit fee"** for WhatsApp bookings and calls
+    Rs 1,000 the "inspection fee". Suggestion: one name and one rule
+    everywhere.
+  - **D12.9 Some work was done before the bigger fault.** Suggestion: Rs 300
+    only; real work done is a smaller new price she approves.
 
 #### D13. Commission on a visit fee
 - **The question:** Should Pechkas take 10% of a visit fee?
@@ -347,6 +378,11 @@ Each one happens in real life; today the office handles it by hand.
   - (c) No charge, only a flag.
 - **Linked to:** D10 (cancelling) and D12 (the visit fee).
 - **Who decides:** You.
+- **Follow-up questions:** D34.1 how long he waits (suggestion: 15 minutes
+  from the start of his window); D34.2 how many calls, recorded by the app;
+  D34.3 proof (a photo of the gate in the app); D34.4 fee or no fee (kept
+  separate from the visit fee, as you asked; suggestion: the office decides
+  each case for launch); D34.5 she says she was home (to the office).
 
 #### D35. A customer who does not pay the technician
 - **The question:** The job is done, but she refuses to pay him or pays
