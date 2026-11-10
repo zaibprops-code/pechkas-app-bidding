@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 9 November 2026. The same list as a map you can tap through:
+_Last updated: 10 November 2026. The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -170,8 +170,12 @@ others depend on its answer.
     office.
   - **D12.4 Waived after she already paid.** Pechkas holds no money.
     Suggestion: he returns it; if he will not, it is added to what he owes.
-  - **D12.5 A customer who does not pay it.** Suggestion: recorded and
-    flagged; after a second, the office looks before she posts again.
+  - **D12.5 A customer who does not pay it.** Today the technician is simply
+    out of pocket. Choices: (a) he bears it and the office follows up;
+    (b) Pechkas pays him from the reserve and she cannot post again until
+    she settles or the office clears it; (c) she pays in advance, which
+    means Pechkas holding money and needs a lawyer first. Suggestion: (b)
+    for a customer's first unpaid fee, so technicians trust the rule.
   - **D12.6 A fee change after she chose him.** Suggestion: fixed at the
     figure she saw when she chose him.
   - **D12.7 A new price on a guarantee repair** (a gap found in the audit:
@@ -179,6 +183,14 @@ others depend on its answer.
   - **D12.8 The website says "no visit fee"** for WhatsApp bookings and calls
     Rs 1,000 the "inspection fee". Suggestion: one name and one rule
     everywhere.
+  - **D12.10 Is Rs 300 the right amount in 2026?** (the owner's question,
+    10 November). Rs 300 came from the earlier petrol rule, not from what
+    technicians in Islamabad charge for checking, and the website already
+    calls Rs 1,000 an "inspection fee". Suggestion: start from local
+    "checking charges", then adjust in Settings from real data.
+  - **D12.11 A different fee in each city** (the owner's question). One fee
+    for Islamabad now, built so each city can have its own (D39).
+  - **D12.12 The same fee for every trade?** Suggestion: one fee at launch.
   - **D12.9 Some work was done before the bigger fault.** Suggestion: Rs 300
     only; real work done is a smaller new price she approves.
 
@@ -359,6 +371,21 @@ show whether they are right.
 - **Today:** 20%. When the reserve is empty, Pechkas pays from its own
   money. The office page shows the balance.
 - **Who decides:** You, once there are a few months of claims.
+
+### Growing: a second city (you, after launch)
+
+#### D39. Opening a second city
+- **The question:** What has to change before Pechkas takes jobs outside
+  Islamabad? Prices, incomes and technicians' going rates differ by city
+  (the owner's question, 10 November 2026).
+- **Today:** Islamabad only: one visit fee, one lowest offer, one list of
+  usual prices, all Islamabad's, and Islamabad sectors.
+- **Follow-up questions:** D39.1 a visit fee per city; D39.2 usual prices
+  per city, and price ranges counted per city; D39.3 the lowest offer per
+  city; D39.4 each city's own areas, opened only with a checked technician
+  there; D39.5 the same commission everywhere, or lower to start; D39.6 who
+  checks technicians in that city.
+- **Who decides:** You, before a second city.
 
 ### Found on a second pass: no rule yet (you)
 
