@@ -131,6 +131,8 @@ export function Jobs({ trades }: { trades: Record<string, string> }) {
 
 function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pro[]; onChange: () => void }) {
   const [reason, setReason] = useState('');
+  // Whom the office is cancelling for (D10): kept on the cancellation record.
+  const [forWhom, setForWhom] = useState<'customer' | 'pro' | 'other'>('customer');
   // Technicians who do this trade in this sector come first in the list.
   const fits = (p: Pro) => p.trades.includes(j.trade) && p.sectors.includes(j.sector);
   const sorted = [...pros].sort((a, b) => Number(fits(b)) - Number(fits(a)) || a.full_name.localeCompare(b.full_name));
@@ -153,7 +155,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
 
   async function cancel() {
     setBusy(true);
-    const r = await ask('admin_cancel_job', { p_job: j.id, p_reason: reason });
+    const r = await ask('admin_cancel_job', { p_job: j.id, p_reason: reason, p_for: forWhom });
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
     setReason('');
@@ -281,6 +283,15 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
             Reason, if cancelling. The customer will see it.
             <input value={reason} maxLength={200} onChange={(e) => setReason(e.target.value)} />
           </label>
+          <label>
+            Cancelling for
+            <select value={forWhom} onChange={(e) => setForWhom(e.target.value as 'customer' | 'pro' | 'other')}>
+              <option value="customer">The customer asked</option>
+              <option value="pro">The technician asked, or cannot come</option>
+              <option value="other">Pechkas, or something else</option>
+            </select>
+          </label>
+          <p className="muted small">Free for the customer, and never a visit fee, at any step.</p>
           <div className="buttons">
             <button className="danger" disabled={busy} onClick={cancel}>Cancel this job</button>
           </div>

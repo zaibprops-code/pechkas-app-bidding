@@ -39,9 +39,13 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     'Parts lower the Pechkas fee. Open the receipts in those jobs and check the shop and the amounts.',
   ],
   codes: (f) => [`${f.n} wrong start codes were typed on his jobs.`, 'Somebody else at the gate, or a customer misreading the code. Ring the customers.'],
-  cancelled: (f) => [
-    `${f.n} jobs were cancelled after he was chosen.`,
-    'Sometimes the job is then done for cash outside the app, with no Pechkas fee. Ring the customers and ask what happened.',
+  late_arrivals: (f) => [
+    `${f.n} late arrivals: more than 30 minutes after his time began.`,
+    'Read them under Cancellations, with anything he wrote. Dismiss the ones that were not his fault; nothing happens to him on its own.',
+  ],
+  no_shows: (f) => [
+    `${f.n} confirmed no-show${f.n === 1 ? '' : 's'}: he never arrived.`,
+    'Ring him and ask what happened. A customer left waiting is the thing that most damages trust in Pechkas.',
   ],
   complaints: (f) => [`${f.n} problems or guarantee claims from customers.`, 'Read them under Problems.'],
   low_stars: (f) => [`${f.n} ratings of one or two stars.`, 'Read the words with them in the jobs.'],
@@ -73,7 +77,10 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     `Pechkas found this customer wrong ${f.n} times after she said "not finished yet".`,
     'Read those disputes. "Not finished" may be how she avoids paying.',
   ],
-  cancels: (f) => [`This customer cancelled ${f.n} jobs.`, 'Each one may have cost a technician a trip.'],
+  late_cancels: (f) => [
+    `This customer cancelled ${f.n} jobs late: at the door, within 2 hours, or after he set off.`,
+    'Each one may have cost a technician a trip. Cancelling stays free; ring her, then mark it reviewed under Cancellations.',
+  ],
   reports: (f) => [`Technicians reported ${f.n} problems on this customer's jobs.`, 'Read them under Problems.'],
 };
 

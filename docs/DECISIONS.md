@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 10 November 2026 (D12 built). The same list as a map you can tap through:
+_Last updated: 10 November 2026 (D12 and D10 built). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -115,35 +115,27 @@ others depend on its answer.
 
 ### Before launch: money and everyday rules (you)
 
-#### D10. Cancelling after the technician has set off
-- **The question:** Should a customer who cancels after he is on his way, or
-  after he arrives, pay the visit fee?
-- **Today:** She can cancel free until he arrives. After that the app tells
-  her to call the office. The website's cancellation policy is still
-  `[CANCELLATION POLICY]` on /guarantee and /terms, and must end up saying
-  the same as the app.
-- **Options:**
-  - (a) Free until he arrives, as now.
-  - (b) The visit fee once he has set off.
-  - (c) The visit fee only once he has arrived.
-- **Who decides:** You.
-- **Follow-up questions:** D10.1 before he sets off (free today); D10.2 after
-  "On my way" (free today, counts towards the cancellation flag); D10.3
-  after he arrives (only the office or a declined new price today); D10.4
-  the website's blank cancellation policy. Kept separate from the visit fee,
-  as you asked on 9 November.
+#### D10. Cancelling — decided and built (A41–A46)
+- **Your decision** (10 November 2026), with your answers to the audit's
+  questions, is now in Part 2 as A41–A46.
+- **Still open:**
+  - **D10.5 Research, not a rule yet:** how Islamabad technicians handle a
+    last-minute cancellation today. Ask three or four. Nothing changes until
+    you decide.
+  - **D10.6 Could late cancellations ever lead to a charge or a
+    restriction?** Today they never do. You + lawyer; the app's terms carry
+    a `[DECIDE WITH A LAWYER]` for it.
 
-#### D11. A chosen technician who never comes
-- **The question:** What happens to a technician who is chosen and does not
-  turn up?
-- **Today:** She can cancel free and post again. Jobs cancelled after he
-  was chosen count towards a flag (3 in 60 days), and the office decides
-  what to do. Nothing happens to him automatically.
-- **Options:**
-  - (a) Keep it as a flag only.
-  - (b) Also stop his offers for a while.
-  - (c) Also charge him something.
-- **Who decides:** You. Option (c) is you + lawyer.
+#### D11. A chosen technician who never comes — decided in part (A44, A45)
+- **Decided** (10 November 2026): late arrivals and no-shows are recorded,
+  and reviewed by the office, never punished automatically (A44, A45).
+- **Still open:**
+  - **D11.1** Should anything follow repeated lateness or a confirmed
+    no-show beyond a review: stopping his offers for a while, or a charge?
+    You + lawyer. Nothing is assumed.
+  - **D11.2** Should a customer left waiting get anything (a discount on
+    her next job, or Pechkas paying something)? You. Nothing is assumed;
+    the app's terms carry a `[DECIDE WITH A LAWYER]` for it.
 
 #### D12. The visit fee — decided and built (A36–A40)
 - **Your decision** (9 November 2026), and your follow-up answers (10
@@ -288,12 +280,13 @@ show whether they are right.
 
   | Flag | Limit |
   | --- | --- |
-  | Cancelled after he was chosen | 3 |
+  | His late arrivals (more than 30 minutes) | 3 |
+  | His confirmed no-shows | 1 |
   | Wrong start codes on his jobs | 5 |
   | 1–2 star ratings | 3 |
   | Problems reported about somebody | 2 |
   | Jobs for one customer | 4 |
-  | A customer's cancellations | 5 |
+  | A customer's late cancellations | 3 |
   | Refused new prices | 30% of his jobs, once he has 3 |
   | Asked a new price | 50% of his jobs, once he has 3 |
   | Parts-heavy jobs (parts ≥ 60% of the price) | 2 |
@@ -450,7 +443,7 @@ What the app and the website do today. Reopen any item by its number.
 | A13 | **Pechkas keeps what every finished job went for**, with no names or addresses, and shows the usual range once there are 10 jobs of that kind in 90 days. |
 | A14 | **A new price at the door is a request.** It needs a reason and a photo. If she declines, she pays only the visit fee. |
 | A15 | **The visit fee is Rs 300 to Rs 1,000**, the petrol for the trip. A flat Rs 300 until distance can be measured (D12). No commission on it (D13). |
-| A16 | She can **cancel free until he arrives**; after that she calls the office (D10). |
+| A16 | Replaced by A41 on 10 November 2026: she can now cancel free at the door too, until she gives him the start code. |
 
 ### Checking the work, and the guarantee
 
@@ -474,6 +467,17 @@ What the app and the website do today. Reopen any item by its number.
 | A38 | **Shown before she chooses** (Post a job and above the offers) **and before he offers**, never only in the terms. The website says the same rule (D12.8). |
 | A39 | **He says paid or not paid; she can disagree once within 24 hours, or say she paid.** While a fee is unpaid she cannot post a new job. The office decides every disagreement, with a reason, and may have Pechkas pay him an unpaid fee; she then settles with Pechkas before posting again. A fee waived after she paid goes back to her: from him, or from Pechkas and added to what he owes (D12.3, D12.4, D12.5). |
 | A40 | **The office's "not finished" decision has two outcomes:** not his fault, visit fee owed; his fault, no fee. **A new price on a guarantee repair is answered by the office**, never the customer (D12.2, D12.7). |
+
+### Cancellations, late arrivals and no-shows (decided 10 November 2026)
+
+| # | Decision |
+| --- | --- |
+| A41 | **Cancelling is always free for the customer**, until she gives him the start code, **at the door too** ("I no longer need this service"). After the code, she calls the office, and the office can stop the job **without a visit fee**. **A cancellation never creates a visit fee**: D10 stays separate from D12. |
+| A42 | **One category for each cancellation, worked out by the database on its own clock**, in this order, so none counts against both people: office; before anybody was chosen; potential no-show; technician late; **late** (at the door, within 2 hours of his window, or after an "On my way" tapped no more than 3 hours before it); normal. Cancellations from before these rules are kept as they were, marked "before the rules", and counted nowhere. |
+| A43 | **She picks a reason** — I fixed the problem myself, Someone else fixed the problem, My plans changed, The technician is late, I found a better price, I no longer need the service, Other — and may add words. The office says whom it is cancelling for. |
+| A44 | **A late arrival** is "Arrived" more than 30 minutes after his window starts, or her cancelling because he had not come by then. **A potential no-show** is no "Arrived" 30 minutes after his window ends: she, he and the office are told, and she may cancel free or keep waiting. It counts only once the office has confirmed it. |
+| A45 | **Reviews, never penalties.** A customer with 3 late cancellations in 60 days, or a technician with 3 late arrivals or 1 confirmed no-show in 60 days, is put in front of the office. The old "5 cancellations" and "cancelled after he was chosen" flags are retired. Nothing suspends, blocks or charges anybody. He sees his record in My account and can dispute any of it; the office confirms or dismisses each with a note he reads. |
+| A46 | **Only a potential no-show, or his dispute, reaches the office's phone at once**; other cancellations wait on the admin panel's Cancellations page. The website and the app's terms say the same rule, and the lawyer markers stay. |
 
 ### Trust and safety
 

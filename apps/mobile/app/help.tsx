@@ -35,7 +35,7 @@ const CUSTOMER: QA[] = [
   },
   {
     q: 'Can I cancel a job?',
-    a: 'Yes, until the technician arrives: open the job from My jobs and tap Cancel this job. Once he has arrived, call the office.',
+    a: 'Yes, and it is always free. Open the job from My jobs and tap Cancel this job, or, with him at your door, I no longer need this service. Once you have given him the start code, call the office. If he is more than 30 minutes late, cancelling never counts against you.',
   },
   {
     q: 'What is the start code?',
@@ -79,6 +79,10 @@ const TECHNICIAN: QA[] = [
   {
     q: 'A guarantee claim on my work.',
     a: 'Open Guarantee claims from the menu. Answer within 24 hours: I’ll come, with a time within 48 hours, or This isn’t my work, with a reason for Pechkas to decide. If you do not answer or miss the visit, your new offers stop and another technician is sent; the cost may be charged to you, never more than your labour on the job. You are told the amount first and have 7 days to appeal before it is added to what you owe.',
+  },
+  {
+    q: 'What if I am late?',
+    a: 'Arriving more than 30 minutes after your time begins is recorded as late, and not arriving at all is checked by the office. You can see every record under My account and tell the office if one is wrong. Nothing happens on its own.',
   },
   {
     q: 'Can I change my trades or sectors?',

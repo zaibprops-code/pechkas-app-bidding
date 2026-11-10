@@ -157,7 +157,10 @@ ok('a new account still starts normally', (await call(NEWBIE, `SELECT public.sta
 // =============================================================================
 heading('The office finds a customer by what they booked');
 
-await setup(`UPDATE public.settings SET value = 1 WHERE key = 'flag_customer_cancels'`);
+// Since D10 only a late cancellation counts; his was early, so it is marked
+// late here to raise the customer flag at a limit of one.
+await setup(`UPDATE public.cancellations SET category = 'late' WHERE customer_id = $1`, [BILAL]);
+await setup(`UPDATE public.settings SET value = 1 WHERE key = 'flag_late_cancels'`);
 {
   const people = (await call(OWNER, `SELECT public.admin_flags()`)).value?.people ?? [];
   const asCustomer = people.find((p) => p.id === BILAL && p.side === 'customer');

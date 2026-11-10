@@ -7,6 +7,61 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Cancellations, late arrivals and no-shows (D10), built your way (new —
+ONE database step, then a new build).**
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261110100000_cancellations.sql`. It should say
+   **Success**. (Safe to run twice.) Run it **before** you open the new
+   admin panel: its Jobs page now asks whom you are cancelling for, and
+   that needs this step.
+2. Make a new **preview** build and install it. (Still edition 4: older
+   copies keep cancelling the old way and it still works.)
+3. Open the admin panel: there is a new **Cancellations** page in the menu.
+
+What happens now:
+
+- **Cancelling is always free.** A customer can cancel until she gives him
+  the start code — at the door too: the button says **I no longer need
+  this service**. After the code, she calls you, and your cancel never
+  makes a visit fee. When you cancel on **Jobs**, choose whom you are
+  cancelling for.
+- **She picks a reason** (seven choices), and may add words.
+- **Each cancellation gets one label, worked out by the database**, so it
+  never counts against both people: *Before choosing*, *Normal*, *Late*
+  (at the door, within 2 hours of his time, or after he tapped On my way
+  within 3 hours of it), *Technician late*, *Technician did not arrive*,
+  *By the office*, *Nobody took it*. Every cancellation from before today
+  is kept as *Before the rules* and counts nowhere.
+- **He is late** more than 30 minutes after his time begins: her job shows
+  **Bilal has not arrived** with **Cancel free** (never counted against
+  her) and **Keep waiting**. If he taps I have arrived late, it is recorded
+  as his late arrival and he is told.
+- **He has not arrived 30 minutes after his time ends**: she, he and your
+  phone are told at once. It is only a *possible* no-show until you look.
+- **On Cancellations you**: confirm or dismiss each late arrival or
+  no-show, with a note he reads in the app; mark a customer with 3 late
+  cancellations as reviewed after you ring her; see every cancellation by
+  label, and each technician's counts. Nothing suspends, blocks or charges
+  anybody.
+- **He sees his own record** under **My account → Arriving on time**, and
+  can tap **This is wrong** on any of it. That comes to you.
+- **Flags**: the old "cancelled after he was chosen" and "a customer's
+  cancellations" flags are gone (the first counted customers' changes of
+  mind against technicians). The new ones are 3 late cancellations, 3 late
+  arrivals, or 1 confirmed no-show in 60 days, changeable in **Settings →
+  Flags**.
+- **The website** now has a cancellation policy on /guarantee and /terms
+  (free; never a visit fee), and the app's terms and technician agreement
+  say the rules above, with new [DECIDE WITH A LAWYER] boxes: whether late
+  cancellations could ever lead to a charge, whether a customer is owed
+  anything when he never comes, and what may follow repeated lateness.
+
+To try it with one phone: post a job, switch to technician mode and offer,
+switch back, choose him, then tap **Cancel this job** and look at the
+reasons and the sentence above them. To see the late card you need a job
+whose time began more than 30 minutes ago.
+
 **The visit fee (D12), built your way (new — ONE database step, then a new
 build).**
 
@@ -998,10 +1053,10 @@ below.
   and choose theirs. Nothing is promised to them.
 - **Admin → Flags.** Patterns worth a look, over the last 60 days: a
   technician whose jobs keep ending in a refused new price, who asks for a
-  new price on most jobs, whose parts are most of the price, whose jobs get
-  cancelled after he is chosen (sometimes then done for cash outside the
-  app), with many wrong start codes, complaints, low stars, or many jobs for
-  one customer; a customer who cancels a lot, or whom technicians report.
+  new price on most jobs, whose parts are most of the price, who is often
+  late or did not arrive, with many wrong start codes, complaints, low
+  stars, or many jobs for one customer; a customer who cancels late a lot,
+  or whom technicians report.
   **Flags only: nothing happens to anybody by itself.** You ring, write
   what you found, and press **Checked — it is fine** or suspend him
   yourself under Technicians. The limits are guesses until real jobs show

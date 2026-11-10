@@ -118,7 +118,9 @@ ok('the same tap again moves nothing', (await me(BILAL, STEP, [j1.id, 'chosen'])
 ok('Bilal arrives', (await me(BILAL, STEP, [j1.id, 'on_way'])).value?.ok === true);
 ok('Ayesha is told he is at the door', to(await sent(), 'ayesha')[0]?.title === 'Bilal has arrived');
 ok('Arrived cannot be skipped past without the code', (await me(BILAL, STEP, [j1.id, 'arrived'])).value?.field === 'stage');
-ok('Ayesha cannot cancel with him at the gate', (await me(AYESHA, `SELECT public.cancel_job($1)`, [j1.id])).value?.ok === false);
+// D10 (cancellations): at the gate, before the start code, she may still say
+// "I no longer need this service"; cancellations.test.mjs takes it further.
+ok('with him at the gate, before the start code, she may still cancel', (await mine(AYESHA, j1.id))?.can_cancel === true);
 
 // =============================================================================
 heading('The start code');

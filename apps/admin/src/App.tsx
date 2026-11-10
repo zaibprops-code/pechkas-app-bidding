@@ -12,6 +12,7 @@ import { Settings } from './Settings.tsx';
 import { Jobs } from './Jobs.tsx';
 import { Money } from './Money.tsx';
 import { VisitFees } from './VisitFees.tsx';
+import { Cancellations } from './Cancellations.tsx';
 import { Problems } from './Problems.tsx';
 import { Guarantee } from './Guarantee.tsx';
 import { Duo, Head } from './Duo.tsx';
@@ -57,6 +58,7 @@ const SECTIONS = [
   { key: 'guarantee', label: 'Guarantee and disputes', icon: 'shield' },
   { key: 'money', label: 'Money', icon: 'wallet' },
   { key: 'fees', label: 'Visit fees', icon: 'home' },
+  { key: 'cancellations', label: 'Cancellations', icon: 'clock' },
   { key: 'technicians', label: 'Technicians', icon: 'briefcase' },
   { key: 'demand', label: 'Demand', icon: 'pin' },
   { key: 'prices', label: 'Prices', icon: 'tag' },
@@ -280,6 +282,8 @@ function Office({ name }: { name: string }) {
             <Money />
           ) : section === 'fees' ? (
             <VisitFees />
+          ) : section === 'cancellations' ? (
+            <Cancellations />
           ) : section === 'demand' ? (
             <Demand />
           ) : section === 'prices' ? (

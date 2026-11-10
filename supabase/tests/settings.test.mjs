@@ -127,7 +127,8 @@ heading('The settings screen: only the office, only within range');
   ok('nor the largest fall below the smallest', (await me(OWNER, SET, ['visit_fee_max_paisa', 20000])).value?.field === 'value');
   ok('Rs 400 to Rs 1,000 is fine', (await me(OWNER, SET, ['visit_fee_min_paisa', 40000])).value?.ok === true);
   ok('the posting screen is told the new fee', (await me(AYESHA, `SELECT public.app_lists()`)).value?.visit_fee_min_paisa === 40000);
-  ok('a flag limit can be changed', (await me(OWNER, SET, ['flag_cancelled', 5])).value?.ok === true && (await value('flag_cancelled')) === 5);
+  ok('a flag limit can be changed', (await me(OWNER, SET, ['flag_late_cancels', 5])).value?.ok === true && (await value('flag_late_cancels')) === 5);
+  ok('but not a retired one (D10)', (await me(OWNER, SET, ['flag_cancelled', 5])).value?.ok !== true);
 
   const any = (await setup(`SELECT id FROM public.setting_changes LIMIT 1`)).rows[0].id;
   for (const [what, sql] of [['nobody can change the record of changes, not the database owner', `UPDATE public.setting_changes SET by_name = 'x' WHERE id = ${any}`], ['nor delete from it', `DELETE FROM public.setting_changes WHERE id = ${any}`]]) {

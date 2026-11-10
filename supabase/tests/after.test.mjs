@@ -392,16 +392,18 @@ heading('Fraud flags: the office looks, nothing happens by itself');
   const f = (await me(OWNER, `SELECT public.admin_flags()`)).value;
   const who = (id) => f?.people.find((x) => x.id === id);
   const kinds = (id) => (who(id)?.flags ?? []).map((x) => x.kind).sort().join(',');
-  ok('Kamran: jobs cancelled after he was chosen, and wrong codes', kinds(KAMRAN) === 'cancelled,codes', JSON.stringify(who(KAMRAN)));
-  ok('with the counts that tripped them', who(KAMRAN)?.flags.find((x) => x.kind === 'cancelled')?.n === 3 && who(KAMRAN)?.flags.find((x) => x.kind === 'codes')?.n === 5);
+  // Since D10 (cancellations.test.mjs) a customer calling a job off never
+  // counts against the technician: only his own late arrivals and no-shows do.
+  ok('Kamran: wrong codes, and not the jobs customers called off', kinds(KAMRAN) === 'codes', JSON.stringify(who(KAMRAN)));
+  ok('with the count that tripped it', who(KAMRAN)?.flags.find((x) => x.kind === 'codes')?.n === 5);
   // With the one Nadia refused in the repeat-fee section: three of his four.
   ok('Asad: three of his four finished jobs refused at the door, and new prices asked on them', kinds(ASAD) === 'raised,stopped'
      && who(ASAD)?.flags.find((x) => x.kind === 'stopped')?.n === 3 && who(ASAD)?.flags.find((x) => x.kind === 'stopped')?.of === 4, JSON.stringify(who(ASAD)));
-  ok('Sara: five cancelled jobs', kinds(SARA) === 'cancels' && who(SARA)?.side === 'customer');
+  ok('Sara, five jobs cancelled early, is not flagged: only late cancellations count now', !who(SARA), JSON.stringify(who(SARA)));
   ok('Bilal, with a clean record, is not listed', !who(BILAL));
   ok('Nadia, who refused prices she did not like, is not flagged for it', !who(NADIA));
-  ok('Ayesha, who called off a dozen jobs in this file, is', kinds(AYESHA) === 'cancels');
-  ok('the limits in force are shown with them', f?.limits?.flag_cancelled === 3 && f?.days === 60);
+  ok('nor Ayesha, who called off a dozen jobs in this file, none of them late', !who(AYESHA), JSON.stringify(who(AYESHA)));
+  ok('the limits in force are shown with them', f?.limits?.flag_code_wrong === 5 && f?.limits?.flag_late_cancels === 3 && f?.days === 60);
 
   ok('three jobs cancelled after choosing him do not make Sara a returning customer of Kamran\'s',
      Number((await setup(`SELECT public.commission_rate($1, $2, NULL) AS r`, [SARA, KAMRAN])).rows[0].r) === 1000);
@@ -421,11 +423,11 @@ heading('Fraud flags: the office looks, nothing happens by itself');
   const k2 = f2?.people.find((x) => x.id === KAMRAN);
   ok('his note is shown, with who wrote it', k2?.notes[0]?.by === 'Zohaib' && k2?.checked_at);
   ok('checked, he sinks to the bottom of the list', f2?.people[f2.people.length - 1]?.id === KAMRAN);
-  ok('still flagged: a note is not a pardon', k2?.flags.length === 2);
+  ok('still flagged: a note is not a pardon', k2?.flags.length === 1);
 
-  await setup(`UPDATE public.settings SET value = 4 WHERE key = 'flag_cancelled'`);
-  ok('the limits are the settings: raise one and that flag goes', !(await me(OWNER, `SELECT public.admin_flags()`)).value?.people.find((x) => x.id === KAMRAN)?.flags.some((x) => x.kind === 'cancelled'));
-  await setup(`UPDATE public.settings SET value = 3 WHERE key = 'flag_cancelled'`);
+  await setup(`UPDATE public.settings SET value = 6 WHERE key = 'flag_code_wrong'`);
+  ok('the limits are the settings: raise one and that flag goes', !(await me(OWNER, `SELECT public.admin_flags()`)).value?.people.find((x) => x.id === KAMRAN)?.flags.some((x) => x.kind === 'codes'));
+  await setup(`UPDATE public.settings SET value = 5 WHERE key = 'flag_code_wrong'`);
   await setup(`UPDATE public.job_events SET at = now() - interval '61 days' WHERE what = 'code_wrong'`);
   ok('and anything older than the window drops out', !(await me(OWNER, `SELECT public.admin_flags()`)).value?.people.find((x) => x.id === KAMRAN)?.flags.some((x) => x.kind === 'codes'));
 }

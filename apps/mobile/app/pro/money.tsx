@@ -10,6 +10,7 @@ import { MenuButton } from '../../src/components/Menu';
 import { Stars } from '../../src/components/Stars';
 import { PayPechkas, type Claim } from '../../src/pro/PayPechkas';
 import { FeeState, type VisitFee } from '../../src/pro/OnTheJob';
+import { RecordCard, type ProRecord } from '../../src/pro/Record';
 import { supabase } from '../../src/supabase';
 import { fill, useProWords } from '../../src/words';
 import { colour, font, radius } from '../../src/theme';
@@ -50,10 +51,18 @@ export default function MoneyScreen() {
   const [problem, setProblem] = useState<string | null>(null);
   const [claims, setClaims] = useState<Claim[]>([]);
   const [fees, setFees] = useState<VisitFees | null>(null);
+  const [record, setRecord] = useState<ProRecord | null>(null);
 
   const load = useCallback(async () => {
     if (!supabase) return;
-    const [{ data, error }, sent, vf] = await Promise.all([supabase.rpc('pro_money'), supabase.rpc('my_payment_claims'), supabase.rpc('pro_visit_fees')]);
+    const [{ data, error }, sent, vf, rec] = await Promise.all([
+      supabase.rpc('pro_money'),
+      supabase.rpc('my_payment_claims'),
+      supabase.rpc('pro_visit_fees'),
+      supabase.rpc('pro_record'),
+    ]);
+    // A database without the cancellations change answers with an error: then there is no record card.
+    setRecord(rec.data && Array.isArray((rec.data as ProRecord).incidents) ? (rec.data as ProRecord) : null);
     // A database without the visit-fee change answers with an error: then there is simply no card.
     setFees(vf.data && Array.isArray((vf.data as VisitFees).fees) ? (vf.data as VisitFees) : null);
     // A database without the Pay Pechkas change answers with an error: then there is simply no list.
@@ -137,6 +146,8 @@ export default function MoneyScreen() {
                 </View>
               ))}
             </View>
+
+            {record ? <RecordCard record={record} w={w} onChanged={load} /> : null}
 
             {fees && fees.fees.length ? (
               <View style={s.card}>

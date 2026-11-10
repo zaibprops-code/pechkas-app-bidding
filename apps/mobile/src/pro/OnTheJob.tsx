@@ -73,6 +73,8 @@ export type ActiveJob = {
   dispute_outcome?: 'done' | 'stopped' | 'return' | null;
   dispute_note?: string | null;
   paid_by_pechkas?: boolean;
+  /** More than 30 minutes into his window and not arrived (cancellations). */
+  late?: boolean;
 };
 export type FinishedJob = {
   id: string;
@@ -260,6 +262,8 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
       {reported ? <Text style={s.note}>{w.reportSent}</Text> : null}
 
       <View style={s.rule} />
+
+      {j.late && (j.stage === 'chosen' || j.stage === 'on_way') ? <Text style={s.warn}>{w.lateBanner}</Text> : null}
 
       {j.stage === 'chosen' ? (
         <View style={s.step}>

@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "61419f2";
+export const LEGAL_FROM = "7a46692";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -356,13 +356,32 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
       },
       {
         "k": "h3",
+        "text": "Cancellations and arriving on time"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "When a job is cancelled: who cancelled it and when, the step the job had reached, the reason chosen and any words added, when the technician's time began, when he said he was on his way and when he arrived, and what kind of cancellation it was (for example late, or because he was late). If the Pechkas office reviewed it: its note and who wrote it."
+            }
+          ],
+          [
+            {
+              "t": "For technicians: each late arrival and each time he had not arrived 30 minutes after his time ended, how many minutes it was, anything he wrote about it, and what the office decided, its note and who decided."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h3",
         "text": "Looking out for misuse"
       },
       {
         "k": "p",
         "c": [
           {
-            "t": "The office looks at patterns across jobs that can mean somebody is misusing the app: for example many jobs cancelled after a technician was chosen, many wrong start codes, many jobs cancelled by one customer, a technician whose jobs often close only because nobody checked them, a customer whose "
+            "t": "The office looks at patterns across jobs that can mean somebody is misusing the app: for example many late cancellations by one customer, a technician who is often late or does not arrive, many wrong start codes, a technician whose jobs often close only because nobody checked them, a customer whose "
           },
           {
             "t": "Not finished yet",
@@ -493,6 +512,15 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": " if he says it is not his work. A technician sent instead sees the job as he would any other. When the office decides a disputed job or a claim, its decision and the note explaining it may be shown to both of them. A charge to the technician, and his appeal against it, are seen only by him and the office."
+            }
+          ],
+          [
+            {
+              "t": "Cancellations and lateness.",
+              "b": true
+            },
+            {
+              "t": " A technician sees his own late arrivals and no-shows, what he wrote and the office's note, but not how a customer's cancellation was recorded. A customer sees how her own cancellations were recorded, but not the technician's record. The office's notes on a customer's cancellations are seen only by the office."
             }
           ],
           [
@@ -632,7 +660,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "A job's checks, guarantee claims and visit fee are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account."
+              "t": "A job's checks, guarantee claims, visit fee and cancellation are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account. A technician's record of late arrivals and no-shows is deleted with his account."
             }
           ],
           [
@@ -1263,12 +1291,51 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "items": [
           [
             {
-              "t": "You can cancel in the app, free, until the technician arrives. Once he has arrived, decline any new price in the app, or call the Pechkas office."
+              "t": "Cancelling is free.",
+              "b": true
+            },
+            {
+              "t": " You can cancel in the app until you give the technician the start code, including at your door ("
+            },
+            {
+              "t": "I no longer need this service",
+              "b": true
+            },
+            {
+              "t": "). After that, call the Pechkas office. A cancellation never creates a visit fee, whoever cancels."
+            }
+          ],
+          [
+            {
+              "t": "You can choose a reason when you cancel; adding words is optional."
+            }
+          ],
+          [
+            {
+              "t": "Pechkas records every cancellation and when it happened. Cancelling within 2 hours of the technician's time, after he has told you he is on his way, or at your door, is recorded as a "
+            },
+            {
+              "t": "late cancellation",
+              "b": true
+            },
+            {
+              "t": ". It is still free. If you have several, the Pechkas office may contact you. Nothing is decided automatically."
+            }
+          ],
+          [
+            {
+              "t": "If the technician is more than 30 minutes late, the app tells you that you can cancel free, and that cancellation never counts against you. If he has not arrived 30 minutes after his time ends, you and the Pechkas office are told, and you can cancel free or keep waiting."
             }
           ],
           [
             {
               "t": "Pechkas may cancel a job, for example if nobody can go, and the app tells you why."
+            }
+          ],
+          [
+            {
+              "t": "[DECIDE WITH A LAWYER: whether late cancellations may ever lead to a charge or a restriction, and with what notice; and whether Pechkas owes anything to a customer when a technician does not arrive.]",
+              "mark": true
             }
           ]
         ]
@@ -2225,6 +2292,83 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
       },
       {
         "k": "h2",
+        "text": "Arriving on time"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "Arrive within the two hours you gave in your offer. Tap "
+            },
+            {
+              "t": "I am on my way",
+              "b": true
+            },
+            {
+              "t": " only when you really set off, and "
+            },
+            {
+              "t": "I have arrived",
+              "b": true
+            },
+            {
+              "t": " when you are at the door: the customer is told each time."
+            }
+          ],
+          [
+            {
+              "t": "Arriving more than 30 minutes after your time begins is recorded as a "
+            },
+            {
+              "t": "late arrival",
+              "b": true
+            },
+            {
+              "t": ". If the customer cancels because you are that late, it is recorded as your late arrival, not as her cancellation. A customer cancelling for her own reasons never counts against you."
+            }
+          ],
+          [
+            {
+              "t": "If you have not tapped I have arrived 30 minutes after your time ends, a "
+            },
+            {
+              "t": "possible no-show",
+              "b": true
+            },
+            {
+              "t": " is recorded, and you, the customer and the office are told. It counts as a no-show only once the office has checked it."
+            }
+          ],
+          [
+            {
+              "t": "You can see every record about you in "
+            },
+            {
+              "t": "My account",
+              "b": true
+            },
+            {
+              "t": ", with what the office decided, and tell the office if one is wrong. The office confirms or dismisses each one with a note you can read. "
+            },
+            {
+              "t": "Nothing happens automatically",
+              "b": true
+            },
+            {
+              "t": ": no suspension and no charge."
+            }
+          ],
+          [
+            {
+              "t": "[DECIDE WITH A LAWYER: what may follow repeated late arrivals or confirmed no-shows, and with what notice.]",
+              "mark": true
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
         "text": "Ratings, flags and suspension"
       },
       {
@@ -2237,7 +2381,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "The office looks at patterns that can mean misuse, such as jobs often cancelled after you are chosen, or jobs that often close only because the customer did not check them in time. "
+              "t": "The office looks at patterns that can mean misuse, such as repeated late arrivals or a confirmed no-show, or jobs that often close only because the customer did not check them in time. "
             },
             {
               "t": "Nothing happens automatically:",

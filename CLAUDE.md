@@ -695,8 +695,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   and the guarantee's `guarantee_pay:<job>`. Tests: `visitfee.test.mjs`.
 - `collect_paisa` is fixed when the job ends, so a later settings change
   cannot rewrite what somebody paid. The customer's card shows it.
-- A customer may cancel until he arrives; after that it is Decline or the
-  office (`cancel_job()` refuses; an open decision in `docs/OWNER.md`).
+- A customer may cancel until she gives him the start code, at the door
+  too; after that it is the office's (see Cancellations below).
 - **Chat** is text only, between the customer and the chosen technician,
   readable for a day after the job, written while it is on. The office
   reads it in `admin_job_detail()` and the screen says so. A message's words
@@ -707,6 +707,56 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - `push_words.who` says who reads each message.
 - The office number in the app is `src/office.ts`, copied from the
   website's `site.js` — never invent one.
+
+### Cancellations, late arrivals and no-shows (migration `…_cancellations`)
+- **The owner's decision D10 (10 November 2026): cancelling is always free
+  for the customer and never creates a visit fee.** `cancel_job(job,
+  reason, code)` works while the job is open or assigned at `chosen`,
+  `on_way` or `arrived` (**I no longer need this service** at the door);
+  after the start code it refuses and the office's `admin_cancel_job(job,
+  reason, for)` (`for` customer / pro / other) stops the job, with no fee
+  either. Keep D10 and D12 apart: nothing about a cancellation may write
+  `visit_fees`, `stop_reason` or `collect_paisa`.
+- **`cancel_kind()` is the one rule** for what a customer's cancellation
+  is, on the database's clock (`now()`, never the phone's), in the owner's
+  order so one cancellation never counts against both: before_choosing;
+  no_show (not arrived at window start + 2h30, i.e. 30 minutes after the
+  two-hour window); pro_late (not arrived at start + 30m, or arrived after
+  it); late (stage `arrived`; within 2 hours of the start; or after an On
+  my way tapped no more than 3 hours before the start); normal. A job with
+  no window (`when_from` NULL, older copies) is only ever before_choosing,
+  late or normal. `window_start()` turns `when_date` + `when_from` into a
+  time on Pakistan's clock. `my_jobs().cancel_kind_now` asks the same rule,
+  so the sentence above **Yes, cancel it** is what will be recorded.
+- **`cancellations` is the record, one row per cancelled job**, written by
+  the `job_cancellation` trigger whoever cancels (office → `office`, the
+  8pm clock → `unclaimed`). Rows that existed before the migration were
+  copied in as `before_rules` and are counted nowhere; never reinterpret
+  them. **`pro_incidents` is his record**, one per job: a `late_arrival`
+  (the `job_late_arrival` trigger on Arrived more than 30 minutes in, or her
+  cancelling as `pro_late`) or a `no_show` written `potential` by
+  `no_show_clock()` (pg_cron, every minute, once per job). A potential
+  no-show tells her, him and the office; if he then arrives it becomes a
+  late arrival. The office's `admin_incident()` confirms or dismisses with
+  a note he reads; he disputes once with `pro_dispute_incident()`; he reads
+  all of it in `pro_record()` (My account → Arriving on time). Both tables
+  are readable by nobody and are deleted with the account they are about.
+- **Flags, never penalties**: `late_cancels` (3, `flag_late_cancels`),
+  `late_arrivals` (3, dismissed ones do not count) and `no_shows` (1
+  confirmed), over `flag_days`. The old `cancelled` and `cancels` flags
+  are **retired**: `flag_cancelled` and `flag_customer_cancels` stay in
+  `settings` only so older migrations run, are out of `setting_limits`, and
+  are hidden from `admin_flags().limits`. The office reviews a customer with
+  `admin_review_cancellations()`; she is not told. **Only a potential
+  no-show or his dispute reaches the office's phone**; other cancellations
+  wait on the admin **Cancellations** page (`admin_cancellations()`).
+- The customer's screens are `src/customer/Cancel.tsx` (`CancelPanel`,
+  `LateCard`, `cancelledNote`); his is `src/pro/Record.tsx`; the office's
+  is `apps/admin/src/Cancellations.tsx`. The app's terms, technician
+  agreement and privacy page, and the website's /guarantee and /terms, say
+  the same rule: change them together. Tests: `cancellations.test.mjs`
+  (which drops `jobs_when_from_check` in its throwaway database to set a
+  window at any hour).
 
 ### Money and trust (phase 5)
 - **Commission is 10% of the LABOUR**: `agreed_paisa − parts_paisa`, through

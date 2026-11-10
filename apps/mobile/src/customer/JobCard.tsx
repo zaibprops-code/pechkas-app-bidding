@@ -15,6 +15,7 @@ import { Ended, UnderWay, type JobNow } from './UnderWay';
 import { ProProfile } from './ProProfile';
 import { NoOffers } from './NoOffers';
 import { VisitFeeNote } from './VisitFee';
+import { CancelPanel, LateCard, cancelledNote, type CancelFields } from './Cancel';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { ask, supabase } from '../supabase';
 import { colour, font, radius } from '../theme';
@@ -25,7 +26,7 @@ import { colour, font, radius } from '../theme';
  * (app/job/[id].tsx); My jobs lists jobs as short cards that open it.
  */
 
-export type Job = JobNow & {
+export type Job = JobNow & Omit<CancelFields, 'id' | 'ref' | 'status' | 'stage' | 'pro'> & {
   id: string;
   ref: string;
   trade: string;
@@ -96,9 +97,11 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
   const assigned = job.status === 'assigned';
   const ended = job.status === 'done' || job.status === 'stopped';
   const active = open || assigned;
-  // Once he is at the gate, a "no" is Decline (and the visit fee) or a call
-  // to the office. The database refuses the cancel anyway; this hides it.
-  const canCancel = open || (assigned && (job.stage === 'chosen' || job.stage === 'on_way'));
+  // She may cancel until she gives him the start code, at the door too (D10);
+  // after that it is the office's. The database decides; an older database
+  // that does not say keeps the old rule.
+  const canCancel = job.can_cancel ?? (open || (assigned && (job.stage === 'chosen' || job.stage === 'on_way')));
+  const atDoor = assigned && job.stage === 'arrived';
   const files = (['voice', 'video', 'photo'] as const)
     .map((k) => {
       const n = job.media.filter((m) => m.kind === k).length;
@@ -145,16 +148,6 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
     toast.show(done('He can be sent your jobs again.', 'Unblocked'));
-    onChanged();
-  }
-
-  async function cancel() {
-    setBusy(true);
-    const r = await ask('cancel_job', { p_job: job.id, p_reason: null });
-    setBusy(false);
-    if (!r.ok) return setMsg(r.why);
-    setConfirming(false);
-    toast.show(done('Your job is cancelled.'));
     onChanged();
   }
 
@@ -241,6 +234,7 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
           <Text style={[s.badgeText, active || job.status === 'done' ? s.badgeTextOn : null]}>{status}</Text>
         </View>
         {!active && job.cancelled_by === 'office' && job.cancel_reason ? <Text style={s.line}>{job.cancel_reason}</Text> : null}
+        {job.status === 'cancelled' && cancelledNote(job) ? <Text style={s.small}>{cancelledNote(job)}</Text> : null}
       </Press>
 
       {open && job.preferred ? (
@@ -255,6 +249,8 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
         </View>
       ) : null}
 
+      {/* He is late or has not come: cancel free, never counted against her, or keep waiting. */}
+      {assigned && job.pro && canCancel && (job.no_show || job.pro_late) ? <LateCard job={job} onDone={onChanged} /> : null}
       {assigned && job.pro ? <UnderWay job={job} onChanged={onChanged} /> : null}
       {ended ? <Ended job={job} onChanged={onChanged} /> : null}
 
@@ -305,21 +301,24 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
               <Button kind="outline" label="No" onPress={() => setBlocking(false)} />
             </View>
           ) : null}
-          {canCancel && !confirming ? <Button kind="outline" label="Cancel this job" onPress={() => setConfirming(true)} /> : null}
+          {canCancel && !confirming ? (
+            <Button kind="outline" label={atDoor ? 'I no longer need this service' : 'Cancel this job'} onPress={() => setConfirming(true)} />
+          ) : null}
           {officeOnly ? (
             <View style={{ gap: 6 }}>
-              <Text style={s.small}>He is already at your house. To cancel now, call the Pechkas office.</Text>
+              <Text style={s.small}>He has started the work. To stop the job now, call the Pechkas office.</Text>
               <Button kind="outline" label={narrow ? `Call ${OFFICE_PHONE_SHOWN}` : `Call Pechkas · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
             </View>
           ) : null}
           {canCancel && confirming ? (
-            <View style={{ gap: 8 }}>
-              <Text style={s.line}>
-                Cancel {job.ref}? {assigned && job.pro ? `Please also call ${job.pro.first_name} to tell him.` : 'Nobody will come for it.'}
-              </Text>
-              <Button kind="danger" label="Yes, cancel it" onPress={cancel} busy={busy} />
-              <Button kind="outline" label="No, keep it" onPress={() => setConfirming(false)} />
-            </View>
+            <CancelPanel
+              job={job}
+              onDone={() => {
+                setConfirming(false);
+                onChanged();
+              }}
+              onBack={() => setConfirming(false)}
+            />
           ) : null}
         </View>
       ) : null}
