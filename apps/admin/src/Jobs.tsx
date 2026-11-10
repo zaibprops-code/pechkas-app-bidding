@@ -239,7 +239,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
         </div>
       ) : null}
       {j.status === 'done' ? <p><strong>Done.</strong> He collects {rupees(j.collect_paisa)} in cash.</p> : null}
-      {j.status === 'stopped' ? <p><strong>Stopped at the door:</strong> the customer declined a new price. He collects the visit fee, {rupees(j.collect_paisa)}.</p> : null}
+      {j.status === 'stopped' ? <p><strong>Stopped:</strong> a new price was declined, or the office decided it was not finished. What she owes, if anything, is under Visit fees.</p> : null}
       {j.problem_text ? <p className="reason"><strong>The customer says something is wrong:</strong> “{j.problem_text}”</p> : null}
       {j.status !== 'open' ? <History job={j.id} /> : null}
       {j.status === 'open' ? (

@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "60cac68";
+export const LEGAL_FROM = "61419f2";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -337,6 +337,25 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
       },
       {
         "k": "h3",
+        "text": "Visit fees"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "When a job stops because a new price was declined: the fee, who pays it, why, the new price with its reason and photo, and who declined it."
+            }
+          ],
+          [
+            {
+              "t": "Whether the technician says he was paid; whether the customer disagreed or says she paid, and the words she wrote; and what the Pechkas office decided, its note and who decided."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h3",
         "text": "Looking out for misuse"
       },
       {
@@ -613,7 +632,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "A job's checks and guarantee claims are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account."
+              "t": "A job's checks, guarantee claims and visit fee are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account."
             }
           ],
           [
@@ -622,7 +641,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " the record of what a technician owed Pechkas and paid, which we keep for accounting. That includes any guarantee charge to a technician and any payment Pechkas made for a guarantee repair. It holds the job number, the amounts and the technician's name, and nothing about the customer."
+              "t": " the record of what a technician owed Pechkas and paid, which we keep for accounting. That includes any guarantee charge to a technician and any payment Pechkas made for a guarantee repair or a visit fee. It holds the job number, the amounts and the technician's name, and nothing about the customer."
             }
           ],
           [
@@ -997,14 +1016,51 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If you decline a new price, the job stops there and you pay only the "
+              "t": "He can ask a new price only after you have given him the start code and he has looked at the fault. If you decline it, the job stops there and you pay him only the "
             },
             {
               "t": "visit fee",
               "b": true
             },
             {
-              "t": " for his trip. The app shows the visit fee before you post, and again when a new price is asked."
+              "t": " for his trip. The app shows the visit fee before you post, before you choose a technician, and again when a new price is asked. The fee is fixed when you choose him: if Pechkas changes it later, you still pay the one you were shown."
+            }
+          ],
+          [
+            {
+              "t": "There is no visit fee",
+              "b": true
+            },
+            {
+              "t": " when the repair goes ahead, when the technician does not arrive, when the job is a guarantee repair, or when the Pechkas office decides the work failed because of him. The whole visit fee is his; Pechkas takes nothing from it."
+            }
+          ],
+          [
+            {
+              "t": "If you think a visit fee is wrong, open the job and tap "
+            },
+            {
+              "t": "I disagree with this fee",
+              "b": true
+            },
+            {
+              "t": " within 24 hours. The Pechkas office looks, and either keeps it or waives it. If it waives a fee you already paid, the technician gives it back, or Pechkas does."
+            }
+          ],
+          [
+            {
+              "t": "If the technician says you have not paid a visit fee, you cannot post a new job until it is settled: pay him, or tap "
+            },
+            {
+              "t": "I have paid him",
+              "b": true
+            },
+            {
+              "t": " and the office looks. If Pechkas pays him the fee you owed, you settle it with Pechkas before you post again. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: whether Pechkas may hold back a customer's new bookings over an unpaid visit fee, and recover a fee it paid on her behalf.]",
+              "mark": true
             }
           ],
           [
@@ -1141,7 +1197,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " a second time, the job goes to the Pechkas office. The office looks at both sides' photos and words, and decides one of three things: the work is finished, and you pay the agreed price; it is not finished, and you pay only the visit fee; or he goes back to finish it."
+              "t": " a second time, the job goes to the Pechkas office. The office looks at both sides' photos and words, and decides one of four things: the work is finished, and you pay the agreed price; it could not be finished through no fault of his, and you pay only the visit fee; it is not finished because of his work, and you pay nothing; or he goes back to finish it."
             }
           ],
           [
@@ -1179,7 +1235,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If the job stopped because you declined a new price, or the office decided the work was not finished, you pay only the visit fee."
+              "t": "If the job stopped because you declined a new price, or the office decided the work could not be finished through no fault of his, you pay only the visit fee, before he leaves."
             }
           ],
           [
@@ -1671,7 +1727,46 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " If the job is bigger, send the new price in the app with the reason and a photo. Never ask for more at the door. If the customer declines, stop: you are paid the visit fee the app shows for your trip."
+              "t": " If the job is bigger, send the new price in the app with the reason and a photo, once the customer has given you the start code and you have looked. Never ask for more at the door. Only the customer can decline it in the app; if she tells you no in person, tap "
+            },
+            {
+              "t": "She said no at the door",
+              "b": true
+            },
+            {
+              "t": " and the office rings her if she does not answer."
+            }
+          ],
+          [
+            {
+              "t": "The visit fee.",
+              "b": true
+            },
+            {
+              "t": " If she declines, stop: she pays you the visit fee the app showed before you offered, all of it yours, with no Pechkas fee. Collect it before you leave, then tap "
+            },
+            {
+              "t": "I was paid",
+              "b": true
+            },
+            {
+              "t": " or "
+            },
+            {
+              "t": "Not paid",
+              "b": true
+            },
+            {
+              "t": ". There is no visit fee when the repair goes ahead, when you did not arrive, or when the office decides the work failed because of you. On a guarantee repair, the office answers a new price, and Pechkas pays the visit fee if it says no."
+            }
+          ],
+          [
+            {
+              "t": "If a customer does not pay a visit fee, the office may pay it to you from the guarantee reserve; it is taken off what you owe Pechkas. If the office waives a fee you were already paid, give it back to the customer; if you do not, Pechkas pays her and it is added to what you owe. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: whether Pechkas may add a waived visit fee to what you owe.]",
+              "mark": true
             }
           ],
           [

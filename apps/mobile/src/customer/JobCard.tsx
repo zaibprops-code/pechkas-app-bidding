@@ -14,6 +14,7 @@ import { Icon } from '../components/Icon';
 import { Ended, UnderWay, type JobNow } from './UnderWay';
 import { ProProfile } from './ProProfile';
 import { NoOffers } from './NoOffers';
+import { VisitFeeNote } from './VisitFee';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { ask, supabase } from '../supabase';
 import { colour, font, radius } from '../theme';
@@ -395,6 +396,7 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
           <Text style={s.countText}>{offers.length}</Text>
         </View>
       </View>
+      {job.visit_fee_paisa ? <VisitFeeNote fee={job.visit_fee_paisa} compact /> : null}
       {offers.map((o) => {
         const left = Math.max(0, Math.ceil((new Date(o.expires_at).getTime() - Date.now()) / 60000));
         return (

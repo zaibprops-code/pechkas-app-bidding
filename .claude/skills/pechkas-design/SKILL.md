@@ -114,6 +114,7 @@ a screen; use the token.
 | `ScrewSpinner` | `components/ScrewSpinner.tsx` | Anything working. There is no other spinner. |
 | `Sheet` | `components/Sheet.tsx` | A choice that slides up from the bottom. |
 | `MediaPick` | `components/MediaPick.tsx` | Photos (and a short video where asked) for a claim, a "not finished yet" or an appeal: Take a photo / From gallery / Video tiles on cream, uploaded the moment they are taken, thumbnails above; a tile goes once the limit is reached. |
+| `VisitFeeNote` / `FeeCard` | `customer/VisitFee.tsx` | The visit fee, said before she chooses (a white note: the one sentence, then three ticks; `compact` above the offers) and, once a job stopped, what she owes on soft yellow (soft brick while unpaid) with **I have paid him** and **I disagree with this fee**. The technician's side is `FeeState` in `pro/OnTheJob.tsx`: the fee's state and **I was paid** / **Not paid**. |
 | `PriceRangeCard` | `components/PriceRange.tsx` | Where a price sits against what recent jobs of its kind went for: a dot and one verdict first (in line / below / above) with a line of what it means, then a bar with the middle half in green, a yellow marker for the price being set and the two ends written under it, then how many jobs it comes from. White on a coloured card; `onWhite` makes it grey on a white sheet. Shown only when the database sends a range. |
 
 A green call-to-action card (home's "What needs fixing & for how much?",

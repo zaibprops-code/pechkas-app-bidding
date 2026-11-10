@@ -43,7 +43,11 @@ const CUSTOMER: QA[] = [
   },
   {
     q: 'He asks for a higher price. What now?',
-    a: 'Nothing changes unless you approve. If you decline, the job stops there and you pay only the visit fee for his trip.',
+    a: 'He can only ask once you have given him the start code and he has looked. Nothing changes unless you approve. If you decline, the job stops there and you pay only the visit fee, which the job shows before you choose him.',
+  },
+  {
+    q: 'When do I pay a visit fee?',
+    a: 'Only when the technician came, looked, asked a new price, and you said no. Never when the repair goes ahead, never if he does not arrive, and never for a guarantee visit. If you think a fee is wrong, open the job and tap I disagree with this fee within 24 hours.',
   },
   {
     q: 'The fault has come back.',
@@ -66,7 +70,7 @@ const TECHNICIAN: QA[] = [
   },
   {
     q: 'The job needs more than the agreed price.',
-    a: 'On the job, tap Request a new price and send the reason and a photo. The price changes only if the customer approves. If they decline, the job stops there and they pay the visit fee.',
+    a: 'Once the customer has given you the start code and you have looked, tap Request a new price and send the reason and a photo. The price changes only if the customer approves. If they decline, the job stops there and they pay you the visit fee, all of it yours. Collect it before you leave, then tap I was paid or Not paid. On a guarantee repair the Pechkas office answers instead.',
   },
   {
     q: 'The customer says it is not finished.',

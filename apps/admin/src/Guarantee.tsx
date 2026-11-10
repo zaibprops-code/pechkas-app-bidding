@@ -116,7 +116,7 @@ const WHY_REPLACING = {
 } as const;
 const OUTCOME = {
   done: 'Decided: finished. The customer pays the agreed price.',
-  stopped: 'Decided: not finished. The customer pays the visit fee only, and there is no commission.',
+  stopped: 'Decided: not finished, with no commission. Whether a visit fee is owed is in Visit fees.',
   return: 'Decided: he goes back to fix it.',
 } as const;
 /** A charge recorded and not yet added: waiting for its date, or for the office's decision on his appeal. */
@@ -124,7 +124,7 @@ const pending = (c: Claim) => Boolean(c.charge_paisa) && !c.charge_final && c.ap
 const ANSWER = { yes: 'She said yes, it works.', clock: 'Nobody answered; it closed by itself after 24 hours.', office: 'Decided by the office.' } as const;
 
 /** "Sat 2 Nov, 3:40pm", always on Pakistan's clock whatever the computer's clock says. */
-function when(t: string): string {
+export function when(t: string): string {
   const parts = Object.fromEntries(
     new Intl.DateTimeFormat('en-GB', {
       timeZone: 'Asia/Karachi',
@@ -273,7 +273,7 @@ function Reserve({ paisa, waiting }: { paisa: number; waiting: number }) {
 }
 
 /** The two names and a button to ring each. */
-function People({ customer, customerPhone, pro, proPhone }: { customer: string; customerPhone: string | null; pro: string | null; proPhone: string | null }) {
+export function People({ customer, customerPhone, pro, proPhone }: { customer: string; customerPhone: string | null; pro: string | null; proPhone: string | null }) {
   return (
     <>
       <p>
@@ -291,7 +291,7 @@ const VIDEO = /\.(mp4|mov|m4v|webm)$/i;
 const AUDIO = /\.(m4a|aac|mp3|wav|ogg|3gp)$/i;
 
 /** Photos, videos and voice notes from the private job-media folder, through links that work for an hour. */
-function Evidence({ title, paths, bare = false }: { title: string; paths: string[] | null | undefined; bare?: boolean }) {
+export function Evidence({ title, paths, bare = false }: { title: string; paths: string[] | null | undefined; bare?: boolean }) {
   const list = (paths ?? []).filter(Boolean);
   const keyed = list.join('|');
   const [urls, setUrls] = useState<Record<string, string>>({});
@@ -340,7 +340,7 @@ function Evidence({ title, paths, bare = false }: { title: string; paths: string
 const stagePaths = (photos: Photo[] | null, stages: Photo['stage'][]) => (photos ?? []).filter((p) => stages.includes(p.stage)).map((p) => p.path);
 
 /** A note box and a row of buttons. The database checks the note and says why it refused, beside the form. */
-function Decide({
+export function Decide({
   label,
   choices,
   onDone,
@@ -383,7 +383,7 @@ function Decide({
 }
 
 function DisputeCard({ d, onChanged }: { d: Dispute; onChanged: () => void }) {
-  const decide = (outcome: 'done' | 'stopped' | 'return') => (note: string) =>
+  const decide = (outcome: 'done' | 'stopped' | 'stopped_no_fee' | 'return') => (note: string) =>
     ask('admin_decide_dispute', { p_job: d.job_id, p_outcome: outcome, p_note: note }) as Promise<{ ok: boolean; why?: string }>;
 
   return (
@@ -437,13 +437,15 @@ function DisputeCard({ d, onChanged }: { d: Dispute; onChanged: () => void }) {
         label="What you found (both of them read this in the app)"
         choices={[
           { text: `Finished: customer pays ${money(d.agreed_paisa)}`, run: decide('done') },
-          { text: `Not finished: visit fee only, ${money(d.visit_fee_paisa)}`, run: decide('stopped') },
+          { text: `Not finished, not his fault: visit fee ${money(d.visit_fee_paisa)}`, run: decide('stopped') },
+          { text: 'Not finished, his fault: no fee', run: decide('stopped_no_fee') },
           { text: 'He goes back to fix it', secondary: true, run: decide('return') },
         ]}
         onDone={onChanged}
       />
       <p className="muted small">
-        Finished closes the job as done, with the usual commission. Not finished ends it with only the visit fee and no commission.
+        Finished closes the job as done, with the usual commission. Not finished ends it with no commission: the customer pays the
+        visit fee only when the failure was not his (a part could not be had, say), and nothing when it was his work.
         Going back puts the job back to “Working”: he fixes it, taps Work finished, and she checks again.
       </p>
     </article>

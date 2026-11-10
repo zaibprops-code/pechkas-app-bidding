@@ -9,6 +9,7 @@ import { Hero, Loading, Notice, SystemBars } from '../../src/components/ui';
 import { MenuButton } from '../../src/components/Menu';
 import { Stars } from '../../src/components/Stars';
 import { PayPechkas, type Claim } from '../../src/pro/PayPechkas';
+import { FeeState, type VisitFee } from '../../src/pro/OnTheJob';
 import { supabase } from '../../src/supabase';
 import { fill, useProWords } from '../../src/words';
 import { colour, font, radius } from '../../src/theme';
@@ -31,10 +32,16 @@ type Money = {
   month: { jobs: number; collected_paisa: number; parts_paisa: number; commission_paisa: number };
   rating: { count: number; avg: number | null; jobs_done: number };
   comments: { stars: number; words: string | null; at: string; ref: string }[];
-  lines: { kind: 'commission' | 'settlement' | 'reversal' | 'guarantee_pay' | 'guarantee_charge' | 'payout'; ref: string | null; amount_paisa: number; method: string | null; reference: string | null; at: string }[];
+  lines: { kind: 'commission' | 'settlement' | 'reversal' | 'guarantee_pay' | 'guarantee_charge' | 'payout' | 'visit_fee_cover' | 'visit_fee_refund'; ref: string | null; amount_paisa: number; method: string | null; reference: string | null; at: string }[];
 };
 
 const METHOD: Record<string, string> = { jazzcash: 'JazzCash', easypaisa: 'Easypaisa', bank: 'Bank', cash: 'Cash' };
+
+type VisitFees = {
+  fees: (VisitFee & { job_id: string; ref: string; customer_first_name: string })[];
+  paid_paisa: number;
+  waiting_paisa: number;
+};
 
 export default function MoneyScreen() {
   const { w } = useProWords();
@@ -42,10 +49,13 @@ export default function MoneyScreen() {
   const [m, setM] = useState<Money | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [claims, setClaims] = useState<Claim[]>([]);
+  const [fees, setFees] = useState<VisitFees | null>(null);
 
   const load = useCallback(async () => {
     if (!supabase) return;
-    const [{ data, error }, sent] = await Promise.all([supabase.rpc('pro_money'), supabase.rpc('my_payment_claims')]);
+    const [{ data, error }, sent, vf] = await Promise.all([supabase.rpc('pro_money'), supabase.rpc('my_payment_claims'), supabase.rpc('pro_visit_fees')]);
+    // A database without the visit-fee change answers with an error: then there is simply no card.
+    setFees(vf.data && Array.isArray((vf.data as VisitFees).fees) ? (vf.data as VisitFees) : null);
     // A database without the Pay Pechkas change answers with an error: then there is simply no list.
     setClaims(Array.isArray(sent.data) ? (sent.data as Claim[]) : []);
     if (error || !data?.ok) setProblem(error ? 'No connection. Pull down to try again.' : (data?.why ?? null));
@@ -128,6 +138,22 @@ export default function MoneyScreen() {
               ))}
             </View>
 
+            {fees && fees.fees.length ? (
+              <View style={s.card}>
+                <CardHead icon="wallet" title={w.visitFeesTitle} />
+                <Text style={s.note}>{w.visitFeesHint}</Text>
+                <Text style={s.big}>{fill(w.visitFeesTotal, { paid: rupees(fees.paid_paisa), waiting: rupees(fees.waiting_paisa) })}</Text>
+                {fees.fees.map((f) => (
+                  <View key={f.id} style={{ gap: 6 }}>
+                    <Text style={s.lineText}>
+                      {f.ref} · {f.customer_first_name}
+                    </Text>
+                    <FeeState fee={f} w={w} jobId={f.job_id} onChanged={load} />
+                  </View>
+                ))}
+              </View>
+            ) : null}
+
             <View style={s.card}>
               <CardHead icon="briefcase" title={w.lines} />
               {m.lines.length === 0 ? <Text style={s.note}>{w.nothingYet}</Text> : null}
@@ -145,7 +171,11 @@ export default function MoneyScreen() {
                               ? `Guarantee charge, job ${l.ref ?? ''}`
                               : l.kind === 'payout'
                                 ? `Paid to you by ${METHOD[l.method ?? ''] ?? 'Pechkas'}`
-                                : w.lineReversal}
+                                : l.kind === 'visit_fee_cover'
+                                  ? `Visit fee ${l.ref ?? ''}, paid by Pechkas`
+                                  : l.kind === 'visit_fee_refund'
+                                    ? `Visit fee ${l.ref ?? ''}, paid back to the customer`
+                                    : w.lineReversal}
                     </Text>
                     <Text style={s.note}>
                       {new Date(l.at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' })}

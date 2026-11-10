@@ -41,6 +41,7 @@ export type Claim = {
   closed_at: string | null;
 };
 export type CheckFields = {
+  stop_reason?: 'declined' | 'office_declined' | 'office_fee' | 'office_no_fee' | null;
   id: string;
   ref: string;
   stage: string | null;
@@ -208,7 +209,9 @@ export function DecisionCard({ job }: { job: CheckFields }) {
     job.dispute_outcome === 'done'
       ? 'The work is finished. Pay the agreed price.'
       : job.dispute_outcome === 'stopped'
-        ? 'The work was not finished. You pay only the visit fee.'
+        ? job.stop_reason === 'office_no_fee'
+          ? 'The work was not finished because of the technician. You pay nothing.'
+          : 'The work could not be finished. You pay only the visit fee.'
         : `${name} will come back to put it right.`;
   return (
     <Panel icon="help" title="Pechkas decided" hint={what}>

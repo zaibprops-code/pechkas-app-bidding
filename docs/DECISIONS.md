@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 10 November 2026. The same list as a map you can tap through:
+_Last updated: 10 November 2026 (D12 built). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -145,54 +145,18 @@ others depend on its answer.
   - (c) Also charge him something.
 - **Who decides:** You. Option (c) is you + lawyer.
 
-#### D12. The visit fee — decided 9 November 2026, being built
-- **Your decision:**
-  - A flat Rs 300, which the office can change in Settings.
-  - The technician keeps all of it; Pechkas takes no commission on it.
-  - No distance, GPS, maps or petrol price at this stage.
-  - Owed only when he arrived, inspected, quoted a new price, and the
-    customer declined it.
-  - Not owed when he never came, cancelled, or the failure was his, and
-    never when the repair goes ahead.
-  - A guarantee repair stopped at the door: Pechkas pays it.
-  - The office can waive it, with a reason on record.
-  - Shown to the customer before she chooses a technician, and to the
-    technician before he offers.
-- **Follow-up questions** (the details that decide how it works):
-  - **D12.1 Proof he was at the door.** Today he can ask a new price after
-    tapping "Arrived", which he taps himself. Suggestion: a new price needs
-    the customer's start code first.
-  - **D12.2 The office's "not finished" decision.** Today it charges the
-    visit fee. Suggestion: "not finished, his fault: no fee" or "not
-    finished, not his fault: fee due", each with a reason.
-  - **D12.3 Who confirms it was paid?** Suggestion: he taps Paid or Not
-    paid; she can say "I disagree" within 24 hours; disagreements go to the
-    office.
-  - **D12.4 Waived after she already paid.** Pechkas holds no money.
-    Suggestion: he returns it; if he will not, it is added to what he owes.
-  - **D12.5 A customer who does not pay it.** Today the technician is simply
-    out of pocket. Choices: (a) he bears it and the office follows up;
-    (b) Pechkas pays him from the reserve and she cannot post again until
-    she settles or the office clears it; (c) she pays in advance, which
-    means Pechkas holding money and needs a lawyer first. Suggestion: (b)
-    for a customer's first unpaid fee, so technicians trust the rule.
-  - **D12.6 A fee change after she chose him.** Suggestion: fixed at the
-    figure she saw when she chose him.
-  - **D12.7 A new price on a guarantee repair** (a gap found in the audit:
-    she approves it with Pechkas' money). Suggestion: it goes to the office.
-  - **D12.8 The website says "no visit fee"** for WhatsApp bookings and calls
-    Rs 1,000 the "inspection fee". Suggestion: one name and one rule
-    everywhere.
-  - **D12.10 Is Rs 300 the right amount in 2026?** (the owner's question,
-    10 November). Rs 300 came from the earlier petrol rule, not from what
-    technicians in Islamabad charge for checking, and the website already
-    calls Rs 1,000 an "inspection fee". Suggestion: start from local
-    "checking charges", then adjust in Settings from real data.
-  - **D12.11 A different fee in each city** (the owner's question). One fee
-    for Islamabad now, built so each city can have its own (D39).
-  - **D12.12 The same fee for every trade?** Suggestion: one fee at launch.
-  - **D12.9 Some work was done before the bigger fault.** Suggestion: Rs 300
-    only; real work done is a smaller new price she approves.
+#### D12. The visit fee — decided and built (A36–A40)
+- **Your decision** (9 November 2026), and your follow-up answers (10
+  November: "go with your suggestions"), are now in Part 2 as A36–A40.
+- **Still open:**
+  - **D12.10 Is Rs 300 the right amount in 2026?** Ask three or four
+    Islamabad technicians what they charge today for coming to check a fault,
+    then set the fee near it in Settings. Watch how often customers say no
+    at the door, and how many fees go unpaid or are questioned (the admin
+    panel's Visit fees page shows both). The website's own note says
+    Islamabad quotes Rs 500–1,000 for a diagnostic visit; that is the
+    inspection fee, a different thing, but a useful anchor.
+  - **D39** covers a different fee in each city.
 
 #### D13. Commission on a visit fee
 - **The question:** Should Pechkas take 10% of a visit fee?
@@ -500,6 +464,16 @@ What the app and the website do today. Reopen any item by its number.
 | A22 | **The replacement technician is paid first off what he owes Pechkas.** Anything left over, Pechkas owes him. |
 | A23 | **A charge is final only after 7 days without an appeal**, or after the office keeps it on appeal. Cancelled on appeal means it is never added. Once added it is ordinary debt, and the Rs 3,000 limit applies. |
 | A24 | **Raise the limit**: if nobody offers on a replacement, only the office can raise what Pechkas pays, up to 3× the first figure. The extra is Pechkas' cost. **The customer never pays for a guarantee repair.** |
+
+### The visit fee (decided 9–10 November 2026)
+
+| # | Decision |
+| --- | --- |
+| A36 | **A flat visit fee of Rs 300**, set by the office in Settings, fixed on a job when the customer chooses the technician. **He keeps all of it**; Pechkas takes no commission. No distance, GPS or petrol price. One fee for every trade and for Islamabad (D12.11, D12.12). |
+| A37 | **Owed only after a real visit:** he gave the start code, looked, asked a new price with a reason and a photo, and she declined it. Never when the repair goes ahead, he did not arrive, it is a guarantee visit (Pechkas pays), or the office finds the failure was his. Some work done before the bigger fault is still Rs 300; real work is a smaller new price she approves (D12.1, D12.9). |
+| A38 | **Shown before she chooses** (Post a job and above the offers) **and before he offers**, never only in the terms. The website says the same rule (D12.8). |
+| A39 | **He says paid or not paid; she can disagree once within 24 hours, or say she paid.** While a fee is unpaid she cannot post a new job. The office decides every disagreement, with a reason, and may have Pechkas pay him an unpaid fee; she then settles with Pechkas before posting again. A fee waived after she paid goes back to her: from him, or from Pechkas and added to what he owes (D12.3, D12.4, D12.5). |
+| A40 | **The office's "not finished" decision has two outcomes:** not his fault, visit fee owed; his fault, no fee. **A new price on a guarantee repair is answered by the office**, never the customer (D12.2, D12.7). |
 
 ### Trust and safety
 

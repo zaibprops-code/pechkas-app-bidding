@@ -24,7 +24,19 @@ import { colour, font, radius } from '../theme';
  */
 
 export type Stage = 'chosen' | 'on_way' | 'arrived' | 'working' | 'checking' | 'disputed';
-export type Change = { id: string; from_paisa: number; price_paisa: number; reason: string; photo: string };
+export type Change = { id: string; from_paisa: number; price_paisa: number; reason: string; photo: string; pro_says_no_at?: string | null; office_decides?: boolean };
+/** A visit fee as he may read it (visit_fee_view): never her words, only that she raised it. */
+export type VisitFee = {
+  id: string;
+  amount_paisa: number;
+  payer: 'customer' | 'pechkas';
+  status: 'due' | 'paid' | 'unpaid' | 'disputed' | 'waived' | 'covered';
+  reason: string;
+  refund: 'owed' | 'returned' | 'charged' | null;
+  customer_said: 'disagree' | 'paid' | null;
+  office_note: string | null;
+  can_mark: boolean;
+};
 export type ActiveJob = {
   id: string;
   ref: string;
@@ -78,6 +90,7 @@ export type FinishedJob = {
   agreed_paisa?: number | null;
   confirmed_by?: 'customer' | 'clock' | 'office' | null;
   dispute_note?: string | null;
+  visit_fee?: VisitFee | null;
 };
 
 type Props = { j: ActiveJob; w: ProWords; trade: string; when: string; userId: string; commissionBps: number | null; onChanged: () => void };
@@ -325,12 +338,30 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
       {j.change ? (
         <View style={s.step}>
           <Text style={s.waiting}>{fill(w.waitingAnswer, { price: rupees(j.change.price_paisa), was: rupees(j.change.from_paisa) })}</Text>
-          <Text style={s.note}>{fill(w.declineFee, { fee: rupees(j.visit_fee_paisa) })}</Text>
+          {j.change.office_decides ? (
+            <Text style={s.note}>{fill(w.officeDecides, { fee: rupees(j.visit_fee_paisa) })}</Text>
+          ) : (
+            <>
+              <Text style={s.note}>{fill(w.declineFee, { fee: rupees(j.visit_fee_paisa) })}</Text>
+              {/* He cannot stop the job himself: her "no" is hers to give, or the office's after ringing her. */}
+              {j.change.pro_says_no_at ? (
+                <Text style={s.feeLine}>{w.saidNoDone}</Text>
+              ) : (
+                <>
+                  <Button kind="outline" label={w.saidNo} busy={busy} onPress={() => run('pro_reports_no', { p_job: j.id })} />
+                  <Text style={s.note}>{w.saidNoNote}</Text>
+                </>
+              )}
+            </>
+          )}
           <Button kind="outline" label={w.withdrawChange} busy={busy} onPress={() => run('withdraw_change', { p_job: j.id })} />
         </View>
       ) : null}
 
-      {(j.stage === 'arrived' || j.stage === 'working') && !j.change && !j.code_locked ? (
+      {j.stage === 'arrived' && !j.code_locked ? <Text style={s.note}>{w.changeAfterCode}</Text> : null}
+
+      {/* A new price only once the start code is in (visit_fee): the code is the proof he is at her door. */}
+      {j.stage === 'working' && !j.change && !j.code_locked ? (
         changing ? (
           <ChangeForm j={j} w={w} userId={userId} commissionBps={commissionBps} onDone={() => { setChanging(false); onChanged(); }} onBack={() => setChanging(false)} />
         ) : (
@@ -534,6 +565,7 @@ export function Finished({ items, w, tradeName, onChanged }: { items: FinishedJo
             {f.paid_by_pechkas ? `Pechkas pays you ${rupees(f.agreed_paisa ?? null)}` : fill(w.collect, { price: rupees(f.collect_paisa) })}
           </Text>
           {f.dispute_note ? <Text style={[s.doneSub, { width: '100%' }]}>Pechkas decided: “{f.dispute_note}”</Text> : null}
+          {f.visit_fee ? <FeeState fee={f.visit_fee} w={w} jobId={f.id} onChanged={onChanged} /> : null}
           {f.confirmed_by === 'clock' ? <Text style={[s.doneSub, { width: '100%' }]}>Counted as finished after 24 hours, unchecked.</Text> : null}
           {f.can_rate ? <RateCustomer f={f} w={w} onDone={onChanged} /> : null}
           {f.my_rating ? (
@@ -544,6 +576,55 @@ export function Finished({ items, w, tradeName, onChanged }: { items: FinishedJo
           ) : null}
         </View>
       ))}
+    </View>
+  );
+}
+
+/**
+ * A visit fee's state, and his two buttons while it is his to say: paid, or
+ * not paid. Once paid it stays paid; a mistake is the office's to put right.
+ */
+export function FeeState({ fee, w, jobId, onChanged }: { fee: VisitFee; w: ProWords; jobId: string; onChanged: () => void }) {
+  const [busy, setBusy] = useState<boolean | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const amount = rupees(fee.amount_paisa);
+  const line =
+    fee.status === 'waived'
+      ? fee.refund === 'owed'
+        ? fill(w.feeRefund, { fee: amount })
+        : w.feeWaived
+      : fee.status === 'covered'
+        ? fill(w.feeCovered, { fee: amount })
+        : fee.status === 'paid'
+          ? fill(w.feePaid, { fee: amount })
+          : fee.status === 'unpaid'
+            ? fill(w.feeUnpaid, { fee: amount })
+            : fee.status === 'disputed'
+              ? fee.customer_said === 'paid'
+                ? fill(w.feeDisputedPaid, { fee: amount })
+                : fill(w.feeDisputed, { fee: amount })
+              : fill(w.feeDue, { fee: amount });
+
+  async function mark(paid: boolean) {
+    setBusy(paid);
+    setMsg(null);
+    const r = await ask('pro_visit_fee', { p_job: jobId, p_paid: paid });
+    setBusy(null);
+    if (!r.ok) return setMsg(r.why);
+    onChanged();
+  }
+
+  return (
+    <View style={[s.feeBox, fee.status === 'unpaid' || fee.refund === 'owed' ? s.feeBoxWarn : null]}>
+      <Text style={s.feeText}>{line}</Text>
+      {fee.status === 'waived' && fee.office_note ? <Text style={s.doneSub}>Pechkas: “{fee.office_note}”</Text> : null}
+      {fee.can_mark ? (
+        <View style={s.feeButtons}>
+          <Button kind="green" label={w.feeWasPaid} busy={busy === true} onPress={() => mark(true)} />
+          {fee.status === 'due' ? <Button kind="outline" label={w.feeNotPaid} busy={busy === false} onPress={() => mark(false)} /> : null}
+        </View>
+      ) : null}
+      {msg ? <Text style={[s.error, { color: colour.brick }]}>{msg}</Text> : null}
     </View>
   );
 }
@@ -581,6 +662,10 @@ function RateCustomer({ f, w, onDone }: { f: FinishedJob; w: ProWords; onDone: (
 }
 
 const s = StyleSheet.create({
+  feeBox: { width: '100%', gap: 8, padding: 12, borderRadius: 16, backgroundColor: colour.softYellow },
+  feeBoxWarn: { backgroundColor: colour.softBrick },
+  feeText: { fontFamily: font.bodySemi, fontSize: 14.5, lineHeight: 20, color: colour.ink },
+  feeButtons: { gap: 8 },
   paidBox: { gap: 4, padding: 12, borderRadius: 16, backgroundColor: colour.softYellow },
   paidTitle: { fontFamily: font.bodySemi, fontSize: 14.5, color: colour.ink },
   saidBox: { gap: 8, padding: 14, borderRadius: 16, backgroundColor: colour.cream },

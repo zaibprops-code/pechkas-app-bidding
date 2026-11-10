@@ -662,11 +662,37 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   only the customer's `decide_change()` changes `agreed_paisa`. Declined,
   the job is `stopped` and `collect_paisa` is `visit_fee()`. One pending at
   a time, and none may be pending to finish.
-- **`visit_fee()` is the one place the fee is worked out**, and today
-  returns `visit_fee_min_paisa` because there is no measured distance. The
-  owner's rule (petrol for the trip, Google Maps distance, Rs 300 to
-  Rs 1,000) goes in there when Google Maps is connected. Never guess a
-  distance, a mileage or a petrol price.
+- **The visit fee is flat** (the owner's decision D12, 9 November 2026,
+  migration `…_visit_fee`): `visit_fee_min_paisa` (Rs 300), office Settings
+  ("Visit fee"); `visit_fee_max_paisa` is kept for a distance fee and not
+  shown. **`visit_fee()` is the one place it is read**: the figure fixed on
+  the job when she chooses him (`jobs.visit_fee_paisa`, set by
+  `fix_visit_fee`), else today's setting. Shown before she chooses (Post a
+  job, above the offers — `VisitFeeNote`) and before he offers
+  (`pro_feed().visit_fee_paisa`). No distance, GPS or petrol: never guess
+  one.
+- **A fee is owed only after a real visit.** `ask_change()` needs stage
+  `working`, i.e. the customer's start code (the only proof he is at her
+  door). Only her `decide_change()` (or the office's
+  `admin_decide_change()`, with a reason) stops a job with a fee; he can only
+  say `pro_reports_no()`, which asks her and, after 20 minutes
+  (`visit_fee_clock`), the office. On a `paid_by_pechkas` job the office
+  answers the new price, never her. Every stop has a `stop_reason`
+  (`declined`, `office_declined`, `office_fee`, `office_no_fee`); the
+  office's "not finished" is `stopped` (not his fault: fee) or
+  `stopped_no_fee` (his fault: none).
+- **`visit_fees` is the record, one row per stopped job** (`record_visit_fee`
+  trigger): amount, payer (customer or Pechkas), reason, the declined change
+  as proof, status `due → paid | unpaid | disputed | waived | covered`, and
+  every step in `job_events`. He says paid / not paid (`pro_visit_fee`;
+  paid is final); she disagrees once within 24 hours or says "I have paid
+  him" (`customer_visit_fee`); while a fee is `unpaid` (or covered by
+  Pechkas and not cleared) she cannot post (`no_post_while_fee_unpaid`).
+  The office (`admin_visit_fee`, a reason every time) keeps, waives, marks
+  paid, covers (Pechkas pays him: ledger `visit_fee_cover:<fee>`), clears
+  her, or settles a refund (`visit_fee_refund:<fee>`). No commission and no
+  ledger line on a fee she pays him; money moves only on those two keys
+  and the guarantee's `guarantee_pay:<job>`. Tests: `visitfee.test.mjs`.
 - `collect_paisa` is fixed when the job ends, so a later settings change
   cannot rewrite what somebody paid. The customer's card shows it.
 - A customer may cancel until he arrives; after that it is Decline or the

@@ -7,6 +7,51 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**The visit fee (D12), built your way (new — ONE database step, then a new
+build).**
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261110000000_visit_fee.sql`. It should say
+   **Success**. (Safe to run twice.)
+2. Make a new **preview** build and install it. (Still edition 4.)
+3. Open the admin panel: there is a new **Visit fees** page in the menu.
+
+What happens now:
+
+- **Rs 300, flat.** Change it in **Settings → At the door → Visit fee**.
+  A job keeps the fee the customer was shown when she chose the technician.
+- **Customers see it before they choose**: on Post a job and above the
+  offers, with "no fee if the repair goes ahead, if he does not arrive, or
+  for a guarantee visit".
+- **A new price needs the start code first**, so a fee can only follow a
+  real visit. If she declines, the job stops and she owes the fee. If she
+  only says no in person, he taps **She said no at the door**; she is asked
+  to answer, and after 20 minutes your phone is told to ring her. You then
+  record her answer on **Visit fees** (with a note).
+- **He taps I was paid or Not paid.** "Not paid" tells her and you, and she
+  cannot post a new job until it is settled. She can tap **I have paid
+  him**, or **I disagree with this fee** within 24 hours. Both come to you.
+- **On Visit fees you can**: keep a fee, waive it, mark it paid, have
+  Pechkas pay him (it comes off what he owes), let her post again, and
+  settle a refund. Every button needs a reason, and every step is in the
+  fee's history. The page also shows each technician's visit-fee earnings
+  and every change to the fee.
+- **A disputed "not finished" job** now has two "not finished" buttons on
+  Guarantee and disputes: *not his fault: visit fee* and *his fault: no
+  fee*.
+- **Guarantee repairs**: a new price goes to you, not the customer (she
+  would be spending Pechkas' money). Decline it and Pechkas pays his fee.
+- **The website** says the same rule; the guarantee page no longer says
+  "no visit fee". New [DECIDE WITH A LAWYER] boxes ask whether Pechkas may
+  hold back a customer's bookings over an unpaid fee, recover a fee it
+  paid, and add a waived fee to what a technician owes.
+
+To try it with one phone: post a job, switch to technician mode and take
+it to the start code, request a new price, switch back and tap Decline;
+switch again and tap Not paid; switch back and try to post a job.
+
+---
+
 **Business decisions:** what is decided and what is still open is in
 **`docs/DECISIONS.md`**, numbered. Pick one at a time.
 

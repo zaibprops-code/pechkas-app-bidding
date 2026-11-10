@@ -1,3 +1,4 @@
+import { VisitFeeNote } from '../src/customer/VisitFee';
 import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
 import { Art, artFor, type ArtName } from '../src/components/Art';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
@@ -751,13 +752,11 @@ export default function Post() {
         {/* How paying works, as three short lines instead of three paragraphs. */}
         <View style={s.facts}>
           <PayFact text={`The lowest price is ${rupees(min)}: the cost of coming to look.`} />
-          {lists?.visit_fee_min_paisa && lists.visit_fee_max_paisa ? (
-            <PayFact
-              text={`Bigger than it looked? He must ask you a new price in the app. Say no, and you pay only his visit fee: ${rupees(lists.visit_fee_min_paisa)} to ${rupees(lists.visit_fee_max_paisa)}.`}
-            />
-          ) : null}
+          <PayFact text="Bigger than it looked? He must ask you a new price in the app, with a photo. Nothing changes unless you approve." />
           <PayFact text="You pay after the job, in cash or by JazzCash or Easypaisa. Nothing in advance." />
         </View>
+        {/* The visit fee, said before she posts and again before she chooses (visit_fee): never only in the terms. */}
+        {lists?.visit_fee_min_paisa ? <VisitFeeNote fee={lists.visit_fee_min_paisa} /> : null}
       </Card>
 
       {/* A new key each refusal, so the same sentence comes back after its banner was closed. */}

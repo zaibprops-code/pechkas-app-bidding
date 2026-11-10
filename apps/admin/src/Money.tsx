@@ -21,7 +21,7 @@ type MoneyData = {
   totals: { owed_paisa: number; commission_paisa: number; reserve_paisa: number; received_paisa: number };
   pros: ProRow[];
 };
-type Line = { txn: string; kind: 'commission' | 'settlement' | 'reversal' | 'guarantee_pay' | 'guarantee_charge' | 'payout'; ref: string | null; amount_paisa: number; method: string | null; reference: string | null; memo: string | null; at: string; by: string | null; reversed: boolean };
+type Line = { txn: string; kind: 'commission' | 'settlement' | 'reversal' | 'guarantee_pay' | 'guarantee_charge' | 'payout' | 'visit_fee_cover' | 'visit_fee_refund'; ref: string | null; amount_paisa: number; method: string | null; reference: string | null; memo: string | null; at: string; by: string | null; reversed: boolean };
 
 const METHODS = [
   ['jazzcash', 'JazzCash'],
@@ -37,8 +37,10 @@ const LINE: Record<Line['kind'], (l: Line) => string> = {
   guarantee_pay: (l) => `Guarantee repair paid by Pechkas${l.ref ? ` · ${l.ref}` : ''}`,
   guarantee_charge: (l) => `Guarantee charge${l.ref ? ` · ${l.ref}` : ''}`,
   payout: (l) => `Paid out to technician${l.method ? ` by ${l.method}` : ''}`,
+  visit_fee_cover: (l) => `Visit fee the customer did not pay, paid by Pechkas${l.ref ? ` · ${l.ref}` : ''}`,
+  visit_fee_refund: (l) => `Waived visit fee paid back to the customer${l.ref ? ` · ${l.ref}` : ''}`,
 };
-/** Guarantee lines are changed through Guarantee and disputes (his appeal), never with Undo here. */
+/** Guarantee and visit-fee lines are changed on their own pages, never with Undo here. */
 const UNDOABLE = new Set<Line['kind']>(['commission', 'settlement', 'payout']);
 const time = (t: string) => new Date(t).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
 

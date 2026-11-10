@@ -14,6 +14,7 @@ import { useSignedUrls } from '../post/RemoteMedia';
 import { ask } from '../supabase';
 import { colour, font, radius } from '../theme';
 import { CheckCard, ClaimCard, DecisionCard, DisputeCard, GuaranteeRepairNote, LastRound, type CheckFields } from './Checking';
+import { FeeCard, type CustomerFee } from './VisitFee';
 
 /**
  * The customer's side of a job once a technician is chosen: where he is, the
@@ -39,8 +40,11 @@ export type JobNow = {
   start_code: string | null;
   code_locked: boolean;
   pro: { first_name: string; phone?: string | null; years: number } | null;
-  change: { id: string; from_paisa: number; price_paisa: number; reason: string; photo: string } | null;
+  change: { id: string; from_paisa: number; price_paisa: number; reason: string; photo: string; pro_says_no_at?: string | null; office_decides?: boolean } | null;
   visit_fee_paisa: number | null;
+  /** After a job stopped: the visit fee's record (visit_fee). */
+  visit_fee?: CustomerFee | null;
+  stop_reason?: CustomerFee['reason'] | null;
   collect_paisa: number | null;
   photos: Photo[];
   can_report: boolean;
@@ -166,7 +170,11 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
           tone="money"
           icon="wallet"
           title={`${pro.first_name} asks for ${rupees(job.change.price_paisa)}`}
-          hint={`Instead of the ${rupees(job.change.from_paisa)} agreed. Nothing changes unless you approve.`}
+          hint={
+            job.change.office_decides
+              ? `Instead of the ${rupees(job.change.from_paisa)} agreed. Pechkas pays for this repair, so the Pechkas office answers this. You pay nothing.`
+              : `Instead of the ${rupees(job.change.from_paisa)} agreed. Nothing changes unless you approve.`
+          }
         >
           <Text style={s.quote}>“{job.change.reason}”</Text>
           {urls[job.change.photo] ? (
@@ -174,19 +182,27 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
               <Image source={{ uri: urls[job.change.photo] }} style={s.changePhoto} />
             </Press>
           ) : null}
-          {!declining ? (
-            <View style={{ gap: 8 }}>
-              <Button kind="green" label={`Approve ${rupees(job.change.price_paisa)}`} busy={busy} onPress={() => decide(true)} />
-              <Button kind="outline" label="Decline" onPress={() => setDeclining(true)} />
-            </View>
-          ) : (
-            <View style={{ gap: 8 }}>
-              <Text style={s.line}>
-                If you decline, the job stops here and you pay {pro.first_name} only the visit fee, {rupees(job.visit_fee_paisa)}, for his trip.
-              </Text>
-              <Button kind="danger" label={`Decline, pay ${rupees(job.visit_fee_paisa)}`} busy={busy} onPress={() => decide(false)} />
-              <Button kind="outline" label="Go back" onPress={() => setDeclining(false)} />
-            </View>
+          {job.change.office_decides ? null : (
+            <>
+              {job.change.pro_says_no_at ? (
+                <Text style={s.line}>{pro.first_name} says you told him no at the door. Please answer here, so the job can close.</Text>
+              ) : null}
+              {!declining ? (
+                <View style={{ gap: 8 }}>
+                  <Button kind="green" label={`Approve ${rupees(job.change.price_paisa)}`} busy={busy} onPress={() => decide(true)} />
+                  <Button kind="outline" label="Decline" onPress={() => setDeclining(true)} />
+                  <Text style={s.line}>No visit fee if you approve: you pay only the new price.</Text>
+                </View>
+              ) : (
+                <View style={{ gap: 8 }}>
+                  <Text style={s.line}>
+                    If you decline, the job stops here and you pay {pro.first_name} only the visit fee of {rupees(job.visit_fee_paisa)}, before he leaves.
+                  </Text>
+                  <Button kind="danger" label={`Decline and pay ${rupees(job.visit_fee_paisa)}`} busy={busy} onPress={() => decide(false)} />
+                  <Button kind="outline" label="Go back" onPress={() => setDeclining(false)} />
+                </View>
+              )}
+            </>
           )}
         </Panel>
       ) : null}
@@ -248,8 +264,10 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
     <>
       {/* An open guarantee claim is why she opened this job: it comes first. */}
       {claim && !['fixed', 'not_covered'].includes(claim.status) ? <ClaimCard job={job} onChanged={onChanged} /> : null}
+      {/* A stopped job: the visit fee's own card, with what she can do about it (visit_fee). */}
+      {job.status === 'stopped' && job.visit_fee ? <FeeCard fee={job.visit_fee} name={name} jobId={job.id} onChanged={onChanged} /> : null}
       {/* What to pay, large: the one figure she needs at the door. */}
-      <View style={[s.panel, s.pay]}>
+      {job.status === 'stopped' && job.visit_fee ? null : <View style={[s.panel, s.pay]}>
         <Text style={s.payLabel}>
           {job.paid_by_pechkas ? 'Guarantee repair' : job.status === 'done' ? `Pay ${name} directly` : `Pay ${name} the visit fee`}
         </Text>
@@ -270,7 +288,7 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
             </View>
           </View>
         ) : null}
-      </View>
+      </View>}
 
       {stages.length ? (
         <Panel icon="camera" title="Photos" hint="Tap one to see it full size.">

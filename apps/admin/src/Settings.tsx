@@ -43,8 +43,8 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
   {
     title: 'At the door',
     keys: {
-      visit_fee_min_paisa: 'Smallest visit fee',
-      visit_fee_max_paisa: 'Largest visit fee',
+      // A flat fee since the owner's decision of 9 November 2026; the "largest" one is kept in the database for a fee by distance later.
+      visit_fee_min_paisa: 'Visit fee (when she says no to a new price at the door)',
       code_tries: 'Wrong start codes before it locks',
     },
   },

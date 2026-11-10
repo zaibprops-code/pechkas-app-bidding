@@ -63,6 +63,9 @@ type FeedJob = {
   /** She has had a job done by him before, so his share is the lower one. */
   repeat?: boolean;
   commission_bps?: number;
+  /** What she pays him if she says no to a new price at the door (visit_fee); shown before he offers. */
+  visit_fee_paisa?: number;
+  paid_by_pechkas?: boolean;
 };
 type Feed = {
   approved: boolean;
@@ -533,6 +536,7 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
         </View>
       </View>
       <Text style={s.fee}>{j.repeat ? fill(w.feeRepeat, { name: j.customer_first_name, pct }) : fill(w.feeLine, { pct })}</Text>
+      {j.visit_fee_paisa ? <Text style={s.fee}>{fill(w.feeFeedLine, { fee: rupees(j.visit_fee_paisa) })}</Text> : null}
 
       {!editing && live ? (
         <View style={{ gap: 8 }}>

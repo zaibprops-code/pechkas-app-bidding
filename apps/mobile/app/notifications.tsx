@@ -28,6 +28,8 @@ const CUSTOMER = [
   'The technician you asked for cannot take it',
   'Nobody has offered yet, or your job closed without an offer',
   'Nobody was free for a guarantee repair, so you choose another day',
+  'The technician is waiting for your answer to a new price',
+  'A visit fee is unpaid, kept or waived',
 ];
 
 const TECHNICIAN = [
@@ -43,6 +45,7 @@ const TECHNICIAN = [
   'A guarantee claim on your work, and reminders to answer it',
   'Your new offers stop, or a guarantee charge is coming, is added, or your appeal is decided',
   'Pechkas pays you for a guarantee repair',
+  'A visit fee: the job stopped, Pechkas looked at it, waived it or paid it',
 ];
 
 export default function Notifications() {
