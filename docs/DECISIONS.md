@@ -126,16 +126,18 @@ others depend on its answer.
     restriction?** Today they never do. You + lawyer; the app's terms carry
     a `[DECIDE WITH A LAWYER]` for it.
 
-#### D11. A chosen technician who never comes — decided in part (A44, A45)
-- **Decided** (10 November 2026): late arrivals and no-shows are recorded,
-  and reviewed by the office, never punished automatically (A44, A45).
+#### D11. A chosen technician who never comes — decided and built (A44, A45, A59–A65)
+- **Your decision** (11 November 2026) is now in Part 2 as A59–A65.
+  D11.1 is answered by A63 (a pause of new offers, never a charge) and
+  D11.2 by A64 (no compensation at launch; service recovery instead).
 - **Still open:**
-  - **D11.1** Should anything follow repeated lateness or a confirmed
-    no-show beyond a review: stopping his offers for a while, or a charge?
-    You + lawyer. Nothing is assumed.
-  - **D11.2** Should a customer left waiting get anything (a discount on
-    her next job, or Pechkas paying something)? You. Nothing is assumed;
-    the app's terms carry a `[DECIDE WITH A LAWYER]` for it.
+  - **D11.3** Whether a pause needs notice first, and whether late
+    withdrawals or no-shows may ever lead to more than a review and a pause.
+    You + lawyer; the technician agreement carries a `[DECIDE WITH A
+    LAWYER]` for it.
+  - **D11.4** Whether "no compensation, service recovery instead" is enough
+    under consumer law. You + lawyer; the app's terms carry a `[DECIDE WITH
+    A LAWYER]` for it.
 
 #### D12. The visit fee — decided and built (A36–A40)
 - **Your decision** (9 November 2026), and your follow-up answers (10
@@ -497,6 +499,17 @@ What the app and the website do today. Reopen any item by its number.
 | A56 | **A tap is not an arrival.** `arrived_at` (the tap), `arrival_verified_at` (GPS) and the review status are kept apart. Only a verified arrival, the office's approval or the customer's start code satisfies it; an unverified tap does not stop D10's no-show watch and never becomes a confirmed no-show by itself. **3 unverified arrivals in 60 days** (not approved) ask the office to review him. A poor signal, a refused permission or a wrong pin is never misconduct by itself. |
 | A57 | **Photographs:** optional when the location check verifies; **required** (taken with Pechkas' camera, never the gallery) when it fails; if the camera does not work, he says why and the report goes to the office as unverified. |
 | A58 | **The office may approve an arrival or confirm a report even when GPS failed**, always with a reason, its name and the time, kept in a review record nobody can change. Only office-confirmed incidents count towards the customer's review. |
+
+### A technician who cannot come (decided 11 November 2026)
+| | |
+|---|---|
+| A59 | **"I can't come"** is on his job until his arrival counts (verified, approved by the office, or the start code), with a reason he must choose and words he may add. **More than 2 hours before his window: a normal withdrawal; within 2 hours, or after it began: a late withdrawal**, on the database's clock. It is refused once the job is no longer his, so a customer's cancellation can never be turned into his withdrawal. |
+| A60 | **The same job goes back, never a copy.** Her words, photos, voice note, address, pin and price stay; what belonged to his assignment (agreed price, the window from his offer, the visit fee fixed when she chose him, the start code, the arrival) is written to the job's history first, then cleared. If less than an hour is left before 8pm on its day (when a job nobody took closes), it moves to the next day and she is told. The technician who left is shut out of that job for good; technicians whose offers were turned down may offer again. Chat shows only the current technician's messages. |
+| A61 | **"Find another technician"** is open to her whenever he has not arrived and she could still cancel. It is never her cancellation and costs nothing. More than 30 minutes late, or a possible no-show, is recorded as his lateness exactly as D10 would; switching within 2 hours of his time with no fault of his counts like a late cancellation for her, unless he had said he was running late. |
+| A62 | **"I'm running late"**: he gives the time he will be there, at least 5 minutes away and at most 2 hours after his window ends, **twice per job at most**. She is told at once and may wait or find another technician, free either way. His window and every estimate stay on record, and arriving more than 30 minutes into his window is still a late arrival. |
+| A63 | **The office may pause a technician's new offers for 1, 3 or 7 days**, with a reason he reads in the app. His waiting offers are withdrawn; jobs he has go on; it ends by itself or is lifted early with a reason; every line is kept and cannot be changed. **3 late withdrawals in 60 days** ask the office to review him. The ladder — **1 confirmed no-show: contact him; 2 in 60 days: consider a 1–3 day pause; 3: review his approval** — is shown as a suggestion and never applied by itself. No suspension or charge is automatic. |
+| A64 | **No compensation, wallet, credit or discount at launch.** Service recovery instead: an apology, the job back in front of other technicians at once, and nothing to post again. |
+| A65 | D11 shares D10's records without changing their rules: a late arrival, no-show or "nobody home" report is now **one per technician per job**, so a job that came back gives its next technician a record of his own. No money moves anywhere in D11. |
 
 ### Trust and safety
 

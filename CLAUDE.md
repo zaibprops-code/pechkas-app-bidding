@@ -842,6 +842,67 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   agreement and both stores' answers say this; change them together.
   `APP_EDITION` is 5 for this. Tests: `location.test.mjs`.
 
+### A technician who cannot come (migration `…_reliability`)
+- **The owner's decision D11 (11 November 2026): the same job goes back,
+  never a copy.** `reopen_job()` is the one way a job leaves its technician
+  for others: it writes his assignment to `job_assignments` (who, when
+  chosen, agreed price, window, arrival, estimate, how it ended) and only
+  then clears what was his — `agreed_paisa`, the window if it came from his
+  offer (or has already begun), `visit_fee_paisa`, the code tries, arrival
+  fields, `eta_at` — and opens it, moving the day to tomorrow when less than
+  an hour is left before `close_unclaimed()` shuts it at 8pm, with
+  `announce_again()`. Her words,
+  media, address, pin and price are never touched; no job is ever copied.
+  `pro_may_see_as()` shuts the man who left out of that job for good (any
+  `job_assignments` row for him on it); `make_offer()` now lets a
+  `rejected` offer come back, because on an open job it only means somebody
+  else was chosen first. `job_chat()` shows messages since `assigned_at`
+  only, so the next man never reads what was said before.
+- **"I can't come" is `pro_withdraw(job, reason, note)`**: from
+  `my_assigned_job()` (his, assigned, row locked — so if she cancelled first
+  it finds nothing), only while `withdraw_kind()` is not null (stage chosen
+  or on_way, or arrived with `arrival_at()` null). A reason code is
+  required (`other` needs words; no phone numbers). **Normal more than 2
+  hours before `window_start()`, late after**, by `now()`; a job with no
+  window is late once he is on his way. One `pro_withdrawals` row each.
+  She is told `pro_withdrew` (with an apology), or `pro_withdrew.moved` when
+  the day changed.
+- **"I'm running late" is `pro_running_late(job, eta)`**: same door; at
+  least now + 5 min, at most window start + 4 h (2 h after a two-hour
+  window ends), **twice per job** (`eta_reports`); `jobs.eta_at` holds the
+  latest and she is told `running_late` with `pk_clock()`. It never
+  touches his window or `record_late_arrival`.
+- **"Find another technician" is `customer_find_another(job)`**, open
+  while `can_find_another()` (assigned and not arrived — the owner's
+  rule, wider than "late"). Never a cancellation. `cancel_kind()` decides
+  what it counts as, exactly as cancelling now would: `pro_late` /
+  `no_show` write his `pro_incidents` row (`how = 'replaced_waiting'`);
+  `late` with no `eta_at` is stored as `job_assignments.kind = 'late'` and
+  counted in `admin_flags()` with her late cancellations; with an
+  estimate it is `excused`. He is told `replaced_pro`.
+- **Pause**: `admin_pause_pro(pro, 1|3|7, note)` / `admin_lift_pause(pro,
+  note)` write `pro_pause_log`, which no one can update. `pro_paused()` /
+  `pro_pause_until()` read the latest pause with no later lift. It is in
+  `pro_may_see_as()` (open jobs only — his assigned jobs go on),
+  `make_offer()` (`field: 'paused'`, with the date), `job_preferred()` and
+  `pro_feed().paused_until`; his pending offers are withdrawn when it
+  starts. `admin_reliability()` gives the counts and the ladder as
+  `suggestion` (contact / pause / review) — **never applied by the
+  database**. Flag `late_withdrawals` at `flag_late_withdrawals` (3).
+- **D10/D34 records are one per technician per job** (`UNIQUE (job_id,
+  pro_id)` on `pro_incidents` and `not_home_reports`); every function that
+  looked one up by job alone now also names the technician
+  (`record_late_arrival`, `no_show_clock`, `record_cancellation`,
+  `not_home_view`, the four nobody-home functions, `my_jobs().no_show`,
+  `arrival_view`). Unverified arrivals on assignments that ended still
+  count (`admin_flags`, `pro_record`).
+- **No money anywhere**: no `visit_fees`, `collect_paisa`, ledger line or
+  credit. No compensation at launch (A64). Screens: `pro/CantCome.tsx`,
+  `customer/Replace.tsx` (`FindAnother`, `RunningLateCard`,
+  `ReopenedNote`; `LateCard` offers it first), `apps/admin/src/Reliability.tsx`
+  on Cancellations. The app's terms, technician agreement and privacy page
+  say the same. Tests: `reliability.test.mjs`.
+
 ### Money and trust (phase 5)
 - **Commission is 10% of the LABOUR**: `agreed_paisa − parts_paisa`, through
   `commission_on()`, rounded down, the same as `commission()` in

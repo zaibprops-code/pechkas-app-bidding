@@ -7,6 +7,60 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**A technician who cannot come (D11) — ONE database step and a new
+build.**
+
+Deploying, in this order:
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261112000000_reliability.sql`. It should say
+   **Success**. (Safe to run twice. `20261111100000_arrival_by_location.sql`
+   below must have run first.)
+2. Make a new **preview** build and install it. It is still edition 5:
+   older copies keep working, they just do not show the new buttons, so do
+   not press "Ask copies to update" for this.
+3. Open the admin panel: **Cancellations** now ends with **Reliability**,
+   and **Settings → Flags** has "His late I can't come before a review" (3).
+
+What happens now:
+
+- **The technician**, on a job he has not arrived at, sees **I'm running
+  late** and **I can't come**. Running late: he picks when he will be there
+  (in 15 min … 2 h); the customer is told at once; twice per job at most.
+  Can't come: he must pick a reason; the screen tells him whether it is a
+  normal withdrawal (more than 2 hours before his time) or a late one.
+- **The same job goes straight back** to other technicians, with her
+  words, photos, address and price. He never sees it again. Technicians
+  whose offers she turned down can offer again. If today's times are over,
+  it moves to tomorrow and she is told.
+- **The customer** sees **Find another technician** while he has not
+  arrived: on the late card, on the running-late card, and at the foot of
+  the job. It is never a cancellation and costs nothing. Her screen says,
+  before she confirms, whether it counts against her (only when she
+  switches within 2 hours of his time with no fault of his and no warning
+  from him).
+- **The office**, on **Cancellations → Reliability**: each technician's
+  confirmed no-shows, late arrivals, "I can't come" and customers who found
+  another, with the suggested step (1 no-show: ring him; 2: consider a 1–3
+  day pause; 3: review his approval). **Pause his new offers…** asks for a
+  reason he reads, then 1, 3 or 7 days. Jobs he has go on; it ends by itself;
+  **Lift the pause…** needs a reason too. Nothing happens unless you press it.
+- No money moves: no compensation, no credit, no charge. The customer gets
+  an apology and her job back in front of others.
+
+**Try it on your phone (two phones, test accounts):**
+
+| Do this | You should see |
+|---|---|
+| As the technician on a chosen job, tap **I'm running late**, pick **In 30 min**, **Tell …** | The customer's phone buzzes "… is running late" with the time; her job shows the yellow card |
+| Tap it a third time | "You have changed your time twice…" and no choices |
+| Tap **I can't come**, pick a reason, **Yes, I can't come** | The job leaves his list; her phone buzzes "We are sorry…"; her job says it is open again |
+| As another technician, open Jobs | The job is there with the same photos; offer on it |
+| As the customer on a job where he is 30+ minutes late, **Find another technician** → **Yes** | The job is open again; he is told not to go; his record shows a late arrival |
+| In the admin panel, **Pause 1 day** on a technician, with a reason | His Jobs screen shows "Your new offers are paused" with your reason; an offer is refused; his chosen job still works |
+
+---
+
 **Arrival checked by location (GPS-first D34) — ONE database step, a new
 build, then a street test before you rely on it.**
 

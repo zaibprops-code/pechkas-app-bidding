@@ -16,6 +16,7 @@ import { ProProfile } from './ProProfile';
 import { NoOffers } from './NoOffers';
 import { VisitFeeNote } from './VisitFee';
 import { CancelPanel, LateCard, cancelledNote, type CancelFields } from './Cancel';
+import { FindAnother, ReopenedNote, RunningLateCard } from './Replace';
 import { AtDoorCard, NotHomeEnded, type CustomerNotHome } from './NotHome';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { ask, supabase } from '../supabase';
@@ -92,6 +93,7 @@ export type Offer = {
 
 export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; trade: string; tick: number; onChanged: () => void; onOpen?: () => void }) {
   const [confirming, setConfirming] = useState(false);
+  const [finding, setFinding] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [blocking, setBlocking] = useState(false);
@@ -104,6 +106,8 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
   // after that it is the office's. The database decides; an older database
   // that does not say keeps the old rule.
   const canCancel = job.can_cancel ?? (open || (assigned && (job.stage === 'chosen' || job.stage === 'on_way')));
+  // Find another technician (D11), at the foot unless the late or running-late card already offers it.
+  const findAnother = assigned && !!job.pro && job.can_find_another === true && !job.no_show && !job.pro_late && !job.eta_at;
   const atDoor = assigned && job.stage === 'arrived';
   const files = (['voice', 'video', 'photo'] as const)
     .map((k) => {
@@ -242,6 +246,9 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
         {job.status === 'cancelled' && cancelledNote(job) ? <Text style={s.small}>{cancelledNote(job)}</Text> : null}
       </Press>
 
+      {/* The job came back because a technician could not come, or she asked for another (D11). */}
+      <ReopenedNote job={job} />
+
       {open && job.preferred ? (
         <View style={s.held}>
           <View style={s.heldHead}>
@@ -256,6 +263,8 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
 
       {/* He is late or has not come: cancel free, never counted against her, or keep waiting. */}
       {assigned && job.pro && canCancel && (job.no_show || job.pro_late) ? <LateCard job={job} onDone={onChanged} /> : null}
+      {/* He has said he is running late (D11): his new time; wait, or find another, free either way. */}
+      {assigned && job.pro && job.eta_at && !job.no_show && !job.pro_late ? <RunningLateCard job={job} onDone={onChanged} /> : null}
       {/* He is at her door and cannot get in (nobody_home): I'm coming, or cancel. */}
       {assigned && job.pro && (job.not_home?.status === 'asking' || job.not_home?.status === 'coming') ? <AtDoorCard job={job} onChanged={onChanged} /> : null}
       {assigned && job.pro ? <UnderWay job={job} onChanged={onChanged} /> : null}
@@ -265,7 +274,7 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
       {ended ? <Ended job={job} onChanged={onChanged} /> : null}
 
       {/* Everything else she can do with this job, together at the foot, where nobody taps it by mistake. */}
-      {canAskAgain || canBookAgain || canBlock || canCancel || officeOnly ? (
+      {canAskAgain || canBookAgain || canBlock || canCancel || officeOnly || findAnother ? (
         <View style={s.panel}>
           {canAskAgain ? (
             <View style={{ gap: 6 }}>
@@ -311,7 +320,20 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
               <Button kind="outline" label="No" onPress={() => setBlocking(false)} />
             </View>
           ) : null}
-          {canCancel && !confirming ? (
+          {findAnother && !finding && !confirming ? (
+            <Button kind="outline" label="Find another technician" onPress={() => setFinding(true)} />
+          ) : null}
+          {findAnother && finding ? (
+            <FindAnother
+              job={job}
+              onDone={() => {
+                setFinding(false);
+                onChanged();
+              }}
+              onBack={() => setFinding(false)}
+            />
+          ) : null}
+          {canCancel && !confirming && !finding ? (
             <Button kind="outline" label={atDoor ? 'I no longer need this service' : 'Cancel this job'} onPress={() => setConfirming(true)} />
           ) : null}
           {officeOnly ? (

@@ -33,6 +33,8 @@ const CUSTOMER = [
   'Your technician has not arrived 30 minutes after his time',
   'Your technician is at your door and nobody has answered, or the guard has not let him in',
   'A job closed because he could not get in, and what Pechkas decided',
+  'Your technician cannot come, so your job is open to others again',
+  'Your technician is running late, with the time he now expects',
 ];
 
 const TECHNICIAN = [
@@ -51,6 +53,8 @@ const TECHNICIAN = [
   'A visit fee: the job stopped, Pechkas looked at it, waived it or paid it',
   'You arrived late or have not arrived, and what the office decided',
   'The customer is coming to the door, disagrees with your nobody-home report, or the office has decided it',
+  'The customer chose another technician, so you do not travel',
+  'The office pauses your new offers, or lifts the pause',
 ];
 
 export default function Notifications() {

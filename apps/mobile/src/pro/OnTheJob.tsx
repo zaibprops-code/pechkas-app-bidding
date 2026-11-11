@@ -13,6 +13,7 @@ import { ask } from '../supabase';
 import { useToast } from '../components/Toast';
 import { done as asDone } from '../message';
 import { MapBox, fixNow } from '../components/Map';
+import { CantCome, type Reliability } from './CantCome';
 import { fill, proError, type ProWords } from '../words';
 import { colour, font, radius } from '../theme';
 
@@ -83,7 +84,7 @@ export type ActiveJob = {
   not_home?: NotHomeState | null;
   /** His own arrival check (arrival_by_location): the result and distance, never coordinates. */
   arrival?: ArrivalState | null;
-};
+} & Omit<Reliability, 'id' | 'customer_first_name'>;
 
 export type ArrivalState = {
   status: 'pending' | 'verified' | 'approved' | 'rejected' | 'code' | 'before_checks' | null;
@@ -287,6 +288,9 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
       <View style={s.rule} />
 
       {j.late && (j.stage === 'chosen' || j.stage === 'on_way') ? <Text style={s.warn}>{w.lateBanner}</Text> : null}
+
+      {/* Running late, or cannot come (D11): only until his arrival counts; the database says when. */}
+      <CantCome j={j} w={w} onChanged={onChanged} />
 
       {j.stage === 'chosen' ? (
         <View style={s.step}>

@@ -90,8 +90,12 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     'Most customers are home. Open his reports under Cancellations, look at the photos and times, and ring a few of those customers.',
   ],
   late_cancels: (f) => [
-    `This customer cancelled ${f.n} jobs late: at the door, within 2 hours, or after he set off.`,
+    `This customer cancelled ${f.n} jobs late, or sent them to another technician just as late with no fault of his: at the door, within 2 hours, or after he set off.`,
     'Each one may have cost a technician a trip. Cancelling stays free; ring her, then mark it reviewed under Cancellations.',
+  ],
+  late_withdrawals: (f) => [
+    `${f.n} times he tapped "I can't come" within 2 hours of his time, or after it began.`,
+    'Each one left a customer waiting for somebody new. See his reasons under Cancellations → Reliability, ring him, and pause his offers only if talking has not worked.',
   ],
   reports: (f) => [`Technicians reported ${f.n} problems on this customer's jobs.`, 'Read them under Problems.'],
 };

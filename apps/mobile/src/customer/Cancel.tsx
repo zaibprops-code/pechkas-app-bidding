@@ -7,6 +7,7 @@ import { useToast } from '../components/Toast';
 import { done } from '../message';
 import { ask } from '../supabase';
 import { colour, font } from '../theme';
+import { FindAnother } from './Replace';
 
 /**
  * Cancelling a job (the owner's decision D10). Always free. She picks a
@@ -34,6 +35,11 @@ export type CancelFields = {
   when_from?: number | null;
   cancel_code?: CancelCode | null;
   cancel_category?: string | null;
+  /** A technician who cannot come (reliability, D11): find another, his new time, and who left before. */
+  can_find_another?: boolean;
+  eta_at?: string | null;
+  reopened?: { ended: 'withdrawn' | 'late_withdrawal' | 'replaced'; at: string; pro: string | null } | null;
+  technicians_before?: number;
 };
 
 const REASONS: { code: CancelCode; label: string; chosen?: boolean }[] = [
@@ -108,11 +114,13 @@ export function CancelPanel({ job, preset, onDone, onBack }: { job: CancelFields
 
 /**
  * He is more than 30 minutes into his window and has not arrived, or the
- * database has recorded a potential no-show. She may cancel free, and it
- * never counts against her; or keep waiting.
+ * database has recorded a potential no-show. She may send the same job to
+ * another technician (D11), cancel free — neither counts against her — or
+ * keep waiting.
  */
 export function LateCard({ job, onDone }: { job: CancelFields; onDone: () => void }) {
   const [cancelling, setCancelling] = useState(false);
+  const [finding, setFinding] = useState(false);
   const [waiting, setWaiting] = useState(false);
   const name = job.pro?.first_name ?? 'The technician';
   if (waiting && !job.no_show) return null;
@@ -133,12 +141,19 @@ export function LateCard({ job, onDone }: { job: CancelFields; onDone: () => voi
           </Text>
         </View>
       </View>
-      {cancelling ? (
+      {finding ? (
+        <FindAnother job={job} onDone={onDone} onBack={() => setFinding(false)} />
+      ) : cancelling ? (
         <CancelPanel job={job} preset="pro_late" onDone={onDone} onBack={() => setCancelling(false)} />
       ) : (
         <View style={{ gap: 8 }}>
-          <Text style={s.line}>You can cancel free. Because he is late, it does not count against you.</Text>
-          <Button kind="danger" label="Cancel free" onPress={() => setCancelling(true)} />
+          <Text style={s.line}>
+            {job.can_find_another
+              ? 'You can send this job to another technician, with everything you posted, or cancel free. Because he is late, neither counts against you.'
+              : 'You can cancel free. Because he is late, it does not count against you.'}
+          </Text>
+          {job.can_find_another ? <Button kind="yellow" icon="arrowRight" label="Find another technician" onPress={() => setFinding(true)} /> : null}
+          <Button kind={job.can_find_another ? 'outline' : 'danger'} label="Cancel free" onPress={() => setCancelling(true)} />
           {waiting ? null : <Button kind="outline" label="Keep waiting" onPress={() => setWaiting(true)} />}
         </View>
       )}

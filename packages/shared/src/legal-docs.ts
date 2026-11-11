@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "fddb204";
+export const LEGAL_FROM = "f2b5116";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -396,6 +396,11 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
+              "t": "When a technician says he is running late: the time he gives, when he gave it, and his original time. When he says he cannot come: the reason he chose, any words he added, the step the job had reached and the time. When a job goes to another technician: who had it before, when he was chosen and when he left, and why (he could not come, or the customer chose another). If the office pauses a technician's new offers: how long, its reason, and who did it."
+            }
+          ],
+          [
+            {
               "t": "If a technician cannot get in: the reason (nobody answering, or the guard), when he arrived, when his time began, when the customer was told and whether she said she was coming, his photo of the gate or door and any note, the time he reported it, her words if she says she was home, and what the office decided. His position when he reports it is checked the same way as his arrival (see Technicians above)."
             }
           ]
@@ -557,7 +562,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " A technician sees his own late arrivals and no-shows, what he wrote and the office's note, but not how a customer's cancellation was recorded. A customer sees how her own cancellations were recorded, but not the technician's record. The office's notes on a customer's cancellations are seen only by the office."
+              "t": " A technician sees his own late arrivals and no-shows, what he wrote and the office's note, but not how a customer's cancellation was recorded. A customer sees how her own cancellations were recorded, but not the technician's record. She is told the first name of a technician who could not come, never his reason; he sees the reasons he gave, and any pause with the office's reason. The office's notes on a customer's cancellations are seen only by the office."
             }
           ],
           [
@@ -697,7 +702,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "A job's checks, guarantee claims, visit fee and cancellation are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account. A technician's record of late arrivals and no-shows is deleted with his account, and so are the reports he made that he could not get in."
+              "t": "A job's checks, guarantee claims, visit fee and cancellation are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account. A technician's record of late arrivals and no-shows is deleted with his account, and so are the reports he made that he could not get in, the times he said he was running late or could not come, and the office's pauses. Who had a job before is kept with the job; when a technician's account is deleted, his name is taken off it."
             }
           ],
           [
@@ -1379,7 +1384,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If the technician is more than 30 minutes late, the app tells you that you can cancel free, and that cancellation never counts against you. If he has not arrived 30 minutes after his time ends, you and the Pechkas office are told, and you can cancel free or keep waiting."
+              "t": "If the technician is more than 30 minutes late, the app tells you that you can cancel free, and that cancellation never counts against you. If he has not arrived 30 minutes after his time ends, you and the Pechkas office are told, and you can cancel free, find another technician, or keep waiting."
             }
           ],
           [
@@ -1390,6 +1395,54 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           [
             {
               "t": "[DECIDE WITH A LAWYER: whether late cancellations may ever lead to a charge or a restriction, and with what notice; and whether Pechkas owes anything to a customer when a technician does not arrive.]",
+              "mark": true
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
+        "text": "If the technician is late or cannot come"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "You never have to post the job again.",
+              "b": true
+            },
+            {
+              "t": " If the technician tells us he cannot come, or you choose another technician, the same job goes back to other checked technicians with everything you posted: your words, photos, voice note, address and price. The technician who left cannot see it again. If no time is left on its day, it moves to the next day and the app tells you; you can change the day or cancel free."
+            }
+          ],
+          [
+            {
+              "t": "If he is held up, he can tell you in the app when he now expects to arrive, at most twice for a job. You are told at once, and you can wait or tap "
+            },
+            {
+              "t": "Find another technician",
+              "b": true
+            },
+            {
+              "t": ". Either way costs you nothing."
+            }
+          ],
+          [
+            {
+              "t": "Find another technician",
+              "b": true
+            },
+            {
+              "t": " is there until he has arrived. It is not a cancellation and nothing is charged. If he is more than 30 minutes late, or has said he is running late, it never counts against you. Used within 2 hours of his time, after he has set off, while he has not been late and has not said he would be, it is recorded like a late cancellation, exactly as cancelling would be."
+            }
+          ],
+          [
+            {
+              "t": "Pechkas pays no compensation and gives no discount or credit when a technician is late or cannot come. What we do instead is put your job in front of other technicians straight away, tell you what is happening, and look at what went wrong with him. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: whether this is enough under consumer law, and whether Pechkas owes anything when a technician does not arrive.]",
               "mark": true
             }
           ]
@@ -2497,7 +2550,51 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "[DECIDE WITH A LAWYER: what may follow repeated late arrivals or confirmed no-shows, and with what notice.]",
+              "t": "If you are held up",
+              "b": true
+            },
+            {
+              "t": ", tap "
+            },
+            {
+              "t": "I'm running late",
+              "b": true
+            },
+            {
+              "t": " on the job and choose when you will be there: at least 5 minutes away and no later than 2 hours after your time ends, and at most twice for a job. The customer is told at once and may wait or choose another technician. Your time and every estimate stay on record, and arriving more than 30 minutes into your time is still a late arrival."
+            }
+          ],
+          [
+            {
+              "t": "If you cannot come",
+              "b": true
+            },
+            {
+              "t": ", tap "
+            },
+            {
+              "t": "I can't come",
+              "b": true
+            },
+            {
+              "t": " before you arrive and choose the reason. The job goes straight back to other technicians and you will not see it again. More than 2 hours before your time, it is a normal withdrawal; within 2 hours, or once your time has begun, it is a "
+            },
+            {
+              "t": "late withdrawal",
+              "b": true
+            },
+            {
+              "t": ". Once your arrival has been verified, or the customer has given you the start code, call the office instead. Pechkas decides which it is by its own clock, not your phone's."
+            }
+          ],
+          [
+            {
+              "t": "If the customer chooses another technician because you are more than 30 minutes late, it is recorded as your late arrival. If she does so for her own reasons, it never counts against you; you are told and should not go."
+            }
+          ],
+          [
+            {
+              "t": "[DECIDE WITH A LAWYER: what may follow repeated late arrivals, late withdrawals or confirmed no-shows, and with what notice.]",
               "mark": true
             }
           ]
@@ -2660,6 +2757,29 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": " a person looks, and rings you first."
+            }
+          ],
+          [
+            {
+              "t": "Three late withdrawals in 60 days ask the office to review your account; so do repeated late arrivals and confirmed no-shows. The office may then ring you and, as a step short of suspension, "
+            },
+            {
+              "t": "pause your new offers",
+              "b": true
+            },
+            {
+              "t": " for 1, 3 or 7 days. You are told, you see the reason in "
+            },
+            {
+              "t": "My account",
+              "b": true
+            },
+            {
+              "t": ", jobs you already have go on, and the pause ends by itself. A pause never costs you money. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: whether a pause needs notice first, and how you can ask for it to be looked at again.]",
+              "mark": true
             }
           ],
           [

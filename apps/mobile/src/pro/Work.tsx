@@ -78,6 +78,9 @@ type Feed = {
   blocked?: boolean;
   /** A guarantee claim on his work he let run out: it stops new offers (checks_and_guarantee). */
   guarantee_block?: { claim_id: string; ref: string; customer: string; can_answer: boolean } | null;
+  /** Paused by the office (reliability, D11): until when, and why. */
+  paused_until?: string | null;
+  pause_note?: string | null;
   /** Claims waiting for his answer or his visit. */
   open_claims?: number;
   jobs: FeedJob[];
@@ -210,6 +213,18 @@ export function Work({ firstName }: { firstName: string }) {
           <Press onPress={() => router.push('/pro/money')} accessibilityRole="button" style={s.blocked}>
             <Text style={s.blockedTitle}>{w.blockedTitle}</Text>
             <Text style={s.blockedText}>{fill(w.blockedText, { owed: rupees(feed.owed_paisa ?? 0), limit: rupees(feed.credit_limit_paisa ?? 0) })}</Text>
+          </Press>
+        ) : null}
+
+        {feed?.paused_until ? (
+          <Press onPress={() => router.push('/pro/money')} accessibilityRole="button" style={s.blocked}>
+            <Text style={s.blockedTitle}>{w.pausedTitle}</Text>
+            <Text style={s.blockedText}>
+              {fill(w.pausedText, {
+                until: new Date(feed.paused_until).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Karachi' }),
+                note: feed.pause_note ?? '',
+              })}
+            </Text>
           </Press>
         ) : null}
 

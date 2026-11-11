@@ -69,3 +69,17 @@ test('the pages name the screens the app really has', () => {
   assert.ok(job.includes(`label="${guarantee!.t}"`), `the job screen has a "${guarantee!.t}" button, as the terms say`);
   assert.ok(allRuns('delete-account').some((r) => r.b && r.t === 'Delete my account'));
 });
+
+test('the buttons the pages name for a technician who cannot come are on the screens (D11)', () => {
+  const plain = (s: string) => s.replace(/[‘’]/g, "'");
+  const words = plain(readFileSync(new URL('../../../apps/mobile/src/words.ts', import.meta.url), 'utf8').replace(/\\u2019/g, '’'));
+  const customer = readFileSync(new URL('../../../apps/mobile/src/customer/Replace.tsx', import.meta.url), 'utf8')
+    + readFileSync(new URL('../../../apps/mobile/src/customer/JobCard.tsx', import.meta.url), 'utf8');
+  const bold = (slug: (typeof LEGAL_SLUGS)[number]) => allRuns(slug).filter((r) => r.b).map((r) => plain(r.t));
+  assert.ok(bold('terms').includes('Find another technician'), 'the terms name Find another technician');
+  assert.ok(customer.includes('label="Find another technician"'), 'the customer has a Find another technician button');
+  for (const name of ["I'm running late", "I can't come"]) {
+    assert.ok(bold('technician-agreement').includes(name), `the agreement names ${name}`);
+    assert.ok(words.includes(`'${name}'`) || words.includes(`"${name}"`), `the technician has an ${name} button`);
+  }
+});

@@ -89,6 +89,7 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
       flag_same_pair: 'Jobs for one customer',
       flag_late_cancels: "A customer's late cancellations before a review",
       flag_unverified_arrivals: 'His arrivals not verified (nor approved) before a review',
+      flag_late_withdrawals: 'His late "I can\'t come" (within 2 hours of his time) before a review',
       flag_not_home: 'Confirmed "nobody home" before a review of the customer',
       flag_not_home_reports: 'His own "nobody home" reports before a look',
       flag_blocked: 'Customers who blocked him',

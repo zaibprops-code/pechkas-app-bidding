@@ -5,6 +5,7 @@ import { Decide, People, when } from './Guarantee.tsx';
 import { shown } from './phones.ts';
 import { NotHomeSections } from './NotHome.tsx';
 import { ArrivalSections } from './Arrivals.tsx';
+import { ReliabilitySections } from './Reliability.tsx';
 
 /**
  * Cancellations, late arrivals and no-shows, from public.admin_cancellations()
@@ -195,6 +196,8 @@ export function Cancellations() {
           <ArrivalSections />
 
           <NotHomeSections />
+
+          <ReliabilitySections />
 
           <section className="card" aria-labelledby="cx-all">
             <h2 id="cx-all">Every cancellation</h2>

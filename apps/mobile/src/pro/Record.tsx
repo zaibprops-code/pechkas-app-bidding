@@ -21,7 +21,7 @@ export type Incident = {
   status: 'recorded' | 'potential' | 'confirmed' | 'dismissed' | 'disputed';
   ref: string;
   minutes_late: number | null;
-  how: 'arrived_late' | 'cancelled_waiting' | 'clock';
+  how: 'arrived_late' | 'cancelled_waiting' | 'clock' | 'replaced_waiting';
   detected_at: string;
   pro_text: string | null;
   office_note: string | null;
@@ -40,7 +40,17 @@ export type ProRecord = {
   /** Arrivals the location check could not verify (arrival_by_location). */
   unverified_arrivals?: { ref: string; arrived_at: string; status: 'pending' | 'rejected' | 'approved'; result: string | null; note: string | null }[];
   unverified_arrivals_at?: number;
+  /** "I can't come" and the office's pauses (reliability, D11). */
+  late_withdrawals?: number;
+  late_withdrawals_at?: number;
+  withdrawals?: { ref: string; trade: string; at: string; kind: 'normal' | 'late'; reason: string }[];
+  paused_until?: string | null;
+  pauses?: { action: 'pause' | 'lift'; days: number | null; until: string | null; note: string; at: string }[];
 };
+
+const day = (iso: string) => new Date(iso).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', timeZone: 'Asia/Karachi' });
+const dayTime = (iso: string) =>
+  new Date(iso).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Karachi' });
 
 export function RecordCard({ record, w, onChanged }: { record: ProRecord; w: ProWords; onChanged: () => void }) {
   const noShowsAt = Number(record.no_shows_at ?? 1);
@@ -76,6 +86,34 @@ export function RecordCard({ record, w, onChanged }: { record: ProRecord; w: Pro
           ))}
         </View>
       ) : null}
+      {record.withdrawals?.length ? (
+        <View style={s.row}>
+          <Text style={s.rowTitle}>{w.recordWithdrawalsTitle}</Text>
+          <Text style={s.note}>{fill(w.recordWithdrawalsHint, { n: record.late_withdrawals_at ?? 3, days: record.days })}</Text>
+          {record.withdrawals.map((x) => (
+            <View key={`${x.ref}-${x.at}`} style={{ gap: 2 }}>
+              <Text style={s.line}>
+                {x.ref} · {day(x.at)} · {w[`cantReason_${x.reason}` as keyof ProWords] ?? x.reason}
+              </Text>
+              <Text style={[s.status, x.kind === 'normal' && { color: colour.green }]}>{w[`recordWithdrawal_${x.kind}` as keyof ProWords]}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+      {record.pauses?.length ? (
+        <View style={s.row}>
+          <Text style={s.rowTitle}>{w.recordPausedTitle}</Text>
+          {record.paused_until ? <Text style={s.status}>{fill(w.recordPausedNow, { until: dayTime(record.paused_until) })}</Text> : null}
+          {record.pauses.map((x) => (
+            <View key={`${x.action}-${x.at}`} style={{ gap: 2 }}>
+              <Text style={s.line}>
+                {day(x.at)} · {x.action === 'pause' ? fill(w.recordPause, { days: x.days ?? '' }) : w.recordLift}
+              </Text>
+              <Text style={s.quote}>{fill(w.recordOffice, { note: x.note })}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
       {record.not_home_reports?.length ? (
         <View style={s.row}>
           <Text style={s.rowTitle}>{w.recordNotHomeTitle}</Text>
@@ -104,7 +142,7 @@ function IncidentRow({ i, w, onChanged }: { i: Incident; w: ProWords; onChanged:
   const what =
     i.kind === 'no_show'
       ? w.recordNoShow
-      : fill(i.how === 'cancelled_waiting' ? w.recordLateCancelled : w.recordLate, { minutes: i.minutes_late ?? 0 });
+      : fill(i.how === 'cancelled_waiting' ? w.recordLateCancelled : i.how === 'replaced_waiting' ? w.recordLateReplaced : w.recordLate, { minutes: i.minutes_late ?? 0 });
   const status = w[`recordStatus_${i.status}` as keyof ProWords];
 
   async function send() {

@@ -38,6 +38,10 @@ const CUSTOMER: QA[] = [
     a: 'Yes, and it is always free. Open the job from My jobs and tap Cancel this job, or, with him at your door, I no longer need this service. Once you have given him the start code, call the office. If he is more than 30 minutes late, cancelling never counts against you.',
   },
   {
+    q: 'My technician is late or cannot come.',
+    a: 'If he cannot come, your job goes straight back to other checked technicians, with everything you posted, and you are told. If he is late or says he is running late, open the job and tap Find another technician: the same job goes to others and nothing is charged. You never have to post it again.',
+  },
+  {
     q: 'He says nobody answered the door.',
     a: 'If nobody answers, he asks Pechkas to tell you, and you can tap I am coming or cancel. If he then reports it, the job closes and nothing is charged to you. If you were home, open the job within 24 hours and tap I was home: the office looks at both sides.',
   },
@@ -70,7 +74,7 @@ const TECHNICIAN: QA[] = [
   },
   {
     q: 'Why can I not make offers?',
-    a: 'While what you owe is over your limit, new offers stop until you pay; My account then says so, with both figures. They also stop while a guarantee claim on your work is left unanswered: answer it under Guarantee claims.',
+    a: 'While what you owe is over your limit, new offers stop until you pay; My account then says so, with both figures. They also stop while a guarantee claim on your work is left unanswered: answer it under Guarantee claims. The office can also pause your new offers for a few days, with its reason; jobs you already have go on, and the pause ends by itself.',
   },
   {
     q: 'The job needs more than the agreed price.',
@@ -94,7 +98,7 @@ const TECHNICIAN: QA[] = [
   },
   {
     q: 'What if I am late?',
-    a: 'Arriving more than 30 minutes after your time begins is recorded as late, and not arriving at all is checked by the office. You can see every record under My account and tell the office if one is wrong. Nothing happens on its own.',
+    a: 'Arriving more than 30 minutes after your time begins is recorded as late, and not arriving at all is checked by the office. If you are held up, tap I\u2019m running late on the job and say when you will be there; if you cannot come at all, tap I can\u2019t come before you arrive, and the job goes back to others. Doing it within 2 hours of your time is a late withdrawal. You can see every record under My account and tell the office if one is wrong. Nothing happens on its own.',
   },
   {
     q: 'Can I change my trades or sectors?',
