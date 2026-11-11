@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { addDays, dayLabel, openWindows, pkNow, WINDOWS, whenLabel, windowLabel } from '../src/index.ts';
+import { addDays, dayLabel, openWindows, pkClock, pkNow, WINDOWS, whenLabel, windowLabel } from '../src/index.ts';
 
 test('the seven windows read the way the database writes them', () => {
   // Must match public.window_text() in the days_profiles_again migration.
@@ -32,4 +32,10 @@ test('when a job is wanted, on every screen', () => {
   // An older job: the part of the day, read from its date.
   assert.equal(whenLabel({ when_kind: 'tomorrow', when_part: 'morning', when_date: '2026-11-01' }, '2026-11-01'), 'Today, morning');
   assert.equal(whenLabel({ when_kind: 'today', when_part: 'evening' }, '2026-11-01'), 'Today, evening');
+});
+
+test("a moment on Pakistan's clock, for \"from 3:45pm\" lines", () => {
+  assert.equal(pkClock('2026-11-11T10:45:00Z'), '3:45pm');
+  assert.equal(pkClock('2026-11-11T19:05:00Z'), '12:05am');
+  assert.equal(pkClock('2026-11-11T02:00:00Z'), '7:00am');
 });

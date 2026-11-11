@@ -77,6 +77,14 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     `Pechkas found this customer wrong ${f.n} times after she said "not finished yet".`,
     'Read those disputes. "Not finished" may be how she avoids paying.',
   ],
+  not_home: (f) => [
+    `The office confirmed ${f.n} times that nobody was home when the technician came.`,
+    'Each one was a wasted trip. Ring her before anything else; she may have a reason. Nothing happens on its own.',
+  ],
+  not_home_reports: (f) => [
+    `${f.n} "nobody home" reports made by him.`,
+    'Most customers are home. Open his reports under Cancellations, look at the photos and times, and ring a few of those customers.',
+  ],
   late_cancels: (f) => [
     `This customer cancelled ${f.n} jobs late: at the door, within 2 hours, or after he set off.`,
     'Each one may have cost a technician a trip. Cancelling stays free; ring her, then mark it reviewed under Cancellations.',

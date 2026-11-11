@@ -758,6 +758,45 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (which drops `jobs_when_from_check` in its throwaway database to set a
   window at any hour).
 
+### Nobody home (migration `…_nobody_home`)
+- **The owner's decision D34 (11 November 2026): a report protects the
+  technician without blaming the customer.** At `arrived`, he may ask
+  Pechkas to tell her (`pro_cannot_get_in(job, reason)`): `nobody_home`
+  only once his window has started and 15 minutes after the later of
+  `arrived_at` and the window's start; `guard` once the window has started,
+  at once. `not_home_from()` is that rule; `pro_my_jobs()` gives
+  `not_home_from` / `guard_from` for the countdown. She has 10 minutes;
+  `customer_not_home_coming()` gives 10 more, once. After the deadline he
+  reports it with a fresh photo (`pro_report_not_home()`, `own_uploads()`,
+  `job_photos.stage = 'gate'`): the job is **cancelled** with
+  `cancelled_by = 'pro'`, D10's record labels it `not_home` or `guard`,
+  never `late`. **No GPS**: the proof is the photo, the database's own
+  timestamps and `push_log`.
+- **`not_home_reports` is the record**, one per job: `asking → coming →
+  (answered | closed)`, or `submitted → disputed → confirmed | rejected`.
+  The start code ends the asking (`answered`), any other end of the job
+  closes it (`job_not_home_asking` trigger). She disputes once within 24
+  hours (`customer_dispute_not_home()`, nobody_home only); the office
+  confirms or rejects with a note (`admin_not_home()`), and reads every
+  report with its history and notifications in `admin_not_home_reports()`.
+- **No money, ever, from a report**: cancelled, never stopped, so no
+  `visit_fees` row, no `collect_paisa`, no ledger line. Each report writes
+  one row to **`uncompensated_visits`** — no customer, `pro_id` cleared on
+  his deletion, outliving her account — with the job's `visit_fee()` as a
+  reference only, so the owner can decide whether Pechkas should pay for
+  these visits (D34.6).
+- **What counts**: `not_home` for her — confirmed, `nobody_home`, and not
+  `pro_was_late` (he tapped Arrived 30+ minutes into his window) — at
+  `flag_not_home` (3); `not_home_reports` for him — his nobody_home reports
+  that are not disputed — at `flag_not_home_reports` (3). A disputed report
+  counts for nobody; a guard report never counts. Flags only.
+- Screens: the technician's `CantGetIn` in `pro/OnTheJob.tsx` and his
+  reports in `pro/Record.tsx`; the customer's `AtDoorCard` / `NotHomeEnded`
+  in `customer/NotHome.tsx`; the office's `apps/admin/src/NotHome.tsx` on
+  the Cancellations page. Times are said with `pkClock()` (Pakistan's clock,
+  `packages/shared`). Rescheduling is not built (D34.7). Tests:
+  `nobodyhome.test.mjs`.
+
 ### Money and trust (phase 5)
 - **Commission is 10% of the LABOUR**: `agreed_paisa − parts_paisa`, through
   `commission_on()`, rounded down, the same as `commission()` in

@@ -7,6 +7,49 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Nobody home (D34), built your way (new — ONE database step, then a new
+build).**
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261111000000_nobody_home.sql`. It should say
+   **Success**. (Safe to run twice.) Run the cancellations step below first
+   if you have not yet.
+2. Make a new **preview** build and install it. (Still edition 4.)
+3. In the admin panel, open **Cancellations**: there are two new sections,
+   **Could not get in** and **Uncompensated visits**.
+
+What happens now:
+
+- **On his job, after I have arrived**, a yellow **Cannot get in?** box.
+  15 minutes after he arrived (and once his time has begun) he can tap
+  **Nobody is answering**; if the guard says no, **The guard will not let
+  me in** straight away.
+- **She is told** ("Bilal is at your door") and her job shows **I am
+  coming** and **Cancel the job**. She has 10 minutes; I am coming gives
+  her 10 more, once.
+- **Then he can report it**, with a photo of the gate taken in the app. The
+  job closes. **Nothing is charged to her and nothing is paid to him.**
+- **She can tap I was home** on the job for 24 hours. That comes to your
+  phone.
+- **On Could not get in you** see each report with the times, his photo,
+  both sides' words and every notification sent, and press **Confirm** or
+  **Reject** with a note both of them read.
+- **Only confirmed reports count against her** (3 in 60 days asks you to
+  review her), never one where he was more than 30 minutes late, never a
+  guard report, never a disputed one until you decide. **His own reports
+  are counted too**: 3 in 60 days asks you to look into him. Both limits
+  are in **Settings → Flags**. Nothing happens to anybody automatically.
+- **Uncompensated visits** lists every wasted trip by month: how many, how
+  long they waited, and the visit fees nobody paid (a reference only). Use
+  it to decide later whether Pechkas should pay for these (D34.6).
+- The app's terms, the technician agreement and the privacy page say all
+  of this, with new [DECIDE WITH A LAWYER] boxes.
+
+To try it with one phone: you need a job whose time has begun. Post one,
+offer as a technician, choose him, tap On my way and I have arrived, wait
+15 minutes, tap **Nobody is answering**, switch to customer mode to see the
+card, wait 10 minutes, then switch back and report it.
+
 **Cancellations, late arrivals and no-shows (D10), built your way (new —
 ONE database step, then a new build).**
 

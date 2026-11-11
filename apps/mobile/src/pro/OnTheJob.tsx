@@ -1,8 +1,8 @@
 import { DuoIcon, type DuoName } from '../components/DuoIcon';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Image, Linking, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
-import { commission, rupees, showMobile, technicianKeeps } from '@pechkas/shared';
+import { commission, pkClock, rupees, showMobile, technicianKeeps } from '@pechkas/shared';
 import { Button } from '../components/ui';
 import { Press } from '../components/Press';
 import { Stars } from '../components/Stars';
@@ -10,6 +10,8 @@ import { OFFICE_PHONE } from '../office';
 import { RemoteMedia, useSignedUrls, type StoredMedia } from '../post/RemoteMedia';
 import { takePhoto, takeVideo, upload } from '../post/media';
 import { ask } from '../supabase';
+import { useToast } from '../components/Toast';
+import { done as asDone } from '../message';
 import { MapBox } from '../components/Map';
 import { fill, proError, type ProWords } from '../words';
 import { colour, font, radius } from '../theme';
@@ -75,6 +77,17 @@ export type ActiveJob = {
   paid_by_pechkas?: boolean;
   /** More than 30 minutes into his window and not arrived (cancellations). */
   late?: boolean;
+  /** He cannot get in (nobody_home): from when he may ask, and where it stands. */
+  not_home_from?: string | null;
+  guard_from?: string | null;
+  not_home?: NotHomeState | null;
+};
+
+export type NotHomeState = {
+  reason: 'nobody_home' | 'guard';
+  status: 'asking' | 'coming' | 'answered' | 'closed' | 'submitted' | 'disputed' | 'confirmed' | 'rejected';
+  deadline: string;
+  can_report: boolean;
 };
 export type FinishedJob = {
   id: string;
@@ -364,6 +377,9 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
 
       {j.stage === 'arrived' && !j.code_locked ? <Text style={s.note}>{w.changeAfterCode}</Text> : null}
 
+      {/* Nobody answers, or the guard says no (nobody_home): Pechkas tells her, then he may report it. */}
+      {j.stage === 'arrived' && j.not_home_from !== undefined ? <CantGetIn j={j} w={w} userId={userId} onChanged={onChanged} /> : null}
+
       {/* A new price only once the start code is in (visit_fee): the code is the proof he is at her door. */}
       {j.stage === 'working' && !j.change && !j.code_locked ? (
         changing ? (
@@ -454,6 +470,87 @@ function Action({ icon, label, full, onPress, on = false }: { icon: DuoName; lab
         {label}
       </Text>
     </Press>
+  );
+}
+
+/**
+ * He cannot get in. The database decides every time: when he may ask, how
+ * long she has, and when he may report. This only shows what it says, and
+ * counts down on Pakistan's clock.
+ */
+function CantGetIn({ j, w, userId, onChanged }: { j: ActiveJob; w: ProWords; userId: string; onChanged: () => void }) {
+  const toast = useToast();
+  const [now, setNow] = useState(Date.now());
+  const [photo, setPhoto] = useState<string[]>([]);
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 15000);
+    return () => clearInterval(t);
+  }, []);
+  const name = j.customer_first_name;
+  const nh = j.not_home;
+  const at = (iso: string | null | undefined) => (iso ? new Date(iso).getTime() : Infinity);
+
+  async function go(fn: string, args: Record<string, unknown>, done?: string) {
+    setBusy(true);
+    setMsg(null);
+    const r = await ask(fn, args);
+    setBusy(false);
+    if (!r.ok) {
+      setMsg(proError(w, r.field, r.why));
+      return onChanged();
+    }
+    if (done) toast.show(asDone(done));
+    setPhoto([]);
+    setNote('');
+    onChanged();
+  }
+
+  const waiting = nh && (nh.status === 'asking' || nh.status === 'coming');
+  const canReport = waiting && (nh.can_report || now >= at(nh.deadline));
+  return (
+    <View style={s.nhBox}>
+      <Text style={s.label}>{w.nhTitle}</Text>
+      {!nh ? (
+        <>
+          {now < at(j.guard_from) ? <Text style={s.note}>{w.nhWindowFirst}</Text> : null}
+          {now < at(j.not_home_from) && now >= at(j.guard_from) ? (
+            <Text style={s.note}>{fill(w.nhCallFirst, { name, time: j.not_home_from ? pkClock(j.not_home_from) : '' })}</Text>
+          ) : null}
+          {now >= at(j.not_home_from) ? (
+            <Button kind="outline" label={w.nhNobody} busy={busy} onPress={() => go('pro_cannot_get_in', { p_job: j.id, p_reason: 'nobody_home' })} />
+          ) : null}
+          {now >= at(j.guard_from) ? (
+            <>
+              {now < at(j.not_home_from) ? <Text style={s.note}>{w.nhGuardNow}</Text> : null}
+              <Button kind="outline" label={w.nhGuard} busy={busy} onPress={() => go('pro_cannot_get_in', { p_job: j.id, p_reason: 'guard' })} />
+            </>
+          ) : null}
+        </>
+      ) : null}
+      {waiting && !canReport ? (
+        <Text style={s.waiting}>
+          {fill(nh.status === 'coming' ? w.nhComing : nh.reason === 'guard' ? w.nhAskedGuard : w.nhAsked, { name, time: pkClock(nh.deadline) })}
+        </Text>
+      ) : null}
+      {canReport ? (
+        <View style={{ gap: 8 }}>
+          <Text style={s.note}>{w.nhCanReport}</Text>
+          <Photos label={w.nhPhoto} paths={photo} setPaths={setPhoto} userId={userId} w={w} onProblem={setMsg} max={1} />
+          <TextInput value={note} onChangeText={setNote} maxLength={300} placeholder={w.nhNote} placeholderTextColor={colour.steel} accessibilityLabel={w.nhNote} style={s.input} />
+          <Button
+            kind="yellow"
+            label={nh.reason === 'guard' ? w.nhReportGuard : w.nhReport}
+            busy={busy}
+            onPress={() => go('pro_report_not_home', { p_job: j.id, p_photo: photo[0] ?? null, p_note: note.trim() || null }, w.nhSent)}
+          />
+          <Text style={s.note}>{w.nhReportNote}</Text>
+        </View>
+      ) : null}
+      {msg ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
+    </View>
   );
 }
 
@@ -714,6 +811,7 @@ const s = StyleSheet.create({
   input: { minHeight: 52, borderRadius: 14, paddingHorizontal: 12, backgroundColor: colour.white, color: colour.ink, fontFamily: font.bodyMedium, fontSize: 16, borderWidth: 1.5, borderColor: colour.rule },
   warn: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 21, color: colour.brick },
   warnSmall: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
+  nhBox: { gap: 8, padding: 14, borderRadius: 18, backgroundColor: colour.softYellow },
   waiting: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 21, color: colour.ink },
   error: { fontFamily: font.bodySemi, fontSize: 13, lineHeight: 18, color: colour.brick },
   photos: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

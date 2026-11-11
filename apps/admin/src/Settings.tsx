@@ -79,6 +79,8 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
       flag_low_stars: 'Ratings of one or two stars',
       flag_same_pair: 'Jobs for one customer',
       flag_late_cancels: "A customer's late cancellations before a review",
+      flag_not_home: 'Confirmed "nobody home" before a review of the customer',
+      flag_not_home_reports: 'His own "nobody home" reports before a look',
       flag_blocked: 'Customers who blocked him',
       flag_price_over_bps: 'A price counts as high when the work is above the top of its range by',
       flag_price_over_jobs: 'Jobs priced high like that',

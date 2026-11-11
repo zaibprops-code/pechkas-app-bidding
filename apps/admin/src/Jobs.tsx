@@ -46,7 +46,7 @@ type Job = {
   assigned_by: 'customer' | 'office' | null;
   pro_name: string | null;
   pro_phone: string | null;
-  cancelled_by: 'customer' | 'office' | 'nobody' | null;
+  cancelled_by: 'customer' | 'office' | 'nobody' | 'pro' | null;
   cancel_reason: string | null;
   created_at: string;
   customer_name: string;
@@ -274,7 +274,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
         msg ? <p className="error" role="alert">{msg}</p> : null
       ) : j.status === 'cancelled' ? (
         <p className="reason">
-          <strong>{j.cancelled_by === 'office' ? 'Cancelled by the office' : j.cancelled_by === 'nobody' ? 'Closed: no technician offered' : 'Cancelled by the customer'}</strong>
+          <strong>{j.cancelled_by === 'office' ? 'Cancelled by the office' : j.cancelled_by === 'nobody' ? 'Closed: no technician offered' : j.cancelled_by === 'pro' ? 'Closed by the technician: he could not get in (see Cancellations)' : 'Cancelled by the customer'}</strong>
           {j.cancel_reason ? `: ${j.cancel_reason}` : ''}
         </p>
       ) : (

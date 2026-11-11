@@ -16,6 +16,7 @@ import { ProProfile } from './ProProfile';
 import { NoOffers } from './NoOffers';
 import { VisitFeeNote } from './VisitFee';
 import { CancelPanel, LateCard, cancelledNote, type CancelFields } from './Cancel';
+import { AtDoorCard, NotHomeEnded, type CustomerNotHome } from './NotHome';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { ask, supabase } from '../supabase';
 import { colour, font, radius } from '../theme';
@@ -45,7 +46,9 @@ export type Job = JobNow & Omit<CancelFields, 'id' | 'ref' | 'status' | 'stage' 
   street: string;
   house: string;
   live_offers: number;
-  cancelled_by: 'customer' | 'office' | 'nobody' | null;
+  cancelled_by: 'customer' | 'office' | 'nobody' | 'pro' | null;
+  /** He could not get in (nobody_home): being asked, and after his report. */
+  not_home?: CustomerNotHome | null;
   /** Nobody has offered yet: told once, and what she may do about it (when_nobody_offers). */
   nudged?: boolean;
   raises_left?: number;
@@ -171,6 +174,8 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
               : 'Waiting for offers'
             : job.cancelled_by === 'office'
               ? 'Cancelled by Pechkas'
+              : job.cancelled_by === 'pro'
+                ? job.not_home?.reason === 'guard' ? 'Closed: the guard did not let him in' : 'Closed: nobody answered'
               : job.cancelled_by === 'nobody'
                 ? 'No technician was free'
                 : 'Cancelled';
@@ -251,7 +256,12 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
 
       {/* He is late or has not come: cancel free, never counted against her, or keep waiting. */}
       {assigned && job.pro && canCancel && (job.no_show || job.pro_late) ? <LateCard job={job} onDone={onChanged} /> : null}
+      {/* He is at her door and cannot get in (nobody_home): I'm coming, or cancel. */}
+      {assigned && job.pro && (job.not_home?.status === 'asking' || job.not_home?.status === 'coming') ? <AtDoorCard job={job} onChanged={onChanged} /> : null}
       {assigned && job.pro ? <UnderWay job={job} onChanged={onChanged} /> : null}
+      {job.status === 'cancelled' && job.not_home && ['submitted', 'disputed', 'confirmed', 'rejected'].includes(job.not_home.status) ? (
+        <NotHomeEnded job={job} onChanged={onChanged} />
+      ) : null}
       {ended ? <Ended job={job} onChanged={onChanged} /> : null}
 
       {/* Everything else she can do with this job, together at the foot, where nobody taps it by mistake. */}

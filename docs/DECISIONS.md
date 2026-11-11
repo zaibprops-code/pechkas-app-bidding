@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 10 November 2026 (D12 and D10 built). The same list as a map you can tap through:
+_Last updated: 11 November 2026 (D12, D10 and D34 built). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -282,11 +282,13 @@ show whether they are right.
   | --- | --- |
   | His late arrivals (more than 30 minutes) | 3 |
   | His confirmed no-shows | 1 |
+  | His own "nobody home" reports | 3 |
   | Wrong start codes on his jobs | 5 |
   | 1–2 star ratings | 3 |
   | Problems reported about somebody | 2 |
   | Jobs for one customer | 4 |
   | A customer's late cancellations | 3 |
+  | Office-confirmed "nobody home" for a customer | 3 |
   | Refused new prices | 30% of his jobs, once he has 3 |
   | Asked a new price | 50% of his jobs, once he has 3 |
   | Parts-heavy jobs (parts ≥ 60% of the price) | 2 |
@@ -349,24 +351,15 @@ show whether they are right.
 These came up when the app was checked for situations nobody has decided.
 Each one happens in real life; today the office handles it by hand.
 
-#### D34. Nobody home when the technician arrives
-- **The question:** He arrives in his window and nobody opens the door, or
-  the customer does not answer. Does she owe the visit fee? How long must
-  he wait, and how many times must he call first?
-- **Today:** No rule and no button. He can ring her or the office. The
-  office can call the job off by hand, and nothing is charged.
-- **Options:**
-  - (a) The office decides each case.
-  - (b) After he has waited and called, he taps "Nobody home" with a photo
-    of the gate, and she owes the visit fee.
-  - (c) No charge, only a flag.
-- **Linked to:** D10 (cancelling) and D12 (the visit fee).
-- **Who decides:** You.
-- **Follow-up questions:** D34.1 how long he waits (suggestion: 15 minutes
-  from the start of his window); D34.2 how many calls, recorded by the app;
-  D34.3 proof (a photo of the gate in the app); D34.4 fee or no fee (kept
-  separate from the visit fee, as you asked; suggestion: the office decides
-  each case for launch); D34.5 she says she was home (to the office).
+#### D34. Nobody home — decided and built (A47–A52)
+- **Your decision** (11 November 2026) is now in Part 2 as A47–A52.
+- **Still open:**
+  - **D34.6 Should Pechkas ever pay a technician for a visit where nobody
+    was home?** Not at launch. The admin panel's Cancellations page now
+    keeps every such visit, with the job's visit fee as a reference, so you
+    can decide from real numbers. You + lawyer.
+  - **D34.7 "Come back later"**: moving a visit to another window instead
+    of cancelling and posting again. Postponed by you; not built.
 
 #### D35. A customer who does not pay the technician
 - **The question:** The job is done, but she refuses to pay him or pays
@@ -478,6 +471,17 @@ What the app and the website do today. Reopen any item by its number.
 | A44 | **A late arrival** is "Arrived" more than 30 minutes after his window starts, or her cancelling because he had not come by then. **A potential no-show** is no "Arrived" 30 minutes after his window ends: she, he and the office are told, and she may cancel free or keep waiting. It counts only once the office has confirmed it. |
 | A45 | **Reviews, never penalties.** A customer with 3 late cancellations in 60 days, or a technician with 3 late arrivals or 1 confirmed no-show in 60 days, is put in front of the office. The old "5 cancellations" and "cancelled after he was chosen" flags are retired. Nothing suspends, blocks or charges anybody. He sees his record in My account and can dispute any of it; the office confirms or dismisses each with a note he reads. |
 | A46 | **Only a potential no-show, or his dispute, reaches the office's phone at once**; other cancellations wait on the admin panel's Cancellations page. The website and the app's terms say the same rule, and the lawyer markers stay. |
+
+### Nobody home (decided 11 November 2026)
+
+| # | Decision |
+| --- | --- |
+| A47 | **A "nobody home" report protects the technician without blaming the customer.** It is an allegation, not a finding: submitted (awaiting review), disputed, then confirmed or rejected by the office. |
+| A48 | **When he may ask:** after tapping Arrived, once his window has started, and 15 minutes after the later of the two. The customer is notified and has **10 minutes**; **"I'm coming" gives her 10 more**, once. Only then can he report it, with a photo taken in the app. Proof is the photo, the database's own timestamps and the record of notifications sent. **No GPS.** |
+| A49 | **No money moves:** nothing is charged to the customer and nothing is paid to the technician. The job is cancelled, never stopped, so it can never create a visit fee (D12) or a debt. Every such visit is kept separately as an **uncompensated visit**, with the job's visit fee as a reference only, to decide later whether Pechkas should pay for them. |
+| A50 | **What counts:** only **3 office-confirmed** "nobody home" reports in 60 days ask the office to review a customer; never one where the technician arrived more than 30 minutes after his window began. **3 "nobody home" reports by one technician** in 60 days ask the office to look into him, never a suspension. A **disputed** report counts against nobody until the office decides. |
+| A51 | **"Guard refused entry"** is its own reason and label. He can ask as soon as his window has started (she can ring her guard). It counts against neither of them. |
+| A52 | **The customer may say "I was home"** within 24 hours; it goes to the office. D34 sits beside D10 (its own cancellation label, never a late cancellation) and D12 (never a visit fee) without changing their rules. **Rescheduling is not part of it** (D34.7). |
 
 ### Trust and safety
 

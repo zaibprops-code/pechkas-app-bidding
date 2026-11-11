@@ -38,6 +38,10 @@ const CUSTOMER: QA[] = [
     a: 'Yes, and it is always free. Open the job from My jobs and tap Cancel this job, or, with him at your door, I no longer need this service. Once you have given him the start code, call the office. If he is more than 30 minutes late, cancelling never counts against you.',
   },
   {
+    q: 'He says nobody answered the door.',
+    a: 'If nobody answers, he asks Pechkas to tell you, and you can tap I am coming or cancel. If he then reports it, the job closes and nothing is charged to you. If you were home, open the job within 24 hours and tap I was home: the office looks at both sides.',
+  },
+  {
     q: 'What is the start code?',
     a: 'Four numbers on your job once you have chosen a technician. Give them to him at the door, once you have seen him: they prove he is the person Pechkas sent. Never read them out on the phone.',
   },
@@ -79,6 +83,10 @@ const TECHNICIAN: QA[] = [
   {
     q: 'A guarantee claim on my work.',
     a: 'Open Guarantee claims from the menu. Answer within 24 hours: I’ll come, with a time within 48 hours, or This isn’t my work, with a reason for Pechkas to decide. If you do not answer or miss the visit, your new offers stop and another technician is sent; the cost may be charged to you, never more than your labour on the job. You are told the amount first and have 7 days to appeal before it is added to what you owe.',
+  },
+  {
+    q: 'Nobody answers at the door.',
+    a: 'Call the customer first. 15 minutes after you tapped I have arrived (and once your time has begun), tap Nobody is answering, or straight away The guard will not let me in: Pechkas tells her, and she has 10 minutes, or 10 more if she says she is coming. Then you can report it with a photo of the gate. The job closes, and the office checks every report. Nothing is charged or paid.',
   },
   {
     q: 'What if I am late?',

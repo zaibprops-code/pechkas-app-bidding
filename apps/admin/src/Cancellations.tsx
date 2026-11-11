@@ -3,6 +3,7 @@ import { Head } from './Duo.tsx';
 import { ask, supabase } from './supabase.ts';
 import { Decide, People, when } from './Guarantee.tsx';
 import { shown } from './phones.ts';
+import { NotHomeSections } from './NotHome.tsx';
 
 /**
  * Cancellations, late arrivals and no-shows, from public.admin_cancellations()
@@ -16,7 +17,7 @@ import { shown } from './phones.ts';
  * Nothing here suspends, blocks or charges anybody.
  */
 
-type Category = 'before_choosing' | 'normal' | 'late' | 'pro_late' | 'no_show' | 'office' | 'unclaimed' | 'before_rules';
+type Category = 'before_choosing' | 'normal' | 'late' | 'pro_late' | 'no_show' | 'office' | 'unclaimed' | 'before_rules' | 'not_home' | 'guard';
 type Cancellation = {
   id: string;
   job_id: string;
@@ -27,7 +28,7 @@ type Cancellation = {
   customer_id: string;
   customer: string;
   pro: string | null;
-  cancelled_by: 'customer' | 'office' | 'nobody';
+  cancelled_by: 'customer' | 'office' | 'nobody' | 'pro';
   cancel_for: 'customer' | 'pro' | 'other' | null;
   category: Category;
   reason_code: string | null;
@@ -89,6 +90,8 @@ const CATEGORY: Record<Category, string> = {
   office: 'By the office',
   unclaimed: 'Nobody took it',
   before_rules: 'Before the rules',
+  not_home: 'Nobody home',
+  guard: 'Guard refused entry',
 };
 const MEANS: Record<Category, string> = {
   before_choosing: 'No technician had been chosen.',
@@ -99,6 +102,8 @@ const MEANS: Record<Category, string> = {
   office: 'The office cancelled it.',
   unclaimed: 'Nobody offered by 8pm on its day.',
   before_rules: 'Cancelled before 10 November 2026, when these rules began. Counted nowhere.',
+  not_home: 'The technician reported nobody answered. Counts only once you confirm it, below under Could not get in.',
+  guard: 'The technician reported the guard would not let him in. Counts against nobody.',
 };
 const REASON: Record<string, string> = {
   fixed_myself: 'Fixed it herself',
@@ -186,10 +191,12 @@ export function Cancellations() {
             </div>
           </section>
 
+          <NotHomeSections />
+
           <section className="card" aria-labelledby="cx-all">
             <h2 id="cx-all">Every cancellation</h2>
             <div className="chips" role="group" aria-label="Show">
-              {(['all', 'late', 'normal', 'before_choosing', 'pro_late', 'no_show', 'office', 'unclaimed', 'before_rules'] as const).map((k) => (
+              {(['all', 'late', 'normal', 'before_choosing', 'pro_late', 'no_show', 'not_home', 'guard', 'office', 'unclaimed', 'before_rules'] as const).map((k) => (
                 <button key={k} className={filter === k ? 'chip on' : 'chip'} aria-pressed={filter === k} onClick={() => setFilter(k)}>
                   {k === 'all' ? 'All' : CATEGORY[k]}
                 </button>
@@ -395,7 +402,7 @@ function CancelLine({ c }: { c: Cancellation }) {
             {c.trade} · {c.title} · {c.sector}
           </p>
           <p>
-            Cancelled by {c.cancelled_by === 'office' ? `the office ${FOR[c.cancel_for ?? 'other']}`.trim() : c.cancelled_by === 'nobody' ? 'nobody (closed by the clock)' : 'the customer'}
+            Cancelled by {c.cancelled_by === 'office' ? `the office ${FOR[c.cancel_for ?? 'other']}`.trim() : c.cancelled_by === 'nobody' ? 'nobody (closed by the clock)' : c.cancelled_by === 'pro' ? 'the technician (he could not get in)' : 'the customer'}
             {c.stage ? ` · at step: ${c.stage.replace('_', ' ')}` : ''}
           </p>
           {c.reason_code || c.reason_text ? (

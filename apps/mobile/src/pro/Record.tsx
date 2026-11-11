@@ -34,6 +34,9 @@ export type ProRecord = {
   no_shows_at?: number;
   days: number;
   incidents: Incident[];
+  /** The nobody-home reports he made (nobody_home). */
+  not_home_reports?: { id: string; ref: string; reason: 'nobody_home' | 'guard'; status: 'submitted' | 'disputed' | 'confirmed' | 'rejected'; submitted_at: string; office_note: string | null }[];
+  not_home_reports_at?: number;
 };
 
 export function RecordCard({ record, w, onChanged }: { record: ProRecord; w: ProWords; onChanged: () => void }) {
@@ -55,6 +58,21 @@ export function RecordCard({ record, w, onChanged }: { record: ProRecord; w: Pro
       {record.incidents.map((i) => (
         <IncidentRow key={i.id} i={i} w={w} onChanged={onChanged} />
       ))}
+      {record.not_home_reports?.length ? (
+        <View style={s.row}>
+          <Text style={s.rowTitle}>{w.recordNotHomeTitle}</Text>
+          <Text style={s.note}>{fill(w.recordNotHomeHint, { n: record.not_home_reports_at ?? 3, days: record.days })}</Text>
+          {record.not_home_reports.map((r) => (
+            <View key={r.id} style={{ gap: 2 }}>
+              <Text style={s.line}>
+                {r.ref} · {new Date(r.submitted_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' })} · {w[`recordNotHome_${r.reason}` as keyof ProWords]}
+              </Text>
+              <Text style={s.status}>{w[`recordNhStatus_${r.status}` as keyof ProWords]}</Text>
+              {r.office_note ? <Text style={s.quote}>{fill(w.recordOffice, { note: r.office_note })}</Text> : null}
+            </View>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }

@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "7a46692";
+export const LEGAL_FROM = "7b7adc3";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -370,6 +370,11 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             {
               "t": "For technicians: each late arrival and each time he had not arrived 30 minutes after his time ended, how many minutes it was, anything he wrote about it, and what the office decided, its note and who decided."
             }
+          ],
+          [
+            {
+              "t": "If a technician cannot get in: the reason (nobody answering, or the guard), when he arrived, when his time began, when the customer was told and whether she said she was coming, his photo of the gate or door and any note, the time he reported it, her words if she says she was home, and what the office decided. No location is taken for this."
+            }
           ]
         ]
       },
@@ -660,7 +665,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "A job's checks, guarantee claims, visit fee and cancellation are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account. A technician's record of late arrivals and no-shows is deleted with his account."
+              "t": "A job's checks, guarantee claims, visit fee and cancellation are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account. A technician's record of late arrivals and no-shows is deleted with his account, and so are the reports he made that he could not get in."
             }
           ],
           [
@@ -670,6 +675,15 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": " the record of what a technician owed Pechkas and paid, which we keep for accounting. That includes any guarantee charge to a technician and any payment Pechkas made for a guarantee repair or a visit fee. It holds the job number, the amounts and the technician's name, and nothing about the customer."
+            }
+          ],
+          [
+            {
+              "t": "Also kept after deletion:",
+              "b": true
+            },
+            {
+              "t": " a record of each visit a technician made where he could not get in: the job number, trade, sector, day, the reason, how long he waited and the outcome. It names no customer, and the technician's name comes off it when he deletes his account. Pechkas uses it to understand what these visits cost."
             }
           ],
           [
@@ -1335,6 +1349,61 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           [
             {
               "t": "[DECIDE WITH A LAWYER: whether late cancellations may ever lead to a charge or a restriction, and with what notice; and whether Pechkas owes anything to a customer when a technician does not arrive.]",
+              "mark": true
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
+        "text": "If the technician cannot get in"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "If nobody answers at your door, or your guard does not let the technician in, he can ask Pechkas to tell you through the app. You then have 10 minutes to tap "
+            },
+            {
+              "t": "I am coming",
+              "b": true
+            },
+            {
+              "t": " (or "
+            },
+            {
+              "t": "I have told the guard",
+              "b": true
+            },
+            {
+              "t": "), which gives you 10 minutes more, or to cancel."
+            }
+          ],
+          [
+            {
+              "t": "If you do not come, he can report it with a photo of the gate or door taken in the app. The job closes. "
+            },
+            {
+              "t": "Nothing is charged to you, and nothing is paid to him.",
+              "b": true
+            }
+          ],
+          [
+            {
+              "t": "A report is the technician's word, not a finding. If you were home, tap "
+            },
+            {
+              "t": "I was home",
+              "b": true
+            },
+            {
+              "t": " on the job within 24 hours, and the Pechkas office looks at both sides. Only a report the office confirms can count towards a review of your account, never one where he arrived more than 30 minutes after his time began, and never one about a guard. Nothing is decided automatically."
+            }
+          ],
+          [
+            {
+              "t": "[DECIDE WITH A LAWYER: whether a customer who repeatedly is not home may ever be charged or restricted, and with what notice.]",
               "mark": true
             }
           ]
@@ -2362,6 +2431,71 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           [
             {
               "t": "[DECIDE WITH A LAWYER: what may follow repeated late arrivals or confirmed no-shows, and with what notice.]",
+              "mark": true
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
+        "text": "If you cannot get in"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "Call the customer first. Once your time has begun, and 15 minutes after the later of your "
+            },
+            {
+              "t": "I have arrived",
+              "b": true
+            },
+            {
+              "t": " and the start of your time, tap "
+            },
+            {
+              "t": "Nobody is answering",
+              "b": true
+            },
+            {
+              "t": ". If the guard will not let you in, tap "
+            },
+            {
+              "t": "The guard will not let me in",
+              "b": true
+            },
+            {
+              "t": " as soon as your time has begun. Pechkas tells the customer; she has 10 minutes, or 10 more if she says she is coming."
+            }
+          ],
+          [
+            {
+              "t": "After that you can report it, with a photo of the gate or door taken in the app. The job closes. "
+            },
+            {
+              "t": "Nothing is paid to you for the visit, and nothing is charged to the customer.",
+              "b": true
+            },
+            {
+              "t": " Pechkas keeps a record of these visits to decide later whether to pay for them."
+            }
+          ],
+          [
+            {
+              "t": "The office checks every report and may confirm or reject it with a note you can read. The customer may say she was home. If you often report nobody home, the office looks into it; "
+            },
+            {
+              "t": "nothing happens automatically",
+              "b": true
+            },
+            {
+              "t": "."
+            }
+          ],
+          [
+            {
+              "t": "[DECIDE WITH A LAWYER: whether Pechkas will ever pay for a visit where nobody was home, and what may follow reports the office finds untrue.]",
               "mark": true
             }
           ]

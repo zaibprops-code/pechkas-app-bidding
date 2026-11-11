@@ -292,6 +292,17 @@ export function pkNow(at: Date = new Date()): { date: string; hour: number } {
   return { date: pk.toISOString().slice(0, 10), hour: pk.getUTCHours() };
 }
 
+/**
+ * A moment as a clock on Pakistan's time, "3:45pm", whatever the phone's own
+ * time zone (Pakistan keeps no summer time, so it is always five hours on).
+ */
+export function pkClock(iso: string): string {
+  const pk = new Date(new Date(iso).getTime() + 5 * 60 * 60 * 1000);
+  const h = pk.getUTCHours();
+  const m = String(pk.getUTCMinutes()).padStart(2, '0');
+  return `${h % 12 === 0 ? 12 : h % 12}:${m}${h < 12 ? 'am' : 'pm'}`;
+}
+
 /** The date `n` days after `date` (both "YYYY-MM-DD"). */
 export function addDays(date: string, n: number): string {
   const d = new Date(`${date}T00:00:00Z`);
