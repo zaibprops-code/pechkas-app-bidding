@@ -152,10 +152,15 @@ others depend on its answer.
     inspection fee, a different thing, but a useful anchor.
   - **D39** covers a different fee in each city.
 
-#### D13. Commission on a visit fee
-- **The question:** Should Pechkas take 10% of a visit fee?
-- **Today:** No commission on a visit fee. It is petrol, not work.
-- **Who decides:** You (confirm, or change).
+#### D13. Commission on a visit fee — decided and built (A66, A67)
+- **Your decision** (11 November 2026) is now in Part 2 as A66 and A67.
+- **Still open:**
+  - **D13.1** Look at it again **if the visit fee ever goes above Rs 300**,
+    for example with a distance-based fee. Decide then from what technicians
+    earn and what visits cost, not just because the fee went up.
+  - **D13.2** A review **after 2–3 months of real jobs**: how often jobs
+    stop with a visit fee, per technician, and what the Visit fees page's
+    "At 10% (not charged)" column adds up to.
 
 #### D14. Paying technicians what Pechkas owes them
 - **The question:** After a guarantee repair, Pechkas can owe a technician
@@ -499,6 +504,12 @@ What the app and the website do today. Reopen any item by its number.
 | A56 | **A tap is not an arrival.** `arrived_at` (the tap), `arrival_verified_at` (GPS) and the review status are kept apart. Only a verified arrival, the office's approval or the customer's start code satisfies it; an unverified tap does not stop D10's no-show watch and never becomes a confirmed no-show by itself. **3 unverified arrivals in 60 days** (not approved) ask the office to review him. A poor signal, a refused permission or a wrong pin is never misconduct by itself. |
 | A57 | **Photographs:** optional when the location check verifies; **required** (taken with Pechkas' camera, never the gallery) when it fails; if the camera does not work, he says why and the report goes to the office as unverified. |
 | A58 | **The office may approve an arrival or confirm a report even when GPS failed**, always with a reason, its name and the time, kept in a review record nobody can change. Only office-confirmed incidents count towards the customer's review. |
+
+### Commission (decided 11 November 2026)
+| | |
+|---|---|
+| A66 | **Pechkas takes 0% of a visit fee; the technician keeps all of it** — as already built under A36, so nothing about money changed. The admin **Visit fees** page now shows the totals: recorded, paid by customers, paid by Pechkas, not paid yet, waived (and any money to give back), kept by technicians, Pechkas' commission (Rs 0), and **what 10% of the fees customers really paid would have been**, by month. That last figure is for comparison only: it is never owed, never a ledger line and never touches anybody's balance. Each fee is counted once, where it stands today. |
+| A67 | **The rule for every commission decision: Pechkas earns commission only on completed repair labour for which the customer has paid.** Visit fees, genuine parts (with a shop receipt), guarantee repairs funded by Pechkas, cancelled bookings, no-shows and unsuccessful visits never generate commission. "Completed and paid" means the job counts as done (her **Yes, it works**, the 24-hour clock, or the office): the app never sees the cash, which goes straight from her to him. |
 
 ### A technician who cannot come (decided 11 November 2026)
 | | |

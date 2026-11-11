@@ -72,8 +72,34 @@ type PendingChange = {
   visit_fee_paisa: number;
 };
 type Earning = { pro_id: string; pro: string | null; paid_paisa: number; covered_paisa: number; waiting_paisa: number; count: number };
+/** One month, or the total: every fee counted once, by where it stands today (visit_fee_report, D13). */
+type Sums = {
+  month: string;
+  count: number;
+  recorded_paisa: number;
+  paid_count: number;
+  paid_paisa: number;
+  outstanding_count: number;
+  outstanding_paisa: number;
+  disputed_count: number;
+  disputed_paisa: number;
+  waived_count: number;
+  waived_paisa: number;
+  refund_owed_paisa: number;
+  refunded_paisa: number;
+  covered_count: number;
+  covered_paisa: number;
+  covered_guarantee_paisa: number;
+  covered_unpaid_paisa: number;
+  customers_owing_count: number;
+  kept_paisa: number;
+  commission_paisa: number;
+  potential_commission_paisa: number;
+};
 type Report = {
   fee_now: number;
+  /** Absent until the database change 20261112100000_visit_fee_report.sql has run. */
+  report?: { commission_bps: number; total: Sums; months: Sums[] };
   fees: Fee[];
   changes: PendingChange[];
   earnings: Earning[];
@@ -172,6 +198,12 @@ export function VisitFees() {
               ))}
             </div>
           </section>
+
+          {r.report ? (
+            <Totals rep={r.report} />
+          ) : (
+            <p className="card muted">Totals appear once the database change 20261112100000_visit_fee_report.sql has run in Supabase.</p>
+          )}
 
           <section className="card" aria-labelledby="fees-all">
             <h2 id="fees-all">All visit fees</h2>
@@ -421,5 +453,100 @@ function FeeLine({ f, onDone }: { f: Fee; onDone: () => void }) {
         </>
       ) : null}
     </div>
+  );
+}
+
+const monthName = (m: string) => new Date(`${m}-15T12:00:00Z`).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+/**
+ * Where every visit fee stands (the owner's decision D13). Each fee is in one
+ * column only, so the columns add up to what was recorded. The potential
+ * commission is what 10% of the fees customers really paid would have been:
+ * a figure for deciding D13 again, never money anybody owes.
+ */
+function Totals({ rep }: { rep: NonNullable<Report['report']> }) {
+  const t = rep.total;
+  const pct = `${Number(rep.commission_bps) / 100}%`;
+  return (
+    <section className="stack" aria-labelledby="fees-sums">
+      <h2 id="fees-sums">Totals</h2>
+      <div className="tiles">
+        <div className="tile">
+          <span className="muted small">Recorded ({t.count})</span>
+          <strong>{money(t.recorded_paisa)}</strong>
+        </div>
+        <div className="tile">
+          <span className="muted small">Kept by technicians</span>
+          <strong>{money(t.kept_paisa)}</strong>
+          <span className="muted small">
+            Paid by customers {money(t.paid_paisa)} · by Pechkas {money(t.covered_paisa)}
+          </span>
+        </div>
+        <div className="tile">
+          <span className="muted small">Not paid yet ({Number(t.outstanding_count) + Number(t.disputed_count)})</span>
+          <strong>{money(Number(t.outstanding_paisa) + Number(t.disputed_paisa))}</strong>
+          <span className="muted small">Of which questioned {money(t.disputed_paisa)}</span>
+        </div>
+        <div className="tile">
+          <span className="muted small">Waived ({t.waived_count})</span>
+          <strong>{money(t.waived_paisa)}</strong>
+          {Number(t.refund_owed_paisa) || Number(t.refunded_paisa) ? (
+            <span className="muted small">
+              To give back {money(t.refund_owed_paisa)} · given back {money(t.refunded_paisa)}
+            </span>
+          ) : null}
+        </div>
+        <div className="tile">
+          <span className="muted small">Pechkas' commission</span>
+          <strong>{money(t.commission_paisa)}</strong>
+          <span className="muted small">
+            At {pct} it would have been {money(t.potential_commission_paisa)}: for comparison only, never charged
+          </span>
+        </div>
+      </div>
+      <p className="muted small">
+        Each fee is counted once, where it stands today, so the columns add up to what was recorded. "By Pechkas" is a guarantee repair's fee (
+        {money(t.covered_guarantee_paisa)}) or one a customer did not pay ({money(t.covered_unpaid_paisa)}
+        {Number(t.customers_owing_count)
+          ? `; ${t.customers_owing_count} customer${Number(t.customers_owing_count) === 1 ? '' : 's'} not yet settled with Pechkas`
+          : ''}
+        ). The possible commission is {pct} of what customers really paid, rounded down per fee. Nobody owes it and it never touches a balance:
+        Pechkas takes no commission on visit fees.
+      </p>
+      {rep.months.length ? (
+        <div className="card scroll">
+          <table className="ledger">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th className="num">Fees</th>
+                <th className="num">Recorded</th>
+                <th className="num">By customers</th>
+                <th className="num">By Pechkas</th>
+                <th className="num">Not paid</th>
+                <th className="num">Waived</th>
+                <th className="num">Kept</th>
+                <th className="num">{pct}, not charged</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rep.months.map((m) => (
+                <tr key={m.month}>
+                  <td style={{ whiteSpace: 'nowrap' }}>{monthName(m.month)}</td>
+                  <td className="num">{m.count}</td>
+                  <td className="num">{money(m.recorded_paisa)}</td>
+                  <td className="num">{money(m.paid_paisa)}</td>
+                  <td className="num">{money(m.covered_paisa)}</td>
+                  <td className="num">{money(Number(m.outstanding_paisa) + Number(m.disputed_paisa))}</td>
+                  <td className="num">{money(m.waived_paisa)}</td>
+                  <td className="num">{money(m.kept_paisa)}</td>
+                  <td className="num">{money(m.potential_commission_paisa)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </section>
   );
 }

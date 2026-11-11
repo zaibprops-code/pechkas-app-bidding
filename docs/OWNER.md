@@ -7,6 +7,21 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Visit fee totals (D13) — ONE database step, nothing else.**
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261112100000_visit_fee_report.sql` after
+   `20261112000000_reliability.sql`. It should say **Success**. (Safe to run
+   twice.) No new app build is needed: only the admin panel changed, and
+   Vercel rebuilds it by itself.
+2. Open the admin panel → **Visit fees**. Under **Needs you** there is now
+   **Totals**: recorded, kept by technicians (paid by customers and by
+   Pechkas), not paid yet, waived, Pechkas' commission (**Rs 0**), and what
+   10% would have been, with a table by month.
+3. Nothing about money changed: technicians still keep the whole visit fee.
+   The 10% figure is only there so you can look at D13 again with real
+   numbers (D13.1 if the fee ever goes above Rs 300; D13.2 after 2–3 months).
+
 **A technician who cannot come (D11) — ONE database step and a new
 build.**
 

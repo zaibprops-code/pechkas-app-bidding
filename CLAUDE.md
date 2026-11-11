@@ -909,6 +909,21 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `packages/shared`. Parts need a receipt photo (`job_photos.stage =
   'receipt'`). `parts_paisa` and `commission_paisa` are fixed on the job
   when it is done. A visit fee (`stopped`) carries no commission.
+- **The owner's rule for every commission (D13, A67): Pechkas earns
+  commission only on completed repair labour the customer has paid for**
+  — a job that counts as `done`. Never on a visit fee, parts with a
+  receipt, a `paid_by_pechkas` repair, a cancellation, a no-show or an
+  unsuccessful visit. A new kind of money starts at no commission unless
+  the owner decides otherwise.
+- **`visit_fee_report()`** (migration `…_visit_fee_report`, granted to
+  nobody, read through `admin_visit_fees().report`) puts every fee in ONE
+  bucket by its status today — paid, outstanding (due/unpaid), disputed,
+  waived, covered — so the buckets add up to `recorded` by count and
+  rupees, per Pakistan month and in total; kept = paid + covered. Its
+  `potential_commission_paisa` is `commission_at()` at the locked
+  `commission_bps` on **paid** fees only, per fee: a figure on a report,
+  never a ledger line or a balance. `feereport.test.mjs` moves fees
+  through every state and checks nothing is counted twice.
 - **The ledger is double-entry and written once.** `ledger_txns` +
   `ledger_entries`; every transaction's lines sum to zero (checked by
   `post_txn()` and by a deferred constraint trigger); UPDATE, DELETE and
