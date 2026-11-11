@@ -12,7 +12,7 @@ import { takePhoto, takeVideo, upload } from '../post/media';
 import { ask } from '../supabase';
 import { useToast } from '../components/Toast';
 import { done as asDone } from '../message';
-import { MapBox } from '../components/Map';
+import { MapBox, fixNow } from '../components/Map';
 import { fill, proError, type ProWords } from '../words';
 import { colour, font, radius } from '../theme';
 
@@ -81,6 +81,16 @@ export type ActiveJob = {
   not_home_from?: string | null;
   guard_from?: string | null;
   not_home?: NotHomeState | null;
+  /** His own arrival check (arrival_by_location): the result and distance, never coordinates. */
+  arrival?: ArrivalState | null;
+};
+
+export type ArrivalState = {
+  status: 'pending' | 'verified' | 'approved' | 'rejected' | 'code' | 'before_checks' | null;
+  result: 'verified' | 'too_far' | 'poor_accuracy' | 'stale' | 'faked' | 'no_pin' | 'no_location' | 'outside_pakistan' | null;
+  distance_m: number | null;
+  accuracy_m: number | null;
+  review_note: string | null;
 };
 
 export type NotHomeState = {
@@ -287,10 +297,23 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
 
       {j.stage === 'on_way' ? (
         <View style={s.step}>
-          <Button kind="yellow" label={w.arrived} busy={busy} onPress={() => run('tech_step', { p_job: j.id, p_from: 'on_way' })} />
+          {/* One fresh reading, sent with the tap; the database judges it. A failed check never stops him. */}
+          <Button
+            kind="yellow"
+            label={w.arrived}
+            busy={busy}
+            onPress={async () => {
+              setBusy(true);
+              const loc = await fixNow();
+              await run('tech_step', { p_job: j.id, p_from: 'on_way', p_loc: loc });
+            }}
+          />
           <Text style={s.note}>{w.arrivedNote}</Text>
+          <Text style={s.note}>{w.locationWhy}</Text>
         </View>
       ) : null}
+
+      {j.stage === 'arrived' && j.arrival ? <ArrivalCheck j={j} w={w} onChanged={onChanged} /> : null}
 
       {j.stage === 'arrived' && j.code_locked ? (
         <View style={s.step}>
@@ -473,6 +496,40 @@ function Action({ icon, label, full, onPress, on = false }: { icon: DuoName; lab
   );
 }
 
+/** What the location check found at his arrival, and checking again at the door. */
+function ArrivalCheck({ j, w, onChanged }: { j: ActiveJob; w: ProWords; onChanged: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const a = j.arrival!;
+  if (a.status === 'before_checks') return null;
+
+  async function again() {
+    setBusy(true);
+    setMsg(null);
+    const loc = await fixNow();
+    const r = await ask('pro_check_arrival', { p_job: j.id, p_loc: loc });
+    setBusy(false);
+    if (!r.ok) setMsg(proError(w, r.field, r.why));
+    onChanged();
+  }
+
+  // Distances as a person says them: "40 m", "2.0 km".
+  const far = (m: number | null) => (m === null ? '?' : m >= 1000 ? `${(m / 1000).toFixed(1)} km` : `${m} m`);
+  if (a.status === 'verified') return <Text style={s.okLine}>{fill(w.arrivalVerified, { m: far(a.distance_m) })}</Text>;
+  if (a.status === 'approved') return <Text style={s.okLine}>{w.arrivalApproved}</Text>;
+  if (a.status === 'code') return <Text style={s.okLine}>{w.arrivalCode}</Text>;
+  const why = a.result ? w[`arrivalNot_${a.result}` as keyof ProWords] : w.arrivalNot_no_location;
+  return (
+    <View style={s.nhBox}>
+      <Text style={s.waiting}>{a.status === 'rejected' ? w.arrivalRejected : fill(why, { m: far(a.distance_m), acc: a.accuracy_m ?? 0 })}</Text>
+      {a.review_note ? <Text style={s.note}>“{a.review_note}”</Text> : null}
+      <Text style={s.note}>{w.arrivalNotNote}</Text>
+      {a.result !== 'no_pin' ? <Button kind="outline" label={w.arrivalRecheck} busy={busy} onPress={again} /> : null}
+      {msg ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
+    </View>
+  );
+}
+
 /**
  * He cannot get in. The database decides every time: when he may ask, how
  * long she has, and when he may report. This only shows what it says, and
@@ -485,6 +542,7 @@ function CantGetIn({ j, w, userId, onChanged }: { j: ActiveJob; w: ProWords; use
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [noCamera, setNoCamera] = useState(false);
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 15000);
     return () => clearInterval(t);
@@ -496,6 +554,8 @@ function CantGetIn({ j, w, userId, onChanged }: { j: ActiveJob; w: ProWords; use
   async function go(fn: string, args: Record<string, unknown>, done?: string) {
     setBusy(true);
     setMsg(null);
+    // The report carries a fresh reading, judged by the database like his arrival.
+    if (fn === 'pro_report_not_home') args = { ...args, p_loc: await fixNow(), p_no_camera: noCamera && !args.p_photo };
     const r = await ask(fn, args);
     setBusy(false);
     if (!r.ok) {
@@ -538,7 +598,12 @@ function CantGetIn({ j, w, userId, onChanged }: { j: ActiveJob; w: ProWords; use
       {canReport ? (
         <View style={{ gap: 8 }}>
           <Text style={s.note}>{w.nhCanReport}</Text>
-          <Photos label={w.nhPhoto} paths={photo} setPaths={setPhoto} userId={userId} w={w} onProblem={setMsg} max={1} />
+          {noCamera ? <Text style={s.note}>{w.nhNoCameraNote}</Text> : <Photos label={w.nhPhotoIfNeeded} paths={photo} setPaths={setPhoto} userId={userId} w={w} onProblem={setMsg} max={1} />}
+          {!noCamera && photo.length === 0 ? (
+            <Press onPress={() => setNoCamera(true)} accessibilityRole="button" style={s.linkRow}>
+              <Text style={s.linkText}>{w.nhNoCamera}</Text>
+            </Press>
+          ) : null}
           <TextInput value={note} onChangeText={setNote} maxLength={300} placeholder={w.nhNote} placeholderTextColor={colour.steel} accessibilityLabel={w.nhNote} style={s.input} />
           <Button
             kind="yellow"
@@ -811,6 +876,9 @@ const s = StyleSheet.create({
   input: { minHeight: 52, borderRadius: 14, paddingHorizontal: 12, backgroundColor: colour.white, color: colour.ink, fontFamily: font.bodyMedium, fontSize: 16, borderWidth: 1.5, borderColor: colour.rule },
   warn: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 21, color: colour.brick },
   warnSmall: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
+  okLine: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.green },
+  linkRow: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
+  linkText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, textDecorationLine: 'underline' },
   nhBox: { gap: 8, padding: 14, borderRadius: 18, backgroundColor: colour.softYellow },
   waiting: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 21, color: colour.ink },
   error: { fontFamily: font.bodySemi, fontSize: 13, lineHeight: 18, color: colour.brick },

@@ -770,8 +770,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   reports it with a fresh photo (`pro_report_not_home()`, `own_uploads()`,
   `job_photos.stage = 'gate'`): the job is **cancelled** with
   `cancelled_by = 'pro'`, D10's record labels it `not_home` or `guard`,
-  never `late`. **No GPS**: the proof is the photo, the database's own
-  timestamps and `push_log`.
+  never `late`. The proof is now GPS first (see "Arrival checked by
+  location"), the photo when that fails, the database's timestamps and
+  `push_log`.
 - **`not_home_reports` is the record**, one per job: `asking → coming →
   (answered | closed)`, or `submitted → disputed → confirmed | rejected`.
   The start code ends the asking (`answered`), any other end of the job
@@ -796,6 +797,50 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the Cancellations page. Times are said with `pkClock()` (Pakistan's clock,
   `packages/shared`). Rescheduling is not built (D34.7). Tests:
   `nobodyhome.test.mjs`.
+
+### Arrival checked by location (migration `…_arrival_by_location`)
+- **The owner's decision (11 November 2026, revising D34): GPS-first, as
+  ONE location service.** `check_location(job, event, loc)` is the only
+  place a position is judged and `distance_m()` the only distance formula;
+  `fixNow()` in `components/Map.tsx` (and `Map.web.tsx`) the only way the
+  phone takes a reading. A new event (On my way, a guarantee visit,
+  matching) adds a value to `location_checks.event`, never its own maths.
+  The rules are `docs/DESIGN.md` section 13; read them before anything that
+  touches a map, a pin or a phone's position.
+- **Results**: verified (within `arrival_radius_m` 100 of `jobs.lat/lng`,
+  accuracy within `gps_accuracy_m` 50, age within `gps_max_age_s` 120 by the
+  phone's own clock — `sent_at − fix_at`, so a wrong phone clock is not
+  failed — not `mocked`, not a reused or earlier `fix_at`), else too_far,
+  poor_accuracy, stale, faked, no_pin, no_location (`app_reason` denied /
+  unavailable / older_app), outside_pakistan (coordinates not kept). Every
+  check is recorded, even when the call is then refused.
+- **A tap is not an arrival.** `tech_step(job, 'on_way', loc)` always
+  records the tap (`arrived_at`); `arrival_review_status` is pending /
+  verified / approved (office) / rejected / code (her start code, set by
+  the `job_arrival_code` trigger) / before_checks (older arrivals).
+  **`arrival_at(job)` is the one rule for when an arrival counts** and
+  everything reads it: `no_show_clock()` still watches an unverified
+  `arrived` job (telling him and the office, not her), `cancel_kind()` gets
+  it (so her cancellation is not "at the door" and his lateness is his),
+  `record_late_arrival` (now on every update) counts lateness from it.
+  `pro_check_arrival()` checks again at the door.
+- **The office**: `admin_arrivals()` / `admin_arrival(job, approve, note)`
+  and `location_evidence(job)`; every decision, here and in
+  `admin_not_home()`, writes `location_reviews`, which nobody can update.
+  Flag `unverified_arrivals` (pending or rejected) at
+  `flag_unverified_arrivals` (3).
+- **Nobody home** (`pro_report_not_home(job, photo, note, loc, no_camera)`):
+  a second check; a photo is required unless it verifies, or a reason
+  (≥10 characters) when the camera does not work; `evidence` strong /
+  partial / unverified.
+- **Privacy**: event-based only; `erase_old_locations()` (pg_cron nightly)
+  nulls coordinates after `location_keep_days` (90 at most, its setting
+  limit); only the office sees coordinates (Google Maps links, no embedded
+  map); he sees his result and distance; she sees `arrival_verified` only
+  when verified; no notification carries a coordinate. The permission
+  string in `app.json`, the privacy page, the terms, the technician
+  agreement and both stores' answers say this; change them together.
+  `APP_EDITION` is 5 for this. Tests: `location.test.mjs`.
 
 ### Money and trust (phase 5)
 - **Commission is 10% of the LABOUR**: `agreed_paisa − parts_paisa`, through

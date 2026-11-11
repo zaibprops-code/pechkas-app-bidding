@@ -56,6 +56,8 @@ export type JobNow = {
   guarantee_days?: number | null;
   can_claim?: boolean;
   claim_open?: boolean;
+  /** Only when the location check verified his arrival near her pin (arrival_by_location). */
+  arrival_verified?: boolean;
 } & Omit<CheckFields, 'id' | 'ref' | 'stage' | 'status' | 'collect_paisa' | 'photos' | 'pro'>;
 
 /** Where he has got to, as the heading of the "your technician" card. */
@@ -126,6 +128,16 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
         </View>
         <Steps stage={job.stage === 'checking' || job.stage === 'disputed' ? 'working' : job.stage} narrow={narrow} />
         {job.stage === 'chosen' || !job.stage ? <Text style={s.line}>Your phone tells you when he sets off.</Text> : null}
+        {/* Said only when the database verified it; never where he is. */}
+        {job.arrival_verified && (job.stage === 'arrived' || job.stage === 'working') ? (
+          <View style={s.verified}>
+            <DuoIcon name="shield" size={20} />
+            <View style={{ flex: 1 }}>
+              <Text style={s.verifiedTitle}>Technician arrival verified</Text>
+              <Text style={s.meta}>{pro.first_name}'s arrival was verified near your registered service address. No exact technician coordinates are shared.</Text>
+            </View>
+          </View>
+        ) : null}
         <View style={s.actions}>
           {pro.phone ? <Action icon="phone" label="Call" full={`Call ${pro.first_name}`} onPress={() => Linking.openURL(`tel:+${pro.phone!.replace(/^\+/, '')}`)} /> : null}
           <Action icon="chat" label="Chat" full={`Message ${pro.first_name}`} onPress={() => router.push({ pathname: '/chat/[job]', params: { job: job.id } })} />
@@ -378,6 +390,8 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
 }
 
 const s = StyleSheet.create({
+  verified: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', padding: 12, borderRadius: 16, backgroundColor: colour.greenSoft },
+  verifiedTitle: { fontFamily: font.bodySemi, fontSize: 14.5, color: colour.green },
   panel: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: SHADOW },
   top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   avatar: { width: 52, height: 52, borderRadius: 26, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },

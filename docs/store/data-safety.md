@@ -80,7 +80,7 @@ For each: **Collected: Yes · Shared: No · Processed ephemerally: No.**
 
 | Data type | Required or optional | Purposes | What it is in the app |
 | --- | --- | --- | --- |
-| **Location → Precise location** | Required | App functionality | The map pin on the house, which every job a customer posts needs; where the phone was when the emergency button was pressed. Only while the app is open, never in the background. Saved addresses stay on the phone and are not collected. |
+| **Location → Precise location** | Required | App functionality, Fraud prevention, security and compliance | The map pin on the house, which every job a customer posts needs; where the phone was when the emergency button was pressed; for technicians, where the phone was when they tapped I have arrived or reported nobody home, to check they reached the address (exact positions erased after 90 days). Only while the app is open, never in the background. Saved addresses stay on the phone and are not collected. |
 | **Personal info → Name** | Required | App functionality, Account management, Fraud prevention, security and compliance | First name; a technician's full name. |
 | **Personal info → Email address** | Optional | App functionality, Account management | Only for somebody who signs in with an email code, or continues with Google, instead of a mobile number. |
 | **Personal info → User IDs** | Optional | Account management | Only for somebody who continues with Google: the number Google gives their Google account, so the same Google account always opens the same Pechkas account. |

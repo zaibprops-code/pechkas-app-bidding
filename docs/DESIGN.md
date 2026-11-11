@@ -253,7 +253,64 @@ in a browser's terms, so the office and the phones look like one business.
   inside their own box (`.scroll`).
 - Checked at **1280** and **390** wide.
 
-## 13. Before a screen is finished
+## 13. Location and maps
+
+The owner's rules for anything that touches a map, an address pin or where
+a phone is (decided 11 November 2026, when arrival checks were built).
+Every later feature — matching by distance, guarantee visits, the office's
+dashboards — follows them instead of starting its own.
+
+- **One location service, never a second one.** A phone's position is
+  judged in exactly one place, `check_location()` in the database, and
+  distance has one formula, `distance_m()`. The phone has one way to take a
+  reading, `fixNow()` in `components/Map.tsx` (and its browser stand-in).
+  A new feature that needs "is he there?" adds an event to
+  `location_checks`, never its own maths, radius or thresholds.
+- **The database decides, the phone only reports.** No screen ever says
+  "verified" because the phone thinks so. The phone sends a fresh reading
+  (its accuracy, when it was taken, when it was sent, whether Android says
+  it was faked); the database answers one result — verified, too far,
+  poor accuracy, stale, faked, no pin, no location, outside Pakistan — and
+  the screen says that result in words.
+- **Only at a moment the person chose, never in the background.** A
+  reading is taken when a button is pressed (I have arrived, a nobody-home
+  report, the emergency button, Use my location) and at no other time.
+  Background location stays switched off in `app.json`. Before the first
+  reading the screen says, in one line under the button, what is checked
+  and why.
+- **A failed check is never guilt, and never blocks the person.** The tap
+  is always recorded; the screen says plainly what went wrong ("you seem to
+  be 2.0 km from the customer's pin", "your phone's location was not
+  precise enough"), offers **Check my location again**, and says that
+  nothing happens automatically. The office reviews; only a person decides.
+- **A tap is not proof.** Keep "he pressed the button" (`arrived_at`) apart
+  from "it was verified" (`arrival_verified_at`) and from the office's or
+  the start code's word (`arrival_review_status`). Anything that relies on
+  an arrival reads `arrival_at()`, never `arrived_at`.
+- **Say "verified" only when it was, and never say where somebody is.**
+  The customer sees "Technician arrival verified near your registered
+  service address. No exact technician coordinates are shared." only on a
+  verified result, on a soft green card with the shield icon. A technician
+  sees his own result and distance, never coordinates. Only the office sees
+  coordinates, as **Open in Google Maps** links, not an embedded map. No
+  notification ever carries a coordinate, a distance or an address.
+- **Distances as a person says them**: "40 m", "2.0 km". Times on
+  Pakistan's clock (`pkClock()`), never the phone's time zone.
+- **Exact coordinates are kept 90 days at most** (`location_keep_days`),
+  then erased by the database every night; the distance, accuracy, times
+  and result stay. Everything goes earlier with its job or account.
+- **Maps are shown only through `components/Map.tsx`**: Google's map on
+  Android (only with the key, otherwise the drawn street plan), Apple's on
+  iPhone. Directions open the Google Maps app through a link. **No paid map
+  service** (directions, road distance, a web map in the office panel) is
+  added without a separate proposal that says what it costs and what the
+  free alternative is.
+- **Test it on the street, not only in a browser.** A browser can pretend
+  to be anywhere; a phone at an apartment entrance cannot. Any change to
+  the radius, the accuracy or the checks is tried on real Android phones in
+  Islamabad (`docs/OWNER.md` has the checklist) before it is trusted.
+
+## 14. Before a screen is finished
 
 1. Built from the pieces in section 6, colours and fonts by name.
 2. Looked at in the browser at 412 and 320 wide: no cut word, no sideways

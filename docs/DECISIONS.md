@@ -358,6 +358,10 @@ Each one happens in real life; today the office handles it by hand.
     was home?** Not at launch. The admin panel's Cancellations page now
     keeps every such visit, with the job's visit fee as a reference, so you
     can decide from real numbers. You + lawyer.
+  - **D34.8 The street test**: the 100 m radius and 50 m accuracy are
+    starting guesses. Walk the checklist in `docs/OWNER.md` (houses, shops,
+    upper-floor flats, poor reception) on real Android phones, then set the
+    two numbers in Settings → Location checks from what you saw.
   - **D34.7 "Come back later"**: moving a visit to another window instead
     of cancelling and posting again. Postponed by you; not built.
 
@@ -477,11 +481,22 @@ What the app and the website do today. Reopen any item by its number.
 | # | Decision |
 | --- | --- |
 | A47 | **A "nobody home" report protects the technician without blaming the customer.** It is an allegation, not a finding: submitted (awaiting review), disputed, then confirmed or rejected by the office. |
-| A48 | **When he may ask:** after tapping Arrived, once his window has started, and 15 minutes after the later of the two. The customer is notified and has **10 minutes**; **"I'm coming" gives her 10 more**, once. Only then can he report it, with a photo taken in the app. Proof is the photo, the database's own timestamps and the record of notifications sent. **No GPS.** |
+| A48 | **When he may ask:** after tapping Arrived, once his window has started, and 15 minutes after the later of the two. The customer is notified and has **10 minutes**; **"I'm coming" gives her 10 more**, once. Only then can he report it. *Revised 11 November 2026 (A53–A58): the proof is now his GPS location first, with a photo required only when the location check fails, plus the database's timestamps and the notifications sent. The earlier "No GPS" rule is replaced.* |
 | A49 | **No money moves:** nothing is charged to the customer and nothing is paid to the technician. The job is cancelled, never stopped, so it can never create a visit fee (D12) or a debt. Every such visit is kept separately as an **uncompensated visit**, with the job's visit fee as a reference only, to decide later whether Pechkas should pay for them. |
 | A50 | **What counts:** only **3 office-confirmed** "nobody home" reports in 60 days ask the office to review a customer; never one where the technician arrived more than 30 minutes after his window began. **3 "nobody home" reports by one technician** in 60 days ask the office to look into him, never a suspension. A **disputed** report counts against nobody until the office decides. |
 | A51 | **"Guard refused entry"** is its own reason and label. He can ask as soon as his window has started (she can ring her guard). It counts against neither of them. |
 | A52 | **The customer may say "I was home"** within 24 hours; it goes to the office. D34 sits beside D10 (its own cancellation label, never a late cancellation) and D12 (never a visit fee) without changing their rules. **Rescheduling is not part of it** (D34.7). |
+
+### Arrival checked by location (decided 11 November 2026, revising D34)
+
+| # | Decision |
+| --- | --- |
+| A53 | **GPS-first arrival verification**, built as **one shared location service** for all of Pechkas (D10, D11, D12, D34, later matching and maps), never one per feature. When he taps **I have arrived**, and again when he reports nobody home, his phone's position, accuracy and time are checked by the database against the customer's pin. **Verified** = within **100 m** with accuracy **50 m** or better, a fresh reading, not faked; all three are office settings, to be tuned after a street test in Islamabad. |
+| A54 | **Event-based only:** no continuous or background tracking. **Exact coordinates are kept 90 days at most**, then erased automatically; the distance, accuracy, time and result stay. Deleted earlier with the job or account. Only the office sees coordinates. No paid map service. |
+| A55 | **The customer is told "Technician arrival verified near your registered service address"** only when the check verified it, and never sees his coordinates. |
+| A56 | **A tap is not an arrival.** `arrived_at` (the tap), `arrival_verified_at` (GPS) and the review status are kept apart. Only a verified arrival, the office's approval or the customer's start code satisfies it; an unverified tap does not stop D10's no-show watch and never becomes a confirmed no-show by itself. **3 unverified arrivals in 60 days** (not approved) ask the office to review him. A poor signal, a refused permission or a wrong pin is never misconduct by itself. |
+| A57 | **Photographs:** optional when the location check verifies; **required** (taken with Pechkas' camera, never the gallery) when it fails; if the camera does not work, he says why and the report goes to the office as unverified. |
+| A58 | **The office may approve an arrival or confirm a report even when GPS failed**, always with a reason, its name and the time, kept in a review record nobody can change. Only office-confirmed incidents count towards the customer's review. |
 
 ### Trust and safety
 

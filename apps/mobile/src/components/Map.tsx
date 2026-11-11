@@ -104,6 +104,40 @@ export async function askPosition(): Promise<Point | 'refused' | null> {
 }
 
 /**
+ * One reading for a location check (arrival_by_location): a FRESH position,
+ * never an old saved one, with its accuracy, when the phone took it, when it
+ * was sent (both by the phone's own clock, so the database can tell its age
+ * even when the clock is wrong) and whether Android says it was faked. Only
+ * from a button he pressed; never in the background. The database judges it
+ * (`check_location()`); the phone never decides whether he has arrived.
+ */
+export type Fix =
+  | { lat: number; lng: number; accuracy: number | null; fix_at: string; sent_at: string; mocked: boolean }
+  | { reason: 'denied' | 'unavailable' };
+
+export async function fixNow(): Promise<Fix> {
+  try {
+    const perm = await Location.requestForegroundPermissionsAsync();
+    if (!perm.granted) return { reason: 'denied' };
+    const here = await Promise.race([
+      Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest }),
+      new Promise<null>((done) => setTimeout(() => done(null), 20000)),
+    ]);
+    if (!here) return { reason: 'unavailable' };
+    return {
+      lat: here.coords.latitude,
+      lng: here.coords.longitude,
+      accuracy: here.coords.accuracy ?? null,
+      fix_at: new Date(here.timestamp).toISOString(),
+      sent_at: new Date().toISOString(),
+      mocked: Boolean(here.mocked),
+    };
+  } catch {
+    return { reason: 'unavailable' };
+  }
+}
+
+/**
  * A map to look at: a place with the Pechkas pin on it, or just an area.
  * Not draggable unless `interactive`, so it never steals a scroll.
  */

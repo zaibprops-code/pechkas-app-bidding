@@ -59,7 +59,7 @@ Google sign-in on iPhone; if Google is ever shown there, that comes with
 it, and this label gains User ID and the profile picture link, as on Play.
 | Contact Info → **Phone Number** | Sign-in, and given to the other side once a technician is chosen |
 | Contact Info → **Physical Address** | Where the job is: sector, street, house, landmark, gate note; a sector a customer says Pechkas does not serve yet |
-| Location → **Precise Location** | The map pin on the house, which every job needs; where the phone was when the emergency button was pressed. Only while the app is open |
+| Location → **Precise Location** | The map pin on the house, which every job needs; where the phone was when the emergency button was pressed; a technician's position when he taps I have arrived or reports nobody home (exact positions erased after 90 days). Only while the app is open |
 | Financial Info → **Other Financial Info** | What a technician owes Pechkas in fees and what he paid, with the payment screenshot he sends to the office |
 | User Content → **Photos or Videos** | What is wrong; before and after photos; receipts for parts |
 | User Content → **Audio Data** | The voice note describing the problem |

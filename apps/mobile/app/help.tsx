@@ -86,7 +86,11 @@ const TECHNICIAN: QA[] = [
   },
   {
     q: 'Nobody answers at the door.',
-    a: 'Call the customer first. 15 minutes after you tapped I have arrived (and once your time has begun), tap Nobody is answering, or straight away The guard will not let me in: Pechkas tells her, and she has 10 minutes, or 10 more if she says she is coming. Then you can report it with a photo of the gate. The job closes, and the office checks every report. Nothing is charged or paid.',
+    a: 'Call the customer first. 15 minutes after you tapped I have arrived (and once your time has begun), tap Nobody is answering, or straight away The guard will not let me in: Pechkas tells her, and she has 10 minutes, or 10 more if she says she is coming. Then you can report it. Your location is checked again; if it cannot be verified, add a photo of the gate or door. The job closes, and the office checks every report. Nothing is charged or paid.',
+  },
+  {
+    q: 'Why does Pechkas check my location?',
+    a: 'Only twice, and only when you tap: I have arrived, and a nobody-home report. Pechkas compares where your phone is with the customer\'s pin, so a real arrival is shown to the customer as verified. It never follows you in the background. If the check fails (a weak signal, a wrong pin), tap Check my location again at the door; the start code also confirms you were there, and nothing happens to you automatically.',
   },
   {
     q: 'What if I am late?',

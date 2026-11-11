@@ -120,7 +120,14 @@ async function chosen(hours, pro = BILAL, customer = AYESHA) {
   return posted;
 }
 const onWay = (pro, id) => me(pro, `SELECT public.tech_step($1, 'chosen')`, [id]);
-const arrive = (pro, id) => me(pro, `SELECT public.tech_step($1, 'on_way')`, [id]);
+// Since arrival_by_location an arrival counts once his location is verified at her pin:
+// the job is given a pin, and he arrives with a fresh, accurate reading 20 metres from it.
+const arrive = async (pro, id) => {
+  await setup(`UPDATE public.jobs SET lat = 33.6950, lng = 72.9850 WHERE id = $1`, [id]);
+  const now = Date.now();
+  const loc = { lat: 33.69518, lng: 72.9850, accuracy: 12, fix_at: new Date(now - 3000).toISOString(), sent_at: new Date(now).toISOString(), mocked: false };
+  return me(pro, `SELECT public.tech_step($1, 'on_way', $2::jsonb)`, [id, JSON.stringify(loc)]);
+};
 const start = async (pro, id) => me(pro, `SELECT public.start_work($1, $2, $3::jsonb)`, [id, (await job(id)).start_code, JSON.stringify([await upload(pro)])]);
 
 // =============================================================================

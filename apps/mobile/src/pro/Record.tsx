@@ -37,6 +37,9 @@ export type ProRecord = {
   /** The nobody-home reports he made (nobody_home). */
   not_home_reports?: { id: string; ref: string; reason: 'nobody_home' | 'guard'; status: 'submitted' | 'disputed' | 'confirmed' | 'rejected'; submitted_at: string; office_note: string | null }[];
   not_home_reports_at?: number;
+  /** Arrivals the location check could not verify (arrival_by_location). */
+  unverified_arrivals?: { ref: string; arrived_at: string; status: 'pending' | 'rejected' | 'approved'; result: string | null; note: string | null }[];
+  unverified_arrivals_at?: number;
 };
 
 export function RecordCard({ record, w, onChanged }: { record: ProRecord; w: ProWords; onChanged: () => void }) {
@@ -58,6 +61,21 @@ export function RecordCard({ record, w, onChanged }: { record: ProRecord; w: Pro
       {record.incidents.map((i) => (
         <IncidentRow key={i.id} i={i} w={w} onChanged={onChanged} />
       ))}
+      {record.unverified_arrivals?.length ? (
+        <View style={s.row}>
+          <Text style={s.rowTitle}>{w.recordArrivalsTitle}</Text>
+          <Text style={s.note}>{fill(w.recordArrivalsHint, { n: record.unverified_arrivals_at ?? 3, days: record.days })}</Text>
+          {record.unverified_arrivals.map((a) => (
+            <View key={`${a.ref}-${a.arrived_at}`} style={{ gap: 2 }}>
+              <Text style={s.line}>
+                {a.ref} · {new Date(a.arrived_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short' })}
+              </Text>
+              <Text style={[s.status, a.status === 'approved' && { color: colour.green }]}>{w[`recordArrival_${a.status}` as keyof ProWords]}</Text>
+              {a.note ? <Text style={s.quote}>{fill(w.recordOffice, { note: a.note })}</Text> : null}
+            </View>
+          ))}
+        </View>
+      ) : null}
       {record.not_home_reports?.length ? (
         <View style={s.row}>
           <Text style={s.rowTitle}>{w.recordNotHomeTitle}</Text>

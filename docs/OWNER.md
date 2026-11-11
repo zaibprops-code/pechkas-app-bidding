@@ -7,6 +7,76 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Arrival checked by location (GPS-first D34) — ONE database step, a new
+build, then a street test before you rely on it.**
+
+Deploying, in this order:
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261111100000_arrival_by_location.sql`. It should
+   say **Success**. (Safe to run twice. The two steps below it in this file
+   must have run first.)
+2. Make a new **preview** build and install it. **This is edition 5**: the
+   new location message on the phone needs the new build.
+3. Open the admin panel: **Cancellations** now starts with **Arrivals to
+   check**, and **Settings → Location checks** has the four numbers.
+4. Do the street test below **before** telling technicians their arrivals
+   are being checked. Only once edition 5 is in the Play Store, press **Settings
+   → App switches → Ask copies older than 5 to update** (older copies cannot
+   send a location, so their arrivals always need your review).
+
+What happens now:
+
+- **He taps I have arrived** and the phone checks its location once. The
+  database compares it with the customer's pin: within **100 m** with
+  accuracy of **50 m** or better is **verified**. His screen says so, and
+  hers shows **Technician arrival verified** (never where he is).
+- **If it fails** (too far, weak signal, location refused, a faked
+  location), his arrival is still recorded, his screen says why, and he can
+  tap **Check my location again**. The start code also proves he was there.
+  Otherwise it waits for you on **Arrivals to check**: approve or reject,
+  with a reason he reads. **3 not approved in 60 days** asks you to review
+  him. Nothing happens automatically.
+- **An unverified tap is not an arrival**: the no-show watch carries on,
+  and the customer's cancellation is not counted as "at the door".
+- **Nobody home**: his location is checked again when he reports. Verified,
+  the photo is optional; not verified, a photo from Pechkas' camera is
+  required, or a reason if his camera is broken (then the report is
+  "unverified"). Each report shows **strong / partial / unverified**, the
+  checks, and links to **Where he was** and **The customer's pin** in Google
+  Maps. You can still confirm one GPS could not verify, with a reason.
+- **Exact positions are erased after 90 days** by the database every night;
+  you cannot set longer. Only you see them.
+- No new paid service: the distance is worked out in the database.
+
+**Street test (real Android phones, in Islamabad — a browser cannot do
+this):**
+
+Take two Android phones with the preview build, signed in as a test
+technician, and a test customer account. For each place below: post a job
+as the customer with the pin on that exact door, offer and choose, tap **On
+my way**, then stand where a technician would really stand and tap **I have
+arrived**. Write down what the technician's screen says (verified, or the
+distance and accuracy), then open **Cancellations → Arrivals to check** to
+see the numbers.
+
+| # | Where to stand | What to write down |
+| --- | --- | --- |
+| 1 | The gate of a house in F-11, phone in hand, outdoors | Verified? Distance, accuracy |
+| 2 | Inside the same house, ground floor | Same |
+| 3 | A ground-floor shop in a markaz | Same |
+| 4 | The entrance of an upper-floor flat (3rd floor or higher) | Same |
+| 5 | A basement, or a building with poor signal | Same |
+| 6 | Across the road, about 150 m away | Should NOT verify |
+| 7 | The same door with the pin dropped one house away | Distance shown |
+| 8 | Location switched off on the phone | "Your location was not shared" |
+| 9 | Phone set to "approximate location" (Android 12+) | "Not precise enough" |
+
+Then: if real doors usually read 30–80 m, keep 100 m. If good arrivals
+often fail, widen **Settings → Location checks → Arrival counts as verified
+within** a little (up to 150 m) rather than loosening accuracy. Repeat on a
+cheap phone if technicians use them. Tell Claude the numbers you saw.
+
 **Nobody home (D34), built your way (new — ONE database step, then a new
 build).**
 

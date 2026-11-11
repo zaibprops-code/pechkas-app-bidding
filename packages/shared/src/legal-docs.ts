@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "7b7adc3";
+export const LEGAL_FROM = "fddb204";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -195,6 +195,29 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             {
               "t": ", the amount, how you paid, the transaction ID and the screenshot you add, which only the office sees, to check the money arrived. A screenshot may show the account you paid from."
             }
+          ],
+          [
+            {
+              "t": "Where your phone is, at two moments only",
+              "b": true
+            },
+            {
+              "t": ": when you tap "
+            },
+            {
+              "t": "I have arrived",
+              "b": true
+            },
+            {
+              "t": " (and "
+            },
+            {
+              "t": "Check my location again",
+              "b": true
+            },
+            {
+              "t": "), and when you report that nobody is home. We record the position, how precise your phone said it was, when it was taken, whether your phone reported it as faked, and how far it was from the customer's pin, to check that you reached the address. Never in the background and never between those moments. If you refuse location, the app still works and the office looks at the arrival instead."
+            }
           ]
         ]
       },
@@ -373,7 +396,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If a technician cannot get in: the reason (nobody answering, or the guard), when he arrived, when his time began, when the customer was told and whether she said she was coming, his photo of the gate or door and any note, the time he reported it, her words if she says she was home, and what the office decided. No location is taken for this."
+              "t": "If a technician cannot get in: the reason (nobody answering, or the guard), when he arrived, when his time began, when the customer was told and whether she said she was coming, his photo of the gate or door and any note, the time he reported it, her words if she says she was home, and what the office decided. His position when he reports it is checked the same way as his arrival (see Technicians above)."
             }
           ]
         ]
@@ -521,6 +544,15 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
+              "t": "A technician's location checks.",
+              "b": true
+            },
+            {
+              "t": " Only the Pechkas office sees where his phone was. He sees only whether his arrival was verified and how far he was from the pin. The customer sees only \"Technician arrival verified\" when it was, never where he is or was. No notification carries a location."
+            }
+          ],
+          [
+            {
               "t": "Cancellations and lateness.",
               "b": true
             },
@@ -633,7 +665,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " on iPhone draw the maps inside the app. To draw one they receive the area being shown: the place you pin, or where you are if you tap to show it. When you put the pin on the house, the phone's own map service (Google's on Android, Apple's on iPhone) is also asked which sector and street the pin is in, so that you do not have to type them; it receives the place you pinned. Pechkas itself keeps only the pin of a job you post."
+              "t": " on iPhone draw the maps inside the app. To draw one they receive the area being shown: the place you pin, or where you are if you tap to show it. When you put the pin on the house, the phone's own map service (Google's on Android, Apple's on iPhone) is also asked which sector and street the pin is in, so that you do not have to type them; it receives the place you pinned. Pechkas itself keeps only the pin of a job you post, and, for technicians, the two location checks described above. Checking a location uses no outside map service: the distance is worked out by Pechkas itself."
             }
           ]
         ]
@@ -666,6 +698,15 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           [
             {
               "t": "A job's checks, guarantee claims, visit fee and cancellation are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account. A technician's record of late arrivals and no-shows is deleted with his account, and so are the reports he made that he could not get in."
+            }
+          ],
+          [
+            {
+              "t": "A technician's exact positions are kept for 90 days at most",
+              "b": true
+            },
+            {
+              "t": ", then erased automatically; what the check found (the distance, how precise it was, the time and the result) stays with the job. They are deleted earlier with the job or the account."
             }
           ],
           [
@@ -1356,6 +1397,32 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
       },
       {
         "k": "h2",
+        "text": "Checking that he has arrived"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "When the technician taps that he has arrived, Pechkas checks his phone's location once against the pin you put on your house. If it matches, your job shows "
+            },
+            {
+              "t": "Technician arrival verified",
+              "b": true
+            },
+            {
+              "t": ". You are never shown where he is, and he is never shown anything more than you already gave him."
+            }
+          ],
+          [
+            {
+              "t": "A check can fail for ordinary reasons (a weak signal indoors, or a pin on the wrong house). That is never treated as anybody's fault by itself: the Pechkas office looks."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
         "text": "If the technician cannot get in"
       },
       {
@@ -1382,7 +1449,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If you do not come, he can report it with a photo of the gate or door taken in the app. The job closes. "
+              "t": "If you do not come, he can report it. His phone's location is checked against your pin when he arrives and again when he reports; if it cannot be checked, he adds a photo of the gate or door taken in the app. The job closes. "
             },
             {
               "t": "Nothing is charged to you, and nothing is paid to him.",
@@ -2438,6 +2505,76 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
       },
       {
         "k": "h2",
+        "text": "Checking your arrival by location"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "When you tap "
+            },
+            {
+              "t": "I have arrived",
+              "b": true
+            },
+            {
+              "t": ", Pechkas checks your phone's location once against the customer's pin. Within the distance Pechkas sets, with a precise enough reading, your arrival is "
+            },
+            {
+              "t": "verified",
+              "b": true
+            },
+            {
+              "t": " and the customer is told so. Your location is never followed in the background, and never shown to the customer."
+            }
+          ],
+          [
+            {
+              "t": "If the check fails (too far, a weak signal, location refused), your arrival is still recorded. Tap "
+            },
+            {
+              "t": "Check my location again",
+              "b": true
+            },
+            {
+              "t": " at the door; the customer's start code also confirms you were there. Otherwise the office looks at it and may accept or reject it, with a note you can read. Arrivals that stay unverified are counted for an office review; "
+            },
+            {
+              "t": "nothing happens automatically",
+              "b": true
+            },
+            {
+              "t": ", and a poor signal or a wrong pin is not misconduct."
+            }
+          ],
+          [
+            {
+              "t": "Faking your location, or tapping "
+            },
+            {
+              "t": "I have arrived",
+              "b": true
+            },
+            {
+              "t": " before you are there, is misuse of the app."
+            }
+          ],
+          [
+            {
+              "t": "Pechkas keeps your exact position for 90 days at most, then erases it, keeping only what the check found."
+            }
+          ],
+          [
+            {
+              "t": "[DECIDE WITH A LAWYER: whether agreeing to these location checks is a condition of working through Pechkas, and how a technician may ask for a check to be looked at again.]",
+              "mark": true
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
         "text": "If you cannot get in"
       },
       {
@@ -2471,7 +2608,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "After that you can report it, with a photo of the gate or door taken in the app. The job closes. "
+              "t": "After that you can report it. Your location is checked again; if it cannot be verified, add a photo of the gate or door taken with the app's camera (if your camera is not working, say why, and the office treats the report as unverified). The job closes. "
             },
             {
               "t": "Nothing is paid to you for the visit, and nothing is charged to the customer.",

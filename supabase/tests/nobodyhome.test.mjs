@@ -118,6 +118,8 @@ async function atDoor({ customer = AYESHA, pro = BILAL, after = 10, hours = -1 }
     await setup(`UPDATE public.jobs SET arrived_at = public.window_start(when_date, when_from) + make_interval(mins => $2) WHERE id = $1`, [posted.id, after]);
     // He tapped Arrived on the real clock; the test moves his arrival, so the
     // late arrival that tap recorded goes too.
+    // Since arrival_by_location, an arrival counts once verified: the test's arrival is taken as verified there.
+    await setup(`UPDATE public.jobs SET arrival_review_status = 'verified', arrival_verified_at = arrived_at WHERE id = $1`, [posted.id]);
     await setup(`DELETE FROM public.pro_incidents WHERE job_id = $1`, [posted.id]);
   }
   await sent();

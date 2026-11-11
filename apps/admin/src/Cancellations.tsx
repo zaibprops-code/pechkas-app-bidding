@@ -4,6 +4,7 @@ import { ask, supabase } from './supabase.ts';
 import { Decide, People, when } from './Guarantee.tsx';
 import { shown } from './phones.ts';
 import { NotHomeSections } from './NotHome.tsx';
+import { ArrivalSections } from './Arrivals.tsx';
 
 /**
  * Cancellations, late arrivals and no-shows, from public.admin_cancellations()
@@ -190,6 +191,8 @@ export function Cancellations() {
               ))}
             </div>
           </section>
+
+          <ArrivalSections />
 
           <NotHomeSections />
 

@@ -64,6 +64,15 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
     },
   },
   {
+    title: 'Location checks',
+    keys: {
+      arrival_radius_m: 'Arrival counts as verified within (metres of her pin)',
+      gps_accuracy_m: 'Worst location accuracy accepted (metres)',
+      gps_max_age_s: 'Oldest location reading accepted (seconds)',
+      location_keep_days: 'Exact coordinates erased after (days, 90 at most)',
+    },
+  },
+  {
     title: 'Flags',
     keys: {
       flag_days: 'Flags look back',
@@ -79,6 +88,7 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
       flag_low_stars: 'Ratings of one or two stars',
       flag_same_pair: 'Jobs for one customer',
       flag_late_cancels: "A customer's late cancellations before a review",
+      flag_unverified_arrivals: 'His arrivals not verified (nor approved) before a review',
       flag_not_home: 'Confirmed "nobody home" before a review of the customer',
       flag_not_home_reports: 'His own "nobody home" reports before a look',
       flag_blocked: 'Customers who blocked him',

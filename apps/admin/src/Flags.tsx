@@ -81,6 +81,10 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     `The office confirmed ${f.n} times that nobody was home when the technician came.`,
     'Each one was a wasted trip. Ring her before anything else; she may have a reason. Nothing happens on its own.',
   ],
+  unverified_arrivals: (f) => [
+    `${f.n} times his "I have arrived" could not be verified by location, and was not approved.`,
+    'Open them under Cancellations → Arrivals to check. A poor signal or a wrong pin is not misconduct; a pattern far from the pin is worth a call.',
+  ],
   not_home_reports: (f) => [
     `${f.n} "nobody home" reports made by him.`,
     'Most customers are home. Open his reports under Cancellations, look at the photos and times, and ring a few of those customers.',

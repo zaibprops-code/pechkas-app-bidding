@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { rupees } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
 import { Decide, Evidence, People, when } from './Guarantee.tsx';
+import { LocationChecks, type Check } from './Arrivals.tsx';
 
 /**
  * Nobody home and guard refused entry, from public.admin_not_home_reports()
@@ -43,6 +44,11 @@ type Report = {
   decided_by_name: string | null;
   decided_at: string | null;
   needs_you: boolean;
+  /** Location evidence (arrival_by_location): strong, partial or unverified, and every check. */
+  evidence?: 'strong' | 'partial' | 'unverified' | null;
+  no_camera?: boolean;
+  pin?: { lat: number; lng: number } | null;
+  checks?: Check[];
   history: { at: string; what: string; by: string }[];
   told: { at: string; kind: string; phones: number }[];
 };
@@ -79,6 +85,11 @@ const TOLD: Record<string, string> = {
   not_home_decided: 'Customer told of the decision',
   not_home_decided_pro: 'Technician told of the decision',
 };
+const EVIDENCE = {
+  strong: 'Strong: his arrival and his report were both verified by location',
+  partial: 'Partial: one location check verified, or a photo',
+  unverified: 'Unverified: no location check verified and no photo',
+} as const;
 const first = (name: string | null) => (name ? name.split(' ')[0] : 'The technician');
 const money = (p: number | null | undefined) => rupees(p === null || p === undefined ? p : Number(p));
 
@@ -197,6 +208,13 @@ export function NotHomeSections() {
 function Facts({ r }: { r: Report }) {
   return (
     <>
+      {r.evidence ? (
+        <p>
+          <strong>Evidence:</strong> {EVIDENCE[r.evidence]}
+          {r.no_camera ? ' · he said his camera was not working' : ''}
+        </p>
+      ) : null}
+      {r.checks ? <LocationChecks checks={r.checks} pin={r.pin ?? null} /> : null}
       <div className="evidence">
         <p>
           {r.window_start ? `His time began ${when(r.window_start)}. ` : 'No window on this job. '}

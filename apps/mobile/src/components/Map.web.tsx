@@ -39,6 +39,23 @@ export async function askPosition(): Promise<Point | 'refused' | null> {
   return ISLAMABAD;
 }
 
+export type Fix =
+  | { lat: number; lng: number; accuracy: number | null; fix_at: string; sent_at: string; mocked: boolean }
+  | { reason: 'denied' | 'unavailable' };
+
+/** The browser's position (a click-through sets it), with the same shape as a phone's reading. */
+export async function fixNow(): Promise<Fix> {
+  const geo = (globalThis as { navigator?: { geolocation?: Geolocation } }).navigator?.geolocation;
+  if (!geo) return { reason: 'unavailable' };
+  return new Promise((done) =>
+    geo.getCurrentPosition(
+      (p) => done({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy ?? null, fix_at: new Date(p.timestamp).toISOString(), sent_at: new Date().toISOString(), mocked: false }),
+      (e) => done({ reason: e.code === 1 ? 'denied' : 'unavailable' }),
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+    ),
+  );
+}
+
 /** The browser has no geocoder: the customer taps the sector, unless a click-through pretends otherwise. */
 export async function readPlace(_p: Point): Promise<{ texts: string[]; street: string | null } | null> {
   return pretend.__pechkasPlace ?? null;
