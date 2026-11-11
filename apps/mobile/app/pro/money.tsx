@@ -11,6 +11,7 @@ import { Stars } from '../../src/components/Stars';
 import { PayPechkas, type Claim } from '../../src/pro/PayPechkas';
 import { FeeState, type VisitFee } from '../../src/pro/OnTheJob';
 import { RecordCard, type ProRecord } from '../../src/pro/Record';
+import { PayDatesCard, RefundCharges, type PayState, type RefundCharge } from '../../src/pro/PayDates';
 import { supabase } from '../../src/supabase';
 import { fill, useProWords } from '../../src/words';
 import { colour, font, radius } from '../../src/theme';
@@ -30,6 +31,9 @@ type Money = {
   commission_bps?: number;
   repeat_commission_bps?: number;
   pay_to: string | null;
+  /** When to pay (D36); absent until the database change has run. */
+  pay?: PayState;
+  refund_charges?: RefundCharge[];
   month: { jobs: number; collected_paisa: number; parts_paisa: number; commission_paisa: number };
   rating: { count: number; avg: number | null; jobs_done: number };
   comments: { stars: number; words: string | null; at: string; ref: string }[];
@@ -112,7 +116,11 @@ export default function MoneyScreen() {
               ) : null}
             </View>
 
+            {m.pay ? <PayDatesCard pay={m.pay} w={w} /> : null}
+
             <PayPechkas owed={m.owed_paisa} payTo={m.pay_to} claims={claims} w={w} onSent={load} />
+
+            {m.refund_charges ? <RefundCharges items={m.refund_charges} w={w} onChanged={load} /> : null}
 
             <View style={s.card}>
               <CardHead icon="jobs" title={w.thisMonth} />

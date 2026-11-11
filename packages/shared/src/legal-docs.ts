@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "f2b5116";
+export const LEGAL_FROM = "799f504";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -194,6 +194,11 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": ", the amount, how you paid, the transaction ID and the screenshot you add, which only the office sees, to check the money arrived. A screenshot may show the account you paid from."
+            }
+          ],
+          [
+            {
+              "t": "For each fee you owe, its due date and which payment paid it; the reminders sent to you; any extra time the office gave you, with its reason and who gave it; and your appeal against a visit fee refund charge, with the office's decision. The office also keeps a list of public holidays, which holds no personal information."
             }
           ],
           [
@@ -2018,7 +2023,14 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If a customer does not pay a visit fee, the office may pay it to you from the guarantee reserve; it is taken off what you owe Pechkas. If the office waives a fee you were already paid, give it back to the customer; if you do not, Pechkas pays her and it is added to what you owe. "
+              "t": "If a customer does not pay a visit fee, the office may pay it to you from the guarantee reserve; it is taken off what you owe Pechkas. If the office waives a fee you were already paid, give it back to the customer; if you do not, Pechkas pays her and records a charge to you. You are told the amount and a date 7 days later, and you may appeal once before then in "
+            },
+            {
+              "t": "My account",
+              "b": true
+            },
+            {
+              "t": ". Only if you do not appeal, or the office keeps the charge on appeal, is it added to what you owe; if the office cancels it, Pechkas bears the refund. "
             },
             {
               "t": "[DECIDE WITH A LAWYER: whether Pechkas may add a waived visit fee to what you owe.]",
@@ -2192,6 +2204,43 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
+              "t": "Each fee is due 14 days after the job counts as done",
+              "b": true
+            },
+            {
+              "t": ", counted in Islamabad's days. After that you have "
+            },
+            {
+              "t": "3 days of grace",
+              "b": true
+            },
+            {
+              "t": "; from midnight after the third, your new offers stop until it is paid. Jobs you already have go on. There is no late fee, no interest and no suspension for this. A guarantee charge, or a visit fee refund charged to you, is due the same way, counted from the day it is final. My account shows every fee with its due date, and you are reminded 3 days before, on the due date, on the last day of grace and when offers stop."
+            }
+          ],
+          [
+            {
+              "t": "Payments, and money Pechkas owes you that it has not yet paid out, pay your oldest fees first. While the office checks an "
+            },
+            {
+              "t": "I have paid",
+              "b": true
+            },
+            {
+              "t": ", that amount counts as paid for your offers, however long the check takes."
+            }
+          ],
+          [
+            {
+              "t": "If your offers have stopped because a fee is overdue, the office may give you more time once, from 3 to 14 days, with its reason. Your offers stop again at midnight after the last extra day if it is still unpaid. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: whether stopping new offers for an overdue fee needs notice beyond these reminders.]",
+              "mark": true
+            }
+          ],
+          [
+            {
               "t": "While you owe more than "
             },
             {
@@ -2199,7 +2248,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": ", you cannot send new offers until you pay."
+              "t": ", you cannot send new offers until you pay. That limit and the due dates are separate: either can stop new offers."
             }
           ],
           [

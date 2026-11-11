@@ -387,17 +387,12 @@ Each one happens in real life; today the office handles it by hand.
   money).
 - **Who decides:** You. Chasing the money is you + lawyer.
 
-#### D36. A due date for paying Pechkas
-- **The question:** Must a technician pay what he owes by a set day (weekly
-  or monthly), or only when he goes over Rs 3,000?
-- **Today:** Only the Rs 3,000 limit. A man owing Rs 2,900 can owe it for
-  ever.
-- **Options:**
-  - (a) The limit only, as now.
-  - (b) A weekly pay day with a reminder.
-  - (c) A monthly pay day.
-- **Linked to:** A3 (the credit limit), D15 (where he pays).
-- **Who decides:** You.
+#### D36. A due date for paying Pechkas — decided and built (A68–A75)
+- **Your decision** (11 November 2026) is now in Part 2 as A68–A75.
+- **Still open:**
+  - **D36.4** Whether stopping new offers for an overdue fee needs notice
+    beyond the reminders. You + lawyer; the technician agreement carries a
+    `[DECIDE WITH A LAWYER]` for it.
 
 #### D37. The trial job for a new technician
 - **The question:** Approval needs a trial job.
@@ -504,6 +499,18 @@ What the app and the website do today. Reopen any item by its number.
 | A56 | **A tap is not an arrival.** `arrived_at` (the tap), `arrival_verified_at` (GPS) and the review status are kept apart. Only a verified arrival, the office's approval or the customer's start code satisfies it; an unverified tap does not stop D10's no-show watch and never becomes a confirmed no-show by itself. **3 unverified arrivals in 60 days** (not approved) ask the office to review him. A poor signal, a refused permission or a wrong pin is never misconduct by itself. |
 | A57 | **Photographs:** optional when the location check verifies; **required** (taken with Pechkas' camera, never the gallery) when it fails; if the camera does not work, he says why and the report goes to the office as unverified. |
 | A58 | **The office may approve an arrival or confirm a report even when GPS failed**, always with a reason, its name and the time, kept in a review record nobody can change. Only office-confirmed incidents count towards the customer's review. |
+
+### Paying Pechkas by a date (decided 11 November 2026)
+| | |
+|---|---|
+| A68 | **Each final debt is due 14 days after it is posted, with 3 days of grace; from 00:00 on day 18 his new offers stop while any of it is unpaid.** Days are Islamabad's. Jobs he has go on. No late fee, no interest, no suspension. No minimum amount. The Rs 3,000 limit stays a separate check: either can stop new offers. |
+| A69 | **What falls due:** a job's commission (from when it is posted), a guarantee charge (posted only once final, after its appeal), and a visit-fee refund charged to him — which now has the same **7-day appeal** first: the office's "Pechkas paid her back; he must repay" only records it; it is posted, and its 14 days start, when he has not appealed by the date or the office keeps it on appeal; cancelled, Pechkas bears it. Nothing disputed or not final can fall due. Debts owed when D36 began start their 14 days that day; refunds charged under the old rule get the new appeal from that day first. |
+| A70 | **Payments pay the oldest fees first**, recorded line by line ("this payment paid that fee"), lines only ever added. Money Pechkas owes him (guarantee-repair pay, a visit fee it covered) pays his fees **only while it has not been paid out to him**; money already sent to him never also clears a fee. A reversal in any order takes back exactly what it paid or was paid by, never brings a reversed fee back, never loses money or credits it twice. |
+| A71 | **A waiting "I have paid" protects only the amount claimed**, oldest fees first, **until the office decides**, however long it takes. After 3 business days the payment needs attention and the office is told each business day. Rejected, the protection ends at once; confirmed, his offers come back at once if nothing else stops them. |
+| A72 | **Business days are Monday to Friday minus the office's list of official public holidays**, typed from the government's notice, never guessed. A wrong list can never stop a technician's offers: it only decides when the office is reminded. |
+| A73 | **Extra time only for fees whose offers have already stopped** (day 18 on), never while due or in grace: 3 to 14 days (7 offered), once per overdue spell, with a reason, who and when kept for good. The new end is the day it is given plus the days chosen; offers stop at the next midnight if still unpaid, **with no second grace**. |
+| A74 | **Reminders, one combined message a day at most**: 3 days before a due date, on it, on the last grace day, and when offers stop. Amounts and job numbers only. |
+| A75 | Commission rates and calculations are unchanged (10%, 7%). Edition 6 of the app shows the refund appeal; ask for the update only once it is in the stores. |
 
 ### Commission (decided 11 November 2026)
 | | |

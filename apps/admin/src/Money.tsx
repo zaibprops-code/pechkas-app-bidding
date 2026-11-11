@@ -14,9 +14,23 @@ import { shown } from './phones.ts';
  */
 
 type Rating = { count: number; avg: number | null; jobs_done: number };
-type ProRow = { id: string; full_name: string; phone: string | null; status: string; owed_paisa: number; blocked: boolean; jobs_done: number; last_paid_at: string | null; rating: Rating };
+type PayFee = { txn: string; kind: string; ref: string | null; posted_at: string; amount_paisa: number; unpaid_paisa: number; protected_paisa: number; due_day: string; last_grace_day: string; extended_to: string | null; status: string };
+/** When he must pay (D36): every fee's dates, a waiting payment, extra time. */
+type Pay = {
+  overdue_paisa: number;
+  in_grace_paisa: number;
+  blocked: boolean;
+  blocked_since: string | null;
+  credit_paisa: number;
+  claim: { amount_paisa: number; created_at: string; business_days: number; needs_attention: boolean } | null;
+  extension: { granted_at: string; days: number; until_day: string; reason: string; by: string | null } | null;
+  can_extend: boolean;
+  fees: PayFee[];
+};
+type ProRow = { id: string; full_name: string; phone: string | null; status: string; owed_paisa: number; blocked: boolean; jobs_done: number; last_paid_at: string | null; rating: Rating; pay?: Pay };
 type MoneyData = {
   credit_limit_paisa: number;
+  extend_days?: { min: number; max: number; default: number };
   pay_to: string | null;
   totals: { owed_paisa: number; commission_paisa: number; reserve_paisa: number; received_paisa: number };
   pros: ProRow[];
@@ -82,7 +96,7 @@ export function Money() {
           <div className="list">
             {d.pros.length === 0 ? <p className="lead">No technicians yet.</p> : null}
             {d.pros.map((p) => (
-              <ProMoney key={p.id} p={p} onChanged={load} />
+              <ProMoney key={p.id} p={p} extend={d.extend_days} onChanged={load} />
             ))}
           </div>
         </>
@@ -103,7 +117,12 @@ type Claim = {
   status: 'pending' | 'confirmed' | 'rejected';
   reason: string | null;
   created_at: string;
+  business_days?: number;
+  needs_attention?: boolean;
 };
+
+/** "Fri 27 Nov", from a day on Pakistan's calendar. */
+const dayLabel = (d: string) => new Date(`${d.slice(0, 10)}T12:00:00+05:00`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Asia/Karachi' });
 
 /**
  * "I have paid", sent by technicians from their account screen. Check the
@@ -183,12 +202,16 @@ function ClaimCard({ c, onDone }: { c: Claim; onDone: () => void }) {
 
   const method = METHODS.find(([k]) => k === c.method)?.[1] ?? c.method;
   return (
-    <article className="card">
+    <article className={c.needs_attention ? 'card urgent' : 'card'}>
+      {c.needs_attention ? (
+        <p className="kind">Needs attention: waiting {c.business_days} business days. His offers are protected for this amount until you decide.</p>
+      ) : null}
       <div className="card-head">
         <div>
           <h2>{c.pro_name}</h2>
           <p className="muted">
             {c.pro_phone ? shown(c.pro_phone) : 'no number'} · sent {time(c.created_at)} · owes {rupees(c.owed_paisa)}
+            {c.business_days !== undefined ? ` · waiting ${c.business_days} business day${c.business_days === 1 ? '' : 's'}` : ''}
           </p>
         </div>
         <div className="price">
@@ -383,7 +406,7 @@ function PayTo({ current, onSaved }: { current: string | null; onSaved: () => vo
   );
 }
 
-function ProMoney({ p, onChanged }: { p: ProRow; onChanged: () => void }) {
+function ProMoney({ p, extend, onChanged }: { p: ProRow; extend: MoneyData['extend_days']; onChanged: () => void }) {
   const [paying, setPaying] = useState(false);
   const [showLines, setShowLines] = useState(false);
 
@@ -406,6 +429,7 @@ function ProMoney({ p, onChanged }: { p: ProRow; onChanged: () => void }) {
         </div>
       </div>
       <p className="muted">{p.last_paid_at ? `Last paid ${time(p.last_paid_at)}` : 'Has not paid yet'}</p>
+      {p.pay ? <PayDates p={p} extend={extend} onChanged={onChanged} /> : null}
       <div className="buttons">
         {p.owed_paisa > 0 && !paying ? <button onClick={() => setPaying(true)}>Record a payment</button> : null}
         <button className="secondary" onClick={() => setShowLines(!showLines)}>{showLines ? 'Hide account' : 'Account, line by line'}</button>
@@ -516,5 +540,109 @@ function Lines({ pro, onChanged }: { pro: string; onChanged: () => void }) {
         ))}
       </tbody>
     </table>
+  );
+}
+
+const STATUS: Record<string, string> = {
+  not_due: 'not due yet',
+  due: 'due today',
+  grace: 'in grace',
+  stopped: 'overdue: new offers stopped',
+  protected: 'overdue, covered by a payment being checked',
+  extended: 'more time given',
+  appeal: 'waiting for his appeal time',
+  paid: 'paid',
+};
+
+/**
+ * When he must pay (the owner's decision D36): what is overdue, the oldest
+ * unpaid fee and its dates, a waiting payment, extra time. Extra time is only
+ * for fees whose offers have already stopped, once per spell, with a reason
+ * he reads; the database refuses anything else.
+ */
+function PayDates({ p, extend, onChanged }: { p: ProRow; extend: MoneyData['extend_days']; onChanged: () => void }) {
+  const pay = p.pay!;
+  const [open, setOpen] = useState(false);
+  const [days, setDays] = useState(String(extend?.default ?? 7));
+  const [reason, setReason] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const unpaid = pay.fees.filter((f) => f.unpaid_paisa > 0).sort((a, b) => a.posted_at.localeCompare(b.posted_at));
+  const oldest = unpaid[0];
+
+  async function give() {
+    setBusy(true);
+    setMsg(null);
+    const r = await ask('admin_extend_pay', { p_pro: p.id, p_days: Number(days), p_reason: reason.trim() });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why ?? 'The database refused.');
+    setOpen(false);
+    setReason('');
+    onChanged();
+  }
+
+  if (!unpaid.length && !pay.claim && pay.credit_paisa <= 0) return null;
+  return (
+    <div className="evidence">
+      {pay.blocked ? (
+        <p className="error">
+          <strong>{rupees(pay.overdue_paisa)} overdue</strong>: his new offers have stopped
+          {pay.blocked_since ? ` since ${time(pay.blocked_since)}` : ''}. Jobs he has go on.
+        </p>
+      ) : pay.in_grace_paisa > 0 ? (
+        <p>
+          <strong>{rupees(pay.in_grace_paisa)}</strong> past its due date, in grace.
+        </p>
+      ) : null}
+      {oldest ? (
+        <p className="muted small">
+          Oldest unpaid: {oldest.ref ?? oldest.kind.replace(/_/g, ' ')} · {rupees(oldest.unpaid_paisa)} · due {dayLabel(oldest.due_day)}, last grace day{' '}
+          {dayLabel(oldest.last_grace_day)}
+          {oldest.extended_to ? `, more time until ${dayLabel(oldest.extended_to)}` : ''} · {STATUS[oldest.status] ?? oldest.status}
+        </p>
+      ) : null}
+      {pay.claim ? (
+        <p className={pay.claim.needs_attention ? 'error small' : 'muted small'}>
+          Says he paid {rupees(pay.claim.amount_paisa)}, waiting {pay.claim.business_days} business day{pay.claim.business_days === 1 ? '' : 's'}
+          {pay.claim.needs_attention ? ': needs attention, see Payments to confirm' : ''}. That amount is protected until you decide.
+        </p>
+      ) : null}
+      {pay.credit_paisa > 0 ? <p className="muted small">Pechkas holds {rupees(pay.credit_paisa)} for him; it pays his next fees.</p> : null}
+      {pay.extension && unpaid.some((f) => f.extended_to) ? (
+        <p className="muted small">
+          More time until {dayLabel(pay.extension.until_day)} ({pay.extension.days} days, {pay.extension.by ?? 'the office'}): “{pay.extension.reason}”
+        </p>
+      ) : null}
+      {pay.can_extend && !open ? (
+        <button className="secondary" onClick={() => setOpen(true)}>
+          Give more time…
+        </button>
+      ) : null}
+      {open ? (
+        <section className="decide">
+          <label>
+            How many days ({extend?.min ?? 3} to {extend?.max ?? 14})
+            <input type="number" min={extend?.min ?? 3} max={extend?.max ?? 14} value={days} onChange={(e) => setDays(e.target.value)} />
+          </label>
+          <label>
+            Why (he reads this; kept for good)
+            <textarea rows={2} value={reason} maxLength={300} onChange={(e) => setReason(e.target.value)} />
+          </label>
+          <div className="buttons">
+            <button onClick={give} disabled={busy}>
+              Give {days} more days
+            </button>
+            <button className="secondary" onClick={() => setOpen(false)}>
+              Back
+            </button>
+          </div>
+          {msg ? <p className="error" role="alert">{msg}</p> : null}
+          <p className="muted small">
+            Only for fees whose offers have already stopped, and once until they are paid. His offers stop again at midnight after the last day,
+            with no new grace.
+          </p>
+        </section>
+      ) : null}
+    </div>
   );
 }

@@ -41,7 +41,14 @@ type Fee = {
   customer_text: string | null;
   customer_said_at: string | null;
   covered_unpaid: boolean;
-  refund: 'owed' | 'returned' | 'charged' | null;
+  refund: 'owed' | 'returned' | 'charge_pending' | 'charged' | 'absorbed' | null;
+  /** D36: a refund charge waits for his appeal before it is a debt. */
+  refund_charge_due?: string | null;
+  refund_finalized_at?: string | null;
+  refund_appeal_text?: string | null;
+  refund_appeal_at?: string | null;
+  refund_appeal_outcome?: 'kept' | 'cancelled' | null;
+  refund_appeal_note?: string | null;
   cleared_at: string | null;
   office_note: string | null;
   office_by_name: string | null;
@@ -136,7 +143,11 @@ const EVENT: Record<string, string> = {
   visit_fee_cover: 'Paid to him by Pechkas',
   visit_fee_clear: 'Customer cleared to post again',
   visit_fee_refund_returned: 'He gave the money back',
-  visit_fee_refund_charge: 'Pechkas paid her back; added to what he owes',
+  visit_fee_refund_charge: 'Pechkas paid her back; charge to him recorded, open to appeal',
+  visit_fee_refund_appeal: 'He appealed the charge',
+  visit_fee_refund_keep: 'Appeal decided: charge kept',
+  visit_fee_refund_cancel: 'Appeal decided: charge cancelled, Pechkas bears it',
+  visit_fee_refund_final: 'The charge was added to what he owes',
 };
 const first = (name: string | null) => (name ? name.split(' ')[0] : 'The technician');
 
@@ -334,8 +345,13 @@ function FeeCard({ f, onDone }: { f: Fee; onDone: () => void }) {
   if (f.refund === 'owed') {
     kind = `Waived after she paid · ${first(f.pro)} must give back ${money(f.amount_paisa)}`;
     choices.push({ text: 'He gave it back', run: act('refund_returned') });
-    choices.push({ text: `He will not: Pechkas pays her back, add ${money(f.amount_paisa)} to what he owes`, secondary: true, run: act('refund_charge') });
-    help = 'Charging him adds the fee to what he owes Pechkas. Pay her back yourself before you press it.';
+    choices.push({ text: `He will not: Pechkas pays her back, charge ${money(f.amount_paisa)} to him`, secondary: true, run: act('refund_charge') });
+    help = 'Pay her back yourself before you press it. The charge is added to what he owes only after 7 days, if he does not appeal.';
+  } else if (f.refund_appeal_at && !f.refund_appeal_outcome) {
+    kind = `${first(f.pro)} appeals the refund charge of ${money(f.amount_paisa)}`;
+    choices.push({ text: 'Keep the charge', run: act('refund_keep') });
+    choices.push({ text: 'Cancel it: Pechkas bears the refund', secondary: true, run: act('refund_cancel') });
+    help = `He wrote: “${f.refund_appeal_text ?? ''}”. Keeping it adds it to what he owes today, due in 14 days. He reads your note.`;
   } else if (f.status === 'unpaid' || (f.status === 'disputed' && f.status_before === 'unpaid' && f.customer_said === 'paid')) {
     kind = f.status === 'unpaid' ? `${first(f.pro)} says the customer did not pay` : `${first(f.pro)} says not paid; ${f.customer} says she paid`;
     if (f.status === 'disputed') choices.push({ text: 'She paid: mark it paid', run: act('mark_paid') });
@@ -441,7 +457,15 @@ function FeeLine({ f, onDone }: { f: Fee; onDone: () => void }) {
       </p>
       <p>
         {money(f.amount_paisa)} · {STATUS[f.status]} · {f.payer === 'pechkas' ? 'Pechkas pays' : 'the customer pays'}
-        {f.refund === 'returned' ? ' · he gave it back' : f.refund === 'charged' ? ' · Pechkas paid her back' : ''}
+        {f.refund === 'returned'
+          ? ' · he gave it back'
+          : f.refund === 'charged'
+            ? ' · Pechkas paid her back; charged to him'
+            : f.refund === 'charge_pending'
+              ? ` · Pechkas paid her back; charge waits for his appeal until ${f.refund_charge_due ? when(f.refund_charge_due) : '…'}`
+              : f.refund === 'absorbed'
+                ? ' · Pechkas paid her back and bears it'
+                : ''}
       </p>
       <button className="secondary small" onClick={() => setOpen(!open)}>
         {open ? 'Close' : 'Details'}

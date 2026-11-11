@@ -294,8 +294,15 @@ ok('so the money is owed back to her', (await fee(d5.id)).refund === 'owed');
 ok('he is told to give it back', to(await sent(), 'bilal').some((x) => x.title === `Give back the visit fee on ${d5.ref}`));
 const beforeRefund = await owed(BILAL);
 ok('he will not, so Pechkas pays her and charges him', (await me(OWNER, VF, [(await fee(d5.id)).id, 'refund_charge', 'He refused; office paid her Rs 300 cash'])).value?.ok === true);
-ok('Rs 300 added to what he owes, once', (await owed(BILAL)) === beforeRefund + 30000 && (await ledgerFor(`visit_fee_refund:${(await fee(d5.id)).id}`)) === 1);
-ok('a second press charges nothing more', (await me(OWNER, VF, [(await fee(d5.id)).id, 'refund_charge', 'Again'])).value?.ok === false && (await owed(BILAL)) === beforeRefund + 30000);
+// D36 (the owner's decision B): a refund charge waits 7 days for his appeal before it is a debt.
+ok('recorded, not yet owed: he may appeal first', (await fee(d5.id)).refund === 'charge_pending' && (await owed(BILAL)) === beforeRefund
+  && (await ledgerFor(`visit_fee_refund:${(await fee(d5.id)).id}`)) === 0);
+ok('a second press charges nothing more', (await me(OWNER, VF, [(await fee(d5.id)).id, 'refund_charge', 'Again'])).value?.ok === false);
+await setup(`UPDATE public.visit_fees SET refund_charge_due = now() - interval '1 minute' WHERE job_id = $1`, [d5.id]);
+await setup(`SELECT public.refund_clock()`);
+await setup(`SELECT public.refund_clock()`);
+ok('no appeal by its date: Rs 300 added to what he owes, once', (await owed(BILAL)) === beforeRefund + 30000
+  && (await ledgerFor(`visit_fee_refund:${(await fee(d5.id)).id}`)) === 1 && (await fee(d5.id)).refund === 'charged');
 ok('the ledger adds up to nothing', await balanced());
 const d6 = await declined();
 await me(BILAL, `SELECT public.pro_visit_fee($1, true)`, [d6.id]);

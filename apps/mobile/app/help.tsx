@@ -70,11 +70,11 @@ const TECHNICIAN: QA[] = [
   },
   {
     q: 'How do I pay what I owe Pechkas?',
-    a: 'My account shows what you owe and where to send it. After paying, tap I have paid there and add the transaction ID and a screenshot. What you owe goes down once the office confirms the money arrived.',
+    a: 'My account shows what you owe, each fee\u2019s due date and where to send the money. Each fee is due 14 days after the job, with 3 days of grace; after that your new offers stop until it is paid, with no fee or interest. After paying, tap I have paid there and add the transaction ID and a screenshot: while the office checks it, that amount counts as paid. What you owe goes down once the office confirms the money arrived.',
   },
   {
     q: 'Why can I not make offers?',
-    a: 'While what you owe is over your limit, new offers stop until you pay; My account then says so, with both figures. They also stop while a guarantee claim on your work is left unanswered: answer it under Guarantee claims. The office can also pause your new offers for a few days, with its reason; jobs you already have go on, and the pause ends by itself.',
+    a: 'While what you owe is over your limit, or a fee is past its grace days, new offers stop until you pay; My account then says so. They also stop while a guarantee claim on your work is left unanswered: answer it under Guarantee claims. The office can also pause your new offers for a few days, with its reason; jobs you already have go on, and the pause ends by itself.',
   },
   {
     q: 'The job needs more than the agreed price.',

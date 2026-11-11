@@ -192,7 +192,11 @@ heading('Run a second time');
   const before = JSON.stringify((await rep()).total);
   let twice = null;
   try {
-    await db.exec(await readFile(join(MIGRATIONS, '20261112100000_visit_fee_report.sql'), 'utf8'));
+    // Run it again, and every change after it, in order: as the owner would in Supabase.
+    const { readdir } = await import('node:fs/promises');
+    for (const file of (await readdir(MIGRATIONS)).filter((f) => f.endsWith('.sql') && f >= '20261112100000').sort()) {
+      await db.exec(await readFile(join(MIGRATIONS, file), 'utf8'));
+    }
   } catch (e) {
     twice = e.message;
   }

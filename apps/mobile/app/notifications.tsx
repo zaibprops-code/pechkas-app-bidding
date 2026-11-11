@@ -55,6 +55,9 @@ const TECHNICIAN = [
   'The customer is coming to the door, disagrees with your nobody-home report, or the office has decided it',
   'The customer chose another technician, so you do not travel',
   'The office pauses your new offers, or lifts the pause',
+  'A fee to Pechkas is due in 3 days, due today, on its last grace day, or your new offers have stopped',
+  'The office gives you more time to pay',
+  'A visit fee refund will be charged to you, and what the office decided on your appeal',
 ];
 
 export default function Notifications() {

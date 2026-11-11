@@ -903,6 +903,53 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   on Cancellations. The app's terms, technician agreement and privacy page
   say the same. Tests: `reliability.test.mjs`.
 
+### Paying Pechkas by a date (migration `…_pay_by_date`)
+- **The owner's decision D36 (11 November 2026).** A final debt —
+  `commission`, `guarantee_charge`, `visit_fee_refund` — is due
+  `pay_due_days` (14) after it is posted, has `pay_grace_days` (3), and from
+  `pk_midnight(due + 4)` his NEW offers stop while it is unpaid
+  (`pay_blocked()`, checked in `make_offer()` with `field: 'overdue'`, in
+  `job_preferred()` and `pro_feed().pay_blocked`). Jobs he has go on. The
+  Rs 3,000 limit is a separate check. Days are `pk_day()`; debts from before
+  D36 count from `pay_policy.started_at`. All the D36 settings are locked
+  (not in `setting_limits`): the technician agreement states them.
+- **`pay_allocations` is what paid what**, lines only ever added
+  (`written_once()`), never a balance. `pay_items(pro)` classifies every
+  `pro_owes` posting: fees, `payout` (a debt that never falls due, so paid-out
+  money can never also clear a fee) and the credits that may pay them —
+  `settlement`, `guarantee_pay`, `visit_fee_cover`. A new ledger kind is in
+  none of them until the owner decides. **`pay_rebalance()` is the one
+  step**, run by `post_txn()` (the one writer) under `pay_lock(pro)` after
+  every money change: release every allocation touching something reversed
+  or not yet payable, then free credit pays the oldest unpaid debt first.
+  So reversals work in any order with no special cases. The rule tested
+  after every step (several hundred random sequences in `paydate.test.mjs`):
+  unpaid debts − free credit = `pro_owed()`.
+- **`pay_lock(pro)` serialises everything that can change his position**:
+  `post_txn`, `make_offer`, `claim_payment`, `admin_reject_claim`,
+  `admin_extend_pay`. Take it after any other lock, never before.
+- **`pay_fees(pro)` is the one place a fee's dates and status are worked
+  out** (not_due, due, grace, stopped, protected, extended, paid, appeal);
+  `pay_state(pro)` is the whole position for both screens. A pending
+  `payment_claims` row protects only its amount, oldest fees first, until
+  the office decides. `pay_clock()` (pg_cron, 05:00 UTC = 10:00 Islamabad)
+  sends at most one reminder per technician per day (`pay_reminders`) and
+  tells the office about claims waiting `pay_verify_business_days` (3)
+  business days — Monday to Friday minus `pk_holidays`, the office's list —
+  once each business day.
+- **Extensions** (`admin_extend_pay`, `pay_extensions`,
+  `pay_extension_fees` keyed by fee, so never twice): only fees already
+  `stopped`, 3–14 days, once per spell, ending at the midnight after
+  `until_day` with no second grace.
+- **A visit-fee refund charged to him is recorded, then appealed, then
+  posted** (`refund = 'charge_pending'` → `pro_appeal_refund()` →
+  `refund_clock()` / the office's `refund_keep` / `refund_cancel` →
+  `post_refund_charge()`). Old-rule `charged` rows without
+  `refund_finalized_at` are waiting for that appeal and are not payable.
+  `APP_EDITION` is 6 for this. Screens: `pro/PayDates.tsx` on My account,
+  the banner on Jobs, admin Money (`PayDates`, Give more time…), Visit fees
+  (refund appeals), Settings → Public holidays, Flags `overdue`.
+
 ### Money and trust (phase 5)
 - **Commission is 10% of the LABOUR**: `agreed_paisa − parts_paisa`, through
   `commission_on()`, rounded down, the same as `commission()` in

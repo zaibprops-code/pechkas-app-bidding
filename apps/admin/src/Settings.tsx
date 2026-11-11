@@ -114,7 +114,13 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
       check_hours: 'Hours a customer has to check a finished job',
       claim_answer_hours: 'Hours a technician has to answer a guarantee claim',
       claim_visit_hours: 'Hours within which his guarantee visit must start',
-      appeal_days: 'Days a technician has to appeal a guarantee charge',
+      appeal_days: 'Days a technician has to appeal a guarantee charge or a visit fee refund charge',
+      pay_due_days: 'Days after a job before its Pechkas fee is due',
+      pay_grace_days: 'Days of grace after the due date, before new offers stop',
+      pay_verify_business_days: 'Business days the office has to check an "I have paid"',
+      pay_extend_min_days: 'Shortest extra time the office may give',
+      pay_extend_max_days: 'Longest extra time the office may give',
+      pay_extend_default_days: 'Extra time offered first',
     },
   },
 ];
@@ -161,6 +167,7 @@ export function Settings() {
         <div className="stack">
           <AppSwitches onChanged={load} />
           <Sectors sectors={r.sectors} onChanged={load} />
+          <Holidays />
           {GROUPS.map((g) => (
             <section key={g.title} className="card">
               <h2>{g.title}</h2>
@@ -324,6 +331,101 @@ type Control = { min_edition: number; paused: boolean; pause_note: string; chang
  * read by every copy of the app when it opens and when it comes back to
  * the front; while one is on, phones ask again every half minute.
  */
+type Holiday = { day: string; name: string; by: string | null };
+type HolidayLog = { day: string; name: string | null; action: 'added' | 'removed'; by: string | null; at: string };
+
+/**
+ * Official public holidays (the owner's decision D36), typed from the
+ * government's notice — never guessed, because Eid follows the moon and is
+ * announced late. They only decide when a payment the office has not checked
+ * "needs attention": a technician's offers never stop because of this list.
+ */
+function Holidays() {
+  const [d, setD] = useState<{ days: Holiday[]; log: HolidayLog[] } | null>(null);
+  const [day, setDay] = useState('');
+  const [name, setName] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase.rpc('admin_holidays');
+    if (error) return setMsg(/admin_holidays|schema cache|does not exist/i.test(error.message)
+      ? 'Public holidays need the database change 20261112200000_pay_by_date.sql.' : `Could not load: ${error.message}`);
+    setD(data as { days: Holiday[]; log: HolidayLog[] });
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function set(onDay: string, on: boolean, holidayName: string | null) {
+    setBusy(true);
+    setMsg(null);
+    const r = await ask('admin_set_holiday', { p_day: onDay, p_name: holidayName, p_on: on });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why ?? 'The database refused.');
+    if (on) {
+      setDay('');
+      setName('');
+    }
+    load();
+  }
+
+  return (
+    <section className="card">
+      <h2>Public holidays</h2>
+      <p className="muted small">
+        Type each one from the government's official notice. They are left out when counting the 3 business days you have to check an "I have
+        paid". A missing or wrong day never stops a technician's offers: it only changes when you are reminded.
+      </p>
+      {d?.days.length ? (
+        <ul>
+          {d.days.map((h) => (
+            <li key={h.day}>
+              {new Date(`${h.day}T12:00:00+05:00`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Karachi' })} ·{' '}
+              {h.name}{' '}
+              <button className="secondary small" disabled={busy} onClick={() => set(h.day, false, null)}>
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="muted">None entered.</p>
+      )}
+      <div className="row">
+        <label>
+          Day
+          <input type="date" value={day} onChange={(e) => setDay(e.target.value)} />
+        </label>
+        <label className="grow">
+          Name, as in the notice
+          <input value={name} maxLength={80} onChange={(e) => setName(e.target.value)} />
+        </label>
+        <div className="buttons">
+          <button disabled={busy || !day} onClick={() => set(day, true, name)}>
+            Add holiday
+          </button>
+        </div>
+      </div>
+      {msg ? <p className="error" role="alert">{msg}</p> : null}
+      {d?.log.length ? (
+        <details>
+          <summary>Changes ({d.log.length})</summary>
+          <ul>
+            {d.log.map((l, i) => (
+              <li key={i}>
+                {l.day}: {l.action === 'added' ? `added “${l.name ?? ''}”` : 'removed'} by {l.by ?? 'the office'}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+    </section>
+  );
+}
+
 function AppSwitches({ onChanged }: { onChanged: () => void }) {
   const [c, setC] = useState<Control | null>(null);
   const [note, setNote] = useState('');

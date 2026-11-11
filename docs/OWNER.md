@@ -7,6 +7,50 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Paying Pechkas by a date (D36) — ONE database step, then a new build.**
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261112200000_pay_by_date.sql` (after the visit fee
+   totals step below). It should say **Success**. Safe to run twice.
+2. Make a new **preview** build. **This is edition 6**: only edition 6 shows
+   a technician the refund appeal. Ask copies older than 6 to update only
+   once edition 6 is in the Play Store.
+3. **Admin → Settings → Public holidays**: type in this year's official
+   holidays from the government's notice (Eid when it is announced). This
+   only decides when you are reminded about payments you have not checked.
+
+What happens now:
+
+- Every Pechkas fee is due **14 days** after the job, with **3 days of
+  grace**. From midnight after the third day, his **new offers stop** until
+  it is paid. Jobs he has go on. No fee, no interest. The Rs 3,000 limit
+  still works on its own.
+- Anything owed on the day you run step 1 gets its 14 days from that day.
+- He sees each fee and its date on **My account**, and is reminded 3 days
+  before, on the day, on the last grace day and when offers stop.
+- **I have paid** protects the amount he sent until you confirm or reject
+  it, however long you take. After 3 business days it is marked **Needs
+  attention** in **Money → Payments to confirm**, and your phone is told
+  each business day.
+- **Money** shows each technician's overdue amount, oldest unpaid fee and
+  its dates. Once his offers have stopped you can press **Give more time…**
+  (3–14 days, with a reason he reads) — once, until those fees are paid.
+- **Visit fees**: "He will not: Pechkas pays her back, charge him" now only
+  records the charge. He has 7 days to appeal; his appeal comes to you with
+  **Keep the charge** and **Cancel it**.
+
+**Try it (test accounts):**
+
+| Do this | You should see |
+|---|---|
+| As a technician with a fee, open **My account** | **When to pay**: each fee, its due date and status |
+| In Supabase, a test fee older than 18 days | His Jobs screen says new offers have stopped; an offer is refused |
+| He taps **I have paid** for the whole amount | His offers work again while you check it |
+| **Money → Give more time…**, 7 days, a reason | Offers work again; the fee says "More time until …" |
+| **Settings → Public holidays**: add one | It appears in the list and the change log |
+
+---
+
 **Visit fee totals (D13) — ONE database step, nothing else.**
 
 1. **Supabase → SQL Editor**: run

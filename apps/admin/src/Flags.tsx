@@ -97,6 +97,10 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     `${f.n} times he tapped "I can't come" within 2 hours of his time, or after it began.`,
     'Each one left a customer waiting for somebody new. See his reasons under Cancellations → Reliability, ring him, and pause his offers only if talking has not worked.',
   ],
+  overdue: () => [
+    'A fee of his is past its 3 days of grace: his new offers have stopped until it is paid.',
+    'See Money for the fee and its dates. Ring him; if he is ill or has an emergency, you can give more time once.',
+  ],
   reports: (f) => [`Technicians reported ${f.n} problems on this customer's jobs.`, 'Read them under Problems.'],
 };
 

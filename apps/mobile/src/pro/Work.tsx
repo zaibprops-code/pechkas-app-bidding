@@ -81,6 +81,9 @@ type Feed = {
   /** Paused by the office (reliability, D11): until when, and why. */
   paused_until?: string | null;
   pause_note?: string | null;
+  /** An overdue fee stops new offers on its own (D36). */
+  pay_blocked?: boolean;
+  overdue_paisa?: number;
   /** Claims waiting for his answer or his visit. */
   open_claims?: number;
   jobs: FeedJob[];
@@ -213,6 +216,13 @@ export function Work({ firstName }: { firstName: string }) {
           <Press onPress={() => router.push('/pro/money')} accessibilityRole="button" style={s.blocked}>
             <Text style={s.blockedTitle}>{w.blockedTitle}</Text>
             <Text style={s.blockedText}>{fill(w.blockedText, { owed: rupees(feed.owed_paisa ?? 0), limit: rupees(feed.credit_limit_paisa ?? 0) })}</Text>
+          </Press>
+        ) : null}
+
+        {feed?.pay_blocked ? (
+          <Press onPress={() => router.push('/pro/money')} accessibilityRole="button" style={s.blocked}>
+            <Text style={s.blockedTitle}>{w.payStoppedTitle}</Text>
+            <Text style={s.blockedText}>{fill(w.payStopped, { amount: rupees(feed.overdue_paisa ?? 0) })}</Text>
           </Press>
         ) : null}
 
