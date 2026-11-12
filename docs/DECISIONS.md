@@ -372,20 +372,20 @@ Each one happens in real life; today the office handles it by hand.
   - **D34.7 "Come back later"**: moving a visit to another window instead
     of cancelling and posting again. Postponed by you; not built.
 
-#### D35. A customer who does not pay the technician
-- **The question:** The job is done, but she refuses to pay him or pays
-  less. His 10% commission is still added to what he owes. What happens to
-  the commission, and to her?
-- **Today:** No rule. He can report a problem, and the office can undo the
-  commission by hand in Money.
-- **Options:**
-  - (a) The office decides each case.
-  - (b) He gets a "Not paid" button, which holds the commission until the
-    office has looked.
-  - Separately: is she stopped from posting new jobs until it is settled?
-- **Linked to:** D1 (who her agreement is with decides who can chase the
-  money).
-- **Who decides:** You. Chasing the money is you + lawyer.
+#### D35. A customer who does not pay the technician — decided and built (A76–A84)
+- **Your decision** (12 November 2026) is now in Part 2 as A76–A84.
+- **Still open, for you and a lawyer** (each is a `[DECIDE WITH A LAWYER]`
+  on the terms, the technician agreement or the privacy page):
+  - **D35.1** Whether Pechkas may restrict a customer's access because of
+    a debt to a technician, what notice it must give, and how she can
+    challenge it.
+  - **D35.2** Recording that she owes: how accurate it must be, how long
+    it is kept, and how she has it corrected.
+  - **D35.3** Who may chase the money, and whether her details may be
+    passed to anybody to do so (linked to D1).
+  - **D35.4** Holding the commission and charging it only on money
+    received, against the rest of the technician agreement.
+  - **D35.5** The guarantee on a job that was not paid in full.
 
 #### D36. A due date for paying Pechkas — decided and built (A68–A75)
 - **Your decision** (11 November 2026) is now in Part 2 as A68–A75.
@@ -528,6 +528,19 @@ What the app and the website do today. Reopen any item by its number.
 | A63 | **The office may pause a technician's new offers for 1, 3 or 7 days**, with a reason he reads in the app. His waiting offers are withdrawn; jobs he has go on; it ends by itself or is lifted early with a reason; every line is kept and cannot be changed. **3 late withdrawals in 60 days** ask the office to review him. The ladder — **1 confirmed no-show: contact him; 2 in 60 days: consider a 1–3 day pause; 3: review his approval** — is shown as a suggestion and never applied by itself. No suspension or charge is automatic. |
 | A64 | **No compensation, wallet, credit or discount at launch.** Service recovery instead: an apology, the job back in front of other technicians at once, and nothing to post again. |
 | A65 | D11 shares D10's records without changing their rules: a late arrival, no-show or "nobody home" report is now **one per technician per job**, so a job that came back gives its next technician a record of his own. No money moves anywhere in D11. |
+
+### A customer who does not pay the technician (decided 12 November 2026)
+| | |
+|---|---|
+| A76 | **He reports within 7 days of the job counting as done**: Not paid, or Paid less with what he received. One report per job, only on jobs the customer pays for (never a visit fee or a repair Pechkas pays for). He may change the amount until she answers; after that only the office can, with a recorded reason. **No report in 7 days: the commission stays as posted.** |
+| A77 | **His commission is held the moment he reports**: the posting is reversed in full, Pechkas' share and the guarantee reserve alike. A held commission counts towards **nothing**: not the Rs 3,000 limit, not the D36 due dates, no reminders, no stopped offers. |
+| A78 | **She is asked neutrally** ("A question about payment for PK-1041"; the details only in the app) and answers once, within 3 days: **That's right** (she owes the rest) or **I have paid** (her words and an optional screenshot, to the office). **No answer in 3 days goes to the office, still held, and she is not blocked: silence is never agreement.** |
+| A79 | **Commission only on the labour he actually received**: labour received = what she paid minus the job's recorded parts (never below nothing), commission at the job's own rate, rounded down; the reserve at the rate when he reported. Each release posts only the difference from what is already posted, so part-payments in any order end exactly where one posting would have (Rs 5,000 job, Rs 1,000 parts, Rs 3,000 paid: Rs 200, of it Rs 40 reserve and Rs 160 Pechkas). **Each release is a new commission fee with its own 14 days** (A68). |
+| A80 | **She cannot post new jobs only once she agreed, or the office decided, that she owes**; never while she disputes it or has not answered. It lifts when he taps **I have now been paid in full**, the office records a payment, closes the case, or clears her with a reason. **Guarantee claims and replacement bookings are never blocked.** Her answer is recorded as what she said about the amount, not as legal consent to the block (D35.1). |
+| A81 | **The office**, a reason every time, kept with who and when and never edited: she paid in full; she has paid Rs X in all; she owes the rest; close unpaid (commission only on what he received); correct his amount (up or down: what was released on the old figure is reversed and released again); let her post again. **"His report was false"** is a separate tick, only from an office finding, and a flag only. |
+| A82 | **The guarantee is unchanged**: never cancelled, delayed or reduced by a payment case. While one is open, her claim goes to the office instead of to him, and a claim already with him moves too, with his answer clock stopped. The office sends another technician (Pechkas pays from the reserve, **no charge to him**), lets him handle it under the usual rules with a fresh 24 hours, or finds it not covered. **No automatic charge**: he is charged only if he refuses a claim handed back to him and the office finds it covered (A21), or the office establishes from its own evidence that his work was defective, and then through the usual 7-day appeal. A payment dispute alone is never evidence of poor work. |
+| A83 | **Flags only**: 3 not-paid reports by one technician within the flag period (60 days now), 2 confirmed unpaid jobs for one customer, 1 report the office found false. No Pechkas compensation for an unpaid job at launch. |
+| A84 | Commission rates are unchanged (10%, 7%). Edition 7 of the app shows the payment question; ask for the update only once it is in the stores. |
 
 ### Trust and safety
 

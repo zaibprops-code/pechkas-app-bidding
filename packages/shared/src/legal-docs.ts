@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "799f504";
+export const LEGAL_FROM = "b4305e1";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -384,6 +384,20 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
       },
       {
         "k": "h3",
+        "text": "A payment question"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "When a technician says a customer did not pay him in full: what he says he received, the price and parts of the job, and when he said it. The customer's answer (that it is right, or that she has paid), the words she writes and her screenshot if she adds one. What the Pechkas office recorded and decided, its note, who decided and when, and whether it found his report false. The fee Pechkas held and charged on the job is in the money record described below."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h3",
         "text": "Cancellations and arriving on time"
       },
       {
@@ -426,7 +440,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             "b": true
           },
           {
-            "t": " the office often finds was not so, or repeated guarantee claims on one technician's work. It may write a note about what it found. "
+            "t": " the office often finds was not so, repeated guarantee claims on one technician's work, a technician who often reports that he was not paid, a report the office found false, or a customer who more than once did not pay a technician in full. It may write a note about what it found. "
           },
           {
             "t": "Nothing is decided automatically",
@@ -550,6 +564,22 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": " if he says it is not his work. A technician sent instead sees the job as he would any other. When the office decides a disputed job or a claim, its decision and the note explaining it may be shown to both of them. A charge to the technician, and his appeal against it, are seen only by him and the office."
+            }
+          ],
+          [
+            {
+              "t": "A payment question.",
+              "b": true
+            },
+            {
+              "t": " The customer sees what the technician says he received. The technician sees whether she has answered and what the office decided, but "
+            },
+            {
+              "t": "never the words she wrote or her screenshot",
+              "b": true
+            },
+            {
+              "t": ". The notification she gets says only that there is a question about payment for the job. The office sees all of it."
             }
           ],
           [
@@ -707,7 +737,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "A job's checks, guarantee claims, visit fee and cancellation are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account. A technician's record of late arrivals and no-shows is deleted with his account, and so are the reports he made that he could not get in, the times he said he was running late or could not come, and the office's pauses. Who had a job before is kept with the job; when a technician's account is deleted, his name is taken off it."
+              "t": "A job's checks, guarantee claims, visit fee, payment question and cancellation are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account. A technician's record of late arrivals and no-shows is deleted with his account, and so are the reports he made that he could not get in, the times he said he was running late or could not come, and the office's pauses. Who had a job before is kept with the job; when a technician's account is deleted, his name is taken off it."
             }
           ],
           [
@@ -726,6 +756,12 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": " the record of what a technician owed Pechkas and paid, which we keep for accounting. That includes any guarantee charge to a technician and any payment Pechkas made for a guarantee repair or a visit fee. It holds the job number, the amounts and the technician's name, and nothing about the customer."
+            }
+          ],
+          [
+            {
+              "t": "[DECIDE WITH A LAWYER: how long the record that a customer owed a technician is kept, how accurate it must be, and how she can have it corrected.]",
+              "mark": true
             }
           ],
           [
@@ -1349,6 +1385,88 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
       },
       {
         "k": "h2",
+        "text": "If the technician says you have not paid in full"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "Up to 7 days after a job counts as finished, the technician may tell Pechkas that you did not pay him, or paid him less than the price. Pechkas then asks you in the app. The notification says only that there is a question about payment for the job; the details are in the app."
+            }
+          ],
+          [
+            {
+              "t": "You answer once, within 3 days: "
+            },
+            {
+              "t": "That's right, I still owe it",
+              "b": true
+            },
+            {
+              "t": ", or "
+            },
+            {
+              "t": "I have paid",
+              "b": true
+            },
+            {
+              "t": ", with a few words about how and when, and a screenshot if you have one."
+            }
+          ],
+          [
+            {
+              "t": "If you say you have paid, or do not answer within 3 days, the Pechkas office looks at it, talks to you both and decides. "
+            },
+            {
+              "t": "Not answering is never taken as agreeing",
+              "b": true
+            },
+            {
+              "t": ", and you can post jobs as usual while the office looks."
+            }
+          ],
+          [
+            {
+              "t": "If you say it is right, or the office decides that you still owe it, you cannot post a new job until it is settled",
+              "b": true
+            },
+            {
+              "t": ": the technician tells Pechkas he has been paid, the office records the payment, or the office closes the question or lets you post again. The app shows the amount and why. Your answer is recorded as what you said about the amount, and nothing more. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: whether Pechkas may restrict a customer's access because of a debt to a technician, what notice it must give, and how she can challenge it]",
+              "mark": true
+            }
+          ],
+          [
+            {
+              "t": "Your guarantee is not affected.",
+              "b": true
+            },
+            {
+              "t": " You can still claim on the job, and a guarantee repair is never held back; see below."
+            }
+          ],
+          [
+            {
+              "t": "Pechkas does not collect the money for the technician, and the app takes no payments. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: who may ask you for the money, and whether Pechkas may pass your details to anybody to do so.]",
+              "mark": true
+            }
+          ],
+          [
+            {
+              "t": "[DECIDE WITH A LAWYER: how accurate the record that you owed a technician must be, how long it is kept, and how you can have it corrected.]",
+              "mark": true
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
         "text": "Cancelling"
       },
       {
@@ -1650,6 +1768,22 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "t": "When the repair is done, the app asks you to check it, as before."
             }
           ]
+        ]
+      },
+      {
+        "k": "h3",
+        "text": "If there is a question about payment on the job"
+      },
+      {
+        "k": "p",
+        "c": [
+          {
+            "t": "If the technician has said you did not pay him in full, your guarantee is exactly the same: the same length, never cancelled, delayed or reduced because of it. While that question is open, the Pechkas office handles your claim instead of the technician. It looks at your photos and decides: another technician, at Pechkas' cost; the same technician under the usual rules; or not covered, with its reason. You still pay nothing for a guarantee repair. "
+          },
+          {
+            "t": "[DECIDE WITH A LAWYER: the guarantee on a job that has not been paid in full.]",
+            "mark": true
+          }
         ]
       },
       {
@@ -2265,6 +2399,119 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "t": "Records of what you owed and paid are kept even after your account is deleted, for accounting."
             }
           ]
+        ]
+      },
+      {
+        "k": "h2",
+        "text": "If the customer does not pay you in full"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "Tell Pechkas within 7 days of the job counting as done.",
+              "b": true
+            },
+            {
+              "t": " On "
+            },
+            {
+              "t": "My account",
+              "b": true
+            },
+            {
+              "t": ", under "
+            },
+            {
+              "t": "Not paid in full?",
+              "b": true
+            },
+            {
+              "t": ", tap "
+            },
+            {
+              "t": "Report a payment problem",
+              "b": true
+            },
+            {
+              "t": " and choose "
+            },
+            {
+              "t": "Not paid at all",
+              "b": true
+            },
+            {
+              "t": ", or "
+            },
+            {
+              "t": "Paid less",
+              "b": true
+            },
+            {
+              "t": " with what you received. One report per job, and only on a job the customer pays for. You can change the amount until she answers; after that only the office can, with its reason. If you report nothing in 7 days, the fee stays as it is."
+            }
+          ],
+          [
+            {
+              "t": "The Pechkas fee on that job is held from the moment you report.",
+              "b": true
+            },
+            {
+              "t": " It is taken off what you owe, and does not count towards the Rs 3,000 limit, the due dates or the reminders until it is settled."
+            }
+          ],
+          [
+            {
+              "t": "Pechkas asks the customer. She answers once: that it is right, or that she has paid. If she says she has paid, or does not answer in 3 days, the office looks at it and decides, and may ask you both for proof."
+            }
+          ],
+          [
+            {
+              "t": "You are only ever charged the fee on the labour you actually received",
+              "b": true
+            },
+            {
+              "t": ": what she paid you, less the parts on the job, parts first, at the same rate as the job. It is charged as money comes in — when she agrees what you received, when the office records a payment, or when you tap "
+            },
+            {
+              "t": "I have now been paid in full",
+              "b": true
+            },
+            {
+              "t": " — and each part is due 14 days after it is charged, as above. If the office closes the question unpaid, you are charged only on what you received. Pechkas pays you nothing for a job that was not paid."
+            }
+          ],
+          [
+            {
+              "t": "A report must be true. If the office finds that a report was false, that is recorded and looked at, like any other flag; so are three reports in 60 days. "
+            },
+            {
+              "t": "Nothing happens automatically.",
+              "b": true
+            }
+          ],
+          [
+            {
+              "t": "While the question is open, a guarantee claim on that job goes to the office instead of to you, and no answer clock runs against you. The office may send another technician at Pechkas' cost, with "
+            },
+            {
+              "t": "no charge to you",
+              "b": true
+            },
+            {
+              "t": "; hand the claim back to you under the usual rules, with a fresh 24 hours to answer; or find it not covered. A payment question is never, by itself, a reason to charge you for a guarantee repair. You are charged only if the office finds, from its own evidence, that your work failed, or you refuse a claim it hands back to you and the office finds it covered — and then under the usual rules above, with your 7 days to appeal."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "p",
+        "c": [
+          {
+            "t": "[DECIDE WITH A LAWYER: whether Pechkas may hold its fee while a payment is in question and charge it only on money received, as this agreement says, and how that fits the rest of the agreement; and who may chase an unpaid customer.]",
+            "mark": true
+          }
         ]
       },
       {

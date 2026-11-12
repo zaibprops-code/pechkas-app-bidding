@@ -950,6 +950,50 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the banner on Jobs, admin Money (`PayDates`, Give more time…), Visit fees
   (refund appeals), Settings → Public holidays, Flags `overdue`.
 
+### A customer who does not pay the technician (migration `…_payment_disputes`)
+- **The owner's decision D35 (12 November 2026).** `payment_cases` is the
+  record, one per job, readable by nobody: `pro_report_unpaid()` within
+  `unpaid_report_days` (7) of `finished_at`, only on `done` jobs that are
+  not `paid_by_pechkas`; `pro_correct_unpaid()` only while `asked` and
+  unanswered; `customer_answer_unpaid()` once (`agrees` → `owed`,
+  `paid` → `office`); `payment_clock()` (pg_cron, every 10 minutes) moves
+  an unanswered case to `office` after `unpaid_answer_days` (3) — **silence
+  never blocks her**; `pro_now_paid()`; the office's
+  `admin_payment_case(case, action, note, amount, false_report)` and
+  `admin_payment_cases()`. Both day counts are locked (the terms and
+  agreement state them).
+- **Held = the `commission:<job>` posting reversed line for line**
+  (`held_txn`), so every D36 and limit check ignores it with no special
+  case. **Released only through `release_commission()`**: target =
+  `commission_at(max(received − parts, 0), case.commission_bps)`, reserve
+  at `case.reserve_bps`, posting the difference from `posted_commission` /
+  `posted_reserve` as kind `commission`, keyed `commission_paid:<case>:<n>`
+  — each release is a new D36 fee. Nothing was held (no commission, or it
+  was already reversed) → nothing is ever released. A downward office
+  correction goes through `unrelease_commission()` (reverses every release,
+  then releases again). Never post a D35 commission any other way, and
+  never reverse a `commission_paid:` line by hand: the case's totals would
+  no longer match the ledger.
+- **The posting block** is in `no_post_while_fee_unpaid()`: `owed` and not
+  `cleared_at`, never while asked or with the office; `paid_by_pechkas`
+  jobs (replacements) are never blocked. The app shows the trigger's own
+  sentence because `ask()` passes a `P0001` message through.
+- **Guarantee while a case is open** (`payment_case_open()`): a new claim
+  is `office_review` with `sent_to_pro = false`; a waiting or coming claim
+  moves there through `claims_to_office()` (no clock runs on it).
+  `admin_review_claim()`: `replace` (no charge), `replace_charge` (only on
+  the office's own finding; then the usual A21 charge and appeal),
+  `not_covered`, `to_pro` (fresh `claim_answer_hours`). A payment case
+  never creates a charge by itself.
+- **What each side sees** is `payment_view(job, side)`: her words and
+  screenshot never reach him; the notification is `payment_question`, a
+  job number only. Flags `unpaid_reports`, `false_unpaid`, `unpaid_jobs`.
+  Screens: `pro/Unpaid.tsx` on My account, `customer/Payment.tsx` on her
+  job, `apps/admin/src/PaymentDisputes.tsx`, the held-claim card in
+  `Guarantee.tsx`. `APP_EDITION` is 7. The terms, technician agreement and
+  privacy page say the same, with the D35 lawyer markers. Tests:
+  `paydispute.test.mjs`.
+
 ### Money and trust (phase 5)
 - **Commission is 10% of the LABOUR**: `agreed_paisa − parts_paisa`, through
   `commission_on()`, rounded down, the same as `commission()` in

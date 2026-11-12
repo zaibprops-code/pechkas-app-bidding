@@ -7,6 +7,53 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**A customer who does not pay the technician (D35) — ONE database step, then a new build.**
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261112300000_payment_disputes.sql` (after the
+   pay-by-date step below). It should say **Success**. Safe to run twice.
+2. Make a new **preview** build. **This is edition 7**: only edition 7
+   shows the payment question to a customer and the report card to a
+   technician. Ask copies older than 7 to update only once edition 7 is in
+   the Play Store.
+
+What happens now:
+
+- Up to **7 days** after a job counts as done, the technician can say on
+  **My account → Not paid in full?** that he was not paid, or was paid
+  less. **His commission on that job is held at once**: it no longer counts
+  towards what he owes, the Rs 3,000 limit or the due dates.
+- The customer's phone says only "A question about payment for PK-…". In
+  the app she answers once, within **3 days**: **That's right** (she cannot
+  post new jobs until it is settled) or **I have paid** (it comes to you).
+  If she does not answer, it comes to you and she is **not** blocked.
+- Commission is only ever charged on the **work he was actually paid
+  for**, parts first, as money comes in; each part is due 14 days later.
+- **Admin → Payment disputes** (new in the menu): cases waiting for you
+  come first. Ring both, write what you found, then press one button: she
+  paid in full; she has paid this much in all (type the rupees); she owes
+  the rest; let her post again; correct his amount; close unpaid. Tick
+  **His report was false** only when you found it so — it is a flag,
+  nothing else.
+- **Guarantee and disputes**: while a payment question is open, her
+  guarantee claim comes to you instead of him. The main button sends
+  another technician at Pechkas' cost with **no charge to him**. Charge him
+  only if your own check shows his work failed.
+- **Flags**: 3 reports by one technician, 2 confirmed unpaid jobs by one
+  customer, or 1 report you found false. Flags only.
+
+**Try it (test accounts):**
+
+| Do this | You should see |
+|---|---|
+| A test job, finished today, as the technician: **My account → Report a payment problem → Paid less**, Rs 3,000 | "Your commission on this job is held"; what he owes drops |
+| As the customer, open that job | "Bilal says he received Rs 3,000 of Rs 5,000" and two buttons |
+| She taps **That's right, I still owe it** | "Still to pay Bilal Rs 2,000"; posting a new job says why it is refused |
+| He taps **I have now been paid in full** | Her block is gone; the full commission is back on his account |
+| On another job she taps **I have paid** | It appears first on **Admin → Payment disputes** |
+
+---
+
 **Paying Pechkas by a date (D36) — ONE database step, then a new build.**
 
 1. **Supabase → SQL Editor**: run
