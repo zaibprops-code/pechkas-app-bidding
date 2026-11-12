@@ -17,7 +17,10 @@ import { colour, font } from '../../src/theme';
  * it is her job, still guaranteed, and the only open claim.
  */
 
-type Mine = { id: string; ref: string; title: string; pro: { first_name: string } | null; guarantee_until: string | null; guarantee_days: number | null; can_claim: boolean };
+type Mine = {
+  id: string; ref: string; title: string; pro: { first_name: string } | null; guarantee_until: string | null; guarantee_days: number | null; can_claim: boolean;
+  payment?: { status: string } | null;
+};
 
 export default function ClaimScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -39,6 +42,8 @@ export default function ClaimScreen() {
   if (!ready || job === undefined) return <Loading />;
   if (!session) return <Redirect href="/start" />;
   const name = job?.pro?.first_name ?? 'The technician';
+  // D35: while a payment question is open on the job, the office takes the claim instead of him. The guarantee is the same.
+  const office = !!job?.payment && job.payment.status !== 'closed';
 
   async function send() {
     setErrors({});
@@ -50,7 +55,7 @@ export default function ClaimScreen() {
       if (r.field === 'text' || r.field === 'media') return setErrors({ [r.field]: r.why });
       return setMsg(r.why);
     }
-    toast.show(done(`${name} has 24 hours to answer. Your job shows where it has got to.`, 'Claim sent'));
+    toast.show(done(office ? 'The Pechkas office will look at it and call you. Your job shows where it has got to.' : `${name} has 24 hours to answer. Your job shows where it has got to.`, 'Claim sent'));
     router.back();
   }
 
@@ -69,7 +74,9 @@ export default function ClaimScreen() {
         <>
           <Panel icon="shield" title={until ? `Guaranteed until ${until}` : 'Guaranteed'} hint={`${job.guarantee_days ?? ''} days on this job. The same fault, or anything his work caused, is covered.`}>
             <Text style={s.line}>
-              {name} has 24 hours to answer and must come back within 48 hours of that. If he does not, Pechkas sends another technician and pays for the repair.
+              {office
+                ? 'A payment question is open on this job, so the Pechkas office handles your claim. It decides what happens next and calls you; your guarantee is not affected.'
+                : `${name} has 24 hours to answer and must come back within 48 hours of that. If he does not, Pechkas sends another technician and pays for the repair.`}
             </Text>
           </Panel>
           <Panel icon="help" title="What has gone wrong?">

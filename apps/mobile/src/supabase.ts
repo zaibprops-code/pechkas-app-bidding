@@ -134,6 +134,9 @@ export async function ask<T = Record<string, unknown>>(fn: string, args?: Record
   const { data, error } = await supabase.rpc(fn, args);
   if (error) {
     const offline = /network|fetch|timeout/i.test(error.message);
+    // A refusal the database raised on purpose (code P0001, its own RAISE) is a sentence written for
+    // people, such as why she cannot post while she owes a fee: say it rather than "something went wrong".
+    if (error.code === 'P0001' && error.message && !/^[a-z_]+:/.test(error.message)) return { ok: false, why: error.message };
     return { ok: false, why: offline ? 'No connection. Check your signal and try again.' : 'Something went wrong. Please try again.' };
   }
   return data as Answer<T>;

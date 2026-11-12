@@ -35,6 +35,7 @@ const CUSTOMER = [
   'A job closed because he could not get in, and what Pechkas decided',
   'Your technician cannot come, so your job is open to others again',
   'Your technician is running late, with the time he now expects',
+  'A question about payment for a job, and what Pechkas decided',
 ];
 
 const TECHNICIAN = [
@@ -58,6 +59,7 @@ const TECHNICIAN = [
   'A fee to Pechkas is due in 3 days, due today, on its last grace day, or your new offers have stopped',
   'The office gives you more time to pay',
   'A visit fee refund will be charged to you, and what the office decided on your appeal',
+  'The customer answers your payment report, or Pechkas decides it',
 ];
 
 export default function Notifications() {

@@ -25,7 +25,7 @@ import { colour, font, radius } from '../theme';
 export type Check = { round: number; answer: string | null; reason: string | null; note: string | null; photo: string | null; pro_reply: string | null };
 export type Claim = {
   id: string;
-  status: 'waiting' | 'coming' | 'checking' | 'refused' | 'replacing' | 'disputed' | 'fixed' | 'not_covered';
+  status: 'waiting' | 'coming' | 'checking' | 'refused' | 'replacing' | 'disputed' | 'fixed' | 'not_covered' | 'office_review';
   description: string;
   media: string[];
   created_at: string;
@@ -258,6 +258,8 @@ export function ClaimCard({ job, onChanged }: { job: CheckFields; onChanged: () 
     checking: ['Check his repair', `${name} says it is fixed. Check it works.`],
     refused: ['Pechkas is deciding', `${name} says this is not his work. Pechkas looks at your photos, decides, and calls you.`],
     disputed: ['Pechkas is deciding', 'You said it is still broken. Pechkas looks at both sides’ photos, decides, and calls you.'],
+    // D35: a payment question is open on this job, so the office handles the claim. The guarantee is unchanged.
+    office_review: ['The Pechkas office has your claim', 'Pechkas looks at your photos, decides what happens next, and calls you. Your guarantee is not affected.'],
     replacing: claim.replacement_job_id
       ? ['Another technician is booked', 'Pechkas pays for this repair. Open it to choose the technician, as with any job.']
       : ['Pechkas will send another technician', 'Pechkas pays for the repair. Choose the day:'],

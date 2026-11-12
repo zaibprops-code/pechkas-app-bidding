@@ -102,6 +102,19 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     'See Money for the fee and its dates. Ring him; if he is ill or has an emergency, you can give more time once.',
   ],
   reports: (f) => [`Technicians reported ${f.n} problems on this customer's jobs.`, 'Read them under Problems.'],
+  // D35: flags only. Nothing here charges, blocks or pauses anybody.
+  unpaid_reports: (f) => [
+    `${f.n} times he reported that a customer did not pay him in full.`,
+    'Most customers pay. Open them under Payment disputes and ring a few of those customers; it may be bad luck, or a habit.',
+  ],
+  false_unpaid: () => [
+    'The office found one of his "not paid in full" reports false.',
+    'Read the case under Payment disputes, then talk to him. Nothing happens on its own.',
+  ],
+  unpaid_jobs: (f) => [
+    `This customer agreed, or the office found, ${f.n} times that she had not paid a technician in full.`,
+    'See Payment disputes. Ring her before anything else; a report alone never counts here.',
+  ],
 };
 
 const time = (t: string) => new Date(t).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });

@@ -31,7 +31,7 @@ import { colour, font, radius } from '../../src/theme';
 
 type Claim = {
   id: string;
-  status: 'waiting' | 'coming' | 'checking' | 'refused' | 'replacing' | 'disputed' | 'fixed' | 'not_covered';
+  status: 'waiting' | 'coming' | 'checking' | 'refused' | 'replacing' | 'disputed' | 'fixed' | 'not_covered' | 'office_review';
   job_id: string;
   ref: string;
   title: string;
@@ -73,6 +73,8 @@ const STATUS: Record<Claim['status'], string> = {
   replacing: 'Another technician is being sent',
   fixed: 'Closed',
   not_covered: 'Not covered',
+  // D35: a payment question on the job; the office decides the claim and he has nothing to answer yet.
+  office_review: 'With the Pechkas office',
 };
 
 /** "Mon 2 Nov, 3:39pm", on Pakistan's clock. */

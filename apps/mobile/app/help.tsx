@@ -61,6 +61,10 @@ const CUSTOMER: QA[] = [
     q: 'The fault has come back.',
     a: 'Open the job from My jobs. While it is guaranteed — 30 days for repairs and installations, 7 for services, and the end date is on the job — tap It has failed again, describe it and add a photo or video. He has 24 hours to answer and must come back within 48 hours. If he does not, Pechkas sends another technician and pays for the repair.',
   },
+  {
+    q: 'Pechkas asks me about a payment.',
+    a: 'The technician has told Pechkas he was not paid in full. Open the job and answer once: That\u2019s right, if you still owe it, or I have paid, with a few words and a screenshot if you have one. If you say that is right, you cannot post a new job until it is paid. If you say you paid, or do not answer in 3 days, the Pechkas office looks at it, and you can post jobs meanwhile. Your guarantee is not affected.',
+  },
 ];
 
 const TECHNICIAN: QA[] = [
@@ -99,6 +103,10 @@ const TECHNICIAN: QA[] = [
   {
     q: 'What if I am late?',
     a: 'Arriving more than 30 minutes after your time begins is recorded as late, and not arriving at all is checked by the office. If you are held up, tap I\u2019m running late on the job and say when you will be there; if you cannot come at all, tap I can\u2019t come before you arrive, and the job goes back to others. Doing it within 2 hours of your time is a late withdrawal. You can see every record under My account and tell the office if one is wrong. Nothing happens on its own.',
+  },
+  {
+    q: 'The customer did not pay me in full.',
+    a: 'Up to 7 days after the job counts as finished, open My account and tap Report a payment problem: Not paid at all, or Paid less with what you received. Pechkas asks the customer, and your commission on that job is held, so it counts towards nothing you owe. You can change the amount until they answer. When you are paid the rest, tap I have now been paid in full. Commission is only ever charged on the work you were actually paid for.',
   },
   {
     q: 'Can I change my trades or sectors?',

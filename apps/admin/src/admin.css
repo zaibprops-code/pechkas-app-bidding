@@ -140,6 +140,8 @@ button:focus-visible, .call:focus-visible, .nav-row:focus-visible, input:focus-v
 .line-item:first-child { border-top: 0; }
 .line-item p { overflow-wrap: anywhere; }
 .decide textarea { resize: vertical; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; }
+.check input { width: 20px; height: 20px; margin-top: 2px; flex: none; accent-color: var(--green); }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
 .row .grow { flex: 1 1 200px; }
 .decide { display: grid; gap: 10px; }

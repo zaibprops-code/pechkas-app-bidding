@@ -22,7 +22,9 @@ import { shown } from './phones.ts';
 type Photo = { stage: 'before' | 'after' | 'change' | 'receipt' | 'video' | 'fix'; path: string };
 type Claim = {
   id: string;
-  status: 'waiting' | 'coming' | 'checking' | 'refused' | 'replacing' | 'disputed' | 'fixed' | 'not_covered';
+  status: 'waiting' | 'coming' | 'checking' | 'refused' | 'replacing' | 'disputed' | 'fixed' | 'not_covered' | 'office_review';
+  /** D35: a payment case is open on the job, so the claim is the office's. */
+  payment_case?: boolean;
   job_id: string;
   ref: string;
   trade: string;
@@ -455,14 +457,19 @@ function DisputeCard({ d, onChanged }: { d: Dispute; onChanged: () => void }) {
 function ClaimCard({ c, onChanged }: { c: Claim; onChanged: () => void }) {
   const appeal = c.appeal_at !== null && c.appeal_outcome === null;
   const name = first(c.pro);
+  const review = c.status === 'office_review';
   const kind = appeal
     ? `${name} appeals against a guarantee charge`
-    : c.status === 'refused'
+    : review
+      ? `Guarantee claim · held by the office: a payment dispute is open on this job`
+      : c.status === 'refused'
       ? `Guarantee claim · ${name} says this isn't his work`
       : `Guarantee claim · ${c.customer} says it is still broken after his visit`;
 
   const claim = (covered: boolean) => (note: string) =>
     ask('admin_decide_claim', { p_claim: c.id, p_covered: covered, p_note: note }) as Promise<{ ok: boolean; why?: string }>;
+  const reviewClaim = (action: 'replace' | 'replace_charge' | 'not_covered' | 'to_pro') => (note: string) =>
+    ask('admin_review_claim', { p_claim: c.id, p_action: action, p_note: note }) as Promise<{ ok: boolean; why?: string }>;
   const decideAppeal = (cancel: boolean) => (note: string) =>
     ask('admin_decide_appeal', { p_claim: c.id, p_cancel: cancel, p_note: note }) as Promise<{ ok: boolean; why?: string }>;
 
@@ -540,6 +547,31 @@ function ClaimCard({ c, onChanged }: { c: Claim; onChanged: () => void }) {
             {c.charge_final
               ? 'Cancelling takes the charge off what he owes, in the record, with your note beside it.'
               : 'Cancelling means it is never added. Keeping it adds it to what he owes today; past the credit limit his new offers stop until he pays.'}
+          </p>
+        </>
+      ) : review ? (
+        <>
+          <div className="evidence">
+            <h3>Why this is with you</h3>
+            <p>
+              {name} has said {c.customer} did not pay him in full (see Payment disputes). Her guarantee is the same as on any job, but
+              while that is open the office decides the claim, not him. {name} has not been asked, and no clock is running against him.
+            </p>
+          </div>
+          <Decide
+            label="What you found (she reads this in the app)"
+            choices={[
+              { text: 'Send another technician: Pechkas pays, no charge to him', run: reviewClaim('replace') },
+              { text: `Let ${name} handle it: he gets 24 hours to answer`, secondary: true, run: reviewClaim('to_pro') },
+              { text: 'Not covered: close it', secondary: true, run: reviewClaim('not_covered') },
+              { text: 'His work was at fault, on your own evidence: send another and charge him', secondary: true, run: reviewClaim('replace_charge') },
+            ]}
+            onDone={onChanged}
+          />
+          <p className="muted small">
+            The payment dispute alone is never evidence about his work and never a reason to charge him. Charge him only when you have
+            found yourself that his work failed; it is then the usual charge, never more than {money(c.original_labour_paisa)}, added
+            to what he owes 7 days after the repair if he does not appeal.
           </p>
         </>
       ) : (

@@ -737,6 +737,11 @@ export function Finished({ items, w, tradeName, onChanged }: { items: FinishedJo
           {f.dispute_note ? <Text style={[s.doneSub, { width: '100%' }]}>Pechkas decided: “{f.dispute_note}”</Text> : null}
           {f.visit_fee ? <FeeState fee={f.visit_fee} w={w} jobId={f.id} onChanged={onChanged} /> : null}
           {f.confirmed_by === 'clock' ? <Text style={[s.doneSub, { width: '100%' }]}>Counted as finished after 24 hours, unchecked.</Text> : null}
+          {f.status === 'done' && !f.paid_by_pechkas ? (
+            <Press onPress={() => router.push('/pro/money')} accessibilityRole="link" style={s.unpaidLink}>
+              <Text style={s.unpaidLinkText}>{w.unpaidTitle} {w.unpaidReportOn}</Text>
+            </Press>
+          ) : null}
           {f.can_rate ? <RateCustomer f={f} w={w} onDone={onChanged} /> : null}
           {f.my_rating ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, width: '100%' }}>
@@ -832,6 +837,8 @@ function RateCustomer({ f, w, onDone }: { f: FinishedJob; w: ProWords; onDone: (
 }
 
 const s = StyleSheet.create({
+  unpaidLink: { width: '100%', minHeight: 44, justifyContent: 'center' },
+  unpaidLinkText: { fontFamily: font.bodySemi, fontSize: 13.5, color: colour.green, textDecorationLine: 'underline' },
   feeBox: { width: '100%', gap: 8, padding: 12, borderRadius: 16, backgroundColor: colour.softYellow },
   feeBoxWarn: { backgroundColor: colour.softBrick },
   feeText: { fontFamily: font.bodySemi, fontSize: 14.5, lineHeight: 20, color: colour.ink },

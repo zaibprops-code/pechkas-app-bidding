@@ -15,6 +15,8 @@ import { ask } from '../supabase';
 import { colour, font, radius } from '../theme';
 import { CheckCard, ClaimCard, DecisionCard, DisputeCard, GuaranteeRepairNote, LastRound, type CheckFields } from './Checking';
 import { FeeCard, type CustomerFee } from './VisitFee';
+import { PaymentCard } from './Payment';
+import type { PaymentView } from '../pro/Unpaid';
 
 /**
  * The customer's side of a job once a technician is chosen: where he is, the
@@ -56,6 +58,8 @@ export type JobNow = {
   guarantee_days?: number | null;
   can_claim?: boolean;
   claim_open?: boolean;
+  /** D35: he says she has not paid him in full. */
+  payment?: PaymentView | null;
   /** Only when the location check verified his arrival near her pin (arrival_by_location). */
   arrival_verified?: boolean;
 } & Omit<CheckFields, 'id' | 'ref' | 'stage' | 'status' | 'collect_paisa' | 'photos' | 'pro'>;
@@ -274,6 +278,8 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
 
   return (
     <>
+      {/* A payment question waiting for her answer, or holding her back, comes before everything (D35). */}
+      {job.payment ? <PaymentCard p={job.payment} name={name} jobId={job.id} onChanged={onChanged} /> : null}
       {/* An open guarantee claim is why she opened this job: it comes first. */}
       {claim && !['fixed', 'not_covered'].includes(claim.status) ? <ClaimCard job={job} onChanged={onChanged} /> : null}
       {/* A stopped job: the visit fee's own card, with what she can do about it (visit_fee). */}
@@ -281,11 +287,19 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
       {/* What to pay, large: the one figure she needs at the door. */}
       {job.status === 'stopped' && job.visit_fee ? null : <View style={[s.panel, s.pay]}>
         <Text style={s.payLabel}>
-          {job.paid_by_pechkas ? 'Guarantee repair' : job.status === 'done' ? `Pay ${name} directly` : `Pay ${name} the visit fee`}
+          {job.paid_by_pechkas
+            ? 'Guarantee repair'
+            : job.payment && job.payment.status !== 'closed'
+              ? 'Price of the job'
+              : job.status === 'done'
+                ? `Pay ${name} directly`
+                : `Pay ${name} the visit fee`}
         </Text>
         <Text style={s.payAmount}>{job.paid_by_pechkas ? 'Nothing to pay' : rupees(job.collect_paisa)}</Text>
         {job.paid_by_pechkas ? <Text style={s.line}>Pechkas pays {name} for this repair.</Text> : null}
-        {!job.paid_by_pechkas && job.status === 'done' ? <Text style={s.line}>In cash, or by JazzCash or Easypaisa, straight to {name}.</Text> : null}
+        {!job.paid_by_pechkas && job.status === 'done' && !(job.payment && job.payment.status !== 'closed') ? (
+          <Text style={s.line}>In cash, or by JazzCash or Easypaisa, straight to {name}.</Text>
+        ) : null}
         {job.status === 'done' && job.confirmed_by === 'clock' ? <Text style={s.line}>Nobody checked it within a day, so it counts as finished.</Text> : null}
         {job.status === 'stopped' && !job.dispute_outcome ? <Text style={s.line}>You declined the new price, so the job stopped there.</Text> : null}
         {job.parts_paisa ? (
@@ -369,7 +383,10 @@ export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }
             <>
               {/* The terms (/app/terms) tell customers to tap exactly this; legal.test.ts checks the two agree. */}
               <Button kind="outline" label="It has failed again" onPress={() => router.push({ pathname: '/claim/[id]', params: { id: job.id } })} />
-              <Text style={s.small}>Describe it and add a photo or video. {name} has 24 hours to answer.</Text>
+              <Text style={s.small}>
+                Describe it and add a photo or video.{' '}
+                {job.payment && job.payment.status !== 'closed' ? 'While the payment question is open, the Pechkas office handles it.' : `${name} has 24 hours to answer.`}
+              </Text>
             </>
           ) : null}
           {job.problem_at ? <Text style={s.line}>You told us something is wrong. The Pechkas office will call you.</Text> : null}

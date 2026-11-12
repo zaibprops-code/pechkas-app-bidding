@@ -92,6 +92,8 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
       flag_late_withdrawals: 'His late "I can\'t come" (within 2 hours of his time) before a review',
       flag_not_home: 'Confirmed "nobody home" before a review of the customer',
       flag_not_home_reports: 'His own "nobody home" reports before a look',
+      flag_unpaid_reports: 'His "not paid in full" reports before a look',
+      flag_unpaid_jobs: 'Confirmed unpaid jobs before a review of the customer',
       flag_blocked: 'Customers who blocked him',
       flag_price_over_bps: 'A price counts as high when the work is above the top of its range by',
       flag_price_over_jobs: 'Jobs priced high like that',

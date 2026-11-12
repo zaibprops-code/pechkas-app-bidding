@@ -11,6 +11,7 @@ import { Stars } from '../../src/components/Stars';
 import { PayPechkas, type Claim } from '../../src/pro/PayPechkas';
 import { FeeState, type VisitFee } from '../../src/pro/OnTheJob';
 import { RecordCard, type ProRecord } from '../../src/pro/Record';
+import { UnpaidCard, type PaymentJob } from '../../src/pro/Unpaid';
 import { PayDatesCard, RefundCharges, type PayState, type RefundCharge } from '../../src/pro/PayDates';
 import { supabase } from '../../src/supabase';
 import { fill, useProWords } from '../../src/words';
@@ -56,15 +57,19 @@ export default function MoneyScreen() {
   const [claims, setClaims] = useState<Claim[]>([]);
   const [fees, setFees] = useState<VisitFees | null>(null);
   const [record, setRecord] = useState<ProRecord | null>(null);
+  const [unpaid, setUnpaid] = useState<PaymentJob[]>([]);
 
   const load = useCallback(async () => {
     if (!supabase) return;
-    const [{ data, error }, sent, vf, rec] = await Promise.all([
+    const [{ data, error }, sent, vf, rec, pj] = await Promise.all([
       supabase.rpc('pro_money'),
       supabase.rpc('my_payment_claims'),
       supabase.rpc('pro_visit_fees'),
       supabase.rpc('pro_record'),
+      supabase.rpc('pro_payment_jobs'),
     ]);
+    // A database without the payment-disputes change (D35) answers with an error: then there is no card.
+    setUnpaid(Array.isArray(pj.data) ? (pj.data as PaymentJob[]) : []);
     // A database without the cancellations change answers with an error: then there is no record card.
     setRecord(rec.data && Array.isArray((rec.data as ProRecord).incidents) ? (rec.data as ProRecord) : null);
     // A database without the visit-fee change answers with an error: then there is simply no card.
@@ -119,6 +124,8 @@ export default function MoneyScreen() {
             {m.pay ? <PayDatesCard pay={m.pay} w={w} /> : null}
 
             <PayPechkas owed={m.owed_paisa} payTo={m.pay_to} claims={claims} w={w} onSent={load} />
+
+            <UnpaidCard jobs={unpaid} w={w} onChanged={load} />
 
             {m.refund_charges ? <RefundCharges items={m.refund_charges} w={w} onChanged={load} /> : null}
 

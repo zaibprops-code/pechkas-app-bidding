@@ -258,11 +258,13 @@ function PastJob({ job, trade, last, narrow }: { job: Job; trade: string; last: 
     job.status === 'done' ? 'Done' : job.status === 'stopped' ? 'Stopped' : job.cancelled_by === 'office' ? 'Cancelled by Pechkas' : job.cancelled_by === 'nobody' ? 'No technician was free' : job.cancelled_by === 'pro' ? 'Closed: he could not get in' : 'Cancelled';
   // Only a real, open chance to rate: the database says whether she still may.
   const rate = job.can_rate && !job.my_rating && job.pro ? `Rate ${job.pro.first_name}` : null;
+  // D35: a payment question for her, or what she still owes; the job's own screen has the rest.
+  const pay = job.payment?.can_answer ? 'Answer a payment question' : job.payment?.blocked ? 'Still to pay' : null;
   return (
     <Press
       onPress={() => open(job)}
       accessibilityRole="button"
-      accessibilityLabel={`${job.title}, ${day(job.created_at)}. ${label}.${rate ? ` ${rate}.` : ''}`}
+      accessibilityLabel={`${job.title}, ${day(job.created_at)}. ${label}.${pay ? ` ${pay}.` : ''}${rate ? ` ${rate}.` : ''}`}
       sink={0.98}
       style={[s.past, !last && s.rule]}
     >
@@ -281,6 +283,12 @@ function PastJob({ job, trade, last, narrow }: { job: Job; trade: string; last: 
           <View style={[s.chip, job.status === 'done' && s.chipDone]}>
             <Text style={[s.chipText, job.status === 'done' && s.chipTextDone]}>{label}</Text>
           </View>
+          {pay ? (
+            <View style={[s.chip, s.chipPay]}>
+              <DuoIcon name="wallet" size={13} />
+              <Text style={s.chipText}>{pay}</Text>
+            </View>
+          ) : null}
           {rate ? (
             <View style={[s.chip, s.chipRate]}>
               <DuoIcon name="star" size={13} />
@@ -359,6 +367,7 @@ const s = StyleSheet.create({
   chip: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill, backgroundColor: colour.canvas },
   chipDone: { backgroundColor: colour.greenSoft },
   chipRate: { backgroundColor: SOFT_YELLOW },
+  chipPay: { backgroundColor: colour.yellow },
   chipText: { fontFamily: font.bodySemi, fontSize: 12, color: colour.inkSoft },
   chipTextDone: { color: colour.greenDark },
 
