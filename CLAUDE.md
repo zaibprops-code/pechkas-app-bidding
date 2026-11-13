@@ -190,9 +190,10 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   hand in the SQL editor.
 - Being signed in is never enough for the office. Every `admin_*` function
   asks `is_staff()` again, so switching someone off works on their next tap.
-- **Approval needs three checks on record**: identity (in person or video
-  call, never a photo of a card), a trial job, the rules. `pro_checks` keeps
-  who checked by name too, so the record survives them leaving.
+- **Approval is by rule (D37), never by the office**: see "A new
+  technician's first jobs" below. `pro_checks` (identity, trial job, rules,
+  recorded by the office) is history from before D37 and approves nobody;
+  its form is gone from the panel.
 - A technician can edit his application until he is approved, never after:
   it is then the owner's record. He can never set his own status.
 - `delete_my_account()` deletes the `auth.users` row and everything cascades.
@@ -660,6 +661,68 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (`admin_guarantee()`, with the reserve). Repeated claims are the flags
   `guarantee` (2 in 60 days) and `guarantee_review` (3 in 90). Tests:
   `checks.test.mjs`, `guarantee.test.mjs`, `followups.test.mjs`.
+
+### A new technician's first jobs (D37, migrations `…_first_jobs`, `…_quiz_questions`)
+- **The owner's standing rule made this**: nobody watches a trial, the office
+  is never in a routine step. Read `docs/DECISIONS.md` A85–A98 before
+  changing any of it.
+- **`pro_gate(pro, trade, type, sector, customer, job)` is the one rule** for
+  whether he may take a job, and `trade_level()` the one answer to "what may
+  he take": none / trial / basic / full. Every door asks the gate: the feed
+  (`pro_may_see_as`), `make_offer`, `choose_offer` (again as she taps),
+  `admin_assign`, `job_preferred`. The price cap is the offer's and lives in
+  `trial_cap_why()`. Never test `j.trade = ANY (r.trades)` again: that is
+  what he applied for, not what he may do (`pro_trades`).
+- **The person is approved by `promote_person()`**: SMS-checked number, face
+  photo, rules quiz if on. Called from `set_my_face`, `finish_quiz` and the
+  clock; it sets `pechkas.by_rule` so the `sync_pro_trades` trigger can tell
+  a rule approval from a hand one. Approved any other way (inserted as
+  approved, or by hand in the SQL editor) is `legacy`: works as before until
+  `sort_legacy()` sorts it by record once both legacy numbers are set.
+  `admin_decide('approve')` works only after `rejected_at`.
+- **His photo** (`pro_faces`) locks when his first job is assigned; a change
+  is `face_changes`, decided by `is_owner()` only. At her door
+  `customer_face_answer()` (stage `arrived` only): yes sets
+  `face_confirmed_at`, which `start_work` requires whenever he has a photo;
+  no reopens the job (`ended = 'not_the_man'`), pauses every trade and files
+  a `safety_reports` row of kind `face`.
+- **Identity is a plug-in**: `identity_start()` (him), `identity_result()`
+  (granted to `service_role` only, refuses a CNIC-shaped reference),
+  `admin_identity_service()` (owner). `identity_ok()` is the one rule;
+  `identity_line()` is what may be said, and **nothing says "identity
+  checked" unless kind is `verified`**. No server function talks to a
+  service yet: building it is the job when the owner has one (D37.2).
+- **A trial job counts only through `trial_review()`**: all four answers
+  yes, before and after photos, no claim, no payment case, its
+  `commission:<job>` posting paid per `pay_fees`, the gap setting set, and
+  `trial_customer_why()` NULL. Anything not yet known waits; anything
+  permanent is `not_counted` with its `why`. A covered claim later flips a
+  good one and can put an approved trade back on trial. Pauses by rule are
+  `trial_pause_check()`; a lifted pause forgives the answers behind it.
+- **Risky work**: `job_types.risky`, `trades.something_else_risky`,
+  `trades.opens_with` (UPS → Electrician). `risk_ready()` is the bar; the
+  checker is `pick_checker()` and nowhere else; `arrange_check()` runs inside
+  `choose_offer` and refuses the choice if nobody can check. The fee is
+  ledger kind `checker_fee` on account `checks`, a credit in `pay_items`.
+  Strikes come from the clock. `type_open()` closes a risky kind in a
+  sector where nobody can do it; `post_job` refuses with `field: 'job_type'`.
+- **`first_jobs_clock()`** (pg_cron, every 10 minutes) does every timed
+  step. Tests call it directly.
+- **Every new number starts at 0, "not set"**, and whatever needs it waits or
+  is refused. Never put a default in a migration: the owner sets them.
+- **Quizzes**: questions only in `…_quiz_questions.sql` (key stays the same
+  when a question changes). Urdu is a draft until a native speaker checks
+  it; a safety quiz goes on only with the checker's name, and nothing public
+  mentions a safety test while they are off. The answer key never leaves
+  the database. "Hear it" uses `expo-speech` and is drawn only when the
+  phone has an Urdu voice.
+- Screens: `app/pro/first-jobs.tsx`, `quiz.tsx`, `checks.tsx`,
+  `check-number.tsx` (and `verify.tsx`'s `change` mode, Supabase's
+  `phone_change`); the customer's `src/customer/Face.tsx` and `FirstJobs.tsx`
+  (door card, the three questions, safety report); the office's
+  `apps/admin/src/Exceptions.tsx`. The technician agreement, terms, privacy
+  and delete-account pages say the same; change them together. Tests:
+  `firstjobs.test.mjs`, `quizzes.test.mjs`. `APP_EDITION` is 8.
 
 ### Doing the job (phase 4)
 - **Status and step are separate.** `status` is open → assigned → done |

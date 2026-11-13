@@ -7,6 +7,83 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**A new technician's first jobs (D37) — TWO database steps, then a new build, together.**
+
+Run both and install the new build on the same day: from the first step on,
+the office can no longer press Approve, and only the new app has the screens
+a new technician uses to be approved by rule.
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261113000000_first_jobs.sql`, then
+   `supabase/migrations/20261113100000_quiz_questions.sql`. Each should say
+   **Success**. Both are safe to run twice.
+2. Make a new **preview** build. **This is edition 8.** Ask older copies to
+   update only once edition 8 is in the Play Store: an older customer's copy
+   cannot answer "Is this Imran?" at the door, so his technician could not
+   start.
+3. **Admin → Settings → First jobs**: type in every number. Until one is
+   set, whatever needs it waits (for example, nobody on first jobs can make
+   an offer until the price limit is set). Claude's proposals are in
+   `docs/DECISIONS.md` under D37.1.
+
+What happens now:
+
+- **Nobody approves technicians any more.** He applies, checks his number by
+  SMS (a code; an email account is asked to add one), takes his photo in the
+  app and, once you switch it on, passes the rules quiz. The app approves him
+  within ten minutes. **Admin → Technicians** shows what is still missing.
+- **His first 3 jobs in each trade are his trial**: basic jobs only, one at a
+  time, up to your price limit, and customers see "New on Pechkas". Each
+  customer answers four questions. Three good jobs **and verified identity**
+  approve the trade, so **until you have an identity service, everybody
+  stays on first-job limits**. That is the most urgent thing outside the app
+  (D37.2).
+- **At the door** the customer checks his photo before giving the start code.
+  A "no" stops the job, pauses all his work and appears under **Exceptions**.
+- **Risky work** (wiring, gas geysers, AC gas, solar faults, fridges, UPS)
+  opens to a technician only after a clean record and one checked job, where
+  another technician the app picks comes too. Where nobody can check yet,
+  customers are told the kind of job is not available, and can ask to be told
+  when it is: **Admin → Demand → Kinds of job not available yet** shows where
+  people are waiting.
+- **Technicians approved before today** work exactly as before until you set
+  the two "before the rules" numbers; then the app sorts them by their own
+  clean jobs and tells each one.
+- **Admin → Exceptions** (new in the menu) is the only place that needs you:
+  safety reports and "not the man in the photo" (decide in writing),
+  appeals against a pause (lift or keep, in writing), a new photo after the
+  lock (only you), and a trade where somebody has earned a checked job but
+  nobody can check him (arrange an outside assessor by email, then record
+  it there).
+- **Admin → First jobs** (new): the identity service switch (leave it off
+  until a service is connected) and the quizzes.
+
+**Before you switch a quiz on:**
+
+1. Have a native Urdu speaker read every question and answer of that quiz
+   (they are in `supabase/migrations/20261113100000_quiz_questions.sql`, Urdu
+   beside English). Send Claude any corrections; Claude changes the file and
+   you run it again.
+2. For a **safety** quiz, also have a qualified person check it (an
+   electrician for Electrician, a gas fitter for Plumber, an AC technician
+   for AC, and so on). The switch asks for their name and qualification.
+3. **Admin → First jobs → Switch on**. A switched-on quiz is asked of
+   everybody who has not passed it, including technicians already working.
+
+**Try it (test accounts):**
+
+| Do this | You should see |
+|---|---|
+| A new test number applies as a technician, then **Your first jobs → Take my photo** | Within ten minutes, "You can start taking jobs" |
+| As him, offer on a basic AC job at more than your price limit | "On your first jobs you can offer at most Rs …" |
+| As a customer, open his offer | His photo, "New on Pechkas", "Phone number checked" |
+| Choose him; as him tap On my way, then Arrived | The customer sees "Is this Imran?" before the code |
+| As him finish; as the customer answer the three questions, then **Yes, it works** | On his **Your first jobs**, the job waits for the fee to be paid, then counts |
+| As the customer, **Report something unsafe** | His AC work pauses; it appears under **Admin → Exceptions** |
+| Post a gas top-up in a sector where nobody can do one | "This kind of job is not available on Pechkas yet" and **Tell me when it is** |
+
+---
+
 **A customer who does not pay the technician (D35) — ONE database step, then a new build.**
 
 1. **Supabase → SQL Editor**: run

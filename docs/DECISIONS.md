@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 13 November 2026 (the standing rule; D37's first plan withdrawn). The same list as a map you can tap through:
+_Last updated: 13 November 2026 (D37 decided and built: a new technician's first jobs). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -419,42 +419,54 @@ Each one happens in real life; today the office handles it by hand.
     beyond the reminders. You + lawyer; the technician agreement carries a
     `[DECIDE WITH A LAWYER]` for it.
 
-#### D37. The trial job for a new technician — plan withdrawn, new direction given
-- **The question:** How is a new technician checked before customers rely
-  on him, when nobody from Pechkas can attend?
-- **Withdrawn (13 November 2026):** the plan for a trial watched in person
-  at a trial home or a customer's job, with a trial watcher, a fee paid on
-  the day and office decisions. It depended on the owner attending, which
-  the standing rule above rules out. It was never built.
-- **The owner's direction (13 November 2026), for a new plan:**
-  1. Before any job: an identity check, a rules quiz and a short safety
-     quiz per trade, all in the app.
-  2. His first 3 jobs in a trade are his trial. The customer sees "New on
-     Pechkas" before she chooses him. One job at a time, basic job types
-     only, under a price cap the owner sets in Settings.
-  3. After each of those jobs the customer answers a short check in her app
-     (on time, explained the work, left it clean, it works). Before and
-     after photos are required.
-  4. Approval in a trade is automatic: 3 good jobs and no guarantee claim.
-     A bad answer or a safety report pauses him by rule, with an appeal.
-  5. Risky job types (wiring, gas geysers, solar installs, AC gas) unlock
-     only after a clean record, plus a check by an approved technician in
-     that trade where one exists, chosen by the app and paid by Pechkas,
-     whose own record suffers if people he passed turn out bad.
-  6. Rules against fake first jobs: different real customers, real payment,
-     and commission paid.
-  7. Technicians already approved are sorted by their record.
-  8. Kept from the old plan: approval per trade enforced in the database,
-     the three trade-check gaps closed, every attempt on record, gas
-     cookers and gas ovens not taken, the safety stop.
-  9. The website and the app say what really happens, not "a trial job,
-     watched".
-- **Status:** a plan for this direction is being drawn up. Nothing is
-  built until the owner approves it.
-- **Next routine step to remove, after D37 (the owner, 13 November 2026):**
-  A5, the office confirming every "I have paid". Until then a good trial
-  job needs its commission paid, and that still waits for the office.
-- **Who decides:** You.
+#### D37. A new technician's first jobs — decided and built (A85–A98)
+- **Your decision** (13 November 2026, after the watched-trial plan was
+  withdrawn) is now in Part 2 as A85–A98.
+- **Still open:**
+  - **D37.1 The numbers.** Every number starts "not set", and whatever needs
+    it waits until you set it in the office panel (Settings → First jobs).
+    Claude's proposals, for you to confirm or change: price limit on first
+    jobs Rs 4,000; 500 m between first-job customers' homes; quiz pass mark
+    80%, retake after 3 days; risky work after 10 clean jobs over at least
+    30 days with no claim found against him in 60 days, and another try 30
+    days after a check that did not pass; checker's fee Rs 1,000, 4 hours to
+    say yes, answerable for 30 days; pre-D37 technicians kept approved at 3
+    clean jobs and risky at 10 clean risky jobs; staff-seen identity stops
+    counting 30 days after the identity service goes live. **You.**
+  - **D37.2 The identity service.** A company authorised to check CNICs
+    against NADRA's records, with a liveness photo and face match; a written
+    price; written terms that it keeps the card image and Pechkas receives
+    only matched or not and its reference; probably a registered business
+    (NTN or SECP) first. Its key goes into Supabase's secrets, never the chat
+    or this repository. Until then nobody leaves first-job limits.
+    **You, by email, + lawyer.**
+  - **D37.3 The Urdu.** Every quiz question is a draft; a native speaker
+    checks it before the rules quiz is switched on. **You check.**
+  - **D37.4 The safety quizzes.** Drafted for AC, Electrician, Plumber, Solar
+    and Home appliances, and switched off. A qualified electrician, gas
+    fitter or AC technician checks each before it goes on. Until then risky
+    work cannot be unlocked by anyone, because the checked safety quiz is
+    part of the bar. **You arrange, by email.**
+  - **D37.5 Safety quizzes for CCTV, Wi-Fi, computers, carpentry and
+    painting.** None drafted: those trades have no risky job types. Say if
+    you want them. **You.**
+  - **D37.6 The lawyer's questions** (each a `[DECIDE WITH A LAWYER]` on the
+    agreement, the terms or the privacy page): keeping and showing a photo
+    used to identify a person; checking identity against NADRA's records
+    through another company; decisions made by rule about who may take jobs,
+    and their review; what a checker is responsible for. **You + lawyer.**
+  - **D37.7 UPS and inverter** needs its own job types and price list later
+    (fix a). Until then all UPS work is "Something else", risky, and open
+    only to a technician whose risky Electrician work is open. **You.**
+  - **D37.8 The website's own booking pages** still say every Pechkas
+    technician "has had his CNIC checked" in person, wears a uniform, and
+    that "we call you before he reaches your gate" (the home page's trust
+    points, the FAQ, /team). Those describe WhatsApp bookings, not the app,
+    and were left alone; under the standing rule (no visits, no calls), say
+    whether they are still true. **You.**
+- **Next routine step to remove (the owner, 13 November 2026):** A5, the
+  office confirming every "I have paid". Until then a good first job needs
+  its commission paid, and that still waits for the office.
 
 #### D38. Launch offers
 - **The question:** Do you want anything to win the first technicians and
@@ -594,6 +606,24 @@ What the app and the website do today. Reopen any item by its number.
 | A82 | **The guarantee is unchanged**: never cancelled, delayed or reduced by a payment case. While one is open, her claim goes to the office instead of to him, and a claim already with him moves too, with his answer clock stopped. The office sends another technician (Pechkas pays from the reserve, **no charge to him**), lets him handle it under the usual rules with a fresh 24 hours, or finds it not covered. **No automatic charge**: he is charged only if he refuses a claim handed back to him and the office finds it covered (A21), or the office establishes from its own evidence that his work was defective, and then through the usual 7-day appeal. A payment dispute alone is never evidence of poor work. |
 | A83 | **Flags only**: 3 not-paid reports by one technician within the flag period (60 days now), 2 confirmed unpaid jobs for one customer, 1 report the office found false. No Pechkas compensation for an unpaid job at launch. |
 | A84 | Commission rates are unchanged (10%, 7%). Edition 7 of the app shows the payment question; ask for the update only once it is in the stores. |
+
+### A new technician's first jobs (decided 13 November 2026)
+| | |
+|---|---|
+| A85 | **Approval is by the app's rule, trade by trade, enforced in the database at every door**: the feed, an offer, her choosing him, the office assigning by hand, and "ask for him again". Every change to a trade is kept. |
+| A86 | **The person is approved by rule** once his number is checked by SMS, his face photo is in and he has passed the rules quiz. Nobody meets him. The office approves only somebody it turned down before who applied again. |
+| A87 | **His photo** is shown to customers before they choose him; at her door she taps "Yes, this is the man in the photo" before the start code. A "no" gives the job back to others, pauses all his work and reaches the office as a written item. The photo locks with his first job; a change needs a reason and the owner's approval. |
+| A88 | **Identity is a service plugged in later**: only its result and reference are kept, never a CNIC number or image. Until it is live he stays on first-job limits however many good jobs he does, and nothing says "identity checked". Technicians approved before D37 show "Identity seen by Pechkas staff on [date]" until the owner's deadline after the service goes live, then drop to first-job limits by rule. |
+| A89 | **His first 3 jobs in a trade are his trial**: "New on Pechkas" on his offer, basic job types only, one job at a time, at or under the price limit. "Something else" opens only on approval. |
+| A90 | **After each first job she answers four questions** (on time, explained the work, left it clean, it works). A job counts when all four are yes, the before and after photos are in, no guarantee claim stands, the commission on it is paid, and she is a real, separate customer (a number checked by SMS that is not his, a home at least the set distance from the others, not a customer already counted, an account older than his application or with other jobs). **Commission is taken on these jobs as on any other.** |
+| A91 | **Three good jobs and verified identity approve the trade.** A covered guarantee claim on one of them within its guarantee puts the trade back on trial. |
+| A92 | **Pauses by rule**: a safety report pauses the trade at once; two "It works: no", or two first jobs with a "no" on another question, pause it. Jobs he has go on. He appeals in writing and the office answers in writing; a safety report is decided by the office after his side. **A customer whose safety report or "It works: no" the office finds false gets a flag.** |
+| A93 | **Risky job types**: AC gas top-up, installation, uninstallation, stabiliser fitting, dismantle and refit, PCB or electrical fault; Electrician DB or breaker fault, motor switch, new socket or light point, UPS or inverter connection, changeover switch, wiring fault tracing, rewiring; Plumber's three geyser types and both water motor types; Solar system check, full maintenance and inverter or wiring fault (both panel cleanings are basic); fridge or freezer repair; and "Something else" in those trades and in UPS. **UPS and inverter opens only to a technician with risky Electrician work open.** |
+| A94 | **Risky work unlocks after a clean record and one checked job**: another approved technician the app picks comes too and checks against a list; Pechkas pays him a fee as a credit; if a man he passed has a covered claim or an upheld safety report on risky work within the set time, he gets a flag and is not picked again. **Where nobody can check, risky types are closed to customers** ("This kind of job is not available on Pechkas yet", with "Tell me when it is", counted per job type and sector for the office). The owner may arrange an outside assessor by email, once per trade. |
+| A95 | **Technicians approved before D37** work as before until the owner sets the two record numbers, then are sorted by their own clean jobs: approved, risky work open, or starting as new. |
+| A96 | **Quizzes are in Urdu**, with the English under each question and "Hear it" where the phone has an Urdu voice, drawn at random from a larger pool. **The safety quizzes stay off, and nothing public mentions a safety test, until a qualified person has checked them.** |
+| A97 | **Gas cookers and gas ovens are not taken**: the oven job is "Microwave or electric oven repair", technicians decline them, and the office can close such a job with that reason. A technician working on a roof follows the roof line in his agreement. |
+| A98 | Every number starts "not set". Commission rates are unchanged (10%, 7%). Edition 8 of the app has the screens; ask for the update only once it is in the stores. |
 
 ### Trust and safety
 

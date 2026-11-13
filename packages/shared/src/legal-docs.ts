@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "b4305e1";
+export const LEGAL_FROM = "5c88240";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -160,6 +160,18 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             {
               "t": "If Pechkas does not work in your sector yet and you tell us so in the app: which sector, and what kind of work you need. Nothing else is sent with it."
             }
+          ],
+          [
+            {
+              "t": "If you tap "
+            },
+            {
+              "t": "Tell me when it is",
+              "b": true
+            },
+            {
+              "t": " on a kind of job that is not available yet: the kind of job and your sector, so we can tell you when it opens and know where it is needed."
+            }
           ]
         ]
       },
@@ -177,11 +189,44 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "That Pechkas checked your identity, gave you a trial job and went through the rules with you: the date, who did it and how. "
+              "t": "A photo of your face",
+              "b": true
             },
             {
-              "t": "We never record a CNIC number or keep a copy of a CNIC.",
+              "t": ", taken with the app's camera, and any later photo you ask to change it to, with your reason and the owner's answer. Customers who receive your offer, and the customer whose job you are given, see it, to check it is you at their door. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: keeping and showing a photo used to identify a person.]",
+              "mark": true
+            }
+          ],
+          [
+            {
+              "t": "Your answers to the rules quiz and the safety quizzes: which questions you were given, how many you got right, and whether you passed, so the app knows whether you may take jobs."
+            }
+          ],
+          [
+            {
+              "t": "For each trade: whether you are on your first jobs, approved, paused or stopped, and every change to that, with the reason; your first jobs and whether each one counted and why; any appeal you write and the office's answer; and any checked job, with what the technician who checked it found and his photos. If you check another technician's job, the same record, and any time a technician you passed later had a claim found against him."
+            }
+          ],
+          [
+            {
+              "t": "Once an identity-checking service is in use: that you used it, whether your identity matched, the date and the service's own reference. "
+            },
+            {
+              "t": "We never record a CNIC number or keep a copy of a CNIC",
               "b": true
+            },
+            {
+              "t": ", and the service does not give us one. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: checking identity against NADRA's records through another company, the consent it needs, and what that company keeps.]",
+              "mark": true
+            },
+            {
+              "t": "Technicians approved before these rules: the date Pechkas staff saw their identity, as it was recorded then."
             }
           ],
           [
@@ -298,7 +343,17 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Problems reported."
+              "t": "On one of a technician's first jobs, the customer's answers to three questions: whether he came on time, explained the work, and left the place clean."
+            }
+          ],
+          [
+            {
+              "t": "At the door, whether the customer confirmed that the technician was the man in his photo."
+            }
+          ],
+          [
+            {
+              "t": "Problems reported, and safety reports, with the words and any photo, the technician's side and the office's decision."
             }
           ],
           [
@@ -443,11 +498,23 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             "t": " the office often finds was not so, repeated guarantee claims on one technician's work, a technician who often reports that he was not paid, a report the office found false, or a customer who more than once did not pay a technician in full. It may write a note about what it found. "
           },
           {
-            "t": "Nothing is decided automatically",
+            "t": "A flag on its own decides nothing",
             "b": true
           },
           {
             "t": ": a person looks, and may ring you before deciding anything."
+          }
+        ]
+      },
+      {
+        "k": "p",
+        "c": [
+          {
+            "t": "One thing is decided by rule, from the records above: whether a technician may take jobs, and which. The app approves him from his checked number, his photo and his quizzes; counts his first jobs from the customers' answers, his photos and the fees paid; and pauses his work after a safety report, a \"this is not him\" at a door, or repeated \"no\"s on his first jobs. He can see why in the app and appeal in writing, and a person in the office decides the appeal. "
+          },
+          {
+            "t": "[DECIDE WITH A LAWYER: decisions made by rule from personal information, and what must be said about them.]",
+            "mark": true
           }
         ]
       },
@@ -506,7 +573,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " sees the technician's first name, years in the trade, his trades, the checks Pechkas did and since when, how many jobs he has done, his stars once he has enough ratings, what customers wrote about him, and his number while the job is on."
+              "t": " sees the technician's first name, his photo, years in the trade, his trades and whether he is new in them, what Pechkas knows about who he is, how many jobs he has done, his stars once he has enough ratings, what customers wrote about him, and his number while the job is on."
             }
           ],
           [
@@ -580,6 +647,22 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": ". The notification she gets says only that there is a question about payment for the job. The office sees all of it."
+            }
+          ],
+          [
+            {
+              "t": "First jobs and checks.",
+              "b": true
+            },
+            {
+              "t": " A technician sees whether each of his first jobs counted and why not, but "
+            },
+            {
+              "t": "never the customer's answers",
+              "b": true
+            },
+            {
+              "t": ". A technician asked to check another's job sees that job's trade, sector, day and the other technician's first name, and the address only once he says yes and while the job is on. Safety reports, what the customer wrote and the technician's side are seen by the office; the technician sees the decision."
             }
           ],
           [
@@ -738,6 +821,11 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           [
             {
               "t": "A job's checks, guarantee claims, visit fee, payment question and cancellation are kept with the job: the reasons, notes, photos and videos, the technician's replies and answers, the office's decisions and notes, and any appeal. They are deleted with the customer's account. A technician's record of late arrivals and no-shows is deleted with his account, and so are the reports he made that he could not get in, the times he said he was running late or could not come, and the office's pauses. Who had a job before is kept with the job; when a technician's account is deleted, his name is taken off it."
+            }
+          ],
+          [
+            {
+              "t": "A technician's photo, quiz results, first-job records, checks and pauses are deleted with his account. A safety report about a technician stays on his record if the customer who made it deletes her account, without her name. Answers a customer gave about a technician's first jobs are deleted with that job."
             }
           ],
           [
@@ -980,7 +1068,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "k": "p",
         "c": [
           {
-            "t": "Pechkas runs an app that connects people in Islamabad who need something repaired at home with technicians Pechkas has checked. These terms cover customers using the app. The technicians have their own agreement, at "
+            "t": "Pechkas runs an app that connects people in Islamabad who need something repaired at home with technicians approved by the app's own rules, described below. These terms cover customers using the app. The technicians have their own agreement, at "
           },
           {
             "t": "/app/technician-agreement",
@@ -1107,7 +1195,33 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "items": [
           [
             {
-              "t": "Checked technicians who do that work in your sector may accept your price or offer their own, saying when they can come. You choose one, or none. Offers run out after a few minutes; the app shows how long each has left."
+              "t": "Technicians who do that work in your sector may accept your price or offer their own, saying when they can come. You choose one, or none. Offers run out after a few minutes; the app shows how long each has left."
+            }
+          ],
+          [
+            {
+              "t": "Each offer shows the technician's photo and what Pechkas knows about him: that his mobile number was checked by SMS, and, once an identity service is in use, whether it verified his identity. Pechkas does not say his identity was checked unless that service checked it."
+            }
+          ],
+          [
+            {
+              "t": "\"New on Pechkas\"",
+              "b": true
+            },
+            {
+              "t": " means this is one of his first three jobs in that trade. On them he takes only basic work, one job at a time, up to a price limit, and your answers to four short questions afterwards decide whether the job counts towards his approval."
+            }
+          ],
+          [
+            {
+              "t": "Some kinds of job are risky, such as wiring faults, gas geysers and AC gas. They are offered only where a technician whose risky work has been checked can do them; elsewhere the app says the kind of job is not available yet, and can tell you when it is. A technician's first job of such a kind is a "
+            },
+            {
+              "t": "checked visit",
+              "b": true
+            },
+            {
+              "t": ": another Pechkas technician comes too and checks the work, at no cost to you, and the app tells you his name."
             }
           ],
           [
@@ -1117,7 +1231,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "You may ask for a technician who worked for you before. He sees your job first for a few minutes; then every checked technician can."
+              "t": "You may ask for a technician who worked for you before. He sees your job first for a few minutes; then every technician who does that work can."
             }
           ],
           [
@@ -1220,6 +1334,25 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
+              "t": "Before you give the code, look at him and at the photo in the app, and tap "
+            },
+            {
+              "t": "Yes, this is the man in the photo",
+              "b": true
+            },
+            {
+              "t": ". If it is somebody else, tap "
+            },
+            {
+              "t": "No, it is somebody else",
+              "b": true
+            },
+            {
+              "t": " and do not let him in: the job goes back to other technicians, you owe nothing, and Pechkas is told."
+            }
+          ],
+          [
+            {
               "t": "Someone aged 18 or over must be at the property to let him in and to approve the work. Tell him about anything there that affects safety."
             }
           ],
@@ -1268,6 +1401,11 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": ". The job is finished, and you pay him."
+            }
+          ],
+          [
+            {
+              "t": "On one of a technician's first jobs, the app also asks whether he came at the time he said, explained the work before starting, and left the place clean. Please answer honestly: your answers decide whether the job counts towards his approval. He sees only whether it counted, not what you said."
             }
           ],
           [
@@ -1536,7 +1674,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " If the technician tells us he cannot come, or you choose another technician, the same job goes back to other checked technicians with everything you posted: your words, photos, voice note, address and price. The technician who left cannot see it again. If no time is left on its day, it moves to the next day and the app tells you; you can change the day or cancel free."
+              "t": " If the technician tells us he cannot come, or you choose another technician, the same job goes back to other technicians with everything you posted: your words, photos, voice note, address and price. The technician who left cannot see it again. If no time is left on its day, it moves to the next day and the app tells you; you can change the day or cancel free."
             }
           ],
           [
@@ -1809,6 +1947,18 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
+              "t": "If his work has left something unsafe, such as bare wires or a smell of gas, tap "
+            },
+            {
+              "t": "Report something unsafe",
+              "b": true
+            },
+            {
+              "t": " on the job, during it or within its guarantee. His work of that kind stops at once while the Pechkas office looks, and it decides in writing. A report the office finds false is noted on the account that made it. In danger, use the emergency button and the numbers below first."
+            }
+          ],
+          [
+            {
               "t": "If something is damaged while he works, report it straight away with a photo. "
             },
             {
@@ -2044,21 +2194,175 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Before you get a single job, Pechkas checks who you are (in person or by video call), gives you a trial job, and goes through these rules with you. All three are written down: the date, how, and who did it."
+              "t": "Before your first job, three things are done in the app: your mobile number is checked with a code by SMS; you take a photo of your face with the app's camera; and you pass the quiz on these rules, and the safety quiz for each trade once Pechkas has switched it on. When they are done, "
+            },
+            {
+              "t": "the app approves you by itself",
+              "b": true
+            },
+            {
+              "t": ". Nobody needs to meet you."
             }
           ],
           [
+            {
+              "t": "Your photo.",
+              "b": true
+            },
+            {
+              "t": " Customers see it before they choose you, and at the door they confirm it is you before they give you the start code. If a customer says the man at her door is not the man in the photo, that job goes back to other technicians, all your work is paused at once, and the Pechkas office decides; you may write your side in the app. Your photo is locked once your first job is given to you; a new one needs a reason and the owner's approval. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: keeping and showing a photo used to identify a person.]",
+              "mark": true
+            }
+          ],
+          [
+            {
+              "t": "Your identity.",
+              "b": true
+            },
+            {
+              "t": " Pechkas does not check identity documents yet. When an identity-checking service is available, you will be asked to use it in the app. It tells Pechkas only whether your identity matched, and its own reference. "
+            },
             {
               "t": "Pechkas never records your CNIC number or keeps a copy of your CNIC.",
               "b": true
             },
             {
-              "t": " It is looked at during the check, and only the fact that it was checked is kept."
+              "t": " "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: checking identity against NADRA's records through another company, and the consent it needs.]",
+              "mark": true
             }
           ],
           [
             {
               "t": "You must be 18 or over, and tell the truth about your trade, your years and where you work."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
+        "text": "Your first jobs in each trade"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "Your first 3 jobs in each trade are your trial.",
+              "b": true
+            },
+            {
+              "t": " Customers see \"New on Pechkas\" on your offer."
+            }
+          ],
+          [
+            {
+              "t": "On them you take "
+            },
+            {
+              "t": "basic jobs only, one job at a time",
+              "b": true
+            },
+            {
+              "t": ", at or under the price limit Pechkas sets, which the app shows you. \"Something else\" in a trade opens only once you are approved in it."
+            }
+          ],
+          [
+            {
+              "t": "After each of these jobs the customer answers four questions: were you on time, did you explain the work before starting, did you leave the place clean, and does it work. A job counts as good when all four are yes, your before and after photos are in, no guarantee claim stands against it, the Pechkas fee on it is paid, and the customer is a real, separate person: a number checked by SMS that is not yours, a home some distance from the others, not a customer who already counted for you, and an account older than your application or one used for jobs with other technicians. The app shows you which jobs counted, and why the others did not."
+            }
+          ],
+          [
+            {
+              "t": "Three good jobs and verified identity approve you in that trade",
+              "b": true
+            },
+            {
+              "t": ", by the app, with nobody deciding. Until an identity service can verify you, you stay on the first-job limits however many good jobs you do."
+            }
+          ],
+          [
+            {
+              "t": "If a guarantee claim is found against one of those three jobs within its guarantee, the trade goes back to first jobs."
+            }
+          ],
+          [
+            {
+              "t": "Pauses by rule.",
+              "b": true
+            },
+            {
+              "t": " A customer's safety report pauses your work in that trade at once. In your first jobs, two customers saying the work does not work, or two jobs with a \"no\" to one of the other questions, pause the trade. Jobs you already have go on. You may appeal a pause in writing in the app, and the office answers in writing; on a safety report, you write your side and the office decides. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: notice and review of a pause made by rule.]",
+              "mark": true
+            }
+          ],
+          [
+            {
+              "t": "The Pechkas fee is the same on your first jobs as on any other job."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
+        "text": "Risky work"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "Some kinds of job are "
+            },
+            {
+              "t": "risky",
+              "b": true
+            },
+            {
+              "t": ": wiring and breaker faults, new points and changeover switches, water motors and gas geysers, AC gas, installation and electrical faults, the solar system check and inverter faults, fridge and freezer repair, all UPS and inverter work, and \"Something else\" in those trades."
+            }
+          ],
+          [
+            {
+              "t": "They open to you only once you are approved in the trade with verified identity, you have passed that trade's safety quiz, and you have a clean record there for long enough, with no guarantee claim found against you lately; the app shows the figures. Then your first risky job is a "
+            },
+            {
+              "t": "checked job",
+              "b": true
+            },
+            {
+              "t": ": another Pechkas technician the app picks comes too and checks your work against a list. If he passes it, your risky work is open. If not yet, you may try again after a wait. If he finds it unsafe, it is a safety report."
+            }
+          ],
+          [
+            {
+              "t": "UPS and inverter work opens only to a technician whose risky Electrician work is open."
+            }
+          ],
+          [
+            {
+              "t": "If you are asked to check somebody.",
+              "b": true
+            },
+            {
+              "t": " You may say yes or no. If you say yes, be there when the work starts, check every item honestly, take photos and give your result in the app. Pechkas pays you the fee the app shows, credited against what you owe Pechkas; if Pechkas then owes you, the office pays it. If a technician you passed has a guarantee claim found against him, or an upheld safety report, on risky work within the time the app shows, it goes on your record and you are not asked to check again. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: what a checker is responsible for, and to whom.]",
+              "mark": true
+            }
+          ],
+          [
+            {
+              "t": "Where nobody can check yet, those kinds of job are not offered to customers. Pechkas may arrange an outside assessor instead."
             }
           ]
         ]
@@ -2079,7 +2383,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": ", you see jobs in your trades and sectors: the sector, the customer's first name, what is wrong and the price offered. Not the address or number."
+              "t": ", you see jobs in the trades open to you and your sectors: the sector, the customer's first name, what is wrong and the price offered. Not the address or number."
             }
           ],
           [
@@ -2183,6 +2487,24 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             {
               "t": "Pechkas does not repair gas leaks.",
               "b": true
+            }
+          ],
+          [
+            {
+              "t": "Pechkas does not take gas cooker or gas oven work.",
+              "b": true
+            },
+            {
+              "t": " Decline it, even when it is posted as \"Something else\", and the office will close the job with that reason."
+            }
+          ],
+          [
+            {
+              "t": "On a roof",
+              "b": true
+            },
+            {
+              "t": ", for solar panels or an outdoor unit: use a sound ladder that is held or tied, keep off wet, broken or sloping surfaces, stay back from an unguarded edge, and do not work in rain or strong wind. If it cannot be done safely, do not do it."
             }
           ]
         ]
@@ -3048,11 +3370,18 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "t": "The office looks at patterns that can mean misuse, such as repeated late arrivals or a confirmed no-show, or jobs that often close only because the customer did not check them in time. "
             },
             {
-              "t": "Nothing happens automatically:",
+              "t": "A flag on its own changes nothing:",
               "b": true
             },
             {
-              "t": " a person looks, and rings you first."
+              "t": " a person looks, and rings you first. The pauses under "
+            },
+            {
+              "t": "Your first jobs in each trade",
+              "i": true
+            },
+            {
+              "t": " are the exception: they are made by rule, and you can appeal them."
             }
           ],
           [
@@ -3312,7 +3641,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "For a technician: your application and the record of the checks Pechkas did."
+              "t": "For a technician: your application, your photo, your quiz results, the record of your first jobs, checks and pauses, any identity check result, and the record of any checks Pechkas staff did before."
             }
           ]
         ]
@@ -3359,6 +3688,15 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           [
             {
               "t": "A job a technician did for a customer who still has an account stays on that customer's record, with its checks and any guarantee claim, without the technician's details."
+            }
+          ],
+          [
+            {
+              "t": "For a customer:",
+              "b": true
+            },
+            {
+              "t": " a safety report you made about a technician stays on his record, without your name, so Pechkas can still keep customers safe."
             }
           ],
           [
