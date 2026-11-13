@@ -36,7 +36,10 @@ async function call(role, who, sql, params = []) {
 const me = (who, sql, params) => call('authenticated', who, sql, params);
 const account = async (who) => (await me(who, `SELECT public.my_account()`)).value;
 const SET = `SELECT public.set_my_phone($1)`;
-const POST = `SELECT public.post_job(p_trade => 'ac', p_job_type => NULL, p_description => 'The AC is not cooling at all',
+// A basic AC job: risky kinds are closed where nobody can do them yet (D37).
+const SERVICE = (await setup(`SELECT id FROM public.job_types WHERE trade = 'ac' AND name LIKE 'General service%'`)).rows[0].id;
+const POST = `SELECT public.post_job(p_trade => 'ac', p_job_type => ${SERVICE},
+  p_description => 'The AC is not cooling at all',
   p_offer_paisa => 300000, p_when_kind => 'now', p_when_part => NULL, p_sector => 'F-11', p_street => 'Street 9',
   p_house => 'House 3', p_media => '[]'::jsonb)`;
 const APPLY = `SELECT public.apply_as_pro($1, $2::text[], $3, $4::text[], $5)`;

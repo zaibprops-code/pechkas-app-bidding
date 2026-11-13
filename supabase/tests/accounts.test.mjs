@@ -145,8 +145,9 @@ heading('The office');
   ok('the owner sees waiting applications, with the number to ring', r.rows.length === 2 && bilal?.phone === '923001111111');
 }
 {
+  // D37: approval is the app's rule, not the office's: a checked number, his photo, the rules quiz.
   const r = await call('authenticated', OWNER, `SELECT public.admin_decide($1, 'approve', null)`, [BILAL]);
-  ok('approving with no checks on record is refused', r.value?.ok === false && r.value?.field === 'checks', JSON.stringify(r.value));
+  ok('the office cannot approve him: it is the rule', r.value?.ok === false && r.value?.field === 'automatic', JSON.stringify(r.value));
 }
 
 const CHECK = `SELECT public.admin_record_check($1, $2, $3, $4::date, $5)`;
@@ -165,12 +166,14 @@ const CHECK = `SELECT public.admin_record_check($1, $2, $3, $4::date, $5)`;
 const today = new Date().toISOString().slice(0, 10);
 ok('identity, checked in person', (await call('authenticated', OWNER, CHECK, [BILAL, 'identity', 'in_person', today, 'Met at the office'])).value?.ok === true);
 ok('a trial job, watched', (await call('authenticated', OWNER, CHECK, [BILAL, 'trial_job', 'in_person', today, null])).value?.ok === true);
-{
-  const r = await call('authenticated', OWNER, `SELECT public.admin_decide($1, 'approve', null)`, [BILAL]);
-  ok('still refused with one check missing, and it says which', r.value?.ok === false && /rules/.test(r.value?.why ?? ''));
-}
 ok('the rules, explained', (await call('authenticated', OWNER, CHECK, [BILAL, 'rules', 'video_call', today, null])).value?.ok === true);
-ok('now he can be approved', (await call('authenticated', OWNER, `SELECT public.admin_decide($1, 'approve', null)`, [BILAL])).value?.status === 'approved');
+ok('checks the office records approve nobody', (await call('authenticated', BILAL, `SELECT public.my_account()`)).value?.pro?.status === 'applied');
+{
+  const photo = `${BILAL}/face.jpg`;
+  await as('authenticated', BILAL, `INSERT INTO storage.objects (bucket_id, name) VALUES ('job-media', $1)`, [photo]);
+  ok('his photo goes in, and with his number checked he is approved by rule',
+    (await call('authenticated', BILAL, `SELECT public.set_my_face($1)`, [photo])).value?.ok === true);
+}
 ok('and his phone says so', (await call('authenticated', BILAL, `SELECT public.my_account()`)).value?.pro?.status === 'approved');
 
 {

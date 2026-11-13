@@ -35,7 +35,8 @@ WITH expected(name) AS (VALUES
   ('20261112000000_reliability'),
   ('20261112100000_visit_fee_report'),
   ('20261112200000_pay_by_date'),
-  ('20261112300000_payment_disputes')
+  ('20261112300000_payment_disputes'),
+  ('20261113000000_first_jobs')
 )
 SELECT e.name || '.sql' AS file,
        CASE WHEN a.name IS NULL THEN 'NOT RUN — run this file'

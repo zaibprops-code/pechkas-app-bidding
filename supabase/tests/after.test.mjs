@@ -71,12 +71,14 @@ const job = async (id) => (await setup(`SELECT * FROM public.jobs WHERE id = $1`
 const owed = async (pro) => Number((await setup(`SELECT public.pro_owed($1) AS n`, [pro])).rows[0].n);
 
 let n = 0;
-async function post(customer, { price = 400000, trade = 'ac', sector = 'F-11' } = {}) {
+// A basic AC job: risky kinds are closed where nobody can do them (D37), and G-13 has nobody.
+const acService = (await setup(`SELECT id FROM public.job_types WHERE trade = 'ac' AND name LIKE 'General service%'`)).rows[0].id;
+async function post(customer, { price = 400000, trade = 'ac', sector = 'F-11', type = null } = {}) {
   n += 1;
-  const r = (await me(customer, `SELECT public.post_job(p_trade => $3, p_job_type => NULL, p_description => $1,
+  const r = (await me(customer, `SELECT public.post_job(p_trade => $3, p_job_type => $5, p_description => $1,
     p_offer_paisa => $2, p_when_kind => 'now', p_when_part => NULL, p_sector => $4, p_street => 'Street 34',
     p_house => 'House 12', p_landmark => 'Behind the markaz mosque', p_gate_note => 'Chowkidar Rafiq', p_media => '[]'::jsonb)`,
-  [`Job number ${n} needs a look`, price, trade, sector])).value;
+  [`Job number ${n} needs a look`, price, trade, sector, type])).value;
   if (!r?.ok) throw new Error(`post failed: ${JSON.stringify(r)}`);
   return r;
 }
@@ -186,7 +188,8 @@ const ASK = `SELECT public.ask_again($1)`;
   nothing('nobody can read who asked for whom', await as('authenticated', AYESHA, `SELECT * FROM public.asked_for`));
   await sent();
 
-  const plumbing = await post(AYESHA, { trade: 'plumber' });
+  const tap = (await setup(`SELECT id FROM public.job_types WHERE trade = 'plumber' AND name = 'Leaking tap repair or replacement'`)).rows[0].id;
+  const plumbing = await post(AYESHA, { trade: 'plumber', type: tap });
   ok('a job in another trade is not held for him', (await job(plumbing.id)).preferred_pro_id === null);
   await me(AYESHA, `SELECT public.cancel_job($1, NULL)`, [plumbing.id]);
 
@@ -273,7 +276,7 @@ const ASK = `SELECT public.ask_again($1)`;
   await setup(`UPDATE public.pros SET online = true WHERE id = $1`, [BILAL]);
 
   await me(AYESHA, ASK, [done1]);
-  const e11 = await post(AYESHA, { sector: 'E-11' });
+  const e11 = await post(AYESHA, { sector: 'E-11', type: acService });
   ok('a sector he does not work in: not held', (await job(e11.id)).preferred_pro_id === null);
   await me(AYESHA, `SELECT public.cancel_job($1, NULL)`, [e11.id]);
 
@@ -326,11 +329,11 @@ heading('Demand: what nobody took, and where people are asking');
   nothing('nobody can read the asks', await as('authenticated', SARA, `SELECT * FROM public.sector_asks`));
 
   // A job nobody offered on, and one the office placed by hand.
-  const lonely = await post(NADIA, { trade: 'ac', sector: 'G-13' });
+  const lonely = await post(NADIA, { trade: 'ac', sector: 'G-13', type: acService });
   await setup(`UPDATE public.jobs SET created_at = now() - interval '30 minutes' WHERE id = $1`, [lonely.id]);
-  const byHand = await post(NADIA, { trade: 'ac', sector: 'G-13' });
+  const byHand = await post(NADIA, { trade: 'ac', sector: 'G-13', type: acService });
   await me(OWNER, `SELECT public.admin_assign($1, $2, 400000)`, [byHand.id, ASAD]);
-  const young = await post(NADIA, { trade: 'ac', sector: 'G-13' });
+  const young = await post(NADIA, { trade: 'ac', sector: 'G-13', type: acService });
 
   ok('a customer gets nothing from the report', (await me(SARA, `SELECT public.admin_demand(30)`)).value === null);
   ok('a technician gets nothing', (await me(BILAL, `SELECT public.admin_demand(30)`)).value === null);

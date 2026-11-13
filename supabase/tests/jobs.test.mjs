@@ -136,8 +136,14 @@ let jobId;
   ok('Ayesha posts an AC service with a voice note, a video and a photo', r.value?.ok === true && /^PK-\d+$/.test(r.value?.ref ?? ''), JSON.stringify(r.value ?? r.error));
 }
 {
-  const r = await call('authenticated', AYESHA, POST, job({ type: null, description: 'Something is wrong with the AC remote', media: [] }));
+  const r = await call('authenticated', AYESHA, POST, job({ trade: 'cctv', type: null, description: 'Something is wrong with the camera recorder', media: [] }));
   ok('"something else", described in words, is fine too', r.value?.ok === true);
+}
+{
+  // D37: where "something else" may be risky work, it is posted only where somebody can do it.
+  const r = await call('authenticated', AYESHA, POST, job({ type: null, description: 'Something is wrong with the AC remote', media: [] }));
+  ok('"something else" in AC, with nobody yet able to do risky AC work here, is not available yet',
+    r.value?.ok === false && r.value?.field === 'job_type' && r.value?.why === 'This kind of job is not available on Pechkas yet.');
 }
 {
   const r = await call('authenticated', AYESHA, POST, job({ media: [media[0]] }));
@@ -192,8 +198,8 @@ heading('Floods are bounded');
 
 {
   // Five open jobs is the limit; the sixth is refused.
-  for (let i = 0; i < 5; i += 1) await call('authenticated', SARA, POST, job({ description: `Tap leaking number ${i}`, trade: 'plumber', type: null }));
-  const r = await call('authenticated', SARA, POST, job({ description: 'One more leaking tap', trade: 'plumber', type: null }));
+  for (let i = 0; i < 5; i += 1) await call('authenticated', SARA, POST, job({ description: `Tap leaking number ${i}`, trade: 'plumber', type: plumbing.id }));
+  const r = await call('authenticated', SARA, POST, job({ description: 'One more leaking tap', trade: 'plumber', type: plumbing.id }));
   ok('a sixth open job is refused until one is closed', r.value?.ok === false && /5 jobs open/.test(r.value?.why ?? ''), JSON.stringify(r.value));
 }
 
