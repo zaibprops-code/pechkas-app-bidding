@@ -15,6 +15,8 @@ import { ask } from '../supabase';
 import { colour, font, radius } from '../theme';
 import { CheckCard, ClaimCard, DecisionCard, DisputeCard, GuaranteeRepairNote, LastRound, type CheckFields } from './Checking';
 import { FeeCard, type CustomerFee } from './VisitFee';
+import { Face } from './Face';
+import { DoorCard } from './FirstJobs';
 import { PaymentCard } from './Payment';
 import type { PaymentView } from '../pro/Unpaid';
 
@@ -62,6 +64,14 @@ export type JobNow = {
   payment?: PaymentView | null;
   /** Only when the location check verified his arrival near her pin (arrival_by_location). */
   arrival_verified?: boolean;
+  /** D37: his photo, her answer at the door, his first jobs, a checker coming, a safety report. */
+  pro_photo?: string | null;
+  face_needed?: boolean;
+  face_confirmed?: boolean;
+  new_on_pechkas?: boolean;
+  check?: { status: string; kind: 'app' | 'outside'; checker: string | null } | null;
+  safety_report?: { status: 'open' | 'upheld' | 'not_upheld' | 'false'; at: string } | null;
+  can_report_safety?: boolean;
 } & Omit<CheckFields, 'id' | 'ref' | 'stage' | 'status' | 'collect_paisa' | 'photos' | 'pro'>;
 
 /** Where he has got to, as the heading of the "your technician" card. */
@@ -117,19 +127,27 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
       {/* Who is coming and where he has got to, with every way to reach him in one row. */}
       <View style={s.panel}>
         <View style={s.top}>
-          <View style={s.avatar}>
-            <Text style={s.avatarText}>{pro.first_name.charAt(0)}</Text>
-          </View>
+          <Face path={job.pro_photo} name={pro.first_name} size={56} />
           <View style={{ flex: 1, gap: 2 }}>
             <Text style={s.name}>{HEAD[job.stage ?? 'chosen'](pro.first_name)}</Text>
             <View style={s.checked}>
               <DuoIcon name="shield" size={16} />
               <Text style={s.meta}>
-                Checked by Pechkas · {pro.years} {pro.years === 1 ? 'year' : 'years'} in the trade
+                {job.new_on_pechkas ? 'One of his first jobs on Pechkas · ' : ''}
+                {pro.years} {pro.years === 1 ? 'year' : 'years'} in the trade
               </Text>
             </View>
           </View>
         </View>
+        {job.check ? (
+          <Text style={s.line}>
+            {job.check.status === 'asked'
+              ? 'Pechkas is arranging another technician to come too and check the work, at no cost to you.'
+              : job.check.status === 'accepted'
+                ? `${job.check.checker ?? 'A checker arranged by Pechkas'} comes too, to check ${pro.first_name}'s work. No cost to you.`
+                : 'Another technician checked the work.'}
+          </Text>
+        ) : null}
         <Steps stage={job.stage === 'checking' || job.stage === 'disputed' ? 'working' : job.stage} narrow={narrow} />
         {job.stage === 'chosen' || !job.stage ? <Text style={s.line}>Your phone tells you when he sets off.</Text> : null}
         {/* Said only when the database verified it; never where he is. */}
@@ -159,7 +177,11 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
         <Button kind="danger" label="Emergency" onPress={() => router.push({ pathname: '/emergency/[job]', params: { job: job.id } })} />
       </View>
 
-      {job.start_code && !job.code_locked ? (
+      {job.face_needed && job.stage === 'arrived' ? (
+        <DoorCard jobId={job.id} name={pro.first_name} photo={job.pro_photo ?? null} onChanged={onChanged} />
+      ) : null}
+
+      {job.start_code && !job.code_locked && !(job.face_needed && job.stage === 'arrived') ? (
         <View style={s.codeBox}>
           <View style={s.codeHead}>
             <DuoIcon name="lock" size={22} ink={colour.paper} />
@@ -169,7 +191,7 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
             {job.start_code.split('').join(' ')}
           </Text>
           <Text style={s.codeText}>
-            Give it to {pro.first_name} at the door, once you have seen him. It proves he is the person Pechkas sent. Never read it out on the phone.
+            Give it to {pro.first_name} at the door, once you have seen him{job.pro_photo ? ' and checked his photo' : ''}. It proves he is the person Pechkas sent. Never read it out on the phone.
           </Text>
         </View>
       ) : null}

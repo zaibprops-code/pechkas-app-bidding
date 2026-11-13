@@ -20,6 +20,8 @@ import { FindAnother, ReopenedNote, RunningLateCard } from './Replace';
 import { AtDoorCard, NotHomeEnded, type CustomerNotHome } from './NotHome';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { ask, supabase } from '../supabase';
+import { Face, identityWords, type IdentityLine } from './Face';
+import { SafetyReport } from './FirstJobs';
 import { colour, font, radius } from '../theme';
 
 /**
@@ -88,6 +90,11 @@ export type Offer = {
   /** NULL until he has enough ratings: then the screen says "New", never a made-up number. */
   rating?: number | null;
   jobs_done?: number;
+  /** D37: on his first jobs; his photo; what is known of who he is; his first risky job, checked by another technician. */
+  new_on_pechkas?: boolean;
+  photo?: string | null;
+  identity?: IdentityLine;
+  checked_visit?: boolean;
 };
 
 
@@ -273,6 +280,21 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
       ) : null}
       {ended ? <Ended job={job} onChanged={onChanged} /> : null}
 
+      {/* D37: a safety report, during the job or within its guarantee. */}
+      {job.can_report_safety && job.pro ? (
+        <View style={s.panel}>
+          <SafetyReport jobId={job.id} name={job.pro.first_name} onChanged={onChanged} />
+        </View>
+      ) : job.safety_report ? (
+        <View style={s.panel}>
+          <Text style={s.small}>
+            {job.safety_report.status === 'open'
+              ? 'Your safety report is with Pechkas. His work of this kind is paused meanwhile.'
+              : 'Pechkas has decided your safety report.'}
+          </Text>
+        </View>
+      ) : null}
+
       {/* Everything else she can do with this job, together at the foot, where nobody taps it by mistake. */}
       {canAskAgain || canBookAgain || canBlock || canCancel || officeOnly || findAnother ? (
         <View style={s.panel}>
@@ -433,20 +455,20 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
         return (
           <View key={o.id} style={s.panel}>
             <View style={s.offerTop}>
-              <View style={s.avatar}>
-                <Text style={s.avatarText}>{o.pro_first_name.charAt(0)}</Text>
-              </View>
+              <Face path={o.photo} name={o.pro_first_name} size={48} />
               <View style={{ flex: 1, gap: 2 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text style={s.offerName}>{o.pro_first_name}</Text>
-                  <DuoIcon name="shield" size={18} />
-                </View>
+                <Text style={s.offerName}>{o.pro_first_name}</Text>
                 <View style={s.rating}>
                   {o.rating !== null && o.rating !== undefined ? (
                     <>
                       <Stars value={Math.round(Number(o.rating))} size={14} />
                       <Text style={s.ratingText}>{Number(o.rating).toFixed(1)}</Text>
                     </>
+                  ) : o.new_on_pechkas ? (
+                    // His first jobs (D37): said once, in place of the plain "New".
+                    <View style={s.newTag}>
+                      <Text style={s.newTagText}>New on Pechkas</Text>
+                    </View>
                   ) : (
                     <Text style={s.newPro}>New</Text>
                   )}
@@ -459,7 +481,9 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
               </View>
             </View>
             <View style={s.offerFacts}>
-              <Fact icon="shield" text={`Checked by Pechkas · ${o.years} ${o.years === 1 ? 'year' : 'years'} in the trade`} />
+              <Fact icon="shield" text={`${identityWords(o.identity)} · ${o.years} ${o.years === 1 ? 'year' : 'years'} in the trade`} />
+              {o.photo ? <Fact icon="camera" text="You confirm it is him, from this photo, at your door" /> : null}
+              {o.checked_visit ? <Fact icon="search" text="His first job of this kind: another Pechkas technician comes too and checks the work, at no cost to you" /> : null}
               {/* His profile: checks, jobs done, what customers wrote — before choosing, as a big app shows a driver. */}
               <Press onPress={() => setProfile(o.id)} accessibilityRole="button" style={s.profileLink}>
                 <Text style={s.profileLinkText}>See {o.pro_first_name}’s profile</Text>
@@ -562,6 +586,8 @@ const s = StyleSheet.create({
   offerMeta: { fontFamily: font.body, fontSize: 12.5, color: colour.steel },
   rating: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   ratingText: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
+  newTag: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, backgroundColor: colour.softYellow },
+  newTagText: { fontFamily: font.bodySemi, fontSize: 12, color: colour.ink },
   newPro: { fontFamily: font.bodySemi, fontSize: 12, color: colour.greenDark, backgroundColor: colour.greenSoft, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, overflow: 'hidden' },
   offerPrice: { fontFamily: font.display, fontSize: 21, color: colour.ink },
   offerTag: { fontFamily: font.bodySemi, fontSize: 12 },

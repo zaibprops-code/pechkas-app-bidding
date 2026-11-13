@@ -5,6 +5,7 @@ import { Press } from '../../src/components/Press';
 import { Body, Button, Chip, Field, Loading, Notice, Screen } from '../../src/components/ui';
 import { MenuButton } from '../../src/components/Menu';
 import { Panel } from '../../src/components/Panel';
+import { Icon } from '../../src/components/Icon';
 import { DuoRow, RowCard } from '../../src/components/Rows';
 import { useAccount } from '../../src/account';
 import { openLegal } from '../../src/legal';
@@ -78,6 +79,16 @@ export default function Apply() {
         <DuoRow icon="doc" label={w.agreement} onPress={() => openLegal('technician-agreement')} last />
       </RowCard>
 
+      {/* D37 (fix c): the limits, said plainly before he applies, not after three good jobs. */}
+      <Panel icon="shield" title={w.limitsTitle}>
+        {[w.limitsTrial, w.limitsBasic, w.limitsCheck, w.limitsIdentity, w.limitsRisky].map((line) => (
+          <View key={line} style={s.tick}>
+            <Icon name="check" size={16} color={colour.green} />
+            <Text style={s.tickText}>{line}</Text>
+          </View>
+        ))}
+      </Panel>
+
       <Panel>
         <Field label={w.fullName} value={fullName} onChangeText={setFullName} autoCapitalize="words" autoComplete="name" textContentType="name" error={errors.full_name} hint={w.noCnic} />
       </Panel>
@@ -122,6 +133,8 @@ export default function Apply() {
 
 const s = StyleSheet.create({
   error: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
+  tick: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  tickText: { flex: 1, fontFamily: font.body, fontSize: 14.5, lineHeight: 20, color: colour.ink },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 8, borderRadius: 999, backgroundColor: colour.canvas },
   step: { width: 52, height: 52, borderRadius: 999, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },

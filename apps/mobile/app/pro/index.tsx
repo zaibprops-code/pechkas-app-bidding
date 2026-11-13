@@ -86,6 +86,7 @@ export default function ProHome() {
               <Text style={s.stepsText}>{w.appliedSteps}</Text>
             </View>
           ) : null}
+          {pro.status === 'applied' ? <Button label={w.firstJobs} icon="arrowRight" onPress={() => router.push('/pro/first-jobs')} /> : null}
           {pro.status === 'applied' ? <Button kind="outline" label={w.editForm} onPress={() => router.push('/pro/apply')} /> : null}
           {pro.status === 'rejected' ? <Button label={w.applyAgain} icon="arrowRight" onPress={() => router.push('/pro/apply')} /> : null}
         </View>

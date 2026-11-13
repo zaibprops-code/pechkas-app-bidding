@@ -20,7 +20,7 @@
  *
  * Copies built before editions existed never ask, so they are never stopped.
  */
-export const APP_EDITION = 7;
+export const APP_EDITION = 8;
 
 /** What a screen shows when nobody has agreed a price. Never "Rs 0". */
 export const NO_PRICE = 'no price yet';

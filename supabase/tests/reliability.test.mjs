@@ -363,7 +363,8 @@ heading('Each technician has his own D10 record on a job that came back');
   const j = await chosen({ hours: -3, onWay: true });
   await me(AYESHA, ANOTHER, [j.id]);
   // Back with everybody, the job has no window; Kamran names one that has not started (the test sets the time after).
-  const free = (await setup(`SELECT CASE WHEN j.when_date > (now() AT TIME ZONE 'Asia/Karachi')::date THEN 10
+  // After 7pm the job moves to tomorrow and may keep its time: then no arrival time is asked for.
+  const free = (await setup(`SELECT CASE WHEN j.when_from IS NOT NULL THEN NULL WHEN j.when_date > (now() AT TIME ZONE 'Asia/Karachi')::date THEN 10
       ELSE (SELECT min(w) FROM unnest(ARRAY[8, 10, 12, 14, 16, 18, 20]) w WHERE w > extract(hour FROM now() AT TIME ZONE 'Asia/Karachi')) END AS w
     FROM public.jobs j WHERE j.id = $1`, [j.id])).rows[0].w;
   await me(KAMRAN, `SELECT public.make_offer(p_job => $1, p_price_paisa => 300000, p_eta_minutes => NULL, p_note => NULL, p_arrive_from => $2::smallint)`, [j.id, free]);

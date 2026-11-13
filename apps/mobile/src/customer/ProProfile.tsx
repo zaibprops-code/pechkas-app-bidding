@@ -8,12 +8,14 @@ import { Icon } from '../components/Icon';
 import { ScrewSpinner } from '../components/ScrewSpinner';
 import { Stars } from '../components/Stars';
 import { supabase } from '../supabase';
+import { Face, identityWords, type IdentityLine } from './Face';
 import { colour, font } from '../theme';
 
 /**
  * One technician, opened from his offer before the customer chooses: what
  * public.offer_profile() gives and nothing more — first name, years, trades,
- * the checks Pechkas did and since when, jobs done, his rating ("New" until
+ * what is truly known of who he is, his photo, the trades he is new in,
+ * jobs done, his rating ("New" until
  * there are enough) and the last things customers wrote, without their
  * names. Never his surname or number: those come only once he is chosen.
  */
@@ -23,7 +25,10 @@ type Profile = {
   years: number;
   trades: string[];
   checked_since: string | null;
-  checks: ('identity' | 'trial_job' | 'rules')[];
+  /** D37: the trades he is on his first jobs in, his photo, and what may be said of who he is. */
+  new_in?: string[];
+  photo?: string | null;
+  identity?: IdentityLine;
   rating: number | null;
   rating_count: number;
   jobs_done: number;
@@ -31,11 +36,6 @@ type Profile = {
   words: { stars: number; words: string; at: string; trade: string | null }[];
 };
 
-const CHECKS: { step: Profile['checks'][number]; label: string }[] = [
-  { step: 'identity', label: 'Who he is, checked in person or on a video call' },
-  { step: 'trial_job', label: 'A trial job, watched by Pechkas' },
-  { step: 'rules', label: 'Pechkas’ rules, gone through with him' },
-];
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const monthOf = (iso: string) => {
@@ -73,14 +73,12 @@ export function ProProfile({ offerId, price, onChoose, onClose }: { offerId: str
       ) : (
         <View style={{ gap: 16, paddingHorizontal: 8 }}>
           <View style={s.head}>
-            <View style={s.avatar}>
-              <Text style={s.avatarText}>{p.first_name.charAt(0)}</Text>
-            </View>
+            <Face path={p.photo} name={p.first_name} size={64} />
             <View style={{ flex: 1, gap: 2 }}>
               <Text style={s.name}>{p.first_name}</Text>
               <Text style={s.sub}>
                 {p.years} {p.years === 1 ? 'year' : 'years'} in the trade
-                {p.checked_since ? ` · checked by Pechkas since ${monthOf(p.checked_since)}` : ''}
+                {p.checked_since ? ` · on Pechkas since ${monthOf(p.checked_since)}` : ''}
               </Text>
             </View>
           </View>
@@ -122,13 +120,17 @@ export function ProProfile({ offerId, price, onChoose, onClose }: { offerId: str
           </View>
 
           <View style={{ gap: 8 }}>
-            <Text style={s.h3}>What Pechkas checked</Text>
-            {CHECKS.filter((c) => p.checks.includes(c.step)).map((c) => (
-              <View key={c.step} style={s.check}>
+            <Text style={s.h3}>What Pechkas knows</Text>
+            {[
+              identityWords(p.identity),
+              ...(p.photo ? ['His photo: you confirm it is him at your door'] : []),
+              ...(p.new_in?.length ? [`New on Pechkas in ${p.new_in.join(', ')}: his first jobs there are checked by the customers who book them`] : []),
+            ].map((label) => (
+              <View key={label} style={s.check}>
                 <View style={s.tick}>
                   <Icon name="check" size={14} color={colour.white} strokeWidth={3} />
                 </View>
-                <Text style={s.line}>{c.label}</Text>
+                <Text style={s.line}>{label}</Text>
               </View>
             ))}
           </View>

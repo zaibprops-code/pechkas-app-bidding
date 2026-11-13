@@ -233,7 +233,7 @@ export default function Home() {
 
           <View style={s.sheet}>
             <Text style={[s.h2, s.h2Alone]}>Why Pechkas</Text>
-            <Promise icon="shield" title="Checked technicians" text="Every technician is checked before his first job: who he is, a trial job and our rules." />
+            <Promise icon="shield" title="Checked technicians" text="Every technician has his number checked and his photo on record, and you confirm it is him at your door. His first jobs are checked by the customers who book them, and risky work opens to him only after another technician has checked his work." />
             <Promise icon="lock" title="Your price, agreed first" text="The price is agreed in the app before he comes. It changes only if you approve it." last />
           </View>
         </Animated.View>

@@ -107,10 +107,18 @@ export function Work({ firstName }: { firstName: string }) {
   const [trouble, setTrouble] = useState<NoAnswer | null>(null);
   const [switching, setSwitching] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
+  const [first, setFirst] = useState<FirstJobsBrief | null>(null);
+  const [checks, setChecks] = useState<{ status: string; ref: string }[]>([]);
 
   const load = useCallback(async () => {
     if (!supabase) return;
-    const [f, m, d] = await Promise.all([supabase.rpc('pro_feed'), supabase.rpc('pro_my_jobs'), supabase.rpc('pro_finished')]);
+    const [f, m, d, t, k] = await Promise.all([
+      supabase.rpc('pro_feed'), supabase.rpc('pro_my_jobs'), supabase.rpc('pro_finished'),
+      supabase.rpc('my_trades'), supabase.rpc('my_checks'),
+    ]);
+    // D37: his first jobs and checks; an older database without them simply shows nothing.
+    setFirst(t.error ? null : ((t.data as FirstJobsBrief) ?? null));
+    setChecks(k.error ? [] : ((k.data as { status: string; ref: string }[]) ?? []).filter((x) => x.status === 'asked' || x.status === 'accepted'));
     if (f.error || m.error) {
       setTrouble(noAnswer());
       setProblem('No connection. Pull down to try again.');
@@ -251,6 +259,15 @@ export function Work({ firstName }: { firstName: string }) {
             <Text style={s.claimCardText}>{w.answerIt} ›</Text>
           </Press>
         ) : null}
+
+        {checks.map((c) => (
+          <Press key={c.ref} onPress={() => router.push('/pro/checks')} accessibilityRole="button" style={s.claimCard}>
+            <Text style={s.claimCardTitle}>{fill(c.status === 'asked' ? w.checkBanner : w.checkBannerOn, { ref: c.ref.replace('-', '\u2011') })}</Text>
+            <Text style={s.claimCardText}>{w.openIt} ›</Text>
+          </Press>
+        ))}
+
+        {first ? <FirstJobsBanner first={first} w={w} /> : null}
 
         {online && notify === 'ask' ? <NotifyCard title={w.notifyAsk} text={w.notifyAskText} action={w.notifyTurnOn} onPress={askNotify} /> : null}
         {online && notify === 'off' ? <NotifyCard title={w.notifyOff} text={w.notifyOffText} action={w.openSettings} onPress={() => Linking.openSettings()} /> : null}
@@ -698,6 +715,9 @@ const s = StyleSheet.create({
   owedPillAmount: { fontFamily: font.display, fontSize: 15, color: colour.green },
   blocked: { gap: 4, padding: 14, borderRadius: radius.big, backgroundColor: colour.brick },
   claimCard: { gap: 4, padding: 14, borderRadius: radius.big, backgroundColor: colour.yellow },
+  firstCard: { gap: 4, padding: 14, borderRadius: radius.big, backgroundColor: colour.white, boxShadow: shadow.card },
+  firstTitle: { fontFamily: font.display, fontSize: 17, color: colour.ink },
+  firstText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.greenDark },
   claimCardTitle: { fontFamily: font.display, fontSize: 17, color: colour.ink },
   claimCardText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   blockedTitle: { fontFamily: font.display, fontSize: 17, color: colour.white },
@@ -774,3 +794,32 @@ const s = StyleSheet.create({
   addr: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
   addrSub: { fontFamily: font.body, fontSize: 14, color: colour.inkSoft },
 });
+
+
+type FirstJobsBrief = {
+  trial_jobs_needed: number;
+  trades: { trade: string; name: string; status: string; level: string; good: number; opens_with: string | null }[];
+};
+
+/**
+ * D37: where his first jobs stand, one line, tapping through to the full
+ * screen. Paused work is said first; a trade he cannot take yet says so; a
+ * trade on trial counts its good jobs. Nothing when everything is open.
+ */
+function FirstJobsBanner({ first, w }: { first: FirstJobsBrief; w: ProWords }) {
+  const paused = first.trades.some((t) => t.status === 'paused' || t.status === 'stopped');
+  const trial = first.trades.find((t) => t.status === 'trial' && !t.opens_with && t.level === 'trial');
+  const blocked = first.trades.every((t) => t.level === 'none');
+  if (!paused && !trial && !blocked) return null;
+  const title = paused
+    ? w.fjBannerPaused
+    : blocked
+      ? w.fjBannerSteps
+      : fill(w.fjBanner, { n: Math.min(trial!.good, first.trial_jobs_needed), of: first.trial_jobs_needed, trade: trial!.name });
+  return (
+    <Press onPress={() => router.push('/pro/first-jobs')} accessibilityRole="button" style={paused ? s.blocked : s.firstCard}>
+      <Text style={paused ? s.blockedTitle : s.firstTitle}>{title}</Text>
+      <Text style={paused ? s.blockedText : s.firstText}>{w.openIt} ›</Text>
+    </Press>
+  );
+}

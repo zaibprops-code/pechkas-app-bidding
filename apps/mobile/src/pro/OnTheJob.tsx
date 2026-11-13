@@ -84,6 +84,10 @@ export type ActiveJob = {
   not_home?: NotHomeState | null;
   /** His own arrival check (arrival_by_location): the result and distance, never coordinates. */
   arrival?: ArrivalState | null;
+  /** D37: she has not yet confirmed his photo at her door; one of his first jobs; his checker. */
+  face_needed?: boolean;
+  first_job?: boolean;
+  check?: { status: 'asked' | 'accepted'; kind: 'app' | 'outside'; checker: string | null } | null;
 } & Omit<Reliability, 'id' | 'customer_first_name'>;
 
 export type ArrivalState = {
@@ -316,6 +320,13 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
           <Text style={s.note}>{w.locationWhy}</Text>
         </View>
       ) : null}
+
+      {/* D37: one of his first jobs, a checker coming, and her answer at the door before the code. */}
+      {j.first_job ? <Text style={s.note}>{w.firstJobTag}</Text> : null}
+      {j.check ? (
+        <Text style={s.note}>{j.check.status === 'asked' ? w.checkerWaiting : fill(w.checkerComing, { name: j.check.checker ?? '' })}</Text>
+      ) : null}
+      {j.stage === 'arrived' && j.face_needed ? <Text style={s.label}>{w.faceWait}</Text> : null}
 
       {j.stage === 'arrived' && j.arrival ? <ArrivalCheck j={j} w={w} onChanged={onChanged} /> : null}
 

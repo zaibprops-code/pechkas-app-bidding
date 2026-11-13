@@ -111,6 +111,15 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     'The office found one of his "not paid in full" reports false.',
     'Read the case under Payment disputes, then talk to him. Nothing happens on its own.',
   ],
+  // D37: flags only.
+  checker_strike: () => [
+    'A technician he passed as a checker had a guarantee claim, or an upheld safety report, on risky work soon after.',
+    'He is no longer picked to check anybody. See his record under Technicians.',
+  ],
+  false_reports: (f) => [
+    `${f.n} of this customer's safety reports, or "it does not work" on a first job, were found false.`,
+    'See Exceptions for the report. A flag only: nothing happens on its own.',
+  ],
   unpaid_jobs: (f) => [
     `This customer agreed, or the office found, ${f.n} times that she had not paid a technician in full.`,
     'See Payment disputes. Ring her before anything else; a report alone never counts here.',

@@ -1,7 +1,7 @@
 import { VisitFeeNote } from '../src/customer/VisitFee';
 import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
 import { Art, artFor, type ArtName } from '../src/components/Art';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Image, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import * as Location from 'expo-location';
@@ -200,6 +200,27 @@ export default function Post() {
 
   const types = useMemo(() => (lists && d?.trade ? lists.job_types.filter((t) => t.trade === d.trade) : []), [lists, d?.trade]);
   const chosen = types.find((t) => t.id === d?.jobType) ?? null;
+
+  // D37: risky kinds of job are closed where nobody can do them yet. Asked
+  // for once the sector is known; a closed kind says so and offers to tell her.
+  const [closed, setClosed] = useState<{ trade: string; job_type_id: number | null; asked: boolean }[]>([]);
+  const [telling, setTelling] = useState(false);
+  const refreshClosed = useCallback(() => {
+    if (!supabase || !d?.sector) return setClosed([]);
+    supabase.rpc('job_types_closed', { p_sector: d.sector }).then(({ data, error }) => setClosed(error ? [] : ((data as typeof closed) ?? [])));
+  }, [d?.sector]);
+  useEffect(refreshClosed, [refreshClosed]);
+  const isClosed = (trade: string | null | undefined, type: number | null) =>
+    closed.find((c) => c.trade === trade && c.job_type_id === type) ?? null;
+  const closedNow = d?.trade ? isClosed(d.trade, d.jobType ?? null) : null;
+  async function tellMe() {
+    if (!d?.trade || !d.sector) return;
+    setTelling(true);
+    const r = await ask('tell_me_when', { p_trade: d.trade, p_type: d.jobType ?? null, p_sector: d.sector });
+    setTelling(false);
+    if (!r.ok) return setNotice(r.why);
+    refreshClosed();
+  }
   const min = lists?.min_offer_paisa ?? 100000;
   const offer = Math.max(min, d?.offer ?? chosen?.list_paisa ?? min);
 
@@ -496,6 +517,16 @@ export default function Post() {
             onPress={() => setSheet('type')}
           />
         ) : null}
+        {closedNow && d.sector ? (
+          <View style={s.closed}>
+            <Text style={s.closedTitle}>This kind of job is not available on Pechkas yet.</Text>
+            {closedNow.asked ? (
+              <Text style={s.hint}>You will be told when it opens in Sector {d.sector.replace(/-/g, '\u2011')}.</Text>
+            ) : (
+              <Button kind="outline" label="Tell me when it is" busy={telling} onPress={tellMe} />
+            )}
+          </View>
+        ) : null}
       </Card>
 
       <Card id="what" icon="chat" onY={atY} title="What is wrong?" hint="Say it, show it, or type it. Urdu is fine." error={errors.media || errors.description}>
@@ -786,6 +817,7 @@ export default function Post() {
               key={t.id}
               label={t.name}
               right={t.list_paisa ? rupees(t.list_paisa) : 'Price after a look'}
+              sub={isClosed(d.trade, t.id) ? 'Not available here yet' : undefined}
               on={d.jobType === t.id}
               onPress={() => {
                 update({ jobType: t.id, offer: t.list_paisa ?? null });
@@ -796,6 +828,7 @@ export default function Post() {
           <SheetOption
             label="Something else, or not sure"
             right="Price after a look"
+            sub={isClosed(d.trade, null) ? 'Not available here yet' : undefined}
             on={d.jobType === null}
             onPress={() => {
               update({ jobType: null });
@@ -964,6 +997,8 @@ function PayFact({ text }: { text: string }) {
 }
 
 const s = StyleSheet.create({
+  closed: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.softBrick },
+  closedTitle: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 21, color: colour.ink },
   card: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.04)' },
   cardMoney: { backgroundColor: colour.softYellow },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },

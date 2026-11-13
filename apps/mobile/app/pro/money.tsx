@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { rupees } from '@pechkas/shared';
 import { Hero, Loading, Notice, SystemBars } from '../../src/components/ui';
 import { MenuButton } from '../../src/components/Menu';
+import { DuoRow, RowCard } from '../../src/components/Rows';
 import { Stars } from '../../src/components/Stars';
 import { PayPechkas, type Claim } from '../../src/pro/PayPechkas';
 import { FeeState, type VisitFee } from '../../src/pro/OnTheJob';
@@ -120,6 +121,12 @@ export default function MoneyScreen() {
                 <Text style={s.blockedText}>{fill(w.blockedText, { owed: rupees(m.owed_paisa), limit: rupees(m.credit_limit_paisa) })}</Text>
               ) : null}
             </View>
+
+            {/* D37: his first jobs and what each trade opens, and checks he is asked to do. */}
+            <RowCard>
+              <DuoRow icon="shield" label={w.firstJobsRow} value={w.firstJobsRowHint} onPress={() => router.push('/pro/first-jobs')} />
+              <DuoRow icon="search" label={w.checksRow} value={w.checksRowHint} onPress={() => router.push('/pro/checks')} last />
+            </RowCard>
 
             {m.pay ? <PayDatesCard pay={m.pay} w={w} /> : null}
 

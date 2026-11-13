@@ -20,7 +20,15 @@ type Served = {
   pros: number;
 };
 type Asked = { sector: string; people: number; last_at: string; trades: Record<string, number> | null; pros: number };
-type Report = { days: number; served: Served[]; uncovered: { sector: string; trade: string; trade_name: string }[]; asked: Asked[] };
+type ClosedAsk = { trade: string; trade_name: string; job_type: string; sector: string; people: number; waiting: number; last_at: string; open_now: boolean };
+type Report = {
+  days: number;
+  served: Served[];
+  uncovered: { sector: string; trade: string; trade_name: string }[];
+  asked: Asked[];
+  /** D37: risky kinds of job nobody can do yet, where customers tapped "Tell me when it is". */
+  closed_asks?: ClosedAsk[];
+};
 
 const WINDOWS = [7, 30, 90] as const;
 const day = (t: string) => new Date(t).toLocaleDateString('en-GB', { dateStyle: 'medium' });
@@ -124,6 +132,44 @@ export function Demand() {
                   </li>
                 ))}
               </ul>
+            )}
+          </section>
+
+          <section className="card">
+            <h2>Kinds of job not available yet</h2>
+            <p className="muted">
+              Risky work nobody can do yet in that sector, where customers tapped “Tell me when it is”. All time. They are told when it opens.
+              The trade at the top is where an assessor would open the most work.
+            </p>
+            {!r.closed_asks?.length ? (
+              <p className="lead">Nobody has asked yet.</p>
+            ) : (
+              <div className="scroll">
+                <table className="ledger">
+                  <thead>
+                    <tr>
+                      <th>Trade</th>
+                      <th>Kind of job</th>
+                      <th>Sector</th>
+                      <th className="num">People</th>
+                      <th className="num">Still waiting</th>
+                      <th>Last asked</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {r.closed_asks.map((x) => (
+                      <tr key={`${x.trade}:${x.job_type}:${x.sector}`}>
+                        <td>{x.trade_name}</td>
+                        <td>{x.job_type}{x.open_now ? ' (open now)' : ''}</td>
+                        <td>{x.sector}</td>
+                        <td className="num">{x.people}</td>
+                        <td className="num">{x.waiting}</td>
+                        <td>{day(x.last_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
 

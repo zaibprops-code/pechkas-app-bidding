@@ -50,7 +50,7 @@ const PAGES: { art: WelcomeArtName; title: string; line: string }[] = [
   {
     art: 'checked',
     title: 'Technicians Pechkas has checked',
-    line: 'Identity, a trial job and the rules, checked before anybody comes to your door.',
+    line: 'His number checked, his photo confirmed at your door, and risky work only after another technician has checked him.',
   },
   {
     art: 'cash',

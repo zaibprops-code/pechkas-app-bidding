@@ -105,6 +105,26 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
     },
   },
   {
+    // D37: each starts at 0, "not set", and whatever needs it waits until it is set.
+    title: 'First jobs',
+    keys: {
+      trial_price_cap_paisa: 'Highest price on a technician\'s first jobs',
+      trial_customer_gap_m: 'Metres between the homes of customers whose jobs count for one technician',
+      quiz_pass_bps: 'Pass mark for a quiz',
+      quiz_retake_days: 'Days before a failed quiz may be taken again',
+      risky_clean_jobs: 'Clean jobs in a trade before a checked risky job',
+      risky_clean_days: 'Days, at least, that clean record must cover',
+      risky_claim_free_days: 'Days with no guarantee claim found against him',
+      risky_retry_days: 'Days after a checked job that did not pass before another',
+      checker_fee_paisa: 'What Pechkas pays a checker',
+      checker_answer_minutes: 'Time a checker has to say yes',
+      checker_accountable_days: 'Days a checker answers for the man he passed',
+      legacy_basic_jobs: 'Clean jobs that keep a technician approved before the rules approved',
+      legacy_risky_jobs: 'Clean risky jobs that keep his risky work open',
+      identity_legacy_days: 'Days after the identity service goes live before staff-seen identity stops counting',
+    },
+  },
+  {
     title: 'Money and promises — changed only by Claude, in a migration',
     keys: {
       commission_bps: 'Commission, of the labour',
@@ -123,6 +143,7 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
       pay_extend_min_days: 'Shortest extra time the office may give',
       pay_extend_max_days: 'Longest extra time the office may give',
       pay_extend_default_days: 'Extra time offered first',
+      trial_jobs: 'Good jobs that approve a trade (the owner\'s rule)',
     },
   },
 ];

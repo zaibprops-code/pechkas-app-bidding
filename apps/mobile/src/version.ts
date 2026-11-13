@@ -15,6 +15,6 @@ export const NEWEST_MIGRATION = '20261113000000_first_jobs';
 const extra = (Constants.expoConfig?.extra ?? {}) as { commit?: string | null; builtAt?: string | null };
 
 /** The first seven letters of the commit Expo built, or null when run locally. */
-export const COMMIT = extra.commit ? extra.commit.slice(0, 7) : null;
+export const COMMIT = typeof extra.commit === 'string' && extra.commit ? extra.commit.slice(0, 7) : null;
 export const BUILT_AT = extra.builtAt ?? null;
 export const APP_VERSION = Constants.expoConfig?.version ?? '';

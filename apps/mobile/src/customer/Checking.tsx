@@ -13,6 +13,7 @@ import { useAccount } from '../account';
 import { useSignedUrls } from '../post/RemoteMedia';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { ask } from '../supabase';
+import { answered, NO_ANSWERS, sendAnswers, TrialQuestions, type TrialAnswers } from './FirstJobs';
 import { colour, font, radius } from '../theme';
 
 /**
@@ -59,6 +60,8 @@ export type CheckFields = {
   paid_by_pechkas?: boolean;
   guarantee_of_ref?: string | null;
   claim?: Claim | null;
+  /** D37: one of his first jobs, her three questions still to answer. */
+  trial_questions?: boolean;
 };
 
 const REASONS = [
@@ -115,10 +118,20 @@ export function CheckCard({ job, onChanged }: { job: CheckFields; onChanged: () 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const second = (job.not_finished ?? 0) >= 1;
+  const [answers, setAnswers] = useState<TrialAnswers>(NO_ANSWERS);
+  const asking = Boolean(job.trial_questions);
 
   async function yes() {
+    if (asking && !answered(answers)) return setMsg('Answer the three questions first.');
     setBusy(true);
     setMsg(null);
+    if (asking) {
+      const a = await sendAnswers(job.id, answers);
+      if (!a.ok) {
+        setBusy(false);
+        return setMsg(a.why);
+      }
+    }
     const r = await ask('confirm_work', { p_job: job.id });
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
@@ -130,6 +143,8 @@ export function CheckCard({ job, onChanged }: { job: CheckFields; onChanged: () 
     if (!reason) return setMsg('Choose what is not finished.');
     setBusy(true);
     setMsg(null);
+    // Answered already on a first job: they go with her "not finished".
+    if (asking && answered(answers)) await sendAnswers(job.id, answers);
     const r = await ask('not_finished', { p_job: job.id, p_reason: reason, p_note: note || null, p_photo: photo[0] ?? null });
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
@@ -145,6 +160,7 @@ export function CheckCard({ job, onChanged }: { job: CheckFields; onChanged: () 
         <Text style={s.payFigure}>{job.paid_by_pechkas ? 'Nothing to pay' : rupees(job.collect_paisa)}</Text>
       </View>
       <FinishShots photos={job.photos} />
+      {asking ? <TrialQuestions name={name} value={answers} onChange={setAnswers} /> : null}
       {job.check_due ? <Text style={s.small}>If you do nothing, it counts as finished on {when(job.check_due)}.</Text> : null}
       <Button kind="green" icon="arrowRight" label="Yes, it works" busy={busy && !sheet} onPress={yes} />
       <Button kind="outline" label="Not finished yet" onPress={() => { setMsg(null); setSheet(true); }} />

@@ -163,6 +163,16 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
     onChange();
   }
 
+  /** Gas cookers and gas ovens are not taken (D37): closed with that reason, which she reads. */
+  async function notCovered() {
+    setBusy(true);
+    const r = await ask('admin_close_not_covered', { p_job: j.id });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    setMsg(null);
+    onChange();
+  }
+
   async function unlock() {
     setBusy(true);
     const r = await ask('admin_unlock_code', { p_job: j.id });
@@ -294,6 +304,9 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
           <p className="muted small">Free for the customer, and never a visit fee, at any step.</p>
           <div className="buttons">
             <button className="danger" disabled={busy} onClick={cancel}>Cancel this job</button>
+            {j.trade === 'appliances' ? (
+              <button className="secondary" disabled={busy} onClick={notCovered}>Gas cooker or oven: not taken</button>
+            ) : null}
           </div>
           {msg ? <p className="error" role="alert">{msg}</p> : null}
         </section>

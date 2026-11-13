@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AppState, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, CODE_DIGITS, explainAuthError, readCode, showMobile } from '@pechkas/shared';
 import { Press } from '../src/components/Press';
 import { Button, Notice, Screen } from '../src/components/ui';
@@ -24,7 +24,9 @@ function waitFrom(message: string): number | null {
 }
 
 export default function Verify() {
-  const { phone, email, next } = useLocalSearchParams<{ phone?: string; email?: string; next?: string }>();
+  const { phone, email, next, change } = useLocalSearchParams<{ phone?: string; email?: string; next?: string; change?: string }>();
+  // `change`: a signed-in account adding a number to check by SMS (D37), not a sign-in.
+  const changing = change === '1' && Boolean(phone);
   const { refresh } = useAccount();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -111,7 +113,7 @@ export default function Verify() {
     setBusy(true);
     const { error: e } = email
       ? await supabase.auth.verifyOtp({ email, token, type: 'email' })
-      : await supabase.auth.verifyOtp({ phone: phone!, token, type: 'sms' });
+      : await supabase.auth.verifyOtp({ phone: phone!, token, type: changing ? 'phone_change' : 'sms' });
     checking.current = false;
     if (e) {
       setBusy(false);
@@ -124,6 +126,12 @@ export default function Verify() {
       else setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);
       return;
     }
+    if (changing) {
+      await refresh();
+      setBusy(false);
+      router.replace('/pro/first-jobs');
+      return;
+    }
     const { data } = await supabase.rpc('my_account');
     await refresh();
     setBusy(false);
@@ -134,7 +142,11 @@ export default function Verify() {
     if (!supabase || (!phone && !email) || left > 0) return;
     setNotice(null);
     setSent(null);
-    const { error: e } = email ? await sendEmailCode(email) : await supabase.auth.signInWithOtp({ phone: phone! });
+    const { error: e } = email
+      ? await sendEmailCode(email)
+      : changing
+        ? await supabase.auth.updateUser({ phone: phone! })
+        : await supabase.auth.signInWithOtp({ phone: phone! });
     if (e) {
       // Too soon for Supabase: wait as long as it says, and say so plainly.
       const wait = waitFrom(e.message);

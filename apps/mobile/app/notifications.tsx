@@ -36,6 +36,8 @@ const CUSTOMER = [
   'Your technician cannot come, so your job is open to others again',
   'Your technician is running late, with the time he now expects',
   'A question about payment for a job, and what Pechkas decided',
+  'Your job is open to others again because the check it needed could not be arranged',
+  'A kind of job you asked about is now available in your sector',
 ];
 
 const TECHNICIAN = [
@@ -60,6 +62,10 @@ const TECHNICIAN = [
   'The office gives you more time to pay',
   'A visit fee refund will be charged to you, and what the office decided on your appeal',
   'The customer answers your payment report, or Pechkas decides it',
+  'You can start taking jobs, a trade is approved, or sorted by your record',
+  'Your work is paused or open again, and the answers to your appeal, report or photo request',
+  'Your identity check is verified or not',
+  'You are asked to check a job, your checker is coming, your checked job passed or not, and your checker\u2019s fee',
 ];
 
 export default function Notifications() {

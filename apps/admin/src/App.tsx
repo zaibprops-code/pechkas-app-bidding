@@ -14,6 +14,7 @@ import { Money } from './Money.tsx';
 import { VisitFees } from './VisitFees.tsx';
 import { Cancellations } from './Cancellations.tsx';
 import { PaymentDisputes } from './PaymentDisputes.tsx';
+import { Exceptions, FirstJobsRecord, FirstJobsSetup } from './Exceptions.tsx';
 import { Problems } from './Problems.tsx';
 import { Guarantee } from './Guarantee.tsx';
 import { Duo, Head } from './Duo.tsx';
@@ -55,6 +56,7 @@ const TABS = [
 /** The sections, in the menu's order, each with the two-tone icon it is known by. */
 const SECTIONS = [
   { key: 'jobs', label: 'Jobs', icon: 'jobs' },
+  { key: 'exceptions', label: 'Exceptions', icon: 'bell' },
   { key: 'problems', label: 'Problems', icon: 'help' },
   { key: 'guarantee', label: 'Guarantee and disputes', icon: 'shield' },
   { key: 'money', label: 'Money', icon: 'wallet' },
@@ -62,6 +64,7 @@ const SECTIONS = [
   { key: 'payments', label: 'Payment disputes', icon: 'wallet' },
   { key: 'cancellations', label: 'Cancellations', icon: 'clock' },
   { key: 'technicians', label: 'Technicians', icon: 'briefcase' },
+  { key: 'firstjobs', label: 'First jobs', icon: 'shield' },
   { key: 'demand', label: 'Demand', icon: 'pin' },
   { key: 'prices', label: 'Prices', icon: 'tag' },
   { key: 'flags', label: 'Flags', icon: 'flag' },
@@ -286,6 +289,10 @@ function Office({ name }: { name: string }) {
             <VisitFees />
           ) : section === 'payments' ? (
             <PaymentDisputes />
+          ) : section === 'exceptions' ? (
+            <Exceptions />
+          ) : section === 'firstjobs' ? (
+            <FirstJobsSetup />
           ) : section === 'cancellations' ? (
             <Cancellations />
           ) : section === 'demand' ? (
@@ -348,28 +355,10 @@ function Technicians({ trades }: { trades: Record<string, string> }) {
 }
 
 function Card({ a, trades, onChange }: { a: Application; trades: Record<string, string>; onChange: () => void }) {
-  const today = new Date().toISOString().slice(0, 10);
-  const [step, setStep] = useState<keyof typeof STEP>('identity');
-  const [method, setMethod] = useState<keyof typeof METHOD>('in_person');
-  const [on, setOn] = useState(today);
-  const [notes, setNotes] = useState('');
   const [reason, setReason] = useState('');
   const [msg, setMsg] = useState<{ text: string; field?: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const done = new Set(a.checks.map((c) => c.step));
-  const missing = (Object.keys(STEP) as (keyof typeof STEP)[]).filter((s) => !done.has(s));
-
-  async function record(e: FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    const r = await ask('admin_record_check', { p_pro: a.id, p_step: step, p_method: method, p_checked_on: on, p_notes: notes });
-    setBusy(false);
-    if (!r.ok) return setMsg({ text: r.why, field: r.field });
-    setNotes('');
-    setMsg(null);
-    onChange();
-  }
 
   async function decide(decision: 'approve' | 'reject' | 'suspend' | 'reinstate') {
     setBusy(true);
@@ -410,32 +399,9 @@ function Card({ a, trades, onChange }: { a: Application; trades: Record<string, 
             </li>
           ))}
         </ul>
-        {a.status === 'applied' ? (
-          <form className="row" onSubmit={record}>
-            <label>
-              Check
-              <select value={step} onChange={(e) => setStep(e.target.value as keyof typeof STEP)}>
-                {Object.entries(STEP).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-              </select>
-            </label>
-            <label>
-              How
-              <select value={method} onChange={(e) => setMethod(e.target.value as keyof typeof METHOD)}>
-                {Object.entries(METHOD).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-              </select>
-            </label>
-            <label>
-              On
-              <input type="date" max={today} value={on} onChange={(e) => setOn(e.target.value)} required />
-            </label>
-            <label className="grow">
-              Note (never a CNIC number)
-              <input value={notes} maxLength={500} onChange={(e) => setNotes(e.target.value)} />
-            </label>
-            <button type="submit" disabled={busy}>Record</button>
-          </form>
-        ) : null}
       </section>
+
+      <FirstJobsRecord pro={a.id} />
 
       <section className="decide">
         {a.status === 'applied' || a.status === 'approved' ? (
@@ -447,8 +413,9 @@ function Card({ a, trades, onChange }: { a: Application; trades: Record<string, 
         <div className="buttons">
           {a.status === 'applied' ? (
             <>
-              <button disabled={busy || missing.length > 0} onClick={() => decide('approve')}>
-                {missing.length ? `Approve (needs: ${missing.map((m) => STEP[m].toLowerCase()).join(', ')})` : 'Approve'}
+              {/* Approval is the app's rule (D37). The office approves only somebody it turned down before who applied again. */}
+              <button className="secondary" disabled={busy} onClick={() => decide('approve')}>
+                Approve (only after a turn-down)
               </button>
               <button className="danger" disabled={busy} onClick={() => decide('reject')}>Turn down</button>
             </>

@@ -33,7 +33,7 @@ export default function Safety() {
         How Pechkas keeps a visit safe
       </Text>
       <View style={s.card}>
-        <Line icon="shield" text="Every technician is checked before his first job: who he is, in person or on a video call, a trial job, and our rules." />
+        <Line icon="shield" text="Every technician has his number checked and his photo on record, and you confirm it is him at your door. His first jobs are checked by the customers who book them, and risky work opens to him only after another technician has checked his work." />
         <Line icon="lock" text="A start code proves the right person came. Give it to him at the door, once you have seen him, never on the phone." />
         <Line icon="share" text="You can send his name to your family on WhatsApp the moment he is on his way." />
         <Line icon="chat" text="The Pechkas office can read the chat in the app, so there is a record if anything goes wrong." />
