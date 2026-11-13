@@ -43,6 +43,10 @@ reviewed against it.
   cannot be avoided, say so and explain why.
 - Never promise on the website or in the app something the app cannot
   actually do.
+- No calls. The owner cannot take or attend phone or video calls either,
+  and no design may depend on a call with him. An exception he handles
+  reaches him as a written item in the office panel, which he answers in
+  his own time.
 
 ---
 
@@ -447,6 +451,9 @@ Each one happens in real life; today the office handles it by hand.
      watched".
 - **Status:** a plan for this direction is being drawn up. Nothing is
   built until the owner approves it.
+- **Next routine step to remove, after D37 (the owner, 13 November 2026):**
+  A5, the office confirming every "I have paid". Until then a good trial
+  job needs its commission paid, and that still waits for the office.
 - **Who decides:** You.
 
 #### D38. Launch offers

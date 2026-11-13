@@ -23,6 +23,10 @@ Apply this to every decision, every design and every review of an old one.
   cannot be avoided, say so and explain why.
 - Never promise on the website or in the app something the app cannot
   actually do.
+- No calls. The owner cannot take or attend phone or video calls either,
+  and no design may depend on a call with him. An exception he handles
+  reaches him as a written item in the office panel, which he answers in
+  his own time.
 
 ## Working with the owner
 
