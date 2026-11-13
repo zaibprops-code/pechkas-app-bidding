@@ -20,8 +20,29 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 11 November 2026 (D12, D10 and D34 built). The same list as a map you can tap through:
+_Last updated: 13 November 2026 (the standing rule; D37's first plan withdrawn). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
+
+---
+
+## The standing rule (the owner, 13 November 2026)
+
+Every decision below, open or decided, is held to this. An older decision
+that still needs the owner or the office for a routine step is to be
+reviewed against it.
+
+- The app runs by its own logic and rules. The aim is that everyone is
+  treated fairly and kept safe without a person deciding each case.
+- The owner cannot be present anywhere. He cannot travel to watch a
+  technician work, and he has no homes of friends or family to use.
+- Keep the office out of routine steps too. A person is needed only for
+  exceptions: a safety report, a dispute, an appeal.
+- Whenever a design needs the owner or the office to do something, first
+  look for a rule, a check in the app, the customer's confirmation or
+  another technician's check that can do it instead. If a human step truly
+  cannot be avoided, say so and explain why.
+- Never promise on the website or in the app something the app cannot
+  actually do.
 
 ---
 
@@ -394,13 +415,38 @@ Each one happens in real life; today the office handles it by hand.
     beyond the reminders. You + lawyer; the technician agreement carries a
     `[DECIDE WITH A LAWYER]` for it.
 
-#### D37. The trial job for a new technician
-- **The question:** Approval needs a trial job.
-  - Where does it happen: a real customer's job with you there, or a test
-    job you set up?
-  - Is he paid for it, and who pays for any parts?
-- **Today:** The admin panel records "Trial job watched". How the trial
-  job is run is not written down anywhere.
+#### D37. The trial job for a new technician — plan withdrawn, new direction given
+- **The question:** How is a new technician checked before customers rely
+  on him, when nobody from Pechkas can attend?
+- **Withdrawn (13 November 2026):** the plan for a trial watched in person
+  at a trial home or a customer's job, with a trial watcher, a fee paid on
+  the day and office decisions. It depended on the owner attending, which
+  the standing rule above rules out. It was never built.
+- **The owner's direction (13 November 2026), for a new plan:**
+  1. Before any job: an identity check, a rules quiz and a short safety
+     quiz per trade, all in the app.
+  2. His first 3 jobs in a trade are his trial. The customer sees "New on
+     Pechkas" before she chooses him. One job at a time, basic job types
+     only, under a price cap the owner sets in Settings.
+  3. After each of those jobs the customer answers a short check in her app
+     (on time, explained the work, left it clean, it works). Before and
+     after photos are required.
+  4. Approval in a trade is automatic: 3 good jobs and no guarantee claim.
+     A bad answer or a safety report pauses him by rule, with an appeal.
+  5. Risky job types (wiring, gas geysers, solar installs, AC gas) unlock
+     only after a clean record, plus a check by an approved technician in
+     that trade where one exists, chosen by the app and paid by Pechkas,
+     whose own record suffers if people he passed turn out bad.
+  6. Rules against fake first jobs: different real customers, real payment,
+     and commission paid.
+  7. Technicians already approved are sorted by their record.
+  8. Kept from the old plan: approval per trade enforced in the database,
+     the three trade-check gaps closed, every attempt on record, gas
+     cookers and gas ovens not taken, the safety stop.
+  9. The website and the app say what really happens, not "a trial job,
+     watched".
+- **Status:** a plan for this direction is being drawn up. Nothing is
+  built until the owner approves it.
 - **Who decides:** You.
 
 #### D38. Launch offers

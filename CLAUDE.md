@@ -7,6 +7,23 @@ approved design is the canvas "Pechkas App Look"
 (https://claude.ai/artifact/42Sb6DBfcN9pP1kLnvBqBr). Where this file and the
 brief disagree, ask.
 
+## How Pechkas must work (the owner's standing rule, 13 November 2026)
+
+Apply this to every decision, every design and every review of an old one.
+
+- The app runs by its own logic and rules. The aim is that everyone is
+  treated fairly and kept safe without a person deciding each case.
+- The owner cannot be present anywhere. He cannot travel to watch a
+  technician work, and he has no homes of friends or family to use.
+- Keep the office out of routine steps too. A person is needed only for
+  exceptions: a safety report, a dispute, an appeal.
+- Whenever a design needs the owner or the office to do something, first
+  look for a rule, a check in the app, the customer's confirmation or
+  another technician's check that can do it instead. If a human step truly
+  cannot be avoided, say so and explain why.
+- Never promise on the website or in the app something the app cannot
+  actually do.
+
 ## Working with the owner
 
 - **Commit and push straight to `main`.** No branches or pull requests unless
