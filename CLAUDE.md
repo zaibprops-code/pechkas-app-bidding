@@ -28,6 +28,27 @@ Apply this to every decision, every design and every review of an old one.
   reaches him as a written item in the office panel, which he answers in
   his own time.
 
+## The app is the product; the website is marketing (the owner, 16 November 2026)
+
+- **Building the app is the only purpose.** The website
+  (`zaibprops-code/Pechkas`) was built first, but from now on it is for
+  marketing only: it tells people about Pechkas and sends them to the app.
+- **Never follow the website.** Do not take a rule, price, flow, screen,
+  wording or decision from it and treat it as how the app must work. Decide
+  every app question on its own merits, with the owner. Where the two
+  disagree, the app is right; the website is changed to match later, because
+  it must still never promise what the app does not do.
+- **Do not build on the website** (its booking page, job book, technician
+  pages, new features) and do not plan a phase around it, unless the owner
+  asks for that work by name. Website-only questions are marketing, not
+  launch blockers for the app.
+- Some things still physically live in the website's repository: the price
+  list `job_types` was seeded from, the four legal pages
+  (`copy-legal.mjs`), the logo's shapes (`copy-mark.mjs`) and the office
+  number. That is where the files are, not who decides: change them for the
+  app's sake. Whether any of them should move into this repository is the
+  owner's call; ask before moving one.
+
 ## Working with the owner
 
 - **Commit and push straight to `main`.** No branches or pull requests unless
@@ -206,15 +227,17 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   Vercel, then rebuild.
 
 ### Jobs (phase 2)
-- **Price guidance is the website's prices, never ours.** `job_types` is
-  seeded from `src/data/services.js` in the website repository; a job the
-  website does not price says "Price after a look" rather than a number.
+- **Price guidance is the usual Pechkas price list, never a guess.**
+  `job_types` was first seeded from `src/data/services.js` in the website
+  repository; it is the app's own list now (see "The app is the product").
+  A job with no usual price says "Price after a look" rather than a number.
   **The screens never say "website"** (the owner's decision): the figure is
   "Usual price" / "the usual Pechkas price". Where the prices come from is
   for this file, not for customers.
-  The lowest offer is the `min_offer_paisa` setting (Rs 1,000, the website's
-  inspection fee). If the website's prices change, a migration updates
-  `job_types`.
+  The lowest offer is the `min_offer_paisa` setting (Rs 1,000, first taken
+  from the website's inspection fee). The app's prices change only by a
+  migration to `job_types` when the owner decides; the website follows the
+  app, never the other way round.
 - **Only `live` sectors take jobs.** Nobody is promised a visit where Pechkas
   has nobody.
 - **The address is map first** (the owner's choice, replacing typed-in

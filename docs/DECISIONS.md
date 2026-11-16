@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 13 November 2026 (D37 decided and built: a new technician's first jobs). The same list as a map you can tap through:
+_Last updated: 16 November 2026 (the app comes first; the website is marketing only). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -47,6 +47,13 @@ reviewed against it.
   and no design may depend on a call with him. An exception he handles
   reaches him as a written item in the office panel, which he answers in
   his own time.
+
+**The app comes first (the owner, 16 November 2026).** Building the app is
+the only purpose. The website was built first, but it is now for marketing
+only. Nothing in the app follows the website: every decision here is made
+for the app on its own merits, and where the two disagree, the app is right
+and the website is changed later to match. Website-only items (D23–D29,
+D37.8) are marketing and do not block the app.
 
 ---
 
@@ -253,7 +260,10 @@ others depend on its answer.
 - **Today:** The Google button shows on Android only.
 - **Who decides:** You.
 
-### Before launch: the website (you, or you check)
+### The website: marketing, not the app (you, or you check)
+
+These are about the website only. Since 16 November 2026 the website is
+marketing, so none of them blocks the app.
 
 #### D23. Painting prices
 - **The question:** Price the two painting jobs per room, or mark them

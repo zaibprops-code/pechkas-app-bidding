@@ -21,13 +21,18 @@ decide there can be built straight away in the repositories.
   hal" and "Khara kaam, khara daam".
 - **The owner is one person, Muhammad Zohaib Khan.** He is not a developer.
   He tests on an Android 9 phone and has no Mac. Claude writes all the code.
-- **There are two products:**
-  1. **The website, pechkas.net.** A fixed price list for each service,
+- **The app is the product. The website is marketing.** The owner's rule
+  (16 November 2026): building the app is the only purpose. The website was
+  built first, but now it only tells people about Pechkas and sends them to
+  the app. **Nothing in the app follows the website.** Where they disagree,
+  the app is right and the website is changed later.
+- **The two pieces:**
+  1. **The website, pechkas.net (marketing).** A fixed price list for each service,
      area pages, safety guides for emergencies, seasonal campaigns,
      referral cards and a careers page (`/join`). People book on WhatsApp
      or through `/book`, and a small office "job book" (`/admin`) tracks
      those jobs. It runs on Vercel with Supabase behind it.
-  2. **The app, "Pechkas", for Android and later iPhone.** It works by open
+  2. **The app, "Pechkas", for Android and later iPhone (the product).** It works by open
      bidding, like inDrive for home repairs:
      - a customer posts a job and names her price;
      - checked technicians accept that price or ask for more;
@@ -70,6 +75,10 @@ Every decision is held to this rule:
   reaches him as a written item in the office panel, which he answers in
   his own time.
 
+- **The app comes first** (16 November 2026). Every decision is made for
+  the app on its own merits, never copied from the website. The website is
+  marketing and follows the app.
+
 The following follow from the same principles:
 
 - **Never invent figures.** No prices, ratings, reviews, job counts or
@@ -95,7 +104,7 @@ The following follow from the same principles:
      between them in the menu. You cannot switch in the middle of a job.
 2. **Posting a job.** Everything is on one page:
    - **The job:** the trade, then the job type. Each type shows the
-     website's usual price as "Usual price".
+     usual Pechkas price as "Usual price".
    - **What is wrong:** a voice note (up to 1 minute), a video (up to 20
      seconds), photos (up to 4) and words.
    - **The address:** a map pin is required. The app reads the sector from
@@ -395,15 +404,16 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   unlock risky work.
 - **D37.5:** safety quizzes for the other trades, if wanted.
 - **D37.7:** UPS and inverter needs its own job types and price list.
-- **D37.8, the website's trust claims.** The booking pages say a
-  technician has "had his CNIC checked" in person, wears a uniform, and
-  that "we call you before he reaches your gate". **Under the standing
-  rule (no visits, no calls), are these still true?** If not, they must
-  change, because the site must never promise what Pechkas does not do.
 - **Next routine step to remove:** A5, the office confirming every "I have
   paid".
 
-### The website (owner checks facts)
+### The website (marketing only: none of these blocks the app)
+
+- **D37.8, the website's trust claims.** The booking pages say a
+  technician has "had his CNIC checked" in person, wears a uniform, and
+  that "we call you before he reaches your gate". Under the standing rule
+  (no visits, no calls) these are not how the app works, so the marketing
+  copy will need changing before it points people to the app.
 
 - **D23:** painting prices.
 - **D24:** prices for the landlord and office plans and the move-in and
@@ -475,10 +485,11 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 5. **Set the D37.1 numbers and the D15 pay account.**
 6. **Find the first real technicians** in the launch sectors (D17).
 7. **Get the Urdu and safety quizzes checked** (D37.3, D37.4).
-8. **Fix the website's trust claims** (D37.8), the gas number (D26), and
-   the real team (D28).
-9. **The Play Store closed test, then public release.** The iPhone comes
+8. **The Play Store closed test, then public release.** The iPhone comes
    later and needs D22.
+
+The website's own items (D23–D29, D37.8) are marketing work for later and
+are not on this list.
 
 ## 9. Tensions worth thinking about
 
@@ -506,9 +517,11 @@ These are honest observations, not decisions.
 - **Many numbers are guesses until real jobs exist:** the flags, the visit
   fee, the GPS radius and the reserve. They are kept as settings so they
   can be tuned without new code.
-- **The website and the app must say the same thing.** The guarantee
-  lengths, the cancellation rules and the legal pages are copied between
-  them, and **any change has to happen in both in the same week.**
+- **The website still holds some of the app's files.** The four legal
+  pages, the logo's shapes and the first price list live in the website's
+  repository and are copied into the app. That is only where the files
+  are: the app decides what they say. **Whether to move them into the
+  app's repository is an open choice for the owner.**
 
 ## 10. How to work with Claude on this
 
@@ -521,6 +534,8 @@ These are honest observations, not decisions.
   wording is a visible `[DECIDE WITH A LAWYER]`, never a guess.
 - **The owner runs database changes himself**, in the Supabase SQL editor,
   following `docs/OWNER.md`.
+- **Build the app; never follow the website.** No website work unless the
+  owner asks for it by name.
 - **Commits go straight to `main`**, with no branches or pull requests.
 - **Never ask him to paste a secret into a chat.** Say where to put it
   instead.
