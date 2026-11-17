@@ -64,10 +64,16 @@ type FeedJob = {
   /** She has had a job done by him before, so his share is the lower one. */
   repeat?: boolean;
   commission_bps?: number;
+  /** A99: his launch rate applies if she chooses him now, until `launch_until`. */
+  launch?: boolean;
+  launch_until?: string | null;
   /** What she pays him if she says no to a new price at the door (visit_fee); shown before he offers. */
   visit_fee_paisa?: number;
   paid_by_pechkas?: boolean;
 };
+/** "12 Mar", on Pakistan's calendar: the last day of a launch rate. */
+const launchDay = (iso: string) => new Date(new Date(iso).getTime() - 1).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Karachi' });
+
 type Feed = {
   approved: boolean;
   online: boolean;
@@ -425,6 +431,11 @@ function RequestRow({ j, w, trade, onOpen }: { j: FeedJob; w: ProWords; trade: s
               <Text style={s.tagText}>{media}</Text>
             </View>
           ) : null}
+          {j.launch ? (
+            <View style={s.tag}>
+              <Text style={s.tagText}>{fill(w.launchTag, { pct: Math.round((j.commission_bps ?? 0) / 100) })}</Text>
+            </View>
+          ) : null}
         </View>
         {/* Says what a tap does, as a designed app would; the whole card is the button. */}
         {live ? null : (
@@ -506,7 +517,7 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
 
   const min = feed.min_offer_paisa;
   const max = Math.floor((j.offered_paisa * feed.max_counter_bps) / 10000 / 100) * 100;
-  // Per job: 7% for a customer he has worked for before, 10% otherwise.
+  // Per job: 7% for a customer he has worked for before, 10% otherwise, or his launch rate (A99).
   const bps = j.commission_bps ?? feed.commission_bps;
   const pct = Math.round(bps / 100);
   const minutesLeft = live ? Math.max(0, Math.ceil((new Date(live.expires_at).getTime() - Date.now()) / 60000)) : 0;
@@ -582,7 +593,13 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
           <Text style={s.keep}>{rupees(technicianKeeps(editing ? price : live?.price_paisa ?? price, bps))}</Text>
         </View>
       </View>
-      <Text style={s.fee}>{j.repeat ? fill(w.feeRepeat, { name: j.customer_first_name, pct }) : fill(w.feeLine, { pct })}</Text>
+      <Text style={s.fee}>
+        {j.launch && j.launch_until
+          ? fill(w.feeLaunch, { pct, date: launchDay(j.launch_until) })
+          : j.repeat
+            ? fill(w.feeRepeat, { name: j.customer_first_name, pct })
+            : fill(w.feeLine, { pct })}
+      </Text>
       {j.visit_fee_paisa ? <Text style={s.fee}>{fill(w.feeFeedLine, { fee: rupees(j.visit_fee_paisa) })}</Text> : null}
 
       {!editing && live ? (

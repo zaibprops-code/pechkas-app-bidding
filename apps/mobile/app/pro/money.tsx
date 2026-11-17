@@ -15,6 +15,7 @@ import { RecordCard, type ProRecord } from '../../src/pro/Record';
 import { UnpaidCard, type PaymentJob } from '../../src/pro/Unpaid';
 import { PayDatesCard, RefundCharges, type PayState, type RefundCharge } from '../../src/pro/PayDates';
 import { PayPauseCard } from '../../src/pro/PayPause';
+import { LaunchCard, ReferralCard, type Launch } from '../../src/pro/Launch';
 import { supabase } from '../../src/supabase';
 import { fill, useProWords } from '../../src/words';
 import { colour, font, radius } from '../../src/theme';
@@ -60,16 +61,20 @@ export default function MoneyScreen() {
   const [fees, setFees] = useState<VisitFees | null>(null);
   const [record, setRecord] = useState<ProRecord | null>(null);
   const [unpaid, setUnpaid] = useState<PaymentJob[]>([]);
+  const [launch, setLaunch] = useState<Launch | null>(null);
 
   const load = useCallback(async () => {
     if (!supabase) return;
-    const [{ data, error }, sent, vf, rec, pj] = await Promise.all([
+    const [{ data, error }, sent, vf, rec, pj, ln] = await Promise.all([
       supabase.rpc('pro_money'),
       supabase.rpc('my_payment_claims'),
       supabase.rpc('pro_visit_fees'),
       supabase.rpc('pro_record'),
       supabase.rpc('pro_payment_jobs'),
+      supabase.rpc('my_launch'),
     ]);
+    // D38: a database without the launch-offers change answers with an error: then there are no launch cards.
+    setLaunch(ln.data && (ln.data as Launch).ok ? (ln.data as Launch) : null);
     // A database without the payment-disputes change (D35) answers with an error: then there is no card.
     setUnpaid(Array.isArray(pj.data) ? (pj.data as PaymentJob[]) : []);
     // A database without the cancellations change answers with an error: then there is no record card.
@@ -92,6 +97,9 @@ export default function MoneyScreen() {
   );
 
   if (!m && !problem) return <Loading />;
+  // A100: unspent referral credit lowers what he owes but is never paid out.
+  const promo = launch?.promo_free_paisa ?? 0;
+  const owedToHim = m ? Math.max(0, -(m.owed_paisa + promo)) : 0;
 
   return (
     <View style={{ flex: 1, backgroundColor: colour.canvas }}>
@@ -109,10 +117,27 @@ export default function MoneyScreen() {
             <View style={[s.owed, m.blocked && s.owedBlocked]}>
               <View style={s.owedTop}>
                 <View style={{ flex: 1 }}>
-                  {/* Below nothing, Pechkas owes him: a guarantee repair he did for somebody else. */}
-                  <Text style={[s.owedLabel, m.blocked && { color: colour.white }]}>{m.owed_paisa < 0 ? 'Pechkas owes you' : w.owe}</Text>
-                  <Text style={[s.owedBig, m.blocked && { color: colour.white }]}>{rupees(Math.abs(m.owed_paisa))}</Text>
-                  {m.owed_paisa < 0 ? <Text style={s.owedLabel}>For a guarantee repair. The Pechkas office pays it to you.</Text> : null}
+                  {/* Below nothing, Pechkas owes him: a guarantee repair he did for somebody else. Referral credit (A100)
+                      is never money owed to him: it only pays his next fees, so it is said apart. */}
+                  {m.owed_paisa < 0 && owedToHim > 0 ? (
+                    <>
+                      <Text style={[s.owedLabel, m.blocked && { color: colour.white }]}>Pechkas owes you</Text>
+                      <Text style={[s.owedBig, m.blocked && { color: colour.white }]}>{rupees(owedToHim)}</Text>
+                      <Text style={s.owedLabel}>For a guarantee repair. The Pechkas office pays it to you.</Text>
+                      {promo > 0 ? <Text style={s.owedLabel}>{fill(w.owesYouPlusCredit, { amount: rupees(Math.min(promo, -m.owed_paisa)) })}</Text> : null}
+                    </>
+                  ) : m.owed_paisa < 0 ? (
+                    <>
+                      <Text style={s.owedLabel}>{w.creditOnly}</Text>
+                      <Text style={s.owedBig}>{rupees(-m.owed_paisa)}</Text>
+                      <Text style={s.owedLabel}>{w.creditNote}</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Text style={[s.owedLabel, m.blocked && { color: colour.white }]}>{w.owe}</Text>
+                      <Text style={[s.owedBig, m.blocked && { color: colour.white }]}>{rupees(m.owed_paisa)}</Text>
+                    </>
+                  )}
                 </View>
                 <View style={s.owedIcon}>
                   <DuoIcon name="wallet" size={28} accent={colour.white} />
@@ -125,6 +150,10 @@ export default function MoneyScreen() {
 
             {/* A5: paused by rule after two payments not received in full: why, and his appeal. */}
             {m.pay?.pay_pause ? <PayPauseCard pause={m.pay.pay_pause} w={w} onChanged={load} /> : null}
+
+            {/* D38: his launch rate, and his code for bringing in another technician. */}
+            {launch ? <LaunchCard l={launch} w={w} /> : null}
+            {launch ? <ReferralCard l={launch} w={w} /> : null}
 
             {/* D37: his first jobs and what each trade opens, and checks he is asked to do. */}
             <RowCard>

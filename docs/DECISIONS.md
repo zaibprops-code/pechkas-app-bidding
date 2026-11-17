@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 17 November 2026 (D38 decided as A99–A101, not built yet; A5 decided and built; A25 reworded to match D37). The same list as a map you can tap through:
+_Last updated: 17 November 2026 (D38 decided and built as A99–A101; A5 decided and built; A25 reworded to match D37). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -479,14 +479,20 @@ Each one happens in real life; today the office handles it by hand.
   new A5): a payment counts at once and is final for first jobs after 3
   days, so a good first job no longer waits for the office.
 
-#### D38. Launch offers — decided (A99–A101), not built yet
+#### D38. Launch offers — decided and built (A99–A101)
 - **Your decision** (17 November 2026) is in Part 2 as A99–A101: a launch
   rate that belongs to each technician, a credit for bringing in another
-  technician, and no customer discount. The plan waits for your yes.
+  technician, and no customer discount. Built on 17 November 2026, in
+  edition 8. The Urdu of the "Tell a technician" message is a draft: a
+  native speaker checks it, and decides how Pechkas is spelled, before
+  the app is public.
 - **Still open:**
   - **D38.1 The cut-off date.** Only technicians who apply before it get
     the launch rate. You give it once the public launch date is known;
     until then it is "not set" and the offer is off. **You.**
+  - **D38.3 The Urdu of the "Tell a technician" message.** A native
+    speaker checks it and decides how Pechkas is spelled in Urdu; that
+    spelling is then used everywhere. **You check.**
   - **D38.2 The agreement's wording** for A99 and A100, marked
     `[DECIDE WITH A LAWYER]`, for the same review as D1. **You + lawyer.**
 
@@ -638,7 +644,7 @@ What the app and the website do today. Reopen any item by its number.
 | A97 | **Gas cookers and gas ovens are not taken**: the oven job is "Microwave or electric oven repair", technicians decline them, and the office can close such a job with that reason. A technician working on a roof follows the roof line in his agreement. |
 | A98 | Every number starts "not set". Commission rates are unchanged (10%, 7%). Edition 8 of the app has the screens; ask for the update only once it is in the stores. |
 
-### Launch offers (decided 17 November 2026; not built yet)
+### Launch offers (decided and built 17 November 2026)
 | | |
 |---|---|
 | A99 | **A launch rate that belongs to each technician, not the calendar.** 5% instead of 10% (and instead of 7% for a repeat customer) on his jobs in a trade **from his 3rd good job there; his 90 days start when that trade is approved**, and the 5% ends **no later than 12 months after his 3rd good job**, whatever happens (so a late identity service cannot stretch it). The rate is fixed when the customer chooses him. Only for technicians who apply before a cut-off date (D38.1); until that date is set the offer is off. **His first 3 jobs in each trade keep the full commission**: paying it shows whether he pays Pechkas. His screens show his rate and its end date before he makes an offer. At 5%, the guarantee reserve grows by only 1% of labour, so during the offer guarantee repairs will mostly be paid from Pechkas' own money; that is expected. |

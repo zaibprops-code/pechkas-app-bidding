@@ -1178,6 +1178,35 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   a claim final later through `payment_provider_result()`, granted to
   `service_role` only; nothing calls it yet. Tests: `pay.test.mjs`, and the
   A5 section of `firstjobs.test.mjs`.
+- **D38, launch offers (A99–A101, migration `…_launch_offers`).**
+  **`commission_rate()` is still the one place a rate is decided**: the
+  usual 10% or 7%, lowered to `launch_bps` (5%) when `launch_applies(pro,
+  trade, at)`. That needs the cut-off set (`launch_apply_by`, YYYYMMDD, 0 =
+  off), `applied_at` by that day, still `trial_jobs` good jobs in the trade,
+  and `at` between `launch_marks.third_good_at` and `launch_until()`: 90
+  days (`launch_days`) after the trade's first approval, never later than
+  `launch_cap_months` (12) after the 3rd good job, ending at midnight in
+  Islamabad. The marks are set once by triggers (`trial_launch_mark`,
+  `trade_launch_mark`) and never moved. **The rate is fixed when she
+  chooses him** (`job_launch_rate` trigger → `jobs.launch_bps`), so it can
+  only stay or fall before he finishes. `repeat_pair()` is the 7% test on
+  its own: a launch rate must never be labelled "repeat customer".
+  **Referrals**: `pros.ref_code` (`referral_code()`), `set_referrer()` until
+  his application is approved, `referral_credits` (pending → earned |
+  over_cap) worked by `launch_clock()` every 10 minutes through
+  `referral_review()`: 3 good first jobs in a trade, each commission paid
+  by final money of his (`fee_paid_final()`), and past `correct_until` on
+  every claim of his that paid them. Ledger kind `referral_credit`, account
+  `promotions`. **Never cash**: `pay_rebalance()` never lets it pay a
+  payout, `admin_owed_to_pros()` and `admin_pay_pro()` subtract
+  `promo_free()`, and `fee_paid_final()` ignores it, so it never proves the
+  referrer paid for a first job of his own. The share message (Urdu then
+  English, `shareUr*` / `shareEn*` in `words.ts`, `shareMessage()` in
+  `src/pro/Launch.tsx`) says he gets a small credit, drops the 5% lines
+  while the offer is closed, drops the credit line once he is at the cap,
+  and the button is drawn only with `office_info.app_link`. **Its Urdu is a
+  draft for a native speaker.** All six numbers are locked: the technician
+  agreement states them. Tests: `launch.test.mjs`.
 - **Payments are recorded by the office only** (`admin_settle()`), with a
   method, a reference and the form's own key; more than he owes is refused
   as a typing mistake; concurrent payments for one man are serialised with

@@ -109,6 +109,10 @@ const TECHNICIAN: QA[] = [
     a: 'Up to 7 days after the job counts as finished, open My account and tap Report a payment problem: Not paid at all, or Paid less with what you received. Pechkas asks the customer, and your commission on that job is held, so it counts towards nothing you owe. You can change the amount until they answer. When you are paid the rest, tap I have now been paid in full. Commission is only ever charged on the work you were actually paid for.',
   },
   {
+    q: 'Is there a launch rate, and what is my code?',
+    a: 'If you applied before the cut-off day, the Pechkas fee is 5% of the labour instead of 10% (or 7%), from your 3rd good first job in a trade until 90 days after that trade is approved. My account shows your rate and its last day, and every job shows it before you offer. Once you are approved you also get a code there. When a technician you told applies with it, and his first 3 jobs count and their payments are past 30 days, Pechkas takes Rs 1,000 off what you owe, for at most 5 technicians. It is never paid in cash.',
+  },
+  {
     q: 'Can I change my trades or sectors?',
     a: 'Only before you are approved. After that, ask the office.',
   },

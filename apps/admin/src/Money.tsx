@@ -94,6 +94,7 @@ export function Money() {
           <Claims onChanged={load} />
           <OwedToPros onChanged={load} />
           <PayTo current={d.pay_to} onSaved={load} />
+          <LaunchOffers />
           <div className="list">
             {d.pros.length === 0 ? <p className="lead">No technicians yet.</p> : null}
             {d.pros.map((p) => (
@@ -440,6 +441,90 @@ function CheckCard({ c, finalDays, onDone }: { c: ToCheck; finalDays: number; on
       )}
       {msg ? <p className="error" role="alert">{msg}</p> : null}
     </article>
+  );
+}
+
+type LaunchData = {
+  cutoff: string | null;
+  bps: number;
+  days: number;
+  cap_months: number;
+  credit_paisa: number;
+  cap: number;
+  app_link: string | null;
+  on_launch_rate: number;
+  referrals: { referrer: string; newcomer: string; status: 'pending' | 'earned' | 'over_cap'; trade: string | null; earn_at: string | null; earned_at: string | null; amount_paisa: number | null; since: string }[];
+};
+
+/**
+ * D38 (A99–A100). Everything here runs by rule: the launch rate is worked
+ * out by the database, and a referral credit is earned by itself once the
+ * newcomer's 3 first jobs are paid and past the 30-day window. The office
+ * types one thing, the app's store link, which the "Tell a technician"
+ * message carries; until it is typed, no technician sees that button.
+ */
+function LaunchOffers() {
+  const [d, setD] = useState<LaunchData | null>(null);
+  const [link, setLink] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase.rpc('admin_launch');
+    // A database without the launch-offers change: say nothing.
+    if (error || !data) return;
+    setD(data as LaunchData);
+    setLink((data as LaunchData).app_link ?? '');
+  }, []);
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function save() {
+    setBusy(true);
+    const r = await ask('admin_set_app_link', { p_text: link });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    setMsg('Saved.');
+    load();
+  }
+
+  if (!d) return null;
+  const pct = Math.round(d.bps / 100);
+  const label = { pending: 'Pending', earned: 'Earned', over_cap: 'Over the cap: no credit' } as const;
+  return (
+    <section className="alerts">
+      <h2>Launch offers</h2>
+      <p className="muted">
+        {d.cutoff
+          ? `Launch rate ${pct}% for technicians who applied by ${dayLabel(d.cutoff)}: from their 3rd good first job in a trade, until ${d.days} days after that trade is approved, never more than ${d.cap_months} months after the 3rd good job. ${d.on_launch_rate} technician${d.on_launch_rate === 1 ? '' : 's'} on it now.`
+          : 'The launch rate is off: the last day to apply is not set yet. Give Claude the date once the public launch date is known.'}{' '}
+        A technician who brings in another gets {rupees(d.credit_paisa)} off what he owes, at most {d.cap} times, once the newcomer&rsquo;s first 3 jobs count and their payments are past the 30-day window. It is never paid in cash.
+      </p>
+      <div className="row">
+        <label className="grow">
+          The app&rsquo;s Play Store link (the &ldquo;Tell a technician&rdquo; message carries it)
+          <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://play.google.com/store/apps/details?id=net.pechkas.app" />
+        </label>
+        <button disabled={busy} onClick={save}>Save</button>
+      </div>
+      {msg ? <p className={msg === 'Saved.' ? 'muted' : 'error'} role="alert">{msg}</p> : null}
+      {d.referrals.length ? (
+        <details>
+          <summary>Technicians brought in ({d.referrals.length})</summary>
+          <ul>
+            {d.referrals.map((r, i) => (
+              <li key={i}>
+                {r.newcomer}, brought in by {r.referrer}: {label[r.status]}
+                {r.status === 'earned' && r.amount_paisa ? `, ${rupees(r.amount_paisa)} on ${time(r.earned_at ?? r.since)}` : ''}
+                {r.status === 'pending' && r.earn_at ? `, earned on ${time(r.earn_at)} if nothing changes` : ''}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+    </section>
   );
 }
 

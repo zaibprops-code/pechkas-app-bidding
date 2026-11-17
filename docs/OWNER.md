@@ -7,9 +7,64 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
-**Edition 8 is THREE database steps and ONE build, all on the same day:**
-the two first-jobs files below, then the payments file here, then one
-preview build. Do not make a build in between.
+**Edition 8 is FOUR database steps and ONE build, all on the same day:**
+the two first-jobs files, then the payments file, then the launch-offers
+file, then one preview build. Do not make a build in between.
+
+**Have you already made the edition-8 build?** Find out on your phone:
+
+1. Open Pechkas and tap **☰** (top left).
+2. Look at the very bottom of the menu: it says "Version … · edition N".
+3. **edition 7 or lower:** edition 8 is not built yet. Run the four files,
+   then make the one build.
+4. **edition 8:** it is built already. Run the launch-offers file, and the
+   next build adds the code box to the application form. Nothing breaks
+   meanwhile: the database works out every rate.
+
+**Launch offers (D38, decided 17 November 2026).**
+
+1. **Supabase → SQL Editor**: after the payments file, run
+   `supabase/migrations/20261117100000_launch_offers.sql`. It should say
+   **Success**, and then show a short table: **approved technicians with
+   no first-job record**. None are expected; your test accounts may appear.
+   If a real technician appears, tell Claude: he gets no launch rate, and
+   nothing else changes for him.
+2. **Admin → Money → Launch offers**: once the app is in the Play Store,
+   paste its link into **The app's Play Store link** and press **Save**.
+   Until then technicians see no **Tell a technician** button.
+3. **The last day to apply for the launch rate is not set**, so the launch
+   rate is off. When you know the public launch date, give Claude the last
+   day; it is changed by a small database step, never in the panel,
+   because the technician agreement states the rule.
+4. **The Urdu of the share message is a draft.** Have a native speaker
+   read it (it is in `apps/mobile/src/words.ts`, the lines starting
+   `shareUr`) and decide how **Pechkas** is spelled in Urdu, one word
+   (پیچکس) or two (پیچ کس). Send Claude the corrections.
+
+What happens then, by itself:
+
+- A technician who applied by that day pays **5% instead of 10%** (or 7%)
+  on his jobs in a trade after his first 3 good jobs there, until **90
+  days after that trade is approved**, and never more than **12 months
+  after his 3rd good job**. His first 3 jobs in each trade pay the full
+  fee. The rate is fixed when the customer chooses him.
+- Every approved technician has a **code** on My account. A newcomer types
+  it when he applies. When the newcomer's first 3 good jobs in a trade are
+  paid and 30 days have passed on his payments, the one who brought him in
+  gets **Rs 1,000 off what he owes**, at most 5 times. It is never paid in
+  cash and never shows as money Pechkas owes him.
+- **Admin → Money → Launch offers** lists every technician brought in and
+  where each credit stands. **Flags** shows a technician whose newcomers'
+  first jobs keep failing the customer checks.
+
+**Try it (test accounts):**
+
+| Do this | You should see |
+|---|---|
+| As an approved technician: **My account** | "Bring in a technician" with his code |
+| A new test number applies, typing a wrong code | "No technician has that code" |
+| It applies with the right code | The first technician sees him under his code: "Pending: 0 of 3 first jobs" |
+| With the link saved: **Tell a technician** | WhatsApp opens with the message, Urdu then English |
 
 **A technician's payment counts at once (A5, decided 17 November 2026).**
 

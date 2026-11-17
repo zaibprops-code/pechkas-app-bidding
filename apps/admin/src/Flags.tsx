@@ -111,6 +111,11 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     'The office found one of his "not paid in full" reports false.',
     'Read the case under Payment disputes, then talk to him. Nothing happens on its own.',
   ],
+  // D38 (A100): flags only.
+  referral_pattern: (f) => [
+    `${f.n} technicians he brought in had first jobs that failed the customer checks (the same person, a repeat customer, homes too close, or accounts too new).`,
+    'It may be chance, or friends faking jobs to earn him credits. Look at their first jobs under Technicians. Nothing happens on its own.',
+  ],
   // A5: the second within 90 days pauses him by rule (see Exceptions); the flag itself does nothing.
   short_payments: (f) => [
     f.n === 1

@@ -29,12 +29,23 @@ export default function Apply() {
   const [years, setYears] = useState<number>(account?.pro?.years ?? 1);
   const [sectors, setSectors] = useState<string[]>(account?.pro?.sectors ?? []);
   const [about, setAbout] = useState(account?.pro?.about ?? '');
+  // D38 (A100): the code of the technician who told him, until his application is approved.
+  const [refCode, setRefCode] = useState('');
+  const [refSaved, setRefSaved] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     supabase?.rpc('app_lists').then(({ data }) => setLists((data as Lists) ?? null));
+    // Editing an application: the code he gave before. (Nothing for somebody who has not applied yet.)
+    supabase?.rpc('my_launch').then(({ data }) => {
+      const code = (data as { ok?: boolean; referred_by_code?: string | null } | null)?.referred_by_code;
+      if (code) {
+        setRefCode(code);
+        setRefSaved(code);
+      }
+    });
   }, []);
 
   if (!ready) return <Loading />;
@@ -65,6 +76,18 @@ export default function Apply() {
       return;
     }
     await refresh();
+    // The code is kept separately, once he has an application to attach it to. Its refusal is said in full,
+    // at the top and beside the box: the box is at the foot of the page, so "fix what is marked above" would be wrong.
+    if (refCode.trim() !== refSaved) {
+      const c = await ask('set_referrer', { p_code: refCode.trim() });
+      if (!c.ok && c.field === 'code') {
+        setBusy(false);
+        setErrors({ code: c.why });
+        setNotice(c.why);
+        return;
+      }
+      setRefSaved(refCode.trim());
+    }
     setBusy(false);
     router.replace('/pro');
   }
@@ -120,6 +143,22 @@ export default function Apply() {
           {lists ? lists.sectors.map((name) => <Chip key={name} label={name.replace('-', '\u2011')} on={sectors.includes(name)} onPress={() => flip(sectors, setSectors, name)} />) : <Body muted>…</Body>}
         </View>
         {errors.sectors ? <Text style={s.error}>{errors.sectors}</Text> : null}
+      </Panel>
+
+      <Panel>
+        <Field
+          label={w.referCodeField}
+          value={refCode}
+          onChangeText={(v) => {
+            setRefCode(v);
+            setErrors((e) => ({ ...e, code: '' }));
+          }}
+          autoCapitalize="characters"
+          autoCorrect={false}
+          maxLength={20}
+          hint={w.referCodeHint}
+          error={errors.code}
+        />
       </Panel>
 
       <Panel>

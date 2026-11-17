@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "5670b43";
+export const LEGAL_FROM = "8fef166";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -239,6 +239,11 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": ", the amount, how you paid, the transaction number and the screenshot you add, which only the office sees, to check the money arrived; and, if it did not arrive in full, what the office found and wrote. A screenshot may show the account you paid from."
+            }
+          ],
+          [
+            {
+              "t": "If you are a technician: your code for bringing in another technician, the code of the technician who told you about Pechkas if you give one, who you brought in and where each credit stands. The technician who told you sees your first name and how many of your first jobs have counted; the office sees both names. It is deleted with your account."
             }
           ],
           [
@@ -2732,6 +2737,79 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           [
             {
               "t": "Records of what you owed and paid are kept even after your account is deleted, for accounting."
+            }
+          ]
+        ]
+      },
+      {
+        "k": "h2",
+        "text": "Launch offers"
+      },
+      {
+        "k": "ul",
+        "items": [
+          [
+            {
+              "t": "The launch rate.",
+              "b": true
+            },
+            {
+              "t": " If you applied by the last day Pechkas sets for it, the Pechkas fee is "
+            },
+            {
+              "t": "5% of your labour",
+              "b": true
+            },
+            {
+              "t": " instead of 10% (and instead of7% for a customer you have worked for before), on your jobs in a trade "
+            },
+            {
+              "t": "after your first 3 good jobs there",
+              "b": true
+            },
+            {
+              "t": ", until "
+            },
+            {
+              "t": "90 days after that trade is fully approved",
+              "b": true
+            },
+            {
+              "t": ", and never later than "
+            },
+            {
+              "t": "12 months after your 3rd good job",
+              "b": true
+            },
+            {
+              "t": ". Your first 3 jobs in each trade pay the full fee. The rate on a job is fixed when the customer chooses you. My account shows your rate and its last day, and every job shows it before you offer. Until Pechkas sets that last day, there is no launch rate."
+            }
+          ],
+          [
+            {
+              "t": "Bringing in another technician.",
+              "b": true
+            },
+            {
+              "t": " Once you are approved, My account shows your code. When a technician you told applies with it, Pechkas takes "
+            },
+            {
+              "t": "Rs 1,000",
+              "b": true
+            },
+            {
+              "t": " off what you owe once his first 3 good jobs in a trade are paid and 30 days have passed on his payments for them, for at most "
+            },
+            {
+              "t": "5",
+              "b": true
+            },
+            {
+              "t": " technicians. The credit only lowers what you owe: it is never paid in cash, and it never counts as you paying for a first job of your own. The message the app sends for you says that you get a small credit. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: the wording of the launch rate and the credit for bringing in a technician, reviewed with the questions on who the agreement is with.]",
+              "mark": true
             }
           ]
         ]
