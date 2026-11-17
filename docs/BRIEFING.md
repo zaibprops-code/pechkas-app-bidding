@@ -6,7 +6,7 @@ Every rule below is something the code actually does, not a plan, unless it
 says "open" or "not built"._
 
 **How to use this file.** Paste it into a new conversation with Claude and
-say something like: *"This is my business. Help me decide D38"* (or any other
+say something like: *"This is my business. Help me decide D15"* (or any other
 number), or *"What should I decide before launch, and in what order?"* The
 numbers (D1…, A1…) are the same as in `docs/DECISIONS.md`, so whatever you
 decide there can be built straight away in the repositories.
@@ -41,14 +41,14 @@ decide there can be built straight away in the repositories.
      It is built with Expo (React Native) on a Supabase database. The
      office runs it from a web admin panel.
 - **Where it stands:**
-  - The app is built through "phase 8", D37 and the new A5 (payments
-    count at once).
+  - The app is built through "phase 8", D37, the new A5 (payments
+    count at once) and D38 (launch offers).
   - It is **not open to the public yet**: only test numbers can sign in
     until an SMS company is connected (D20).
   - The Play Store closed test (12 testers for 14 days) is the next store
     step.
-  - The app is on **edition 8**: three database changes (D37's two and
-    A5's one) and one new build go out together.
+  - The app is on **edition 8**: four database changes (D37's two, A5's
+    and D38's) and one new build go out together.
 - **Contact:**
   - No email address, on purpose. Everything goes through WhatsApp.
   - Working hours are 7am to 10pm, every day.
@@ -192,10 +192,12 @@ The following follow from the same principles:
 | **Credit limit** | Rs 3,000. Once he owes more than that, his new offers stop until he pays. |
 | **Due dates (D36)** | Each fee is due 14 days after it is posted, with 3 days of grace. From day 18 his new offers stop while it is unpaid. There is no late fee and no interest. Payments pay the oldest fees first. |
 | **Paying Pechkas (A5, 17 November 2026)** | He taps "I have paid" with the transaction number and a screenshot, and **it counts at once**: what he owes drops straight away. Each transaction number can be used only once, and nothing calls a payment "verified". The office only acts when money did not arrive: for 30 days it can mark a payment **Not received** or **Received less**, which puts back exactly the missing amount and flags him. **A second time within 90 days pauses his new offers** until the office lifts the pause; he appeals in writing, and an appeal unanswered for 3 days shows as a reminder. The Money page lists "Payments to check", and the office is told at most once a day. The account he pays into is still blank (D15). |
-| **Guarantee reserve** | 20% of every commission. When it runs out, Pechkas pays from its own money. |
+| **Launch rate (D38, 17 November 2026)** | 5% of the labour instead of 10% (or 7%), on his jobs in a trade **after his first 3 good jobs** there. It lasts until 90 days after that trade is approved, and never more than 12 months after his 3rd good job; it ends at midnight in Islamabad. The rate is fixed when the customer chooses him and is shown, with its end date, before he offers. **Only for technicians who apply by a cut-off date, which is not set yet, so the offer is off** (D38.1). |
+| **Referral credit (D38)** | Rs 1,000 for each technician he brings in with his code, at most 5. Earned when the newcomer's 3rd first job counts as good **and** the 30-day "Not received" window has passed on the payments for all 3; shown as "Pending" until then, and kept afterwards. It only lowers what he owes Pechkas: never cash, never a payout, and it never counts as his own payment for his first jobs. "Tell a technician" sends an Urdu and English WhatsApp message that says plainly he gets a small credit; the button appears only once the office has saved the app's store link. A flag shows unusual referral patterns. |
+| **Guarantee reserve** | 20% of every commission. When it runs out, Pechkas pays from its own money. On a 5% launch job that is 1% of the labour. |
 | **Visit fee** | A flat Rs 300, set in Settings. Owed only after a real visit at which she declined a new price. The technician keeps all of it. |
 | **Ledger** | Double-entry and written once. A mistake is corrected with a reversal, never an edit. No balance is stored: it is always worked out from the ledger lines. |
-| **Customer discounts** | None. A64 says there is no compensation, wallet, credit or discount at launch. |
+| **Customer discounts** | None. A64 says there is no compensation, wallet, credit or discount at launch, and D38 kept it that way. |
 
 ## 5. Trust and safety: how a technician becomes approved (D37, 13 November 2026)
 
@@ -316,6 +318,13 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   - she answers once within 3 days, and silence never blocks her;
   - commission only on what he actually received.
 - **A85–A98, a new technician's first jobs:** see section 5.
+- **A99–A101, launch offers (D38, 17 November 2026):**
+  - 5% launch rate after his first 3 good jobs in a trade, until 90 days
+    after the trade is approved (at most 12 months after the 3rd good job),
+    only for technicians who apply by the cut-off date;
+  - Rs 1,000 credit per technician he brings in, at most 5, never cash;
+  - no customer discount;
+  - see section 4.
 - **A25–A30, trust:** no CNIC is stored; flags are only flags; blocking;
   hidden ratings; first name only before he is chosen; applying is free.
   - A25 now says approval is by rule (A85–A98), never a check in person
@@ -449,27 +458,22 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 - **D39:** a second city: visit fees, prices, the lowest offer and sectors
   for each city, and who checks technicians there.
 
-### D38, launch offers (being discussed, no answer yet)
+### D38, launch offers (decided and built 17 November 2026; three follow-ups)
 
-- **The question:** should there be anything to win the first technicians
-  and customers?
-- **Today:** there are none. The 10% and 7% rates are written into the
-  technician agreement, so any offer changes that page too.
-- **Claude's recommendation:**
-  - **A launch commission rate** (for example 5%) on a technician's jobs
-    **after** his first 3 in a trade, with a fixed end date. He pays
-    whichever is lower, the launch rate or the usual one.
-  - **A technician-refers-technician credit**, earned only when the
-    newcomer's 3rd first job counts as good. It is capped, only reduces
-    what he owes, and is never paid out in cash.
-  - **No customer discount.** A discount would break A64. A
-    customer-referral reward has nothing to pay out in, because there is
-    no wallet.
-- **Waiting for the owner:**
-  1. Any offer at all, or none?
-  2. For a launch rate: what rate, and what end date?
-  3. For the referral credit: what amount, and what cap?
-  4. Confirm that there is no customer discount.
+- **Decided:** a 5% launch rate and a referral credit for technicians
+  (A99–A101, see section 4), and no customer discount.
+- **Built:** in edition 8. Approved technicians with no first-job record
+  are listed by the database step and left unchanged.
+- **Still open:**
+  1. **D38.1, the cut-off date.** Technicians who apply by this day get the
+     launch rate. Until it is set, the offer is off for everybody. Give it
+     once the launch date is known.
+  2. **D38.2, the agreement wording.** The technician agreement's new
+     "Launch offers" section is marked `[DECIDE WITH A LAWYER]`, for the
+     same review as D1.
+  3. **D38.3, the Urdu.** The "Tell a technician" message's Urdu is a
+     draft. A native speaker checks it, and decides whether "Pechkas" is
+     one word or two in Urdu, used everywhere.
 
 ## 8. Launch blockers, in a sensible order
 
@@ -483,11 +487,15 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
    first-job limits for good.
 3. **Real sign-in:** an SMS company (D20), and Resend if email codes stay
    (D21).
-4. **Run the three database changes** (D37's two, then A5's) and install
-   the one edition-8 build on the same day.
-5. **Set the D37.1 numbers and the D15 pay account.**
+4. **Run the four database changes** (D37's two, then A5's, then D38's)
+   and install the one edition-8 build on the same day.
+5. **Set the D37.1 numbers and the D15 pay account.** Give the D38.1
+   cut-off date once the launch date is known, and save the app's store
+   link in the office panel once the app is in the Play Store, so "Tell a
+   technician" appears.
 6. **Find the first real technicians** in the launch sectors (D17).
-7. **Get the Urdu and safety quizzes checked** (D37.3, D37.4).
+7. **Get the Urdu checked:** the quizzes and the safety quizzes (D37.3,
+   D37.4) and the "Tell a technician" message (D38.3).
 8. **The Play Store closed test, then public release.** The iPhone comes
    later and needs D22.
 
@@ -505,7 +513,8 @@ These are honest observations, not decisions.
   - With few technicians, many jobs will get no offers, and risky job types
     will be closed in most sectors.
   - **D38 and D17 (starting small, where the first technicians live) are
-    the main levers.**
+    the main levers.** D38 is now built, but it does nothing until the
+    cut-off date is set (D38.1).
 - **The office is still needed for some steps:**
   - correcting a payment that did not arrive, and answering a payment
     pause appeal (A5: exceptions only, no longer every payment);
