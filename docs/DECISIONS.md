@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 17 November 2026 (A5 decided and built: a technician's payment counts at once). The same list as a map you can tap through:
+_Last updated: 17 November 2026 (A5 decided and built: a technician's payment counts at once; A25 reworded to match D37). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -640,7 +640,7 @@ What the app and the website do today. Reopen any item by its number.
 
 | # | Decision |
 | --- | --- |
-| A25 | **No CNIC number or image is ever stored**, only that it was checked, when and by whom. A technician is approved after three checks: identity in person or by video call, a trial job, and the rules. |
+| A25 | **No CNIC number or image is ever stored**, only that it was checked, when, by whom and how. *Reworded 17 November 2026:* a technician is approved by the app's rules, trade by trade (A85–A98), never by a check in person or a video call. Identity is checked only by an outside identity service once one is connected (A88); technicians approved before D37 keep the date Pechkas staff saw their identity, until the owner's deadline. |
 | A26 | **Flags are only flags.** Nothing suspends, blocks or charges anybody automatically. A person looks first. |
 | A27 | **A customer can block a technician** after a job. **He is never told.** |
 | A28 | **Ratings stay hidden** until both sides have rated, or 48 hours pass. A technician shows "New" until he has 3 ratings. |

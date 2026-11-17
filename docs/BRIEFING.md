@@ -1,6 +1,6 @@
 # Pechkas: a complete briefing for an adviser
 
-_Written 16 November 2026 from the two repositories as they stand today
+_Written 16 November 2026, updated 17 November 2026, from the two repositories as they stand today
 (app `zaibprops-code/pechkas-app-bidding`, website `zaibprops-code/Pechkas`).
 Every rule below is something the code actually does, not a plan, unless it
 says "open" or "not built"._
@@ -41,13 +41,14 @@ decide there can be built straight away in the repositories.
      It is built with Expo (React Native) on a Supabase database. The
      office runs it from a web admin panel.
 - **Where it stands:**
-  - The app is built through "phase 8" and D37.
+  - The app is built through "phase 8", D37 and the new A5 (payments
+    count at once).
   - It is **not open to the public yet**: only test numbers can sign in
     until an SMS company is connected (D20).
   - The Play Store closed test (12 testers for 14 days) is the next store
     step.
-  - The app is on **edition 8**: the database changes for D37 and a new
-    build go out together.
+  - The app is on **edition 8**: three database changes (D37's two and
+    A5's one) and one new build go out together.
 - **Contact:**
   - No email address, on purpose. Everything goes through WhatsApp.
   - Working hours are 7am to 10pm, every day.
@@ -190,7 +191,7 @@ The following follow from the same principles:
 | **No commission on** | Visit fees, parts, guarantee repairs Pechkas pays for, cancellations, no-shows and unsuccessful visits. The rule (A67) is that Pechkas earns only on completed repair labour the customer has paid for. |
 | **Credit limit** | Rs 3,000. Once he owes more than that, his new offers stop until he pays. |
 | **Due dates (D36)** | Each fee is due 14 days after it is posted, with 3 days of grace. From day 18 his new offers stop while it is unpaid. There is no late fee and no interest. Payments pay the oldest fees first. |
-| **Paying Pechkas** | He taps "I have paid" with a screenshot. **The office must press Confirm**, which is the one routine step still needing a person (A5). The account he pays into is still blank (D15). |
+| **Paying Pechkas (A5, 17 November 2026)** | He taps "I have paid" with the transaction number and a screenshot, and **it counts at once**: what he owes drops straight away. Each transaction number can be used only once, and nothing calls a payment "verified". The office only acts when money did not arrive: for 30 days it can mark a payment **Not received** or **Received less**, which puts back exactly the missing amount and flags him. **A second time within 90 days pauses his new offers** until the office lifts the pause; he appeals in writing, and an appeal unanswered for 3 days shows as a reminder. The Money page lists "Payments to check", and the office is told at most once a day. The account he pays into is still blank (D15). |
 | **Guarantee reserve** | 20% of every commission. When it runs out, Pechkas pays from its own money. |
 | **Visit fee** | A flat Rs 300, set in Settings. Owed only after a real visit at which she declined a new price. The technician keeps all of it. |
 | **Ledger** | Double-entry and written once. A mistake is corrected with a reversal, never an edit. No balance is stored: it is always worked out from the ledger lines. |
@@ -219,7 +220,9 @@ office no longer presses Approve.**
    - all four answers were yes;
    - his before and after photos are in;
    - no guarantee claim stands against it;
-   - the commission on it is paid;
+   - the commission on it is paid (a payment he sends in the app counts
+     for this 3 days after he sends it; if the office later finds it did
+     not arrive in full, the job waits again until he pays the rest);
    - the customer is real and separate from him: a different checked
      number, a home far enough from the other trial customers, and not
      counted before.
@@ -315,9 +318,8 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 - **A85–A98, a new technician's first jobs:** see section 5.
 - **A25–A30, trust:** no CNIC is stored; flags are only flags; blocking;
   hidden ratings; first name only before he is chosen; applying is free.
-  - **Note: A25 is out of date.** It still says a technician is approved
-    after "identity in person or by video call, a trial job, and the
-    rules". D37 (A85–A98) replaced that, so A25 should be reworded.
+  - A25 now says approval is by rule (A85–A98), never a check in person
+    or a video call.
 - **A31–A35, accounts and contact:** number, email or Google sign-in; one
   account with two modes; English only; no email address; open 7am to
   10pm.
@@ -404,8 +406,8 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   unlock risky work.
 - **D37.5:** safety quizzes for the other trades, if wanted.
 - **D37.7:** UPS and inverter needs its own job types and price list.
-- **Next routine step to remove:** A5, the office confirming every "I have
-  paid".
+- **A5 is done (17 November 2026):** the office no longer confirms every
+  "I have paid"; it only corrects the ones that did not arrive.
 
 ### The website (marketing only: none of these blocks the app)
 
@@ -481,7 +483,8 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
    first-job limits for good.
 3. **Real sign-in:** an SMS company (D20), and Resend if email codes stay
    (D21).
-4. **Run the D37 migrations** and install edition 8 on the same day.
+4. **Run the three database changes** (D37's two, then A5's) and install
+   the one edition-8 build on the same day.
 5. **Set the D37.1 numbers and the D15 pay account.**
 6. **Find the first real technicians** in the launch sectors (D17).
 7. **Get the Urdu and safety quizzes checked** (D37.3, D37.4).
@@ -504,7 +507,8 @@ These are honest observations, not decisions.
   - **D38 and D17 (starting small, where the first technicians live) are
     the main levers.**
 - **The office is still needed for some steps:**
-  - confirming payments (A5);
+  - correcting a payment that did not arrive, and answering a payment
+    pause appeal (A5: exceptions only, no longer every payment);
   - disputes and appeals;
   - "not finished" the second time;
   - guarantee refusals.
