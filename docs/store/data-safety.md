@@ -93,7 +93,8 @@ For each: **Collected: Yes · Shared: No · Processed ephemerally: No.**
 | **Photos and videos → Videos** | Optional | App functionality | A short video of what is wrong, or of a fault under guarantee; a technician's short "Show it working" video at the finish. |
 | **Audio → Voice or sound recordings** | Optional | App functionality | The voice note describing the problem. |
 | **App activity → Other user-generated content** | Optional | App functionality, Fraud prevention, security and compliance | Star ratings and their words; problem reports; "not finished yet" reasons and notes and the technician's one-line reply; guarantee claims with their words, the technician's answer and any appeal; a customer's disagreement with a visit fee and her words, and whether the technician says he was paid it; the reason a customer chose for cancelling and any words she added; a technician's reply to a late arrival or no-show recorded about him; the time a technician says he will arrive when running late, and the reason he chose (and any words) when he could not come; who had a job before it went to another technician; the office's reason for pausing a technician's offers; the office's reason for giving a technician more time to pay; a technician's appeal against a visit fee refund charge; a technician's report that he could not get in, its photo and note, and a customer's reply that she was home; a technician's report that a customer did not pay him in full, her answer and the words she wrote, and the office's decision and note; which technician a customer asked for again; a technician a customer blocked, and her reason if she gave one; a customer's answers to three questions on a technician's first jobs and whether she confirmed his photo at her door; safety reports, the technician's side and the office's decision; a technician's appeal against a pause and the office's answer; what the office found and wrote when a technician's payment to Pechkas did not arrive in full; a technician's code for bringing in another technician, the code he gave of the technician who told him, and where each such credit stands; a checker's findings on another technician's first risky job; a technician's request to change his photo, with his reason; the kind of job and sector a customer asked to be told about. |
-| **Device or other IDs** | Optional | App functionality | The notification code for the phone, only if the person allows notifications. |
+| **Device or other IDs** | Required | App functionality | A random number made for this installation, sent to Expo (our app-delivery service) when the app checks for a new version, so the same phone is not counted twice; and the notification code for the phone, only if the person allows notifications. |
+| **App info and performance → Crash logs** | Required | App functionality | Only when a new version of the app fails to start: Expo receives the error message, so that version is not offered to that phone again. Nothing else; there is no crash reporting. |
 
 **Fraud prevention** is the office's flags (phase 7): patterns across jobs,
 such as many jobs cancelled after a technician was chosen. A person reads
@@ -115,10 +116,12 @@ and the phone's position only when the person taps to use it), user IDs from oth
 political or sexual information, payment card or bank details, credit score,
 health, contacts, calendar, files and documents, web history, installed
 apps, search history, app interactions and in-app search (there is no
-analytics), crash logs and diagnostics (there is no crash reporting).
+analytics), diagnostics (there is no crash reporting; the one crash log is
+the failed-update message above).
 
 > If crash reporting or analytics are ever added, these answers change
-> first.
+> first. The two rows about Expo came with automatic updates (17 November
+> 2026).
 
 ---
 

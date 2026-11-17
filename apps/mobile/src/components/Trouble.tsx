@@ -18,6 +18,7 @@ import { colour, font } from '../theme';
  *   missing      a link to a page the app does not have
  *   update       the office has asked copies this old to update first
  *   paused       the office has paused the app while something is worked on
+ *   database     this code needs a database change that has not been run yet
  *
  * Each one says what happened in plain words, what the person can do, and
  * gives them a button that does it. Nothing says "error 503". When the
@@ -33,7 +34,7 @@ import { colour, font } from '../theme';
  * still. Every line wraps rather than being cut off at the edge, at 320
  * wide too.
  */
-export type TroubleKind = 'offline' | 'unreachable' | 'broken' | 'missing' | 'update' | 'paused';
+export type TroubleKind = 'offline' | 'unreachable' | 'broken' | 'missing' | 'update' | 'paused' | 'database';
 
 const WORDS: Record<TroubleKind, { title: string; text: string }> = {
   offline: {
@@ -59,6 +60,10 @@ const WORDS: Record<TroubleKind, { title: string; text: string }> = {
   paused: {
     title: 'Pechkas is paused for a short while',
     text: 'The office is working on the app. It opens again by itself when the work is done.',
+  },
+  database: {
+    title: 'Waiting for a database update',
+    text: 'This version of Pechkas needs a change on its server that has not been made yet. The app opens by itself as soon as it is done. Your account and your jobs are kept.',
   },
 };
 
@@ -130,7 +135,7 @@ export function Trouble({ kind: asked, onRetry, onHome, detail, note, onSafety, 
 
   const w = WORDS[kind];
   const noInternet = kind === 'offline' || kind === 'unreachable';
-  const call = noInternet || kind === 'update' || kind === 'paused';
+  const call = noInternet || kind === 'update' || kind === 'paused' || kind === 'database';
 
   const words = (
     <View style={s.words}>
@@ -194,7 +199,7 @@ export function Trouble({ kind: asked, onRetry, onHome, detail, note, onSafety, 
         <View style={[s.middle, short && { gap: 12 }]}>
           {/* On a short phone the screens that stop the whole app drop the drawing,
               so "Emergency numbers" is on the screen without scrolling. */}
-          {short && (kind === 'paused' || kind === 'update') ? null : (
+          {short && (kind === 'paused' || kind === 'update' || kind === 'database') ? null : (
             <TroubleArt kind={kind} width={short ? 160 : 240} height={short ? 120 : 180} />
           )}
           {words}
@@ -265,7 +270,7 @@ export function TroubleArt({ kind, width = 240, height = 180 }: { kind: TroubleK
           </G>
         </G>
       )}
-      {kind === 'update' && (
+      {(kind === 'update' || kind === 'database') && (
         <G>
           {/* A phone, and a green arrow coming down into it: the new version arriving. */}
           <Rect x={70} y={22} width={84} height={148} rx={16} fill={SHADE} />

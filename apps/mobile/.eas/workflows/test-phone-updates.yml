@@ -1,0 +1,28 @@
+# Sends every change on main to the owner's TEST phone (preview builds) as an
+# over-the-air update, so a new screen does not need a new build.
+#
+# Store users (production builds) never get these: see store-updates.yml.
+# A change to the app's native parts (a new library, a permission, a plugin)
+# cannot travel this way; `npm run native:check` makes sure such a change
+# raises "version" in app.json, which needs a new build, and older builds
+# then simply ignore updates they cannot run.
+#
+# If the update needs a database change the owner has not run yet, the app
+# shows "Waiting for a database update" until he runs it (src/control.tsx).
+name: Update the test phone
+
+on:
+  push:
+    branches: ['main']
+    paths: ['apps/mobile/**', 'packages/shared/**']
+
+jobs:
+  update_preview:
+    name: Send the update to preview builds
+    type: update
+    environment: preview
+    env:
+      PECHKAS_COMMIT: ${{ github.sha }}
+    params:
+      channel: preview
+      platform: android

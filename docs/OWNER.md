@@ -9,7 +9,9 @@ running database changes, and where every account and setting lives.
 
 **Edition 8 is FOUR database steps and ONE build, all on the same day:**
 the two first-jobs files, then the payments file, then the launch-offers
-file, then one preview build. Do not make a build in between.
+file, then one preview build. Do not make a build in between. **That build
+is also the first that updates itself** (see "Automatic updates" below):
+after it, most changes reach your phone without a new build.
 
 **Have you already made the edition-8 build?** Find out on your phone:
 
@@ -1949,6 +1951,69 @@ app with made-up people and jobs, running in the page.
 It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
+
+## Automatic updates
+
+From the edition-8 build on, the app updates itself. Most changes arrive
+over the internet; only a change to the app's built-in parts (a new phone
+permission or library) needs a new build, and Claude will say so.
+
+### Set it up (once)
+
+1. Make the edition-8 **preview** build as usual and install it. Builds made
+   before it cannot update themselves.
+2. **expo.dev/accounts/fixmindss-team/projects/pechkas-app/github** (the
+   project's GitHub page on expo.dev): check it is
+   connected to `zaibprops-code/pechkas-app-bidding` with base directory
+   `apps/mobile`. It should be already, because you build from GitHub.
+3. That is all. Every change Claude pushes now goes to your **test phone**
+   by itself: **expo.dev → Pechkas App → Workflows** shows a run called
+   **Update the test phone** for each one.
+
+### Getting a change on your test phone
+
+1. Open Pechkas and wait about ten seconds: it downloads the change quietly.
+2. Close the app completely (swipe it away) and open it again. The new
+   version is on screen.
+3. To check: **☰ → Settings**, at the foot, **This copy of the app** says
+   **Update of** a date and time, and `preview`.
+
+### "Waiting for a database update"
+
+If a change needs a database step you have not run yet, the app shows
+**Waiting for a database update** instead of breaking. Run the new file(s)
+in **Supabase → SQL Editor** as Claude's message says. The app notices
+within half a minute and opens by itself.
+
+### Sending a change to store users
+
+Nothing reaches people with the Play Store app until you say so.
+
+1. **First** run every new database file in Supabase. Store customers
+   should never see the waiting screen.
+2. Tell Claude: **"send it to the store users"**. Claude changes
+   `apps/mobile/release.json`, and **Workflows** shows a run called
+   **Update store users**.
+3. Store phones get it the next time the app is opened, and show it the
+   time after.
+
+### Undo an update
+
+If an update makes something worse:
+
+1. Go to **expo.dev/accounts/fixmindss-team/projects/pechkas-app/updates**
+   (expo.dev → Pechkas App → **Updates**).
+2. Open **production** for store users (or **preview** for your test
+   phone). The updates are listed newest first, each with its date and
+   message.
+3. Find the last one that worked, open it and choose **Republish**. Phones
+   go back to it the next time the app is opened.
+4. If you cannot find the button, tell Claude **"undo the last store
+   update"**: Claude puts the code back as it was and sends that as a new
+   update, which does the same job.
+
+If a new update crashes before its first screen appears, the phone goes
+back to the version it had by itself.
 
 ## Try the app on your phone
 

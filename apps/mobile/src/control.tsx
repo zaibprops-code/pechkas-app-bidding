@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { AppState } from 'react-native';
 import { APP_EDITION } from '@pechkas/shared';
 import { supabase } from './supabase';
+import { NEWEST_MIGRATION } from './version';
 
 /**
  * The office's two switches (public.app_status()): ask older copies to
@@ -12,6 +13,13 @@ import { supabase } from './supabase';
  * back in by itself. A copy that cannot ask — no internet, or a database
  * from before these switches — carries on as if both were off: being
  * unable to ask is never a reason to stop somebody.
+ *
+ * The same ask also reads the database's own record (public.db_version()).
+ * A copy whose code needs a migration the database has not run yet — an
+ * over-the-air update can arrive before the owner has run it in Supabase —
+ * waits behind "Waiting for a database update" instead of breaking, and
+ * opens by itself once the database catches up. Only a clear answer that
+ * the database is older counts; no answer never stops anybody.
  */
 export type AppStatus = { min_edition: number; paused: boolean; note: string | null };
 
@@ -22,10 +30,12 @@ type State = {
   /** This copy is older than the office allows. */
   tooOld: boolean;
   paused: boolean;
+  /** The database has not run a migration this code needs. */
+  dbBehind: boolean;
   check: () => Promise<void>;
 };
 
-const Ctx = createContext<State>({ checked: true, status: null, tooOld: false, paused: false, check: async () => {} });
+const Ctx = createContext<State>({ checked: true, status: null, tooOld: false, paused: false, dbBehind: false, check: async () => {} });
 
 /** How often to ask again while a switch is on. */
 const WHILE_ON = 30000;
@@ -35,13 +45,16 @@ const AT_MOST = 3000;
 export function ControlProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AppStatus | null>(null);
   const [checked, setChecked] = useState(!supabase);
+  const [dbBehind, setDbBehind] = useState(false);
 
   const check = useCallback(async () => {
     if (!supabase) return;
     try {
-      const { data, error } = await supabase.rpc('app_status');
+      const [control, db] = await Promise.all([supabase.rpc('app_status'), supabase.rpc('db_version')]);
       // No answer, or no such function yet: keep what we last knew.
-      if (!error && data && typeof data === 'object') setStatus(data as AppStatus);
+      if (!control.error && control.data && typeof control.data === 'object') setStatus(control.data as AppStatus);
+      const newest = (db.data as { newest?: unknown } | null)?.newest;
+      if (!db.error && typeof newest === 'string') setDbBehind(newest < NEWEST_MIGRATION);
     } catch {
       // As above.
     } finally {
@@ -65,12 +78,12 @@ export function ControlProvider({ children }: { children: ReactNode }) {
   const paused = status?.paused === true;
 
   useEffect(() => {
-    if (!tooOld && !paused) return;
+    if (!tooOld && !paused && !dbBehind) return;
     const t = setInterval(check, WHILE_ON);
     return () => clearInterval(t);
-  }, [tooOld, paused, check]);
+  }, [tooOld, paused, dbBehind, check]);
 
-  const value = useMemo(() => ({ checked, status, tooOld, paused, check }), [checked, status, tooOld, paused, check]);
+  const value = useMemo(() => ({ checked, status, tooOld, paused, dbBehind, check }), [checked, status, tooOld, paused, dbBehind, check]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

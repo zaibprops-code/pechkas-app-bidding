@@ -1,0 +1,5 @@
+{
+  "note": "Changing this file sends the code on main to store users as an update (.eas/workflows/store-updates.yml). Raise the number and say why.",
+  "release": 0,
+  "why": "Nothing sent to store users yet."
+}

@@ -1,0 +1,27 @@
+# Sends the code on main to STORE users (production builds) as an
+# over-the-air update — only when release.json changes, which Claude does
+# when the owner says "send it to the store users". Nothing reaches store
+# users by accident.
+#
+# Run the database changes for that code in Supabase FIRST. A copy that gets
+# ahead of the database shows "Waiting for a database update" until it is
+# done (src/control.tsx), but customers should never see that screen.
+#
+# To undo a bad one: docs/OWNER.md, "Undo an update".
+name: Update store users
+
+on:
+  push:
+    branches: ['main']
+    paths: ['apps/mobile/release.json']
+
+jobs:
+  update_production:
+    name: Send the update to store builds
+    type: update
+    environment: production
+    env:
+      PECHKAS_COMMIT: ${{ github.sha }}
+    params:
+      channel: production
+      platform: android

@@ -28,6 +28,8 @@ await setup(`INSERT INTO public.pros (id, full_name, trades, years, sectors, sta
          ($2, 'Asad Mehmood', '{ac,plumber}', 9, '{F-11,E-11,G-13}', 'approved', true, now() - interval '100 days')`, [id(4), id(5)]);
 const sectors = (await setup(`SELECT string_agg(name, ', ') AS s FROM public.sectors WHERE live`).catch(() => ({ rows: [{ s: '?' }] }))).rows[0].s;
 console.log('live sectors:', sectors);
+// For trying the "Waiting for a database update" screen: a database one migration behind.
+if (process.env.DEMO_BEHIND) await setup(`DELETE FROM public.applied_migrations WHERE name = (SELECT max(name) FROM public.applied_migrations)`);
 await db.exec('CHECKPOINT');
 const file = await db.dumpDataDir('gzip');
 await writeFile(process.argv[2], Buffer.from(await file.arrayBuffer()));

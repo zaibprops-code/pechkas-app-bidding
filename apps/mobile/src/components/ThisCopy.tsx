@@ -1,11 +1,25 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
+import * as Updates from 'expo-updates';
 import { APP_EDITION } from '@pechkas/shared';
 import { supabase } from '../supabase';
 import { APP_VERSION, BUILT_AT, COMMIT, NEWEST_MIGRATION } from '../version';
 import { colour, font, radius, shadow } from '../theme';
 
 type Db = { state: 'checking' } | { state: 'ok' } | { state: 'behind'; newest: string | null } | { state: 'unknown' };
+
+/**
+ * Which over-the-air update this copy is running, if any: "As built" for
+ * the code the build came with. The channel says whose phones get it —
+ * preview is the owner's test phone, production the store's.
+ */
+function updateLine(): string | null {
+  if (Platform.OS === 'web' || !Updates.isEnabled) return null;
+  const channel = Updates.channel ? ` · ${Updates.channel}` : '';
+  if (Updates.isEmbeddedLaunch || !Updates.createdAt) return `Update: none yet, running as built${channel}`;
+  const when = Updates.createdAt.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Karachi' });
+  return `Update of ${when} · ${(Updates.updateId ?? '').slice(0, 8)}${channel}`;
+}
 
 /**
  * "This copy": which code is installed and whether the database has every
@@ -31,6 +45,7 @@ export function ThisCopy({ dark = false }: { dark?: boolean }) {
 
   const fg = dark ? colour.paper : colour.ink;
   const muted = dark ? '#b9c2c9' : colour.steel;
+  const update = updateLine();
   const built = BUILT_AT ? new Date(BUILT_AT).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
 
   return (
@@ -41,6 +56,7 @@ export function ThisCopy({ dark = false }: { dark?: boolean }) {
         {COMMIT ? ` · code ${COMMIT}` : ' · local copy'}
         {built ? ` · built ${built}` : ''}
       </Text>
+      {update ? <Text style={[s.line, { color: muted }]}>{update}</Text> : null}
       {db.state === 'checking' ? <Text style={[s.line, { color: muted }]}>Checking the database…</Text> : null}
       {db.state === 'ok' ? <Text style={[s.line, { color: muted }]}>Database: up to date.</Text> : null}
       {db.state === 'unknown' ? <Text style={[s.line, { color: muted }]}>Database: could not be checked (no connection).</Text> : null}

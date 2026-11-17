@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "8fef166";
+export const LEGAL_FROM = "09d106e";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -778,6 +778,15 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": " on iPhone. A notification says only the kind of work, the sector, a first name, a price and the job number — never an address or a phone number."
+            }
+          ],
+          [
+            {
+              "t": "Expo",
+              "b": true
+            },
+            {
+              "t": " also delivers new versions of the app. Each time the app opens it asks Expo whether there is one, sending the app's version, the kind of phone system and a random number made for this installation — never your name, number, address or jobs. If a new version fails to start, Expo receives the error message, so that version is not offered to your phone again."
             }
           ],
           [

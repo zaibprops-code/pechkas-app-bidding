@@ -66,7 +66,8 @@ it, and this label gains User ID and the profile picture link, as on Play.
 | User Content → **Emails or Text Messages** | The chat between a customer and her chosen technician |
 | User Content → **Other User Content** | Star ratings and their words; problem reports; "not finished yet" reasons and the technician's reply; guarantee claims, answers and appeals; a customer's disagreement with a visit fee and whether it was paid; a customer's reason for cancelling; a technician's reply to a lateness record; a technician's new arrival time or reason for not coming; who had a job before; the office's reason for pausing a technician's offers; the office's reason for giving more time to pay; what the office found when a technician's payment did not arrive in full, and his appeal against a pause for it; a technician's code for bringing in another technician, who told him, and where each credit stands; a technician's appeal against a refund charge; a nobody-home report and the customer's reply; a report that a customer did not pay in full, her answer and words, and the office's decision; which technician a customer asked for again; a technician a customer blocked, and her reason if given |
 | Identifiers → **User ID** | The account's own ID inside Pechkas |
-| Identifiers → **Device ID** | The notification address of the phone, only if notifications are allowed |
+| Identifiers → **Device ID** | The notification address of the phone, only if notifications are allowed; a random number for this installation, sent to Expo when the app checks for a new version |
+| Diagnostics → **Crash Data** | Only the error message when a new version of the app fails to start, sent to Expo so that version is not offered again |
 | Other Data → **Other Data Types** | A technician's trades, years in the trade, sectors, quiz results and first-job record, and, once an identity-checking service is in use, its result (never a CNIC number) |
 
 The **price record of finished jobs** (kind of job, sector, day, prices) is
@@ -76,8 +77,8 @@ it exists and that it outlives a deleted account.
 
 **Not collected:** health, payment cards or bank details,
 contacts, browsing or search history, purchases, coarse location, product
-interaction or other usage data (there is no analytics), crash data,
-performance data, advertising data, sensitive info.
+interaction or other usage data (there is no analytics), performance
+data, advertising data, sensitive info. Crash data only as above.
 
 > If crash reporting or analytics are ever added, change these answers first.
 

@@ -32,12 +32,13 @@ module.exports = ({ config }) => {
   const mapsKey = (process.env.GOOGLE_MAPS_API_KEY || '').trim();
   return {
     ...config,
-    // Which commit Expo built, shown on the Me screen. EAS sets this during a
-    // build; a local run has none and says "local copy".
+    // Which commit Expo built, shown on the Me screen. EAS sets the first
+    // during a build; the update workflows (.eas/workflows) set the second
+    // for an over-the-air update. A local run has neither: "local copy".
     extra: {
       ...config.extra,
-      commit: process.env.EAS_BUILD_GIT_COMMIT_HASH || null,
-      builtAt: process.env.EAS_BUILD_GIT_COMMIT_HASH ? new Date().toISOString() : null,
+      commit: process.env.EAS_BUILD_GIT_COMMIT_HASH || process.env.PECHKAS_COMMIT || null,
+      builtAt: process.env.EAS_BUILD_GIT_COMMIT_HASH || process.env.PECHKAS_COMMIT ? new Date().toISOString() : null,
       maps: { android: Boolean(mapsKey) },
     },
     plugins: [...(config.plugins ?? []), ['react-native-maps', mapsKey ? { androidGoogleMapsApiKey: mapsKey } : {}]],

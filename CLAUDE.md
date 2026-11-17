@@ -1372,6 +1372,26 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   are added in the browser (`server.mjs`), so their days are always
   tomorrow. The page cannot use a camera, a real map, location or
   notifications, and says so.
+- **Over-the-air updates (EAS Update, the owner's yes, 17 November 2026).**
+  `expo-updates`, `runtimeVersion` policy `appVersion`, channels `preview`
+  (his test phone) and `production` (the store) in `eas.json`. Every push
+  to main that touches `apps/mobile/**` or `packages/shared/**` is sent to
+  `preview` by `.eas/workflows/test-phone-updates.yml`; store users get
+  one **only** when `apps/mobile/release.json` changes
+  (`store-updates.yml`) — change it only when he says "send it to the
+  store users", after he has run that code's migrations. **A native change
+  needs a new build**: `npm run native:check` (part of `npm run check`)
+  hashes app.json, app.config.js and the dependencies into
+  `apps/mobile/native-stamp.json` and fails if they change while
+  `version` does not — raise `version`, run it with `-- --write`, and tell
+  him a build is needed. **An update can arrive before his migration**:
+  `src/control.tsx` reads `db_version()` with the office switches and,
+  only on a clear answer that the database is older than
+  `NEWEST_MIGRATION`, draws `Trouble` kind `database` ("Waiting for a
+  database update"), asking again every 30 s; no answer never stops
+  anybody. Settings' `ThisCopy` names the running update and its channel.
+  Undo is the dashboard's Republish (docs/OWNER.md, "Undo an update"), or
+  a revert sent as a new update.
 - **`NEWEST_MIGRATION` in `apps/mobile/src/version.ts` names the newest
   migration file**, and `npm run version:check` (part of `npm run check`)
   fails if it does not. Add a migration, change that line in the same

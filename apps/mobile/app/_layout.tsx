@@ -147,11 +147,13 @@ const NEVER_COVERED = new Set(['emergency', 'safety']);
  * is lifted; nobody sees through "please update".
  */
 function OfficeSwitches() {
-  const { tooOld, paused, status, check } = useControl();
+  const { tooOld, paused, dbBehind, status, check } = useControl();
   const { account } = useAccount();
   const first = useSegments()[0] ?? '';
   if (NEVER_COVERED.has(first)) return null;
-  const kind = tooOld ? 'update' : paused && !account?.is_staff ? 'paused' : null;
+  // An office login sees through a pause, never through "please update" or a
+  // database that is behind: the code would break for them too.
+  const kind = tooOld ? 'update' : dbBehind ? 'database' : paused && !account?.is_staff ? 'paused' : null;
   if (!kind) return null;
   return (
     <View style={StyleSheet.absoluteFill} accessibilityViewIsModal>
