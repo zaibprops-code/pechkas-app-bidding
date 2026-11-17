@@ -1,0 +1,168 @@
+<title>Pechkas Demo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: a thin demo bar on top, the real app below it in a phone-width column; on a wide screen the sign-in help sits beside it. */
+:root {
+  --green: #0b5148; --green-deep: #083d36; --yellow: #ffc53d; --soft: #fff4d6;
+  --ink: #14171a; --steel: #5b6168; --canvas: #eef0ee; --card: #ffffff; --rule: #dfe3e1;
+  --stage: #dfe5e2;
+  --font: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --stage: #1b2422; --card: #ffffff; color-scheme: dark } }
+:root[data-theme="dark"] { --stage: #1b2422; color-scheme: dark }
+html, body { height: 100%; }
+body { overflow: hidden; background: var(--stage); color: var(--ink); font-family: var(--font); display: flex; flex-direction: column; }
+.bar {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 10px; min-height: 44px;
+  padding-block: 6px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--green); color: #fff; font-size: 13.5px;
+}
+.bar .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--yellow); flex: 0 0 auto; }
+.bar b { font-weight: 800; letter-spacing: .2px; white-space: nowrap; }
+.bar .what { color: #cfe3df; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar button {
+  margin-left: auto; flex: 0 0 auto; min-height: 32px; padding: 0 14px; border-radius: 999px; border: 0;
+  background: var(--yellow); color: var(--ink); font: 700 13px var(--font); cursor: pointer;
+}
+.bar button:focus-visible, .help button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.stage { flex: 1 1 auto; min-height: 0; display: flex; justify-content: center; gap: 28px; padding: 0; }
+#root {
+  position: relative; display: flex; flex: 1 1 auto; width: 100%; max-width: 430px; height: 100%; overflow: hidden;
+  background: var(--canvas);
+}
+.loading { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; background: var(--green); color: #fff; text-align: center; }
+.screw { width: 64px; height: 64px; border-radius: 50%; background: #e8e2d4; position: relative; box-shadow: inset -4px -5px 0 rgba(0,0,0,.18); }
+.screw::after { content: ""; position: absolute; left: 14px; right: 14px; top: 28px; height: 8px; border-radius: 4px; background: #6b4e2a; animation: turn 1.2s linear infinite; }
+@keyframes turn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .screw::after { animation: none; } }
+.loading h1 { margin: 0; font-size: 22px; font-weight: 800; }
+.loading p { margin: 0; color: #cfe3df; font-size: 14.5px; line-height: 1.5; max-width: 300px; }
+.loading .fail { color: #fff; background: rgba(0,0,0,.2); border-radius: 12px; padding: 12px 14px; }
+
+.help {
+  width: 330px; flex: 0 0 auto; overflow-y: auto; padding: 22px 0 28px; display: none;
+  font-size: 14.5px; line-height: 1.5; color: var(--ink);
+}
+.help .card { background: var(--card); border-radius: 18px; padding: 18px; display: grid; gap: 10px; box-shadow: 0 1px 2px rgba(20,23,26,.06), 0 6px 18px rgba(20,23,26,.06); }
+.help .card + .card { margin-top: 14px; }
+.help h2 { margin: 0; font-size: 16px; font-weight: 800; color: var(--green); }
+.help p { margin: 0; color: var(--ink); }
+.help .muted { color: var(--steel); font-size: 13.5px; }
+.who { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 10px 12px; border-radius: 12px; background: var(--soft); }
+.who span { font-weight: 700; }
+.who code { font-family: var(--mono); font-size: 15px; letter-spacing: .5px; align-self: center; user-select: all; }
+.who small { grid-column: 1 / -1; color: var(--steel); font-size: 12.5px; }
+.code { font-family: var(--mono); font-weight: 600; background: var(--soft); border-radius: 6px; padding: 0 6px; user-select: all; }
+.help ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.help button { min-height: 44px; border-radius: 999px; border: 0; background: var(--ink); color: #fff; font: 700 14px var(--font); cursor: pointer; }
+
+@media (min-width: 860px) {
+  .help { display: block; }
+  .bar .open { display: none; }
+  .stage { padding-block: 16px; }
+  #root { border-radius: 26px; box-shadow: 0 2px 6px rgba(0,0,0,.08), 0 18px 48px rgba(0,0,0,.14); max-height: 900px; align-self: center; }
+}
+@media (max-width: 859px) {
+  .help.shown {
+    display: block; position: fixed; inset: 44px 0 0 0; z-index: 100000; width: auto;
+    background: var(--stage); padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  }
+}
+</style>
+
+<div class="bar">
+  <span class="dot" aria-hidden="true"></span>
+  <b>Pechkas demo</b>
+  <span class="what">Made-up data</span>
+  <button class="open" id="open-help" type="button" aria-expanded="false" aria-controls="help">Sign-in help</button>
+</div>
+
+<div class="stage">
+  <div id="root">
+    <div class="loading" id="loading">
+      <div class="screw" aria-hidden="true"></div>
+      <h1>Starting the demo</h1>
+      <p id="status">Getting ready…</p>
+    </div>
+  </div>
+
+  <aside class="help" id="help" aria-label="How to use the demo">
+    <div class="card">
+      <h2>This is the real app</h2>
+      <p>The same screens and the same database rules as the app on your phone, running in this page with made-up people and jobs. Nobody is told anything and nothing is sent anywhere.</p>
+    </div>
+    <div class="card">
+      <h2>Sign in</h2>
+      <p>Tap <b>Continue with phone</b> and type one of these numbers. The code is always <span class="code">123456</span>.</p>
+      <div class="who"><span>Customer: Ayesha</span><code>300 111 2222</code><small>A leaking AC with an offer waiting, and a finished job.</small></div>
+      <div class="who"><span>Technician: Bilal</span><code>300 333 4444</code><small>AC and electrician in F-11, E-11 and G-13. Two jobs to offer on.</small></div>
+      <p class="muted">Any other number makes a new account, so you can try signing up as a customer or applying as a technician. To switch, open the ☰ menu, then Settings, then Sign out.</p>
+    </div>
+    <div class="card">
+      <h2>What the page cannot do</h2>
+      <ul>
+        <li>No camera: choose a photo from your files instead.</li>
+        <li>No real map: a street drawing stands in.</li>
+        <li>No location: the demo puts you in F-11, or at the technician’s job.</li>
+        <li>No notifications, calls or WhatsApp.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Start again</h2>
+      <p class="muted">Everything you do is forgotten when the page reloads. The office panel is not in this demo.</p>
+      <button type="button" id="restart">Start again with fresh data</button>
+    </div>
+  </aside>
+</div>
+
+<script>
+  // Where this page's own files are, before the app moves the address.
+  window.__PB = new URL('.', document.baseURI).href;
+  window.__PENTRY = '__ENTRY__';
+  window.__pstatus = (t) => { const s = document.getElementById('status'); if (s && t) s.textContent = t; };
+  window.__pfail = (m) => {
+    const s = document.getElementById('status');
+    if (s) { s.className = 'fail'; s.textContent = 'The demo could not start on this device. Try another phone or a computer. (Details: ' + m + ')'; }
+  };
+  // The app finds its screens from the address, so it is given a clean one.
+  try { if (location.pathname !== '/') history.replaceState(null, '', '/'); } catch (e) {}
+  // The app sizes itself to the window; here its window is the phone-width column.
+  (function () {
+    const root = document.getElementById('root');
+    const de = document.documentElement;
+    try {
+      Object.defineProperty(de, 'clientWidth', { configurable: true, get: () => root.clientWidth });
+      Object.defineProperty(de, 'clientHeight', { configurable: true, get: () => root.clientHeight });
+      const vv = { scale: 1, offsetLeft: 0, offsetTop: 0, pageLeft: 0, pageTop: 0, addEventListener() {}, removeEventListener() {} };
+      Object.defineProperty(vv, 'width', { get: () => root.clientWidth });
+      Object.defineProperty(vv, 'height', { get: () => root.clientHeight });
+      Object.defineProperty(window, 'visualViewport', { configurable: true, get: () => vv });
+    } catch (e) {}
+    if (window.ResizeObserver) {
+      let last = '';
+      new ResizeObserver(() => {
+        const now = root.clientWidth + 'x' + root.clientHeight;
+        if (now !== last) { last = now; window.dispatchEvent(new Event('resize')); }
+      }).observe(root);
+    }
+  })();
+  const help = document.getElementById('help');
+  const open = document.getElementById('open-help');
+  open.addEventListener('click', () => {
+    const shown = help.classList.toggle('shown');
+    open.setAttribute('aria-expanded', String(shown));
+    open.textContent = shown ? 'Back to the app' : 'Sign-in help';
+  });
+  document.getElementById('restart').addEventListener('click', () => {
+    try { localStorage.clear(); } catch (e) {}
+    location.href = window.__PB;
+  });
+  // A previous visit's sign-in would point at people this fresh database has not met.
+  try { localStorage.clear(); } catch (e) {}
+</script>
+<script>
+  { const m = document.createElement('script'); m.type = 'module'; m.src = window.__PB + 'demo.js'; document.body.appendChild(m); }
+</script>

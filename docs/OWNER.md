@@ -1936,6 +1936,20 @@ already: `…_foundations.sql`, then `…_accounts_and_technicians.sql`.
 
 ---
 
+## See the app without installing it
+
+Open **https://claude.ai/artifact/C5cHrZkaysrbB16jkGiqNG**. It is the real
+app with made-up people and jobs, running in the page.
+
+1. Tap **Continue with phone**.
+2. Type **300 111 2222** for Ayesha (a customer) or **300 333 4444** for
+   Bilal (a technician). Any other number makes a new account.
+3. The code is always **123456**.
+
+It forgets everything when the page reloads. It cannot use the camera, a
+real map, your location or notifications, so try those on your phone. Ask
+Claude to refresh it whenever the app changes.
+
 ## Try the app on your phone
 
 1. Go to **expo.dev** → team **fixmindss-team** → project **Pechkas App**

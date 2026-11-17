@@ -1362,6 +1362,16 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the app. Change it in both, and the terms, in the same week.
 
 ### Which copy is which
+- **The clickable demo** (https://claude.ai/artifact/C5cHrZkaysrbB16jkGiqNG,
+  the owner's request) is this app's web version with a real Postgres
+  (PGlite, every migration) running inside the page: made-up people, pretend
+  sign-in (any number, code 123456), nothing sent anywhere. Built by
+  `scripts/demo/build.sh`, checked by `scripts/demo/serve.mjs` and
+  `check.mjs`, then published to the same URL. **Refresh it after a change to
+  a screen or a migration**, or it shows him an older app. The example jobs
+  are added in the browser (`server.mjs`), so their days are always
+  tomorrow. The page cannot use a camera, a real map, location or
+  notifications, and says so.
 - **`NEWEST_MIGRATION` in `apps/mobile/src/version.ts` names the newest
   migration file**, and `npm run version:check` (part of `npm run check`)
   fails if it does not. Add a migration, change that line in the same
