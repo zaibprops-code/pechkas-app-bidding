@@ -7,16 +7,20 @@ import { DuoIcon } from '../components/DuoIcon';
 import { useAccount } from '../account';
 import { takePhoto, upload, type Media } from '../post/media';
 import { ask } from '../supabase';
+import { done, type Message } from '../message';
 import { fill, type ProWords } from '../words';
+import { ShortfallCard } from './PayPause';
 import { colour, font, radius } from '../theme';
 
 /**
  * Pay Pechkas, on My account. He pays OUTSIDE the app — JazzCash, Easypaisa
- * or the bank, to the account the office typed in — and then tells the
- * office here: the amount, how, the transaction ID and a screenshot
- * (claim_payment()). Nothing he sends lowers what he owes; only the
- * office's confirmation in the admin panel does, through the same ledger
- * rule as a payment typed in by hand. One claim waits at a time.
+ * or the bank, to the account the office typed in — and then tells Pechkas
+ * here: the amount, how, the transaction number and a screenshot
+ * (claim_payment()). A5: it counts at once, through the same ledger line the
+ * office's Confirm wrote; each transaction number once. For 30 days the
+ * office may mark it "Not received" or "Received less", and he sees what
+ * changed here (ShortfallCard). Nothing calls a payment "verified". A
+ * payment sent before A5 still waits for the office, as it did.
  */
 
 export type Claim = {
@@ -24,11 +28,20 @@ export type Claim = {
   amount_paisa: number;
   method: 'jazzcash' | 'easypaisa' | 'bank';
   reference: string;
-  status: 'pending' | 'confirmed' | 'rejected';
+  status: 'pending' | 'confirmed' | 'rejected' | 'counted' | 'not_received' | 'received_less';
   reason: string | null;
   created_at: string;
   decided_at: string | null;
+  final?: boolean;
+  final_at?: string | null;
+  correct_until?: string | null;
+  received_paisa?: number | null;
+  missing_paisa?: number | null;
+  corrected_at?: string | null;
+  note?: string | null;
 };
+
+const shortDay = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Karachi' });
 
 const METHODS = [
   ['jazzcash', 'JazzCash'],
@@ -37,17 +50,30 @@ const METHODS = [
 ] as const;
 const methodName = (m: string) => METHODS.find(([k]) => k === m)?.[1] ?? m;
 
-export function PayPechkas({ owed, payTo, claims, w, onSent }: { owed: number; payTo: string | null; claims: Claim[]; w: ProWords; onSent: () => void }) {
+export function PayPechkas({ owed, payTo, claims, w, onSent, correctDays = 30, strikeDays = 90, paused = false }: {
+  owed: number;
+  payTo: string | null;
+  claims: Claim[];
+  w: ProWords;
+  onSent: () => void;
+  correctDays?: number;
+  strikeDays?: number;
+  /** Paused by rule: the pause card says it all, so no shortfall card here as well. */
+  paused?: boolean;
+}) {
   const { session } = useAccount();
   const latest = claims[0] ?? null;
   const waiting = latest?.status === 'pending' ? latest : null;
+  // The newest payment the office corrected, for 30 days after it did.
+  const short = claims.find((c) => (c.status === 'not_received' || c.status === 'received_less') && c.corrected_at
+    && Date.now() - new Date(c.corrected_at).getTime() < 30 * 86400000) ?? null;
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState(String(Math.max(0, Math.round(owed / 100))));
   const [method, setMethod] = useState<Claim['method'] | null>(null);
   const [ref, setRef] = useState('');
   const [shot, setShot] = useState<Media | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<string | Message | null>(null);
   const [busy, setBusy] = useState(false);
 
   if (owed <= 0 && !latest) return null;
@@ -71,7 +97,7 @@ export function PayPechkas({ owed, payTo, claims, w, onSent }: { owed: number; p
     const early: Record<string, string> = {};
     if (!rupeesWhole) early.amount = 'Write the amount you sent.';
     if (!method) early.method = 'Choose how you paid.';
-    if (ref.trim().length < 3) early.reference = 'Write the transaction ID.';
+    if (ref.replace(/[^A-Za-z0-9]/g, '').length < 3) early.reference = 'Write the transaction number.';
     if (!shot) early.screenshot = 'Add a screenshot of the payment.';
     if (Object.keys(early).length) return setErrors(early);
     if (!session) return;
@@ -95,6 +121,7 @@ export function PayPechkas({ owed, payTo, claims, w, onSent }: { owed: number; p
     setOpen(false);
     setShot(null);
     setRef('');
+    setMsg(done(fill(w.payCountedNow, { amount: rupees(rupeesWhole * 100) })));
     onSent();
   }
 
@@ -132,6 +159,13 @@ export function PayPechkas({ owed, payTo, claims, w, onSent }: { owed: number; p
           <Text style={s.statusText}>{fill(w.payRejected, { amount: rupees(latest.amount_paisa), reason: latest.reason ?? '' })}</Text>
           {owed > 0 ? <Text style={s.note}>{w.payRejectedAgain}</Text> : null}
         </View>
+      ) : latest?.status === 'counted' ? (
+        <View style={[s.status, { backgroundColor: colour.greenSoft }]}>
+          <Text style={s.statusText}>
+            {fill(w.payCounted, { amount: rupees(latest.amount_paisa), method: methodName(latest.method), date: shortDay(latest.created_at) })}
+          </Text>
+          {latest.correct_until ? <Text style={s.note}>{fill(w.payCorrectable, { until: shortDay(latest.correct_until) })}</Text> : null}
+        </View>
       ) : latest?.status === 'confirmed' ? (
         <View style={[s.status, { backgroundColor: colour.greenSoft }]}>
           <Text style={s.statusText}>
@@ -140,10 +174,12 @@ export function PayPechkas({ owed, payTo, claims, w, onSent }: { owed: number; p
         </View>
       ) : null}
 
+      {short && !paused ? <ShortfallCard c={{ ...short, received_paisa: short.received_paisa ?? 0, missing_paisa: short.missing_paisa ?? null, corrected_at: short.corrected_at ?? null, note: short.note ?? null }} strikeDays={strikeDays} w={w} /> : null}
+
       {!waiting && owed > 0 && !open ? (
         <>
           <Button icon="arrowRight" label={w.iHavePaid} onPress={() => setOpen(true)} />
-          <Text style={s.note}>{w.payOutside}</Text>
+          <Text style={s.note}>{fill(w.payOutside, { days: correctDays })}</Text>
         </>
       ) : null}
 
@@ -200,7 +236,7 @@ export function PayPechkas({ owed, payTo, claims, w, onSent }: { owed: number; p
           </View>
           <Button kind="green" label={w.paySend} busy={busy} onPress={send} />
           <Button kind="outline" label={w.payCancel} onPress={() => setOpen(false)} />
-          <Text style={s.note}>{w.payOutside}</Text>
+          <Text style={s.note}>{fill(w.payOutside, { days: correctDays })}</Text>
         </View>
       ) : null}
       <Notice text={msg} />

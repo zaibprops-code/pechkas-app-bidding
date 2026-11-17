@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "5c88240";
+export const LEGAL_FROM = "5670b43";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -238,7 +238,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": ", the amount, how you paid, the transaction ID and the screenshot you add, which only the office sees, to check the money arrived. A screenshot may show the account you paid from."
+              "t": ", the amount, how you paid, the transaction number and the screenshot you add, which only the office sees, to check the money arrived; and, if it did not arrive in full, what the office found and wrote. A screenshot may show the account you paid from."
             }
           ],
           [
@@ -2274,7 +2274,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "After each of these jobs the customer answers four questions: were you on time, did you explain the work before starting, did you leave the place clean, and does it work. A job counts as good when all four are yes, your before and after photos are in, no guarantee claim stands against it, the Pechkas fee on it is paid, and the customer is a real, separate person: a number checked by SMS that is not yours, a home some distance from the others, not a customer who already counted for you, and an account older than your application or one used for jobs with other technicians. The app shows you which jobs counted, and why the others did not."
+              "t": "After each of these jobs the customer answers four questions: were you on time, did you explain the work before starting, did you leave the place clean, and does it work. A job counts as good when all four are yes, your before and after photos are in, no guarantee claim stands against it, the Pechkas fee on it is paid (a payment you send in the app counts for this 3 days after you send it), and the customer is a real, separate person: a number checked by SMS that is not yours, a home some distance from the others, not a customer who already counted for you, and an account older than your application or one used for jobs with other technicians. The app shows you which jobs counted, and why the others did not."
             }
           ],
           [
@@ -2655,7 +2655,27 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " on My account with the transaction ID and a screenshot, or for cash give it to the office in person. What you owe goes down once the office has confirmed the money arrived."
+              "t": " on My account with the transaction number and a screenshot, or for cash give it to the office in person. A payment you send in the app counts at once: what you owe goes down when you send it. Each transaction number can be used only once. Cash counts once the office records it."
+            }
+          ],
+          [
+            {
+              "t": "For 30 days after you send a payment, the office may find it did not arrive, or that less arrived.",
+              "b": true
+            },
+            {
+              "t": " It then adds the missing amount back to what you owe, tells you in the app what it found, and notes it on your record. A first job that counted on that money waits again until the missing amount is paid, and so does a trade it approved. "
+            },
+            {
+              "t": "If this happens a second time within 90 days, your new offers are paused",
+              "b": true
+            },
+            {
+              "t": " until the office lifts the pause. Jobs you already have go on, and you can still pay what you owe. You can write to Pechkas about it in the app, and the office answers in writing there. "
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: notice and review of a pause for payments that did not arrive.]",
+              "mark": true
             }
           ],
           [
@@ -2676,14 +2696,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Payments, and money Pechkas owes you that it has not yet paid out, pay your oldest fees first. While the office checks an "
-            },
-            {
-              "t": "I have paid",
-              "b": true
-            },
-            {
-              "t": ", that amount counts as paid for your offers, however long the check takes."
+              "t": "Payments, and money Pechkas owes you that it has not yet paid out, pay your oldest fees first."
             }
           ],
           [

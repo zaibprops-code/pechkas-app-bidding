@@ -74,7 +74,7 @@ const TECHNICIAN: QA[] = [
   },
   {
     q: 'How do I pay what I owe Pechkas?',
-    a: 'My account shows what you owe, each fee\u2019s due date and where to send the money. Each fee is due 14 days after the job, with 3 days of grace; after that your new offers stop until it is paid, with no fee or interest. After paying, tap I have paid there and add the transaction ID and a screenshot: while the office checks it, that amount counts as paid. What you owe goes down once the office confirms the money arrived.',
+    a: 'My account shows what you owe, each fee\u2019s due date and where to send the money. Each fee is due 14 days after the job, with 3 days of grace; after that your new offers stop until it is paid, with no fee or interest. After paying, tap I have paid there and add the transaction number and a screenshot. It counts at once, and each transaction number can be used only once. If the money does not reach Pechkas, the office can correct it within 30 days. If that happens twice within 90 days, your new offers are paused until the office lifts the pause; you can write to Pechkas about it in the app.',
   },
   {
     q: 'Why can I not make offers?',

@@ -717,7 +717,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   service yet: building it is the job when the owner has one (D37.2).
 - **A trial job counts only through `trial_review()`**: all four answers
   yes, before and after photos, no claim, no payment case, its
-  `commission:<job>` posting paid per `pay_fees`, the gap setting set, and
+  `commission:<job>` posting paid by final money (`fee_paid_final()`, A5:
+  his own payment is final 3 days after he sends it), the gap setting set, and
   `trial_customer_why()` NULL. Anything not yet known waits; anything
   permanent is `not_counted` with its `why`. A covered claim later flips a
   good one and can put an approved trade back on trial. Pauses by rule are
@@ -1144,13 +1145,39 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   screenshot from the gallery, uploaded to his own folder. `claim_payment()`
   refuses more than he owes, a screenshot that is not his, not uploaded or
   used before, and a second claim while one waits; the office's phones are
-  told. **A claim is a message, never a payment: nothing lowers what he
-  owes until the office presses Confirm** in admin **Money → Payments to
-  confirm**, which goes through `admin_settle()` keyed `claim:<id>`, so the
-  ledger rules, the limit check and the "received" message to him are the
-  same as typing it in, and it records once. **Not received** needs a
-  reason; he is told it was not confirmed and reads the reason only in the
-  app (`pay.test.mjs`). Cash is still given in person and recorded by hand.
+  told. Since A5 (below) a claim counts at once; claims still `pending` from
+  before it are the office's, under this old rule: Confirm goes through
+  `admin_settle()` keyed `claim:<id>`, **Not received** needs a reason.
+  Cash is still given in person and recorded by hand.
+- **A5 (the owner, 17 November 2026; migration `…_payments_count_at_once`):
+  his "I have paid" counts at once.** `claim_payment()` writes the same
+  `settle:claim:<id>` line Confirm wrote, so D36 and the limit see it at
+  once, and tells nobody: the office has **Money → Payments to check**
+  (`admin_payments_to_check()`, oldest first, days left of the 30) and
+  `payments_to_check_clock()` tells it once a day at most. **A transaction
+  number is used once, ever** (`tx_key()`: letters and digits, capitals;
+  `payment_claims_ref_once`). **Never call it "verified"** — the tests read
+  every refusal and message. **Final after `claim_final_days` (3, calendar
+  days — no holiday list)** for counting trial jobs only: `credit_final()`,
+  `fee_paid_final()`, which `trial_review()` asks instead of `pay_fees`.
+  **`admin_claim_correct(claim, received, note)`** within
+  `claim_correct_days` (30): reverses the claim's line in full and, for
+  "Received less", posts what arrived as a new line (`settle:claim:<id>:
+  received`) — the ledger knows a line as live or reversed, never half, so
+  never post a partial reversal. A flag (`short_payments`) every time;
+  `trial_after_shortfall()` sends a first job that counted on that money
+  back to waiting and its trade back to trial, and the clock counts it
+  again once the missing amount is paid and final. **The second within
+  `claim_strike_days` (90) pauses his new offers by rule** (`pay_pauses`,
+  `pay_paused()`, folded into `pro_paused()` so every door stops him;
+  `pro_pause_until()` stays the office's dated pause alone). No end date:
+  he writes `pro_pay_appeal()`, the office answers `admin_pay_pause(lift |
+  keep, note)` under **Exceptions**, and an appeal unanswered for
+  `pay_appeal_remind_days` (3) is a reminder there. All four numbers are
+  locked: the technician agreement states them. A payment company can make
+  a claim final later through `payment_provider_result()`, granted to
+  `service_role` only; nothing calls it yet. Tests: `pay.test.mjs`, and the
+  A5 section of `firstjobs.test.mjs`.
 - **Payments are recorded by the office only** (`admin_settle()`), with a
   method, a reference and the form's own key; more than he owes is refused
   as a typing mistake; concurrent payments for one man are serialised with

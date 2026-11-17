@@ -304,7 +304,7 @@ heading('Several hundred random sequences: the accounts are sound after every st
   ok('and it really did all of those', steps === 300);
 }
 
-heading('A waiting "I have paid" protects only its amount, until the office decides');
+heading('A waiting "I have paid" sent before A5 protects only its amount, until the office decides');
 {
   const a = await debt(KAMRAN, 300);
   const b = await debt(KAMRAN, 200);
@@ -313,7 +313,9 @@ heading('A waiting "I have paid" protects only its amount, until the office deci
   ok('Rs 500 overdue', Number((await state(KAMRAN)).overdue_paisa) === 50000 && (await blocked(KAMRAN)) === true);
   const shot = `${KAMRAN}/paid-1.jpg`;
   await as('authenticated', KAMRAN, `INSERT INTO storage.objects (bucket_id, name) VALUES ('job-media', $1)`, [shot]);
-  ok('he says he paid Rs 200', (await me(KAMRAN, `SELECT public.claim_payment(20000, 'jazzcash', 'TX778899', $1)`, [shot])).value?.ok === true);
+  // Sent before A5 (17 November 2026): it waits for the office, under the old rule. New ones count at once (pay.test.mjs).
+  const OLD = `INSERT INTO public.payment_claims (pro_id, amount_paisa, method, reference, screenshot_path) VALUES ($1, $2, $3, $4, $5) RETURNING id`;
+  ok('he had said he paid Rs 200', (await setup(OLD, [KAMRAN, 20000, 'jazzcash', 'TX778899', shot])).rows.length === 1);
   let s = await state(KAMRAN);
   ok('Rs 200 is protected, on the oldest fee; Rs 300 still overdue, still stopped',
     Number((await feeOf(KAMRAN, a)).protected) === 20000 && Number((await feeOf(KAMRAN, b)).protected) === 0
@@ -323,7 +325,7 @@ heading('A waiting "I have paid" protects only its amount, until the office deci
   ok('the office did not find it: protection gone', Number((await state(KAMRAN)).overdue_paisa) === 50000);
   const shot2 = `${KAMRAN}/paid-2.jpg`;
   await as('authenticated', KAMRAN, `INSERT INTO storage.objects (bucket_id, name) VALUES ('job-media', $1)`, [shot2]);
-  await me(KAMRAN, `SELECT public.claim_payment(50000, 'easypaisa', 'EP445566', $1)`, [shot2]);
+  await setup(OLD, [KAMRAN, 50000, 'easypaisa', 'EP445566', shot2]);
   s = await state(KAMRAN);
   ok('a claim for all of it: nothing stopped while the office checks', s.blocked === false && Number(s.overdue_paisa) === 0
     && (await offerField(KAMRAN)) !== 'overdue');

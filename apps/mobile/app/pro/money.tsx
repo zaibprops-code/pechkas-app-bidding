@@ -14,6 +14,7 @@ import { FeeState, type VisitFee } from '../../src/pro/OnTheJob';
 import { RecordCard, type ProRecord } from '../../src/pro/Record';
 import { UnpaidCard, type PaymentJob } from '../../src/pro/Unpaid';
 import { PayDatesCard, RefundCharges, type PayState, type RefundCharge } from '../../src/pro/PayDates';
+import { PayPauseCard } from '../../src/pro/PayPause';
 import { supabase } from '../../src/supabase';
 import { fill, useProWords } from '../../src/words';
 import { colour, font, radius } from '../../src/theme';
@@ -122,6 +123,9 @@ export default function MoneyScreen() {
               ) : null}
             </View>
 
+            {/* A5: paused by rule after two payments not received in full: why, and his appeal. */}
+            {m.pay?.pay_pause ? <PayPauseCard pause={m.pay.pay_pause} w={w} onChanged={load} /> : null}
+
             {/* D37: his first jobs and what each trade opens, and checks he is asked to do. */}
             <RowCard>
               <DuoRow icon="shield" label={w.firstJobsRow} value={w.firstJobsRowHint} onPress={() => router.push('/pro/first-jobs')} />
@@ -130,7 +134,16 @@ export default function MoneyScreen() {
 
             {m.pay ? <PayDatesCard pay={m.pay} w={w} /> : null}
 
-            <PayPechkas owed={m.owed_paisa} payTo={m.pay_to} claims={claims} w={w} onSent={load} />
+            <PayPechkas
+              owed={m.owed_paisa}
+              payTo={m.pay_to}
+              claims={claims}
+              w={w}
+              onSent={load}
+              correctDays={m.pay?.correct_days ?? 30}
+              strikeDays={m.pay?.strike_days ?? 90}
+              paused={Boolean(m.pay?.pay_pause)}
+            />
 
             <UnpaidCard jobs={unpaid} w={w} onChanged={load} />
 

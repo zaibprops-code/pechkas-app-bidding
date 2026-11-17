@@ -90,6 +90,7 @@ export function Money() {
             <Tile label="Earned (commission)" value={rupees(d.totals.commission_paisa)} />
             <Tile label="Guarantee reserve" value={rupees(d.totals.reserve_paisa)} />
           </div>
+          <PaymentsToCheck onChanged={load} />
           <Claims onChanged={load} />
           <OwedToPros onChanged={load} />
           <PayTo current={d.pay_to} onSaved={load} />
@@ -149,15 +150,14 @@ function Claims({ onChanged }: { onChanged: () => void }) {
   }, [load]);
 
   if (problem) return <p className="error" role="alert">{problem}</p>;
-  if (!list) return null;
+  // A5: new payments count at once and go to Payments to check. Only those sent before the change wait here.
+  if (!list || list.length === 0) return null;
   return (
     <section className="alerts">
-      <h2>Payments to confirm{list.length ? ` (${list.length})` : ''}</h2>
-      {list.length === 0 ? (
-        <p className="muted">None waiting. When a technician taps I have paid, his payment appears here with its screenshot.</p>
-      ) : (
+      <h2>Payments to confirm, from before the new rule ({list.length})</h2>
+      {list.length === 0 ? null : (
         <>
-          <p className="muted">Check each payment has arrived in your account, then confirm it. Nothing changes until you do.</p>
+          <p className="muted">Sent before payments started counting at once. Check each has arrived in your account, then confirm it. Nothing changes until you do.</p>
           <div className="list">
             {list.map((c) => (
               <ClaimCard key={c.id} c={c} onDone={() => { load(); onChanged(); }} />
@@ -242,6 +242,200 @@ function ClaimCard({ c, onDone }: { c: Claim; onDone: () => void }) {
         <div className="buttons">
           <button disabled={busy} onClick={confirm}>Confirm {rupees(c.amount_paisa)} received</button>
           <button className="secondary" disabled={busy} onClick={() => setRejecting(true)}>Not received</button>
+        </div>
+      )}
+      {msg ? <p className="error" role="alert">{msg}</p> : null}
+    </article>
+  );
+}
+
+type ToCheck = {
+  id: string;
+  pro_name: string;
+  amount_paisa: number;
+  method: string;
+  reference: string;
+  screenshot_path: string;
+  created_at: string;
+  final?: boolean;
+  days_left: number;
+  owed_paisa?: number;
+  arrived_at?: string;
+  arrived_by?: string | null;
+};
+type Corrected = {
+  id: string;
+  pro_name: string;
+  amount_paisa: number;
+  received_paisa: number;
+  method: string;
+  reference: string;
+  status: 'not_received' | 'received_less';
+  note: string;
+  corrected_at: string;
+  corrected_by: string | null;
+};
+type CheckData = { correct_days: number; final_days: number; to_check: ToCheck[]; arrived: ToCheck[]; corrected: Corrected[] };
+
+/**
+ * A5: a technician's "I have paid" counts at once. Nothing here has to be
+ * pressed for a payment that arrived; "It arrived" only takes it off the
+ * list. When one did not arrive, or less did, within 30 days: the missing
+ * amount goes back on what he owes, and he gets a flag. A second time
+ * within 90 days pauses his new offers until you lift it under Exceptions.
+ * The office hears about this list once a day at most.
+ */
+function PaymentsToCheck({ onChanged }: { onChanged: () => void }) {
+  const [d, setD] = useState<CheckData | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase.rpc('admin_payments_to_check');
+    // A database without the A5 change: say nothing rather than an error.
+    if (error) return setProblem(/admin_payments_to_check/.test(error.message) ? null : `Could not load payments to check: ${error.message}`);
+    setProblem(null);
+    setD(data as CheckData);
+  }, []);
+
+  useEffect(() => {
+    load();
+    const t = setInterval(load, 30000);
+    return () => clearInterval(t);
+  }, [load]);
+
+  if (problem) return <p className="error" role="alert">{problem}</p>;
+  if (!d) return null;
+  const after = () => {
+    load();
+    onChanged();
+  };
+  return (
+    <section className="alerts">
+      <h2>Payments to check{d.to_check.length ? ` (${d.to_check.length})` : ''}</h2>
+      <p className="muted">
+        Each of these already counts: what he owes went down when he sent it. Check it reached your account. If it did not, or less
+        arrived, correct it within {d.correct_days} days: the missing amount goes back on what he owes and he gets a flag. A second
+        time within 90 days pauses his new offers until you lift the pause under Exceptions.
+      </p>
+      {d.to_check.length === 0 ? <p className="muted">Nothing to check.</p> : null}
+      <div className="list">
+        {d.to_check.map((c) => (
+          <CheckCard key={c.id} c={c} finalDays={d.final_days} onDone={after} />
+        ))}
+      </div>
+      {d.arrived.length ? (
+        <details>
+          <summary>Marked as arrived, still correctable ({d.arrived.length})</summary>
+          <div className="list">
+            {d.arrived.map((c) => (
+              <CheckCard key={c.id} c={c} finalDays={d.final_days} onDone={after} />
+            ))}
+          </div>
+        </details>
+      ) : null}
+      {d.corrected.length ? (
+        <details>
+          <summary>Corrected in the last 90 days ({d.corrected.length})</summary>
+          <ul>
+            {d.corrected.map((c) => (
+              <li key={c.id}>
+                {c.pro_name}: said {rupees(c.amount_paisa)} by {METHODS.find(([k]) => k === c.method)?.[1] ?? c.method} ({c.reference}),{' '}
+                {c.status === 'not_received' ? 'nothing arrived' : `${rupees(c.received_paisa)} arrived`}. “{c.note}” {c.corrected_by ?? ''},{' '}
+                {time(c.corrected_at)}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+    </section>
+  );
+}
+
+function CheckCard({ c, finalDays, onDone }: { c: ToCheck; finalDays: number; onDone: () => void }) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [mode, setMode] = useState<null | 'none' | 'less'>(null);
+  const [received, setReceived] = useState('');
+  const [note, setNote] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    supabase?.storage
+      .from('job-media')
+      .createSignedUrls([c.screenshot_path], 3600)
+      .then(({ data }) => setUrl(data?.[0]?.signedUrl ?? null));
+  }, [c.screenshot_path]);
+
+  async function arrived() {
+    setBusy(true);
+    const r = await ask('admin_claim_arrived', { p_claim: c.id });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    onDone();
+  }
+
+  async function correct() {
+    const rupeesIn = mode === 'none' ? 0 : Number(received.replace(/[^0-9]/g, ''));
+    if (mode === 'less' && !received.trim()) return setMsg('Write how much arrived.');
+    setBusy(true);
+    const r = await ask('admin_claim_correct', { p_claim: c.id, p_received_paisa: rupeesIn * 100, p_note: note });
+    setBusy(false);
+    if (!r.ok) return setMsg(r.why);
+    onDone();
+  }
+
+  const method = METHODS.find(([k]) => k === c.method)?.[1] ?? c.method;
+  return (
+    <article className="card">
+      <div className="card-head">
+        <div>
+          <h2>{c.pro_name}</h2>
+          <p className="muted">
+            sent {time(c.created_at)}
+            {c.owed_paisa !== undefined ? ` · owes ${rupees(c.owed_paisa)} now` : ''}
+            {c.arrived_at ? ` · marked arrived by ${c.arrived_by ?? 'the office'}` : ''}
+          </p>
+        </div>
+        <div className="price">
+          <strong>{rupees(c.amount_paisa)}</strong>
+          <span className="muted">{method}</span>
+        </div>
+      </div>
+      <p>
+        <strong>Transaction number:</strong> {c.reference}
+      </p>
+      <p className="muted">
+        {c.days_left} of 30 days left to correct it.
+        {c.final === false ? ` A first job paid by it counts once it is ${finalDays} days old.` : ''}
+      </p>
+      {url ? (
+        <a href={url} target="_blank" rel="noreferrer">
+          <img src={url} alt={`Screenshot of ${c.pro_name}'s payment`} className="shot" />
+        </a>
+      ) : (
+        <p className="muted">Loading the screenshot…</p>
+      )}
+      {mode ? (
+        <div className="row">
+          {mode === 'less' ? (
+            <label>
+              What arrived (Rs)
+              <input inputMode="numeric" value={received} onChange={(e) => setReceived(e.target.value)} placeholder="500" />
+            </label>
+          ) : null}
+          <label className="grow">
+            What you found (he reads this in the app)
+            <input value={note} maxLength={200} onChange={(e) => setNote(e.target.value)} placeholder="Nothing from this number reached our JazzCash." />
+          </label>
+          <button disabled={busy} onClick={correct}>{mode === 'none' ? 'Not received' : 'Received less'}</button>
+          <button className="secondary" disabled={busy} onClick={() => setMode(null)}>Back</button>
+        </div>
+      ) : (
+        <div className="buttons">
+          {!c.arrived_at ? <button disabled={busy} onClick={arrived}>It arrived</button> : null}
+          <button className="secondary" disabled={busy} onClick={() => setMode('none')}>Not received</button>
+          <button className="secondary" disabled={busy} onClick={() => setMode('less')}>Received less…</button>
         </div>
       )}
       {msg ? <p className="error" role="alert">{msg}</p> : null}

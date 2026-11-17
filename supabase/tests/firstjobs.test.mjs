@@ -325,6 +325,8 @@ await arrive(IMRAN, first);
 
 // =============================================================================
 heading('Her four questions, and what makes a good job');
+let thirdJob;
+let thirdPaid;
 
 {
   ok('the questions wait until the work is finished', (await me(AYESHA, ANSWER, [first, true, true, true])).value?.ok === false);
@@ -361,9 +363,16 @@ heading('Her four questions, and what makes a good job');
   await clock();
   ok('an account made after he applied, with no other job, does not', (await trial(fresh))?.why === 'new_account');
   const third = await wholeJob(IMRAN, NIDA);
-  await pay(IMRAN);
+  thirdJob = third;
+  // A5: he pays this one himself, in the app. It counts at once for what he owes;
+  // a first job waits until the payment is final, 3 days on.
+  thirdPaid = (await me(IMRAN, `SELECT public.claim_payment($1, 'jazzcash', 'IMRAN-THIRD', $2)`, [await owed(IMRAN), await upload(IMRAN)])).value;
+  ok('he pays its commission himself: it counts at once', thirdPaid?.ok === true && (await owed(IMRAN)) === 0, JSON.stringify(thirdPaid));
   await clock();
-  ok('a third real customer counts', (await trial(third))?.status === 'good');
+  ok('but the first job waits until his payment is final', (await trial(third))?.status === 'waiting');
+  await setup(`UPDATE public.payment_claims SET final_at = now() - interval '1 minute' WHERE id = $1`, [thirdPaid.id]);
+  await clock();
+  ok('three days on, a third real customer counts', (await trial(third))?.status === 'good');
   ok('three good jobs, but no verified identity: still on trial limits',
     (await trade(IMRAN, 'ac'))?.status === 'trial' && (await level(IMRAN, 'ac')) === 'trial');
   const mine = (await me(IMRAN, `SELECT public.my_trades()`)).value;
@@ -404,6 +413,28 @@ heading('Identity: a service plugged in later, never a card number');
   ok('past the deadline after the service went live, Bilal drops to trial limits by rule', (await level(BILAL, 'ac')) === 'trial');
   await setup(`UPDATE public.identity_service SET live_since = now()`);
   ok('within it, not', (await level(BILAL, 'ac')) === 'full');
+}
+
+// =============================================================================
+heading('A5: a first job whose payment did not arrive in full');
+
+{
+  ok('his AC trade is approved', (await trade(IMRAN, 'ac'))?.status === 'approved');
+  const r = (await me(OWNER, `SELECT public.admin_claim_correct($1, 10000, 'Only Rs 100 reached JazzCash')`, [thirdPaid.id])).value;
+  ok('the office marks its payment "Received less: Rs 100"', r?.ok === true && r.paused === false, JSON.stringify(r));
+  ok('the first job that counted on it waits again', (await trial(thirdJob))?.status === 'waiting');
+  ok('and the AC trade it approved is back on trial', (await trade(IMRAN, 'ac'))?.status === 'trial' && (await level(IMRAN, 'ac')) === 'trial');
+  ok('the other two still count', (await setup(`SELECT count(*)::int AS n FROM public.trial_jobs WHERE pro_id = $1 AND status = 'good'`, [IMRAN])).rows[0].n === 2);
+  await clock();
+  ok('the clock does not count it while money is missing', (await trial(thirdJob))?.status === 'waiting');
+  const again = (await me(IMRAN, `SELECT public.claim_payment($1, 'jazzcash', 'IMRAN-THIRD-REST', $2)`, [await owed(IMRAN), await upload(IMRAN)])).value;
+  ok('he pays the missing amount', again?.ok === true && (await owed(IMRAN)) === 0);
+  await clock();
+  ok('not final yet: it still waits', (await trial(thirdJob))?.status === 'waiting');
+  await setup(`UPDATE public.payment_claims SET final_at = now() - interval '1 minute' WHERE id = $1`, [again.id]);
+  await clock();
+  ok('final: the job counts again, and his AC trade is approved again',
+    (await trial(thirdJob))?.status === 'good' && (await trade(IMRAN, 'ac'))?.status === 'approved' && (await level(IMRAN, 'ac')) === 'basic');
 }
 
 // =============================================================================

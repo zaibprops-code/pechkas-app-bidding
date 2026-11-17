@@ -7,6 +7,57 @@ running database changes, and where every account and setting lives.
 
 ## Where things stand
 
+**Edition 8 is THREE database steps and ONE build, all on the same day:**
+the two first-jobs files below, then the payments file here, then one
+preview build. Do not make a build in between.
+
+**A technician's payment counts at once (A5, decided 17 November 2026).**
+
+1. **Supabase → SQL Editor**: after the two first-jobs files below, run
+   `supabase/migrations/20261117000000_payments_count_at_once.sql`. It
+   should say **Success**. Safe to run twice.
+2. Then make the one **preview** build (edition 8) for all three.
+
+What happens now:
+
+- **You no longer confirm payments.** When a technician taps **I have
+  paid** (amount, JazzCash / Easypaisa / bank, transaction number,
+  screenshot), what he owes goes down at once, and his offers start again
+  at once if that payment was what stopped them. Each transaction number
+  can be used only once. Nothing calls it "verified".
+- **Admin → Money → Payments to check** lists them, oldest first, with the
+  screenshot and how many of the 30 days are left. You are told at most
+  once a day: "5 payments to check". Nothing has to be pressed for a
+  payment that arrived; **It arrived** just takes it off the list.
+- **If one did not arrive, or less did** (within 30 days): **Not received**,
+  or **Received less…** with the rupees that arrived, and a few words he
+  reads in the app. What he owes goes back up by exactly the missing amount
+  and he gets a flag. A first job that counted on that money waits again
+  (and a trade it approved goes back to trial) until he pays the rest and
+  3 days pass.
+- **A second time within 90 days pauses his new offers by rule.** Jobs he
+  has go on. It has no end date: it ends when you lift it under **Admin →
+  Exceptions → Paused for payments**, where his written appeal appears.
+  Keep it or lift it, always with a few words. If his appeal waits more
+  than 3 days, Exceptions shows a red reminder at the top.
+- For first jobs, a payment counts 3 days after he sends it (calendar
+  days, no holiday list).
+- Payments sent before this change still wait for you under **Payments to
+  confirm, from before the new rule**, exactly as before.
+
+**Try it (test accounts):**
+
+| Do this | You should see |
+|---|---|
+| As a technician who owes something: **My account → Pay Pechkas → I have paid**, Rs 500 | "Counted: Rs 500 …" and what he owes drops at once |
+| Send another payment with the same transaction number | "This transaction number has already been used." |
+| **Admin → Money → Payments to check** | His payment, its screenshot, "30 of 30 days left" |
+| **Received less…**, Rs 200, a note | His My account: "Pechkas did not receive your payment in full", Rs 300 added back |
+| A second payment, **Not received** | His Jobs screen: "Your new offers are paused"; **Admin → Exceptions** lists him |
+| As him, write to Pechkas; as you, **Lift the pause** with a note | He is told, and can make offers again |
+
+---
+
 **A new technician's first jobs (D37) — TWO database steps, then a new build, together.**
 
 Run both and install the new build on the same day: from the first step on,
@@ -17,7 +68,8 @@ a new technician uses to be approved by rule.
    `supabase/migrations/20261113000000_first_jobs.sql`, then
    `supabase/migrations/20261113100000_quiz_questions.sql`. Each should say
    **Success**. Both are safe to run twice.
-2. Make a new **preview** build. **This is edition 8.** Ask older copies to
+2. Make a new **preview** build (the same one as the payments step above —
+   one build for all three files). **This is edition 8.** Ask older copies to
    update only once edition 8 is in the Play Store: an older customer's copy
    cannot answer "Is this Imran?" at the door, so his technician could not
    start.
@@ -631,8 +683,10 @@ To try it: post a job for today with a low price and wait 20 minutes
 without offering. The **No offers yet** card appears; raise the price and
 check the technician's phone gets the new price.
 
-**Pay Pechkas: technicians tell you in the app that they have paid (new —
-ONE database step, then a new build).** Nothing in the app holds or moves
+**Pay Pechkas: technicians tell you in the app that they have paid (since
+A5, 17 November 2026, a payment counts at once and you only correct the
+ones that did not arrive: see the top of this file. What follows is how it
+worked before).** Nothing in the app holds or moves
 money: a technician still pays you by JazzCash, Easypaisa or bank, outside
 the app. What is new is that he can tell you so, with proof, and you
 confirm it with one click.

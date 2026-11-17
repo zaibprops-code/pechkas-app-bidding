@@ -12,6 +12,10 @@ import { Evidence, when } from './Guarantee.tsx';
  *
  *  - safety reports, and "not the man in the photo" at a customer's door;
  *  - appeals against a pause by rule;
+ *  - a pause by rule for payments (A5): two payments not received in full
+ *    within 90 days. Only the office lifts it; an appeal unanswered for 3
+ *    days is shown as a reminder, so nobody stays paused because the office
+ *    was busy;
  *  - a new photo after the lock (the owner alone);
  *  - a trade where somebody has earned a checked risky job and nobody can
  *    check him yet: an outside assessor, arranged by email (the owner alone).
@@ -61,7 +65,29 @@ type Outside = {
   when_from: number | null;
   answer_by: string | null;
 };
-type Data = { is_owner: boolean; reports: Report[]; appeals: Appeal[]; face_changes: FaceChange[]; need_assessor: NeedAssessor[]; outside: Outside[] };
+type PayPause = {
+  id: string;
+  pro: string;
+  since: string;
+  owed_paisa: number;
+  waiting_days: number | null;
+  remind: boolean;
+  view: {
+    strikes: { created_at: string; method: string; reference: string; amount_paisa: number; received_paisa: number }[];
+    appeal: { words: string; at: string; status: 'waiting' | 'kept' | 'lifted'; note: string | null } | null;
+  };
+};
+type Data = {
+  is_owner: boolean;
+  reports: Report[];
+  appeals: Appeal[];
+  face_changes: FaceChange[];
+  need_assessor: NeedAssessor[];
+  outside: Outside[];
+  pay_pauses?: PayPause[];
+  remind_days?: number;
+};
+const rs = (paisa: number) => `Rs ${Math.round(paisa / 100).toLocaleString('en-PK')}`;
 
 const KIND: Record<Report['kind'], string> = {
   safety: 'Safety report from the customer',
@@ -97,7 +123,9 @@ export function Exceptions() {
     return () => clearInterval(t);
   }, [load]);
 
-  const count = d ? d.reports.length + d.appeals.length + d.face_changes.length + d.need_assessor.length + d.outside.length : 0;
+  const pauses = d?.pay_pauses ?? [];
+  const overdue = pauses.filter((p) => p.remind).length;
+  const count = d ? d.reports.length + d.appeals.length + d.face_changes.length + d.need_assessor.length + d.outside.length + pauses.length : 0;
   return (
     <>
       <Head icon="bell" title="Exceptions" />
@@ -111,6 +139,12 @@ export function Exceptions() {
       {problem ? <p className="error" role="alert">{problem}</p> : null}
       {!d && !problem ? <p className="lead">Loading…</p> : null}
       {d && count === 0 ? <p className="card">Nothing needs you.</p> : null}
+      {overdue ? (
+        <p className="card urgent" role="alert">
+          Reminder: {overdue === 1 ? 'a technician has' : `${overdue} technicians have`} waited more than {d?.remind_days ?? 3} days for your
+          answer about a payment pause. He cannot make offers until you answer.
+        </p>
+      ) : null}
       {d ? (
         <div className="stack">
           {d.reports.length ? <h2>Reports ({d.reports.length})</h2> : null}
@@ -123,6 +157,12 @@ export function Exceptions() {
           <div className="list">
             {d.appeals.map((a) => (
               <AppealCard key={a.id} a={a} onDone={load} />
+            ))}
+          </div>
+          {pauses.length ? <h2>Paused for payments ({pauses.length})</h2> : null}
+          <div className="list">
+            {pauses.map((p) => (
+              <PayPauseCard key={p.id} p={p} onDone={load} />
             ))}
           </div>
           {d.face_changes.length ? <h2>New photos, for the owner ({d.face_changes.length})</h2> : null}
@@ -257,6 +297,59 @@ function AppealCard({ a, onDone }: { a: Appeal; onDone: () => void }) {
           <button className="danger" disabled={busy} onClick={() => go('admin_trade_appeal', { p_appeal: a.id, p_lift: false, p_note: note })}>
             Keep it
           </button>
+        </div>
+        {msg ? <p className="error" role="alert">{msg}</p> : null}
+      </section>
+    </article>
+  );
+}
+
+/** A5: paused by rule after two payments not received in full. It ends only when the office lifts it. */
+function PayPauseCard({ p, onDone }: { p: PayPause; onDone: () => void }) {
+  const { note, setNote, msg, busy, go } = useDecide(onDone);
+  const a = p.view.appeal;
+  const waiting = a?.status === 'waiting';
+  return (
+    <article className={p.remind ? 'card urgent' : 'card'}>
+      <p className="kind">
+        {p.remind ? `Reminder: his appeal has waited ${p.waiting_days} days. ` : ''}
+        Paused by rule: two payments not received in full within 90 days
+      </p>
+      <h2>{p.pro}</h2>
+      <p className="muted">
+        Paused {when(p.since)} · owes {rs(p.owed_paisa)} now{waiting ? ` · appealed ${when(a.at)}` : ''}
+      </p>
+      <div className="evidence">
+        <h3>The two payments</h3>
+        <ul className="extras">
+          {p.view.strikes.map((x) => (
+            <li key={x.created_at}>
+              {when(x.created_at)}: said {rs(x.amount_paisa)} ({x.reference}), {x.received_paisa > 0 ? `${rs(x.received_paisa)} arrived` : 'nothing arrived'}
+            </li>
+          ))}
+        </ul>
+      </div>
+      {a ? (
+        <div className="evidence">
+          <h3>{waiting ? 'His appeal' : `His last appeal (${a.status === 'kept' ? 'you kept the pause' : 'answered'})`}</h3>
+          <p className="about">“{a.words}”</p>
+          {a.note && !waiting ? <p className="muted">Your answer: “{a.note}”</p> : null}
+        </div>
+      ) : (
+        <p className="muted">He has not written yet. You can lift the pause without waiting for him.</p>
+      )}
+      <section className="decide">
+        <label>
+          Your answer (he reads it)
+          <textarea rows={3} maxLength={300} value={note} onChange={(e) => setNote(e.target.value)} />
+        </label>
+        <div className="buttons">
+          <button disabled={busy} onClick={() => go('admin_pay_pause', { p_pause: p.id, p_lift: true, p_note: note })}>Lift the pause</button>
+          {waiting ? (
+            <button className="danger" disabled={busy} onClick={() => go('admin_pay_pause', { p_pause: p.id, p_lift: false, p_note: note })}>
+              Keep it
+            </button>
+          ) : null}
         </div>
         {msg ? <p className="error" role="alert">{msg}</p> : null}
       </section>

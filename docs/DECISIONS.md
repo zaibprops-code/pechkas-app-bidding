@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 17 November 2026 (A5 revised: a technician's payment counts at once; not built yet). The same list as a map you can tap through:
+_Last updated: 17 November 2026 (A5 decided and built: a technician's payment counts at once). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -475,9 +475,9 @@ Each one happens in real life; today the office handles it by hand.
     and were left alone; under the standing rule (no visits, no calls), say
     whether they are still true. **You.**
 - **Next routine step to remove (the owner, 13 November 2026):** A5, the
-  office confirming every "I have paid". **Decided 17 November 2026 as the
-  new A5** (counts at once, final after 3 business days for trial jobs);
-  until it is built, a good first job still waits for the office.
+  office confirming every "I have paid". **Done 17 November 2026** (the
+  new A5): a payment counts at once and is final for first jobs after 3
+  days, so a good first job no longer waits for the office.
 
 #### D38. Launch offers
 - **The question:** Do you want anything to win the first technicians and
@@ -502,7 +502,7 @@ What the app and the website do today. Reopen any item by its number.
 | A2 | **7% instead of 10%** when the same customer and technician have done a job together before (how far back: D18). |
 | A3 | **Credit limit Rs 3,000.** Once a technician owes more, his new offers stop until he pays. He is told once. |
 | A4 | **Pechkas holds nobody's money** in version 1. The customer pays the technician directly (cash, JazzCash, Easypaisa). There is no wallet and no escrow. A wallet would need a lawyer first. |
-| A5 | **Decided 17 November 2026; not built yet (the plan waits for your yes).** Replaces "nothing counts until the office presses Confirm". **A technician's "I have paid" counts at once**: what he owes drops as soon as he sends the amount, how he paid (JazzCash, Easypaisa or bank), the transaction number and a screenshot. **Each transaction number can be used only once.** Nothing in the app or its wording calls a payment "verified". **For counting first (trial) jobs, a payment is final after 3 business days.** **For 30 days after the claim, the office may press "Not received" or "Received less: Rs ___"**: a ledger reversal puts back only the missing amount, nothing is edited, and he gets a flag. **A second "Not received" or "Received less" within 90 days pauses his new offers by rule**; jobs he has go on, and he may appeal in writing. Built so that a payment company's own confirmation can plug in later. Cash given in person is still recorded by the office. |
+| A5 | **Decided and built 17 November 2026** (replaces "nothing counts until the office presses Confirm"). **A technician's "I have paid" counts at once**: what he owes drops as soon as he sends the amount, how he paid (JazzCash, Easypaisa or bank), the transaction number and a screenshot. **Each transaction number can be used only once.** Nothing in the app or its wording calls a payment "verified". **For counting first (trial) jobs, a payment is final after 3 calendar days** (no holiday list). **No office notice per payment**: the Money page keeps "Payments to check" (amount, transaction number, days left of the 30, oldest first), and the office is told at most once a day ("5 payments to check"). **For 30 days after the claim, the office may press "Not received" or "Received less: Rs ___"**: a ledger reversal puts back only the missing amount, nothing is edited, and he gets a flag. A trial job that counted on that money goes back to waiting, and its trade back to trial if that job approved it; jobs in progress go on; once he pays the missing amount and that payment is final, the job counts again. **A second "Not received" or "Received less" within 90 days pauses his new offers by rule, until the office lifts it**; jobs he has go on, he appeals in writing, and an appeal unanswered for 3 days is shown as a reminder under Exceptions. Payments sent before this stay under the old rule (the office confirms them). Built so that a payment company's own confirmation can plug in later. Cash given in person is still recorded by the office. Part of edition 8: one migration and one build together. |
 | A6 | **20% of every commission goes to the guarantee reserve.** When it is empty, Pechkas still pays. |
 | A7 | Prices are whole rupees. The − and + buttons move a price by **Rs 50**. |
 | A8 | No price agreed means **"no price yet"**, never Rs 0. Pechkas never invents a price, rating, review or number. |

@@ -1,3 +1,4 @@
+import type { PayPause } from './PayPause';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { rupees } from '@pechkas/shared';
@@ -42,6 +43,11 @@ export type PayState = {
   due_days: number;
   grace_days: number;
   claim: { id: string; amount_paisa: number; created_at: string; business_days: number; needs_attention: boolean } | null;
+  /** A5: a pause by rule for payments, and the three locked numbers. */
+  pay_pause?: PayPause | null;
+  final_days?: number;
+  correct_days?: number;
+  strike_days?: number;
   extension: { until_day: string; reason: string; days: number } | null;
   fees: PayFee[];
 };

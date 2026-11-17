@@ -21,6 +21,7 @@ import { useNotify } from '../notifications';
 import { ask, supabase } from '../supabase';
 import { Trouble } from '../components/Trouble';
 import { noAnswer, type NoAnswer } from '../net';
+import { PayPauseBanner, type PayPause } from './PayPause';
 import { fill, useProWords, type ProWords } from '../words';
 import { colour, font, radius, shadow } from '../theme';
 
@@ -81,6 +82,8 @@ type Feed = {
   /** Paused by the office (reliability, D11): until when, and why. */
   paused_until?: string | null;
   pause_note?: string | null;
+  /** A5: paused by rule after two payments not received in full. No date: the office lifts it. */
+  pay_pause?: PayPause | null;
   /** An overdue fee stops new offers on its own (D36). */
   pay_blocked?: boolean;
   overdue_paisa?: number;
@@ -233,6 +236,8 @@ export function Work({ firstName }: { firstName: string }) {
             <Text style={s.blockedText}>{fill(w.payStopped, { amount: rupees(feed.overdue_paisa ?? 0) })}</Text>
           </Press>
         ) : null}
+
+        {feed?.pay_pause ? <PayPauseBanner w={w} style={s.blocked} /> : null}
 
         {feed?.paused_until ? (
           <Press onPress={() => router.push('/pro/money')} accessibilityRole="button" style={s.blocked}>

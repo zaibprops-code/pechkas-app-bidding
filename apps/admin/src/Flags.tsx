@@ -111,6 +111,13 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     'The office found one of his "not paid in full" reports false.',
     'Read the case under Payment disputes, then talk to him. Nothing happens on its own.',
   ],
+  // A5: the second within 90 days pauses him by rule (see Exceptions); the flag itself does nothing.
+  short_payments: (f) => [
+    f.n === 1
+      ? 'One of his payments to Pechkas was marked "Not received" or "Received less".'
+      : `${f.n} of his payments to Pechkas were marked "Not received" or "Received less".`,
+    'See Money, Payments to check. A second time within 90 days pauses his new offers until you lift it under Exceptions.',
+  ],
   // D37: flags only.
   checker_strike: () => [
     'A technician he passed as a checker had a guarantee claim, or an upheld safety report, on risky work soon after.',
