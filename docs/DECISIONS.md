@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 18 November 2026 (D37.1 numbers decided as A102, except the first-job price limit, which waits on whether it counts parts; D15 decided as A103). Before that, 17 November 2026 (D38 decided and built as A99–A101; A5 decided and built; A25 reworded to match D37). The same list as a map you can tap through:
+_Last updated: 18 November 2026 (D37.1 decided and built: the numbers as A102, the price limit on the work as A104; D15 decided as A103). Before that, 17 November 2026 (D38 decided and built as A99–A101; A5 decided and built; A25 reworded to match D37). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -430,13 +430,8 @@ Each one happens in real life; today the office handles it by hand.
 - **Your decision** (13 November 2026, after the watched-trial plan was
   withdrawn) is now in Part 2 as A85–A98.
 - **Still open:**
-  - **D37.1 The numbers — decided 18 November 2026 (A102), all but one.**
-    **Still open: the price limit on first jobs.** The owner chose
-    **Rs 5,000** on condition that it applies to the **labour only**, not to
-    parts. Today the app checks his whole offer price (see A102); making it
-    labour only needs a change that the owner has asked to see before
-    anything is built. Until it is decided the limit stays "not set", so no
-    technician on first jobs can make an offer. **You.**
+  - **D37.1 The numbers — decided 18 November 2026 (A102, A104).** The
+    price limit is Rs 5,000 on the work, not parts (A104, built).
   - **D37.2 The identity service.** A company authorised to check CNICs
     against NADRA's records, with a liveness photo and face match; a written
     price; written terms that it keeps the card image and Pechkas receives
@@ -648,7 +643,8 @@ What the app and the website do today. Reopen any item by its number.
 ### First-job numbers and paying Pechkas (decided 18 November 2026)
 | | |
 |---|---|
-| A102 | **The first-job numbers (D37.1)**, typed by the owner in Admin → Settings → First jobs: **500 m** between the homes of customers whose jobs count for one technician; quiz pass mark **80%**, retake after **3 days**; risky work after **5 clean jobs** in that trade over **at least 30 days**, with **no guarantee claim found against him in 60 days**, and another try **30 days** after a checked job that did not pass; checker's fee **Rs 1,000**, paid by Pechkas as a credit (watch whether checkers say yes at that fee); a checker has **60 minutes** to say yes before the app asks the next, and answers for the man he passed for **30 days**; technicians approved before D37 (only test accounts) stay approved at **3** clean jobs and keep risky work at **10** clean risky jobs; staff-seen identity stops counting **30 days** after the identity service goes live. **Not yet: the price limit on first jobs** (D37.1, still open): Rs 5,000 if it can apply to labour only. |
+| A102 | **The first-job numbers (D37.1)**, typed by the owner in Admin → Settings → First jobs: **500 m** between the homes of customers whose jobs count for one technician; quiz pass mark **80%**, retake after **3 days**; risky work after **5 clean jobs** in that trade over **at least 30 days**, with **no guarantee claim found against him in 60 days**, and another try **30 days** after a checked job that did not pass; checker's fee **Rs 1,000**, paid by Pechkas as a credit (watch whether checkers say yes at that fee); a checker has **60 minutes** to say yes before the app asks the next, and answers for the man he passed for **30 days**; technicians approved before D37 (only test accounts) stay approved at **3** clean jobs and keep risky work at **10** clean risky jobs; staff-seen identity stops counting **30 days** after the identity service goes live. The price limit is A104. |
+| A104 | **The price limit on a new technician's first jobs is Rs 5,000 on his WORK, not on parts** (built 18 November 2026). On a first job his offer may say how much of his price is parts with a shop receipt; the limit is checked on the price less those parts, when he offers and again when she chooses. **A new price during a first job whose work is over the limit is not refused**: before he sends it he is told *"This price is above the limit for new technicians. If she agrees, the job goes ahead but won't count toward your 3 first jobs."*; her card says *"This is more than Pechkas allows new technicians. You can agree, or decline and pay only the visit fee."*; if she agrees the job goes on at the new price and does not count as a first job, and if she declines the usual visit-fee rule applies. **At the finish**, work is the final price less the parts on the receipt; over the limit, the job is finished and paid as normal and does not count. Each first job keeps the limit in force when it was given to him. This closes a gap: before, a new price during a first job was never checked against the limit. The terms and technician agreement say so, marked [DECIDE WITH A LAWYER]. |
 | A103 | **Technicians pay Pechkas into a separate bank account with a Raast ID, used only for Pechkas (D15).** Raast is free from any bank, JazzCash or Easypaisa, and the statement is a clean record for checking "I have paid" (A5). It is in the owner's own name for now; a personal account that receives many small payments from strangers can draw the bank's questions, so **it moves to a business account in Pechkas' name once the business is registered (D2)**, and only the details in Admin → Money → Where technicians pay change. |
 
 ### Trust and safety

@@ -27,7 +27,18 @@ import { colour, font, radius } from '../theme';
  */
 
 export type Stage = 'chosen' | 'on_way' | 'arrived' | 'working' | 'checking' | 'disputed';
-export type Change = { id: string; from_paisa: number; price_paisa: number; reason: string; photo: string; pro_says_no_at?: string | null; office_decides?: boolean };
+export type Change = {
+  id: string;
+  from_paisa: number;
+  price_paisa: number;
+  reason: string;
+  photo: string;
+  pro_says_no_at?: string | null;
+  office_decides?: boolean;
+  /** A104: parts he said are in it, and whether its work is over the limit for first jobs. */
+  parts_paisa?: number | null;
+  over_first_limit?: boolean;
+};
 /** A visit fee as he may read it (visit_fee_view): never her words, only that she raised it. */
 export type VisitFee = {
   id: string;
@@ -123,9 +134,19 @@ export type FinishedJob = {
   visit_fee?: VisitFee | null;
 };
 
-type Props = { j: ActiveJob; w: ProWords; trade: string; when: string; userId: string; commissionBps: number | null; onChanged: () => void };
+type Props = {
+  j: ActiveJob;
+  w: ProWords;
+  trade: string;
+  when: string;
+  userId: string;
+  commissionBps: number | null;
+  /** A104: the limit on his work on a first job (my_trades().price_cap_paisa); null when none is set. */
+  firstCap?: number | null;
+  onChanged: () => void;
+};
 
-export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: Props) {
+export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = null, onChanged }: Props) {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   // Which box the refusal is about, so it shows beside that box and not
@@ -393,6 +414,7 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
       {j.change ? (
         <View style={s.step}>
           <Text style={s.waiting}>{fill(w.waitingAnswer, { price: rupees(j.change.price_paisa), was: rupees(j.change.from_paisa) })}</Text>
+          {j.change.over_first_limit ? <Text style={s.note}>{w.overFirstLimitWaiting}</Text> : null}
           {j.change.office_decides ? (
             <Text style={s.note}>{fill(w.officeDecides, { fee: rupees(j.visit_fee_paisa) })}</Text>
           ) : (
@@ -421,7 +443,7 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, onChanged }: 
       {/* A new price only once the start code is in (visit_fee): the code is the proof he is at her door. */}
       {j.stage === 'working' && !j.change && !j.code_locked ? (
         changing ? (
-          <ChangeForm j={j} w={w} userId={userId} commissionBps={commissionBps} onDone={() => { setChanging(false); onChanged(); }} onBack={() => setChanging(false)} />
+          <ChangeForm j={j} w={w} userId={userId} commissionBps={commissionBps} firstCap={j.first_job ? firstCap : null} onDone={() => { setChanging(false); onChanged(); }} onBack={() => setChanging(false)} />
         ) : (
           <Button kind="outline" label={w.newPrice} onPress={() => setChanging(true)} />
         )
@@ -669,24 +691,50 @@ function Photos({ label, paths, setPaths, userId, w, onProblem, max = 4 }: { lab
 }
 
 /** A new price: the figure, why, and a photo. Shows what he would keep, worked out the database's way. */
-function ChangeForm({ j, w, userId, commissionBps, onDone, onBack }: { j: ActiveJob; w: ProWords; userId: string; commissionBps: number | null; onDone: () => void; onBack: () => void }) {
+function ChangeForm({
+  j,
+  w,
+  userId,
+  commissionBps,
+  firstCap,
+  onDone,
+  onBack,
+}: {
+  j: ActiveJob;
+  w: ProWords;
+  userId: string;
+  commissionBps: number | null;
+  firstCap: number | null;
+  onDone: () => void;
+  onBack: () => void;
+}) {
   const [price, setPrice] = useState('');
+  const [parts, setParts] = useState('');
   const [reason, setReason] = useState('');
   const [photo, setPhoto] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const rupeesTyped = Number(price.replace(/[^0-9]/g, ''));
   const paisa = Number.isFinite(rupeesTyped) && rupeesTyped > 0 ? rupeesTyped * 100 : null;
+  // A104: on a first job, the work in the new price (price less parts with a receipt) against the limit.
+  const partsPaisa = Number(parts.replace(/[^0-9]/g, '')) * 100 || 0;
+  const overLimit = firstCap !== null && paisa !== null && paisa - partsPaisa > firstCap;
 
   async function send() {
     setErrors({});
     if (!paisa) return setErrors({ price: w.errNewPrice });
     setBusy(true);
-    const r = await ask('ask_change', { p_job: j.id, p_price_paisa: paisa, p_reason: reason, p_photo: photo[0] ?? null });
+    const r = await ask('ask_change', {
+      p_job: j.id,
+      p_price_paisa: paisa,
+      p_reason: reason,
+      p_photo: photo[0] ?? null,
+      ...(firstCap !== null ? { p_parts_paisa: partsPaisa || null } : {}),
+    });
     setBusy(false);
     if (!r.ok) {
       const field = r.field ?? 'form';
-      const words: Record<string, string> = { price: w.errNewPrice, reason: w.errReason, photos: w.errPhotos, stage: w.errStage };
+      const words: Record<string, string> = { price: w.errNewPrice, parts: w.errPartsInPrice, reason: w.errReason, photos: w.errPhotos, stage: w.errStage };
       return setErrors({ [field]: words[field] ?? r.why });
     }
     onDone();
@@ -708,10 +756,27 @@ function ChangeForm({ j, w, userId, commissionBps, onDone, onBack }: { j: Active
       />
       {paisa && commissionBps !== null ? (
         <Text style={s.note}>
-          {w.youKeep}: {rupees(technicianKeeps(paisa, commissionBps))}
+          {w.youKeep}: {rupees(technicianKeeps(paisa - Math.min(partsPaisa, paisa), commissionBps) + Math.min(partsPaisa, paisa))}
         </Text>
       ) : null}
       {errors.price ? <Text style={s.error}>{errors.price}</Text> : null}
+      {firstCap !== null ? (
+        <>
+          <Text style={s.label}>{w.partsInChange}</Text>
+          <TextInput
+            value={parts}
+            onChangeText={(t) => setParts(t.replace(/[^0-9]/g, '').slice(0, 7))}
+            keyboardType="number-pad"
+            accessibilityLabel={w.partsInChange}
+            placeholder="0"
+            placeholderTextColor={colour.steel}
+            style={s.input}
+          />
+          {errors.parts ? <Text style={s.error}>{errors.parts}</Text> : null}
+          {/* Before he sends it: the owner's words. Over the limit is allowed, but the job will not count. */}
+          {overLimit ? <Text style={s.overLimit}>{w.overFirstLimit}</Text> : null}
+        </>
+      ) : null}
       <Text style={s.label}>{w.reasonLabel}</Text>
       <TextInput value={reason} onChangeText={setReason} maxLength={300} multiline accessibilityLabel={w.reasonLabel} style={[s.input, { minHeight: 72, paddingTop: 12 }]} />
       {errors.reason ? <Text style={s.error}>{errors.reason}</Text> : null}
@@ -904,6 +969,8 @@ const s = StyleSheet.create({
   nhBox: { gap: 8, padding: 14, borderRadius: 18, backgroundColor: colour.softYellow },
   waiting: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 21, color: colour.ink },
   error: { fontFamily: font.bodySemi, fontSize: 13, lineHeight: 18, color: colour.brick },
+  // A warning, something he must know before he sends: yellow, never brick (it is allowed).
+  overLimit: { padding: 12, borderRadius: 14, backgroundColor: colour.softYellow, fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.ink },
   photos: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   photo: { width: 64, height: 64, borderRadius: 12 },
   addPhoto: { width: 64, height: 64, borderRadius: 12, borderWidth: 2, borderStyle: 'dashed', borderColor: colour.steel, alignItems: 'center', justifyContent: 'center' },

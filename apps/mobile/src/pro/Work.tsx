@@ -38,7 +38,7 @@ import { colour, font, radius, shadow } from '../theme';
  * he keeps — and checks every offer again when it arrives.
  */
 
-type Offer = { price_paisa: number; eta_minutes: number | null; arrive_from?: number | null; note: string | null; status: string; expires_at: string; live: boolean };
+type Offer = { price_paisa: number; parts_paisa?: number | null; eta_minutes: number | null; arrive_from?: number | null; note: string | null; status: string; expires_at: string; live: boolean };
 type FeedJob = {
   id: string;
   ref: string;
@@ -294,6 +294,7 @@ export function Work({ firstName }: { firstName: string }) {
                 when={whenText(j, w)}
                 userId={session?.user.id ?? ''}
                 commissionBps={j.commission_bps ?? feed?.commission_bps ?? null}
+                firstCap={first?.price_cap_paisa ?? null}
                 onChanged={load}
               />
             ))}
@@ -354,7 +355,15 @@ export function Work({ firstName }: { firstName: string }) {
 
       {opened && feed ? (
         <Sheet onClose={() => setOpen(null)} closeLabel={w.closeJob}>
-          <JobCard j={opened} feed={feed} w={w} trade={tradeName(opened.trade)} onChanged={load} />
+          <JobCard
+            j={opened}
+            feed={feed}
+            w={w}
+            trade={tradeName(opened.trade)}
+            // A104: on a first job in this trade, the limit on his work (undefined when he is past them).
+            firstCap={first?.trades.some((t) => t.trade === opened.trade && t.level === 'trial') ? (first?.price_cap_paisa ?? null) : undefined}
+            onChanged={load}
+          />
         </Sheet>
       ) : null}
     </View>
@@ -482,7 +491,21 @@ function Facts({ j, w }: { j: { power: FeedJob['power']; parts: FeedJob['parts']
   );
 }
 
-function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: ProWords; trade: string; onChanged: () => void }) {
+function JobCard({
+  j,
+  feed,
+  w,
+  trade,
+  firstCap,
+  onChanged,
+}: {
+  j: FeedJob;
+  feed: Feed;
+  w: ProWords;
+  trade: string;
+  firstCap?: number | null;
+  onChanged: () => void;
+}) {
   const live = j.my_offer?.live ? j.my_offer : null;
   const [editing, setEditing] = useState(!live);
   const [price, setPrice] = useState(live?.price_paisa ?? j.offered_paisa);
@@ -491,6 +514,10 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
   const needsTime = needsArrival(j);
   const [arrive, setArrive] = useState<number | null>(live?.arrive_from ?? null);
   const [note, setNote] = useState(live?.note ?? '');
+  // A104: on a first job, the parts in his price (with a shop receipt) are taken off before the limit.
+  const onFirst = firstCap !== undefined;
+  const [parts, setParts] = useState(live?.parts_paisa ? String(live.parts_paisa / 100) : '');
+  const partsPaisa = Number(parts.replace(/[^0-9]/g, '')) * 100 || 0;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -527,10 +554,19 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
     setMsg(null);
     if (needsTime && arrive === null) return setErrors({ arrive: w.errArrive });
     setBusy(true);
-    const r = await ask('make_offer', { p_job: j.id, p_price_paisa: p, p_eta_minutes: j.when_kind === 'now' ? eta : null, p_note: note, p_arrive_from: needsTime ? arrive : null });
+    const r = await ask('make_offer', {
+      p_job: j.id,
+      p_price_paisa: p,
+      p_eta_minutes: j.when_kind === 'now' ? eta : null,
+      p_note: note,
+      p_arrive_from: needsTime ? arrive : null,
+      ...(onFirst ? { p_parts_paisa: partsPaisa || null } : {}),
+    });
     setBusy(false);
     if (!r.ok) {
-      if (r.field === 'price') setErrors({ price: fill(w.errPrice, { min: rupees(min), max: rupees(max) }) });
+      if (r.field === 'price' && onFirst && firstCap && p - partsPaisa > firstCap) setErrors({ price: fill(w.errFirstLimit, { cap: rupees(firstCap) }) });
+      else if (r.field === 'price') setErrors({ price: fill(w.errPrice, { min: rupees(min), max: rupees(max) }) });
+      else if (r.field === 'parts') setErrors({ parts: w.errPartsInPrice });
       else if (r.field === 'eta') setErrors({ eta: w.errEta });
       else if (r.field === 'arrive') setErrors({ arrive: w.errArrive });
       else if (r.field === 'note') setErrors({ note: w.errNote });
@@ -590,7 +626,14 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Text style={s.moneyLabel}>{editing ? fill(w.youKeepAt, { price: rupees(price) }) : w.youKeep}</Text>
-          <Text style={s.keep}>{rupees(technicianKeeps(editing ? price : live?.price_paisa ?? price, bps))}</Text>
+          {/* The fee is on the work only: parts he says are in the price are kept whole. */}
+          <Text style={s.keep}>
+            {rupees(
+              editing
+                ? technicianKeeps(price - Math.min(partsPaisa, price), bps) + Math.min(partsPaisa, price)
+                : technicianKeeps((live?.price_paisa ?? price) - (live?.parts_paisa ?? 0), bps) + (live?.parts_paisa ?? 0),
+            )}
+          </Text>
         </View>
       </View>
       <Text style={s.fee}>
@@ -645,6 +688,25 @@ function JobCard({ j, feed, w, trade, onChanged }: { j: FeedJob; feed: Feed; w: 
             })}
           </View>
           {errors.price ? <Text style={s.error}>{errors.price}</Text> : null}
+          {onFirst && firstCap ? (
+            <View style={{ gap: 6 }}>
+              <Text style={s.fact}>{fill(w.firstLimitLine, { cap: rupees(firstCap) })}</Text>
+              <Text style={s.label}>{w.partsInOffer}</Text>
+              <TextInput
+                value={parts}
+                onChangeText={(t) => setParts(t.replace(/[^0-9]/g, '').slice(0, 7))}
+                keyboardType="number-pad"
+                placeholder="0"
+                placeholderTextColor="#8f9aa3"
+                accessibilityLabel={w.partsInOffer}
+                style={[s.input, errors.parts && { borderColor: colour.brick, borderWidth: 2 }]}
+              />
+              {partsPaisa > 0 ? (
+                <Text style={[s.fact, price - partsPaisa > firstCap && { color: colour.brick }]}>{fill(w.yourWork, { price: rupees(Math.max(0, price - partsPaisa)) })}</Text>
+              ) : null}
+              {errors.parts ? <Text style={s.error}>{errors.parts}</Text> : null}
+            </View>
+          ) : null}
           {help?.range ? (
             <PriceRangeCard
               range={help.range}
@@ -820,6 +882,8 @@ const s = StyleSheet.create({
 
 type FirstJobsBrief = {
   trial_jobs_needed: number;
+  /** A104: the limit on his work on a first job; null while Pechkas has not set it. */
+  price_cap_paisa?: number | null;
   trades: { trade: string; name: string; status: string; level: string; good: number; opens_with: string | null }[];
 };
 

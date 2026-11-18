@@ -150,7 +150,7 @@ export default function FirstJobs() {
           {data.trades.some((t) => t.status === 'trial') ? (
             <Panel icon="doc" title={w.limitsTitle}>
               <Tick text={w.limitsTrial} />
-              <Tick text={data.price_cap_paisa ? `${w.limitsBasic} (${rupees(data.price_cap_paisa)})` : w.limitsBasic} />
+              <Tick text={data.price_cap_paisa ? `${w.limitsBasic} The limit is ${rupees(data.price_cap_paisa)}.` : w.limitsBasic} />
               <Tick text={w.limitsCheck} />
               {!data.identity_ok ? <Tick text={w.limitsIdentity} /> : null}
               <Tick text={w.limitsRisky} />

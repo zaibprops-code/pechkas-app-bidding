@@ -44,7 +44,18 @@ export type JobNow = {
   start_code: string | null;
   code_locked: boolean;
   pro: { first_name: string; phone?: string | null; years: number } | null;
-  change: { id: string; from_paisa: number; price_paisa: number; reason: string; photo: string; pro_says_no_at?: string | null; office_decides?: boolean } | null;
+  change: {
+    id: string;
+    from_paisa: number;
+    price_paisa: number;
+    reason: string;
+    photo: string;
+    pro_says_no_at?: string | null;
+    office_decides?: boolean;
+    /** A104: parts he says are in the new price, and whether it is more than Pechkas allows a new technician. */
+    parts_paisa?: number | null;
+    over_first_limit?: boolean;
+  } | null;
   visit_fee_paisa: number | null;
   /** After a job stopped: the visit fee's record (visit_fee). */
   visit_fee?: CustomerFee | null;
@@ -215,6 +226,11 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
           }
         >
           <Text style={s.quote}>“{job.change.reason}”</Text>
+          {job.change.parts_paisa ? <Text style={s.line}>Includes {rupees(job.change.parts_paisa)} of parts, with a shop receipt.</Text> : null}
+          {/* A104: the owner's words. She decides, knowing; the job then does not count as one of his first jobs. */}
+          {job.change.over_first_limit && !job.change.office_decides ? (
+            <Text style={s.line}>This is more than Pechkas allows new technicians. You can agree, or decline and pay only the visit fee.</Text>
+          ) : null}
           {urls[job.change.photo] ? (
             <Press onPress={() => Linking.openURL(urls[job.change!.photo])} accessibilityRole="imagebutton" accessibilityLabel="The photo he sent">
               <Image source={{ uri: urls[job.change.photo] }} style={s.changePhoto} />

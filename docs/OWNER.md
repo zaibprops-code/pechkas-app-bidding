@@ -1954,13 +1954,32 @@ Claude to refresh it whenever the app changes.
 
 ## First-job numbers and where technicians pay (decided 18 November 2026)
 
-**Type the first-job numbers** after the edition-8 database steps:
+**The first-job limit on the work (A104) is one more database file**, after
+the four edition-8 files: **Supabase → SQL Editor**, run
+`supabase/migrations/20261118000000_first_job_labour.sql`. It should say
+**Success**. No new build: the screens come with the edition-8 build, or by
+themselves as an update if you have already made it.
+
+**Try it** (a test account on first jobs, and a customer):
+1. As the technician, open a job and make an offer above Rs 5,000: it is
+   refused and says the limit is on your work. Type some parts in **Of this
+   price, parts with a shop receipt**: below the line, **Your work** shows
+   what counts, and the offer goes through when that is Rs 5,000 or less.
+2. As the customer, the offer says **Includes Rs … of parts, with a shop
+   receipt**.
+3. During the job, ask a new price whose work is over Rs 5,000: a yellow
+   box says it is above the limit for new technicians. Send it. The
+   customer's card says it is more than Pechkas allows new technicians.
+   If she approves, **My account → first jobs** later shows that job as
+   not counted: *Your work came to more than the limit for first jobs*.
+
+**Type the first-job numbers** after the database steps:
 **Admin → Settings → First jobs**. Type each number, then press its
 **Save**. Type rupees and percentages as plain numbers.
 
 | The row says | Type |
 | --- | --- |
-| Highest price on a technician's first jobs | **Leave empty for now.** Waiting on the parts question (D37.1). Until it is set, nobody on first jobs can make an offer. |
+| Highest price on a technician's first jobs | **5000**, but only after running `20261118000000_first_job_labour.sql` (below). It is the limit on his **work**; parts with a receipt are not counted (A104). Until it is set, nobody on first jobs can make an offer. |
 | Metres between the homes of customers whose jobs count for one technician | 500 |
 | Pass mark for a quiz | 80 |
 | Days before a failed quiz may be taken again | 3 |

@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "09d106e";
+export const LEGAL_FROM = "90c16e3";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -1223,7 +1223,16 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " means this is one of his first three jobs in that trade. On them he takes only basic work, one job at a time, up to a price limit, and your answers to four short questions afterwards decide whether the job counts towards his approval."
+              "t": " means this is one of his first three jobs in that trade. On them he takes only basic work, one job at a time, with a limit on what his work may come to (parts with a shop receipt are not counted, and his offer says how much of his price is parts), and your answers to four short questions afterwards decide whether the job counts towards his approval."
+            }
+          ],
+          [
+            {
+              "t": "If he asks for a new price during one of these jobs and the work in it is more than Pechkas allows new technicians, the app tells you so. You can agree, or decline and pay only the visit fee. If you agree, the job goes ahead as normal and does not count towards his approval."
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: telling the customer about this limit, and a job going ahead over it]",
+              "mark": true
             }
           ],
           [
@@ -2283,7 +2292,30 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": ", at or under the price limit Pechkas sets, which the app shows you. \"Something else\" in a trade opens only once you are approved in it."
+              "t": ", and "
+            },
+            {
+              "t": "your work",
+              "b": true
+            },
+            {
+              "t": " may come to no more than the limit Pechkas sets, which the app shows you. Parts with a shop receipt are not counted: your offer can say how much of your price is parts, and at the finish the work is your price less the parts on the receipt. \"Something else\" in a trade opens only once you are approved in it."
+            }
+          ],
+          [
+            {
+              "t": "If you ask for a new price during one of these jobs and the work in it is over the limit, the app tells you before you send it, and tells the customer. She may agree or decline as with any new price. "
+            },
+            {
+              "t": "If she agrees, the job goes ahead but does not count towards your 3 first jobs.",
+              "b": true
+            },
+            {
+              "t": " A job whose work at the finish comes to more than the limit does not count either; it is finished and paid as normal."
+            },
+            {
+              "t": "[DECIDE WITH A LAWYER: the limit on first jobs, and a job over it not counting towards approval]",
+              "mark": true
             }
           ],
           [

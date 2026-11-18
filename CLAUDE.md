@@ -730,6 +730,19 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   ledger kind `checker_fee` on account `checks`, a credit in `pay_items`.
   Strikes come from the clock. `type_open()` closes a risky kind in a
   sector where nobody can do it; `post_job` refuses with `field: 'job_type'`.
+- **The price limit is on his WORK (A104, migration `…_first_job_labour`).**
+  `trial_cap_why(pro, trade, labour)` is always given price less parts: his
+  offer on a first job may carry `p_parts_paisa` (`offers.parts_paisa`,
+  only while the trade is on trial, NULL from older copies, so they are held
+  to the whole price), checked in `make_offer` and again in `choose_offer`.
+  **A new price over the limit is never refused**: `ask_change(…,
+  p_parts_paisa)` records `job_changes.over_first_limit`, both sides are
+  warned (`pending_change()`), and her approval sets `trial_jobs.over_limit`
+  (trigger `change_over_first_limit`, whoever approves). `trial_review()`
+  marks such a job, and one whose `agreed − parts` at the finish exceeds the
+  limit, `not_counted` / `over_limit`. Each first job keeps the limit in
+  force when given (`trial_jobs.cap_paisa`). Money is unchanged: commission
+  is still on price less the receipted parts. Tests: `labour.test.mjs`.
 - **`first_jobs_clock()`** (pg_cron, every 10 minutes) does every timed
   step. Tests call it directly.
 - **Every new number starts at 0, "not set"**, and whatever needs it waits or

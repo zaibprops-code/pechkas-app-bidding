@@ -28,6 +28,14 @@ await setup(`INSERT INTO public.pros (id, full_name, trades, years, sectors, sta
          ($2, 'Asad Mehmood', '{ac,plumber}', 9, '{F-11,E-11,G-13}', 'approved', true, now() - interval '100 days')`, [id(4), id(5)]);
 const sectors = (await setup(`SELECT string_agg(name, ', ') AS s FROM public.sectors WHERE live`).catch(() => ({ rows: [{ s: '?' }] }))).rows[0].s;
 console.log('live sectors:', sectors);
+// The first-job numbers the owner decided (A102, A104), which he types into the office panel
+// himself; in the demo they are set here, so a technician tried in the demo meets the real rules.
+for (const [key, value] of Object.entries({
+  trial_price_cap_paisa: 500000, trial_customer_gap_m: 500, quiz_pass_bps: 8000, quiz_retake_days: 3,
+  risky_clean_jobs: 5, risky_clean_days: 30, risky_claim_free_days: 60, risky_retry_days: 30,
+  checker_fee_paisa: 100000, checker_answer_minutes: 60, checker_accountable_days: 30,
+  legacy_basic_jobs: 3, legacy_risky_jobs: 10, identity_legacy_days: 30,
+})) await setup(`UPDATE public.settings SET value = $2 WHERE key = $1`, [key, value]);
 // For trying the "Waiting for a database update" screen: a database one migration behind.
 if (process.env.DEMO_BEHIND) await setup(`DELETE FROM public.applied_migrations WHERE name = (SELECT max(name) FROM public.applied_migrations)`);
 await db.exec('CHECKPOINT');

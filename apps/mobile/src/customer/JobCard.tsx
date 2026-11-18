@@ -82,6 +82,8 @@ export type Offer = {
   years: number;
   price_paisa: number;
   is_counter: boolean;
+  /** A104: on a new technician's first job, the parts he says are in his price (with a shop receipt). */
+  parts_paisa?: number | null;
   eta_minutes: number | null;
   /** The two hours he will arrive in, on the job's day: every offer on a job that has only a day. */
   arrive_from?: number | null;
@@ -482,6 +484,7 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
             </View>
             <View style={s.offerFacts}>
               <Fact icon="shield" text={`${identityWords(o.identity)} · ${o.years} ${o.years === 1 ? 'year' : 'years'} in the trade`} />
+              {o.parts_paisa ? <Fact icon="wallet" text={`Includes ${rupees(o.parts_paisa)} of parts, with a shop receipt`} /> : null}
               {o.photo ? <Fact icon="camera" text="You confirm it is him, from this photo, at your door" /> : null}
               {o.checked_visit ? <Fact icon="search" text="His first job of this kind: another Pechkas technician comes too and checks the work, at no cost to you" /> : null}
               {/* His profile: checks, jobs done, what customers wrote — before choosing, as a big app shows a driver. */}
