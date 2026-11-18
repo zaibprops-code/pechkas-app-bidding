@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 17 November 2026 (D38 decided and built as A99–A101; A5 decided and built; A25 reworded to match D37). The same list as a map you can tap through:
+_Last updated: 18 November 2026 (D37.1 numbers decided as A102, except the first-job price limit, which waits on whether it counts parts; D15 decided as A103). Before that, 17 November 2026 (D38 decided and built as A99–A101; A5 decided and built; A25 reworded to match D37). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -203,13 +203,10 @@ others depend on its answer.
   `[DECIDE WITH A LAWYER: how and when the office pays you…]`.
 - **Who decides:** You + lawyer.
 
-#### D15. Where technicians pay Pechkas
-- **The question:** Which account technicians send their commission to:
-  your JazzCash number, an Easypaisa account or a bank account, with the
-  account name.
-- **Today:** Empty, so the app tells them to ask the office.
+#### D15. Where technicians pay Pechkas — decided 18 November 2026 (A103)
+- Decided: a separate bank account with a Raast ID, used only for Pechkas,
+  moving to a business account in Pechkas' name once D2 is done. See A103.
 - **Where to put it:** Admin → Money → Where technicians pay.
-- **Who decides:** You.
 
 #### D16. The lowest offer and the highest counter-offer
 - **The question:**
@@ -433,16 +430,13 @@ Each one happens in real life; today the office handles it by hand.
 - **Your decision** (13 November 2026, after the watched-trial plan was
   withdrawn) is now in Part 2 as A85–A98.
 - **Still open:**
-  - **D37.1 The numbers.** Every number starts "not set", and whatever needs
-    it waits until you set it in the office panel (Settings → First jobs).
-    Claude's proposals, for you to confirm or change: price limit on first
-    jobs Rs 4,000; 500 m between first-job customers' homes; quiz pass mark
-    80%, retake after 3 days; risky work after 10 clean jobs over at least
-    30 days with no claim found against him in 60 days, and another try 30
-    days after a check that did not pass; checker's fee Rs 1,000, 4 hours to
-    say yes, answerable for 30 days; pre-D37 technicians kept approved at 3
-    clean jobs and risky at 10 clean risky jobs; staff-seen identity stops
-    counting 30 days after the identity service goes live. **You.**
+  - **D37.1 The numbers — decided 18 November 2026 (A102), all but one.**
+    **Still open: the price limit on first jobs.** The owner chose
+    **Rs 5,000** on condition that it applies to the **labour only**, not to
+    parts. Today the app checks his whole offer price (see A102); making it
+    labour only needs a change that the owner has asked to see before
+    anything is built. Until it is decided the limit stays "not set", so no
+    technician on first jobs can make an offer. **You.**
   - **D37.2 The identity service.** A company authorised to check CNICs
     against NADRA's records, with a liveness photo and face match; a written
     price; written terms that it keeps the card image and Pechkas receives
@@ -651,6 +645,12 @@ What the app and the website do today. Reopen any item by its number.
 | A100 | **A credit for bringing in another technician**: Rs 1,000 per newcomer, for at most 5 newcomers per technician. It is earned only once the newcomer's 3rd first job counts as good **and the 30-day "Not received" window has passed on the payments for all 3 of his qualifying jobs**; until then the referrer sees it as "Pending". After that it is kept even if a job later stops counting for another reason. The credit only lowers what he owes Pechkas, never paid in cash, and never counts as payment for the referrer's own first jobs. The "Tell a technician" message goes out on WhatsApp in English and Urdu; its wording is shown to the owner before it is built. |
 | A101 | **No customer discount.** A64 stays. |
 
+### First-job numbers and paying Pechkas (decided 18 November 2026)
+| | |
+|---|---|
+| A102 | **The first-job numbers (D37.1)**, typed by the owner in Admin → Settings → First jobs: **500 m** between the homes of customers whose jobs count for one technician; quiz pass mark **80%**, retake after **3 days**; risky work after **5 clean jobs** in that trade over **at least 30 days**, with **no guarantee claim found against him in 60 days**, and another try **30 days** after a checked job that did not pass; checker's fee **Rs 1,000**, paid by Pechkas as a credit (watch whether checkers say yes at that fee); a checker has **60 minutes** to say yes before the app asks the next, and answers for the man he passed for **30 days**; technicians approved before D37 (only test accounts) stay approved at **3** clean jobs and keep risky work at **10** clean risky jobs; staff-seen identity stops counting **30 days** after the identity service goes live. **Not yet: the price limit on first jobs** (D37.1, still open): Rs 5,000 if it can apply to labour only. |
+| A103 | **Technicians pay Pechkas into a separate bank account with a Raast ID, used only for Pechkas (D15).** Raast is free from any bank, JazzCash or Easypaisa, and the statement is a clean record for checking "I have paid" (A5). It is in the owner's own name for now; a personal account that receives many small payments from strangers can draw the bank's questions, so **it moves to a business account in Pechkas' name once the business is registered (D2)**, and only the details in Admin → Money → Where technicians pay change. |
+
 ### Trust and safety
 
 | # | Decision |
@@ -680,7 +680,9 @@ Steps for each are in `docs/OWNER.md`:
 
 - Connect the SMS company (D20) and Resend (D21).
 - Upload `google-services.json` to Expo, so phones get notifications.
-- Type the account technicians pay into (D15).
+- Open the separate bank account with a Raast ID and type it in Admin →
+  Money → Where technicians pay (D15, A103).
+- Type the first-job numbers in Admin → Settings → First jobs (A102).
 - Set your own phone as the office's alert phone (Admin → Jobs → Alerts on
   your phone).
 - Put the app in the Play Store's closed test, then ask for "please update"

@@ -1952,6 +1952,41 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## First-job numbers and where technicians pay (decided 18 November 2026)
+
+**Type the first-job numbers** after the edition-8 database steps:
+**Admin → Settings → First jobs**. Type each number, then press its
+**Save**. Type rupees and percentages as plain numbers.
+
+| The row says | Type |
+| --- | --- |
+| Highest price on a technician's first jobs | **Leave empty for now.** Waiting on the parts question (D37.1). Until it is set, nobody on first jobs can make an offer. |
+| Metres between the homes of customers whose jobs count for one technician | 500 |
+| Pass mark for a quiz | 80 |
+| Days before a failed quiz may be taken again | 3 |
+| Clean jobs in a trade before a checked risky job | 5 |
+| Days, at least, that clean record must cover | 30 |
+| Days with no guarantee claim found against him | 60 |
+| Days after a checked job that did not pass before another | 30 |
+| What Pechkas pays a checker | 1000 |
+| Time a checker has to say yes | 60 |
+| Days a checker answers for the man he passed | 30 |
+| Clean jobs that keep a technician approved before the rules approved | 3 |
+| Clean risky jobs that keep his risky work open | 10 |
+| Days after the identity service goes live before staff-seen identity stops counting | 30 |
+
+**Where technicians pay (D15):**
+
+1. Open a bank account used **only for Pechkas**, and ask the bank to give
+   it a **Raast ID** (usually your mobile number).
+2. **Admin → Money → Where technicians pay**: type exactly what technicians
+   should see, for example *"Bank transfer or Raast: 0300 1234567 · Account
+   name: Muhammad Zohaib · Bank: …"*. **Save**. Every technician sees it, word
+   for word, on **My account → Pay Pechkas**, and can copy it with a long
+   press.
+3. When the business is registered (D2), open an account in Pechkas' name
+   and change only this box.
+
 ## Automatic updates
 
 From the edition-8 build on, the app updates itself. Most changes arrive
