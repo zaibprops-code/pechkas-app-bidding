@@ -1,12 +1,12 @@
 # Pechkas: a complete briefing for an adviser
 
-_Written 16 November 2026, updated 17 November 2026, from the two repositories as they stand today
+_Written 16 November 2026, updated 18 November 2026, from the two repositories as they stand today
 (app `zaibprops-code/pechkas-app-bidding`, website `zaibprops-code/Pechkas`).
 Every rule below is something the code actually does, not a plan, unless it
 says "open" or "not built"._
 
 **How to use this file.** Paste it into a new conversation with Claude and
-say something like: *"This is my business. Help me decide D15"* (or any other
+say something like: *"This is my business. Help me decide D16"* (or any other
 number), or *"What should I decide before launch, and in what order?"* The
 numbers (D1…, A1…) are the same as in `docs/DECISIONS.md`, so whatever you
 decide there can be built straight away in the repositories.
@@ -42,13 +42,19 @@ decide there can be built straight away in the repositories.
      office runs it from a web admin panel.
 - **Where it stands:**
   - The app is built through "phase 8", D37, the new A5 (payments
-    count at once) and D38 (launch offers).
+    count at once), D38 (launch offers) and A104 (the first-job price
+    limit on the work, not parts).
   - It is **not open to the public yet**: only test numbers can sign in
     until an SMS company is connected (D20).
   - The Play Store closed test (12 testers for 14 days) is the next store
     step.
-  - The app is on **edition 8**: four database changes (D37's two, A5's
-    and D38's) and one new build go out together.
+  - The app is on **edition 8**: five database changes (D37's two, A5's,
+    D38's and A104's) and one new build go out together.
+  - **From that build on, the app updates itself**: most changes reach
+    phones without a new build. The owner's test phone gets every change;
+    store users only when he says so. If an update needs a database change
+    he has not run yet, the app shows "Waiting for a database update"
+    instead of breaking.
 - **Contact:**
   - No email address, on purpose. Everything goes through WhatsApp.
   - Working hours are 7am to 10pm, every day.
@@ -191,7 +197,7 @@ The following follow from the same principles:
 | **No commission on** | Visit fees, parts, guarantee repairs Pechkas pays for, cancellations, no-shows and unsuccessful visits. The rule (A67) is that Pechkas earns only on completed repair labour the customer has paid for. |
 | **Credit limit** | Rs 3,000. Once he owes more than that, his new offers stop until he pays. |
 | **Due dates (D36)** | Each fee is due 14 days after it is posted, with 3 days of grace. From day 18 his new offers stop while it is unpaid. There is no late fee and no interest. Payments pay the oldest fees first. |
-| **Paying Pechkas (A5, 17 November 2026)** | He taps "I have paid" with the transaction number and a screenshot, and **it counts at once**: what he owes drops straight away. Each transaction number can be used only once, and nothing calls a payment "verified". The office only acts when money did not arrive: for 30 days it can mark a payment **Not received** or **Received less**, which puts back exactly the missing amount and flags him. **A second time within 90 days pauses his new offers** until the office lifts the pause; he appeals in writing, and an appeal unanswered for 3 days shows as a reminder. The Money page lists "Payments to check", and the office is told at most once a day. The account he pays into is still blank (D15). |
+| **Paying Pechkas (A5, 17 November 2026)** | He taps "I have paid" with the transaction number and a screenshot, and **it counts at once**: what he owes drops straight away. Each transaction number can be used only once, and nothing calls a payment "verified". The office only acts when money did not arrive: for 30 days it can mark a payment **Not received** or **Received less**, which puts back exactly the missing amount and flags him. **A second time within 90 days pauses his new offers** until the office lifts the pause; he appeals in writing, and an appeal unanswered for 3 days shows as a reminder. The Money page lists "Payments to check", and the office is told at most once a day. He pays into a separate bank account with Raast, used only for Pechkas (A103, 18 November 2026), which moves to a business account in Pechkas' name once the business is registered (D2). |
 | **Launch rate (D38, 17 November 2026)** | 5% of the labour instead of 10% (or 7%), on his jobs in a trade **after his first 3 good jobs** there. It lasts until 90 days after that trade is approved, and never more than 12 months after his 3rd good job; it ends at midnight in Islamabad. The rate is fixed when the customer chooses him and is shown, with its end date, before he offers. **Only for technicians who apply by a cut-off date, which is not set yet, so the offer is off** (D38.1). |
 | **Referral credit (D38)** | Rs 1,000 for each technician he brings in with his code, at most 5. Earned when the newcomer's 3rd first job counts as good **and** the 30-day "Not received" window has passed on the payments for all 3; shown as "Pending" until then, and kept afterwards. It only lowers what he owes Pechkas: never cash, never a payout, and it never counts as his own payment for his first jobs. "Tell a technician" sends an Urdu and English WhatsApp message that says plainly he gets a small credit; the button appears only once the office has saved the app's store link. A flag shows unusual referral patterns. |
 | **Guarantee reserve** | 20% of every commission. When it runs out, Pechkas pays from its own money. On a 5% launch job that is 1% of the labour. |
@@ -215,7 +221,12 @@ office no longer presses Approve.**
    owner's approval.
 3. **His first 3 jobs in each trade are a trial:**
    - customers see "New on Pechkas" on his offers;
-   - basic job types only, one job at a time, at or under a price limit;
+   - basic job types only, one job at a time, and his **work** may come to
+     at most **Rs 5,000** (A104): parts with a shop receipt are not
+     counted, and his offer can say how much of his price is parts;
+   - if he asks a new price during the job and its work is over the
+     limit, both sides are told; she may agree, and then the job goes
+     ahead but does not count as one of his 3;
    - after each job the customer answers four questions: was he on time,
      did he explain the work, did he leave it clean, does it work.
 4. **A trial job counts as good when all of these hold:**
@@ -325,6 +336,15 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   - Rs 1,000 credit per technician he brings in, at most 5, never cash;
   - no customer discount;
   - see section 4.
+- **A102–A104, first-job numbers and paying Pechkas (18 November 2026):**
+  - A102: homes at least 500 m apart; quiz pass 80%, retake after 3 days;
+    risky work after 5 clean jobs over at least 30 days with no claim in
+    60 days, another try 30 days after a failed check; checker's fee
+    Rs 1,000, 60 minutes to say yes, answerable for 30 days; older
+    technicians kept at 3 and 10 clean jobs; staff-seen identity counts
+    until 30 days after the identity service starts;
+  - A103: technicians pay into a separate bank account with Raast;
+  - A104: the Rs 5,000 first-job limit is on his work, not parts (built).
 - **A25–A30, trust:** no CNIC is stored; flags are only flags; blocking;
   hidden ratings; first name only before he is chosen; applying is free.
   - A25 now says approval is by rule (A85–A98), never a check in person
@@ -379,8 +399,6 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 
 ### Business choices (owner, before launch)
 
-- **D15:** which account technicians pay their commission into. **It is
-  blank today.**
 - **D16:** keep the lowest offer at Rs 1,000 and the highest at 2× her
   price?
 - **D17:** are F-11, E-11 and G-13 the right sectors to start in? They
@@ -393,16 +411,6 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 - **D21:** email codes need Resend connected.
 - **D22:** Sign in with Apple before the iPhone version, or phone and email
   only on iPhone?
-- **D37.1, the numbers for first jobs. Every one starts as "not set", and
-  whatever needs it waits until it is set.** Claude's proposals:
-  - a price limit of Rs 4,000 on first jobs;
-  - first-job customers' homes at least 500 m apart;
-  - a quiz pass mark of 80%, with a retake after 3 days;
-  - risky work after 10 clean jobs over at least 30 days, with no claim
-    against him in 60 days;
-  - a checker's fee of Rs 1,000;
-  - technicians approved before D37 kept approved at 3 clean jobs, and
-    risky work at 10.
 - **D37.2, the identity service.** A company authorised to check CNICs
   against NADRA, with a liveness photo and face match, a written price, and
   terms saying Pechkas receives only "matched or not". **It is the most
@@ -487,9 +495,11 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
    first-job limits for good.
 3. **Real sign-in:** an SMS company (D20), and Resend if email codes stay
    (D21).
-4. **Run the four database changes** (D37's two, then A5's, then D38's)
-   and install the one edition-8 build on the same day.
-5. **Set the D37.1 numbers and the D15 pay account.** Give the D38.1
+4. **Run the five database changes** (D37's two, then A5's, D38's and
+   A104's) and install the one edition-8 build on the same day.
+5. **Type the decided numbers and the pay account:** the first-job
+   numbers in Admin → Settings → First jobs (A102, A104), and the new
+   bank account in Admin → Money → Where technicians pay (A103). Give the D38.1
    cut-off date once the launch date is known, and save the app's store
    link in the office panel once the app is in the Play Store, so "Tell a
    technician" appears.
