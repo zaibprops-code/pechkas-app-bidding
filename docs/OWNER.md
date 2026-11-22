@@ -1952,6 +1952,16 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## The repeat rate looks back 12 months (A105, decided 22 November 2026)
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261122000000_repeat_window.sql`, after the files
+   before it. It should say **Success**. No new build.
+2. What changes: the 7% fee for a returning customer now needs a job
+   finished together in the 12 months before she chose him. Older ones pay
+   10%. Nothing to type: the 12 is locked, like the 10% and 7%.
+3. **Online** (A106) stays as it is: the technician switches it himself.
+
 ## First-job numbers and where technicians pay (decided 18 November 2026)
 
 **The first-job limit on the work (A104) is one more database file**, after

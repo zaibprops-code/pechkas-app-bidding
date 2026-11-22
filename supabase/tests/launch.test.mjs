@@ -59,8 +59,10 @@ const today = (await setup(`SELECT to_char(public.pk_day(now()), 'YYYYMMDD')::bi
 let n = 0;
 async function job(customer, trade = 'ac', status = 'open', pro = null) {
   n += 1;
-  return (await setup(`INSERT INTO public.jobs (customer_id, trade, title, offered_paisa, when_kind, when_part, sector, street, house, status, pro_id)
-    VALUES ($1, $2, $3, 300000, 'today', 'morning', 'F-11', 'Street 1', 'House 1', $4, $5) RETURNING id`, [customer, trade, `Job ${n}`, status, pro])).rows[0].id;
+  // A finished job has the time it finished, as every real one does (the repeat rate reads it, A105).
+  return (await setup(`INSERT INTO public.jobs (customer_id, trade, title, offered_paisa, when_kind, when_part, sector, street, house, status, pro_id, finished_at)
+    VALUES ($1, $2, $3, 300000, 'today', 'morning', 'F-11', 'Street 1', 'House 1', $4, $5, CASE WHEN $4 = 'done' THEN now() END) RETURNING id`,
+  [customer, trade, `Job ${n}`, status, pro])).rows[0].id;
 }
 async function trade(pro, t, status) {
   await setup(`INSERT INTO public.pro_trades (pro_id, trade, status) VALUES ($1, $2, $3) ON CONFLICT (pro_id, trade) DO UPDATE SET status = EXCLUDED.status`, [pro, t, status]);

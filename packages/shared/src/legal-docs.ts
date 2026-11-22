@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "90c16e3";
+export const LEGAL_FROM = "319b7e0";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -2689,7 +2689,14 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " when the customer has had a job done by you before. There is no fee on a visit fee. The app shows the fee and what you keep before you offer."
+              "t": " when you finished a job for the same customer in the "
+            },
+            {
+              "t": "12 months",
+              "b": true
+            },
+            {
+              "t": " before she chose you for this one. There is no fee on a visit fee. The app shows the fee and what you keep before you offer."
             }
           ],
           [
@@ -2802,7 +2809,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " instead of 10% (and instead of7% for a customer you have worked for before), on your jobs in a trade "
+              "t": " instead of 10% (and instead of7% for a customer you have worked for in the last 12 months), on your jobs in a trade "
             },
             {
               "t": "after your first 3 good jobs there",

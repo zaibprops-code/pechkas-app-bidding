@@ -1321,10 +1321,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   goes to everyone at once, and `my_jobs().asked_for` tells the screen the
   difference between "he passed" and "he was never asked".
 - **The repeat fee is `commission_rate(customer, pro, job)`:** 7%
-  (`repeat_commission_bps`) when the pair has a **done** job, 10% otherwise.
-  Stopped and cancelled jobs do not count. A done job never becomes undone,
-  so the rate shown in the feed can only stay or fall by the time he
-  finishes. `finish_work()` fixes `commission_bps` on the job with the
+  (`repeat_commission_bps`) when the pair has a **done** job finished in the
+  `repeat_window_months` (12, locked; A105, migration `…_repeat_window`)
+  before she chose him — `repeat_pair()`, the one test, measures from the
+  job's `assigned_at`, or from now while it is open — 10% otherwise.
+  **Online is his own switch (A106)**: nothing turns it off by itself.
+  Stopped and cancelled jobs do not count. Once she has chosen him the
+  window is fixed at `assigned_at`, so the rate can only stay or fall by
+  the time he finishes; before that the feed shows the rate "if she chose
+  him now", which can rise only if an old job passes the 12 months first. `finish_work()` fixes `commission_bps` on the job with the
   commission; `commission_at()` is the same rounding as `commission()` in
   `packages/shared`. The screens take the per-job `commission_bps`, never
   the standard one, for "you keep".

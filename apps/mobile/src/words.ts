@@ -445,7 +445,7 @@ const PRO = {
   rateWords: 'Comments (optional)',
   rateSend: 'Send rating',
   rated: 'You rated',
-  feeRepeat: '{name} has used you before, so the Pechkas fee is only {pct}%.',
+  feeRepeat: '{name} used you in the last 12 months, so the Pechkas fee is only {pct}%.',
   /** A99–A100 (D38): his launch rate and his code, on My account. */
   launchTitle: 'Your launch rate',
   launchRule: 'You applied before the cut-off, so the Pechkas fee is {pct}% of the labour instead of 10% (or 7%), from your 3rd good first job in a trade until {days} days after that trade is approved. The rate is fixed when a customer chooses you.',
@@ -491,7 +491,7 @@ const PRO = {
   launchTag: 'Launch rate {pct}%',
   askedYou: '{name} asked for you again. Only you can see this job until {time}; then everyone can.',
   passAsked: 'I am unavailable this time',
-  feeRepeatRule: 'On a job for a customer you have worked for before, the Pechkas fee is only {pct}%.',
+  feeRepeatRule: 'On a job for a customer you finished a job for in the last 12 months, the Pechkas fee is only {pct}%.',
   emergency: 'Emergency',
   reportProblem: 'Report a problem',
   reportPlaceholder: 'What is wrong?',

@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 18 November 2026 (D37.1 decided and built: the numbers as A102, the price limit on the work as A104; D15 decided as A103). Before that, 17 November 2026 (D38 decided and built as A99–A101; A5 decided and built; A25 reworded to match D37). The same list as a map you can tap through:
+_Last updated: 22 November 2026 (D18 decided and built as A105: the repeat rate looks back 12 months; D19 decided as A106: Online stays the technician's own switch). Before that, 18 November 2026 (D37.1 decided and built: the numbers as A102, the price limit on the work as A104; D15 decided as A103). Before that, 17 November 2026 (D38 decided and built as A99–A101; A5 decided and built; A25 reworded to match D37). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -223,18 +223,11 @@ others depend on its answer.
 - **Today:** Those three take jobs, the same as the website.
 - **Who decides:** You.
 
-#### D18. How long the repeat fee looks back
-- **The question:** The fee is 7% instead of 10% when the same customer
-  and technician have done a job together before. Should that count any
-  earlier job, however long ago, or only the last 12 months?
-- **Today:** Any earlier finished job, forever.
-- **Who decides:** You.
+#### D18. How long the repeat fee looks back — decided and built 22 November 2026 (A105)
+- Decided: 12 months, measured from when she chooses him. See A105.
 
-#### D19. Technicians who forget to go offline
-- **The question:** Should "Online" switch itself off after some hours?
-- **Today:** It stays on until he switches it off. The harm is small,
-  because nobody is sent anywhere unless a customer chooses him.
-- **Who decides:** You.
+#### D19. Technicians who forget to go offline — decided 22 November 2026 (A106)
+- Decided: nothing switches automatically. See A106.
 
 ### Before launch: signing in (you, then setup steps)
 
@@ -496,7 +489,7 @@ What the app and the website do today. Reopen any item by its number.
 | # | Decision |
 | --- | --- |
 | A1 | **Commission is 10% of the labour only**: the agreed price minus parts with a shop receipt, rounded down so odd paisa stay with the technician. |
-| A2 | **7% instead of 10%** when the same customer and technician have done a job together before (how far back: D18). |
+| A2 | **7% instead of 10%** when the same customer and technician have done a job together before, finished in the 12 months before she chose him (A105). |
 | A3 | **Credit limit Rs 3,000.** Once a technician owes more, his new offers stop until he pays. He is told once. |
 | A4 | **Pechkas holds nobody's money** in version 1. The customer pays the technician directly (cash, JazzCash, Easypaisa). There is no wallet and no escrow. A wallet would need a lawyer first. |
 | A5 | **Decided and built 17 November 2026** (replaces "nothing counts until the office presses Confirm"). **A technician's "I have paid" counts at once**: what he owes drops as soon as he sends the amount, how he paid (JazzCash, Easypaisa or bank), the transaction number and a screenshot. **Each transaction number can be used only once.** Nothing in the app or its wording calls a payment "verified". **For counting first (trial) jobs, a payment is final after 3 calendar days** (no holiday list). **No office notice per payment**: the Money page keeps "Payments to check" (amount, transaction number, days left of the 30, oldest first), and the office is told at most once a day ("5 payments to check"). **For 30 days after the claim, the office may press "Not received" or "Received less: Rs ___"**: a ledger reversal puts back only the missing amount, nothing is edited, and he gets a flag. A trial job that counted on that money goes back to waiting, and its trade back to trial if that job approved it; jobs in progress go on; once he pays the missing amount and that payment is final, the job counts again. **A second "Not received" or "Received less" within 90 days pauses his new offers by rule, until the office lifts it**; jobs he has go on, he appeals in writing, and an appeal unanswered for 3 days is shown as a reminder under Exceptions. Payments sent before this stay under the old rule (the office confirms them). Built so that a payment company's own confirmation can plug in later. Cash given in person is still recorded by the office. Part of edition 8: one migration and one build together. |
@@ -646,6 +639,12 @@ What the app and the website do today. Reopen any item by its number.
 | A102 | **The first-job numbers (D37.1)**, typed by the owner in Admin → Settings → First jobs: **500 m** between the homes of customers whose jobs count for one technician; quiz pass mark **80%**, retake after **3 days**; risky work after **5 clean jobs** in that trade over **at least 30 days**, with **no guarantee claim found against him in 60 days**, and another try **30 days** after a checked job that did not pass; checker's fee **Rs 1,000**, paid by Pechkas as a credit (watch whether checkers say yes at that fee); a checker has **60 minutes** to say yes before the app asks the next, and answers for the man he passed for **30 days**; technicians approved before D37 (only test accounts) stay approved at **3** clean jobs and keep risky work at **10** clean risky jobs; staff-seen identity stops counting **30 days** after the identity service goes live. The price limit is A104. |
 | A104 | **The price limit on a new technician's first jobs is Rs 5,000 on his WORK, not on parts** (built 18 November 2026). On a first job his offer may say how much of his price is parts with a shop receipt; the limit is checked on the price less those parts, when he offers and again when she chooses. **A new price during a first job whose work is over the limit is not refused**: before he sends it he is told *"This price is above the limit for new technicians. If she agrees, the job goes ahead but won't count toward your 3 first jobs."*; her card says *"This is more than Pechkas allows new technicians. You can agree, or decline and pay only the visit fee."*; if she agrees the job goes on at the new price and does not count as a first job, and if she declines the usual visit-fee rule applies. **At the finish**, work is the final price less the parts on the receipt; over the limit, the job is finished and paid as normal and does not count. Each first job keeps the limit in force when it was given to him. This closes a gap: before, a new price during a first job was never checked against the limit. The terms and technician agreement say so, marked [DECIDE WITH A LAWYER]. |
 | A103 | **Technicians pay Pechkas into a separate bank account with a Raast ID, used only for Pechkas (D15).** Raast is free from any bank, JazzCash or Easypaisa, and the statement is a clean record for checking "I have paid" (A5). It is in the owner's own name for now; a personal account that receives many small payments from strangers can draw the bank's questions, so **it moves to a business account in Pechkas' name once the business is registered (D2)**, and only the details in Admin → Money → Where technicians pay change. |
+
+### The repeat rate and going online (decided 22 November 2026)
+| | |
+|---|---|
+| A105 | **The 7% repeat rate looks back 12 months (D18).** It applies when the same customer and technician finished a job together in the 12 months before she chose him for this one, measured from the moment she chooses him, because that is when the rate is fixed: the 7% he sees before she chooses can never become 10% half-way through. On a job nobody has been chosen for yet, it is measured from now. Stopped and cancelled jobs never count. The 12 months is locked like the 10% and 7%, and the technician agreement states it. Built. |
+| A106 | **"Online" stays the technician's own switch (D19).** Nothing switches it off automatically, as in inDrive. A technician who forgets to go offline may get job alerts at night; that is his to fix. If it annoys technicians after launch, it can be looked at again. |
 
 ### Trust and safety
 

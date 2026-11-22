@@ -70,7 +70,7 @@ const CUSTOMER: QA[] = [
 const TECHNICIAN: QA[] = [
   {
     q: 'How am I paid?',
-    a: 'The customer pays you directly once they have checked the work: tap Work finished, and they confirm it. Pechkas’s fee is 10% of the labour — the price less any parts bought with a shop receipt — or 7% when you have finished a job for the same customer before.',
+    a: 'The customer pays you directly once they have checked the work: tap Work finished, and they confirm it. Pechkas’s fee is 10% of the labour — the price less any parts bought with a shop receipt — or 7% when you finished a job for the same customer in the 12 months before they chose you.',
   },
   {
     q: 'How do I pay what I owe Pechkas?',
