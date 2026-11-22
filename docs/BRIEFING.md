@@ -1,6 +1,6 @@
 # Pechkas: a complete briefing for an adviser
 
-_Written 16 November 2026, updated 18 November 2026, from the two repositories as they stand today
+_Written 16 November 2026, updated 22 November 2026, from the two repositories as they stand today
 (app `zaibprops-code/pechkas-app-bidding`, website `zaibprops-code/Pechkas`).
 Every rule below is something the code actually does, not a plan, unless it
 says "open" or "not built"._
@@ -48,8 +48,8 @@ decide there can be built straight away in the repositories.
     until an SMS company is connected (D20).
   - The Play Store closed test (12 testers for 14 days) is the next store
     step.
-  - The app is on **edition 8**: five database changes (D37's two, A5's,
-    D38's and A104's) and one new build go out together.
+  - The app is on **edition 8**: six database changes (D37's two, A5's,
+    D38's, A104's and A105's) and one new build go out together.
   - **From that build on, the app updates itself**: most changes reach
     phones without a new build. The owner's test phone gets every change;
     store users only when he says so. If an update needs a database change
@@ -193,7 +193,7 @@ The following follow from the same principles:
 | Rule | Detail |
 |---|---|
 | **Commission** | 10% of the **labour** only, which is the agreed price minus parts that have a shop receipt. Rounded down, so odd paisa stay with the technician. |
-| **Repeat customer** | 7% when the same customer and technician have finished a job together before (D18 asks how far back that should count). |
+| **Repeat customer** | 7% when the same customer and technician finished a job together in the **12 months** before she chose him for this one (A105, 22 November 2026). Measured from the moment she chooses him, when the rate is fixed. Locked, and stated in the agreement. |
 | **No commission on** | Visit fees, parts, guarantee repairs Pechkas pays for, cancellations, no-shows and unsuccessful visits. The rule (A67) is that Pechkas earns only on completed repair labour the customer has paid for. |
 | **Credit limit** | Rs 3,000. Once he owes more than that, his new offers stop until he pays. |
 | **Due dates (D36)** | Each fee is due 14 days after it is posted, with 3 days of grace. From day 18 his new offers stop while it is unpaid. There is no late fee and no interest. Payments pay the oldest fees first. |
@@ -345,6 +345,11 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
     until 30 days after the identity service starts;
   - A103: technicians pay into a separate bank account with Raast;
   - A104: the Rs 5,000 first-job limit is on his work, not parts (built).
+- **A105–A106, the repeat rate and going online (22 November 2026):**
+  - A105: the 7% repeat rate looks back 12 months, from when she chooses
+    him (built);
+  - A106: "Online" stays the technician's own switch; nothing turns it off
+    automatically.
 - **A25–A30, trust:** no CNIC is stored; flags are only flags; blocking;
   hidden ratings; first name only before he is chosen; applying is free.
   - A25 now says approval is by rule (A85–A98), never a check in person
@@ -403,9 +408,6 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   price?
 - **D17:** are F-11, E-11 and G-13 the right sectors to start in? They
   should be where the first technicians live and work.
-- **D18:** does the 7% repeat rate look back forever, or only 12 months?
-- **D19:** should a technician be switched offline automatically after
-  some hours?
 - **D20:** **which SMS company sends the codes.** Nobody real can sign in
   until this is done.
 - **D21:** email codes need Resend connected.
@@ -495,8 +497,8 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
    first-job limits for good.
 3. **Real sign-in:** an SMS company (D20), and Resend if email codes stay
    (D21).
-4. **Run the five database changes** (D37's two, then A5's, D38's and
-   A104's) and install the one edition-8 build on the same day.
+4. **Run the six database changes** (D37's two, then A5's, D38's, A104's
+   and A105's) and install the one edition-8 build on the same day.
 5. **Type the decided numbers and the pay account:** the first-job
    numbers in Admin → Settings → First jobs (A102, A104), and the new
    bank account in Admin → Money → Where technicians pay (A103). Give the D38.1
