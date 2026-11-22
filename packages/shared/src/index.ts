@@ -112,7 +112,8 @@ export function explainAuthError(message: string | null | undefined, status?: nu
   if (/unsupported phone provider|phone (provider|logins?|signups?) (is |are )?disabled/i.test(m)) {
     return 'Signing in with a mobile number is switched off right now. Please try again later.';
   }
-  if (/invalid.*phone|phone.*invalid/i.test(m)) return 'That number was not accepted. Check it and try again.';
+  // Twilio's own refusal comes through Supabase as "... is not a valid phone number".
+  if (/invalid.*phone|phone.*invalid|not a valid phone/i.test(m)) return 'That number was not accepted. Check it and try again.';
   if (/email (provider|logins?|signups?) (is |are )?disabled/i.test(m)) return 'Signing in with an email is switched off right now. Please try again later.';
   if (/invalid.*email|email.*invalid/i.test(m)) return 'That email address was not accepted. Check it and try again.';
   // Supabase's words when its email sender (Resend, through SMTP) refuses or is not set up.

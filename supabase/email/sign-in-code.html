@@ -1,0 +1,29 @@
+<!--
+  The Pechkas sign-in email (A108). Paste ALL of this into Supabase →
+  Authentication → Emails → Templates, into BOTH "Magic Link" and "Confirm
+  signup" (a brand-new address gets the second). Subject: Your Pechkas code
+
+  {{ .Token }} is the 6-digit code, {{ .ConfirmationURL }} the link that opens
+  the app on the phone that asked. Nothing the person typed is put in the
+  email (Supabase's advice): no name, no address.
+  Colours are Pechkas' own: green #0b5148, yellow #ffc53d, ink #14171a.
+-->
+<div style="margin:0;padding:24px 12px;background:#f3f1ec;font-family:Arial,Helvetica,sans-serif;color:#14171a">
+  <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden">
+    <div style="background:#0b5148;padding:18px 24px">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#ffc53d;margin-right:8px;vertical-align:middle"></span>
+      <span style="color:#ffffff;font-size:20px;font-weight:bold;vertical-align:middle">Pechkas</span>
+    </div>
+    <div style="padding:24px">
+      <h1 style="margin:0 0 12px;font-size:22px">Your Pechkas code</h1>
+      <p style="margin:0 0 16px;font-size:16px;line-height:24px">Type this code in the Pechkas app:</p>
+      <p style="margin:0 0 20px;padding:14px 0;background:#fff4d6;border-radius:12px;text-align:center;font-size:32px;font-weight:bold;letter-spacing:8px">{{ .Token }}</p>
+      <p style="margin:0 0 20px;font-size:16px;line-height:24px">Or, on the phone where you asked for it:</p>
+      <p style="margin:0 0 24px;text-align:center">
+        <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 24px;background:#ffc53d;color:#14171a;border-radius:999px;font-weight:bold;font-size:16px;text-decoration:none">Sign in to Pechkas</a>
+      </p>
+      <p style="margin:0 0 8px;font-size:14px;line-height:20px;color:#5b6168">The code works for one hour. If you did not ask for it, you can ignore this email: nobody can sign in without it.</p>
+      <p style="margin:0;font-size:14px;line-height:20px;color:#5b6168">Nobody reads replies to this address. To reach Pechkas, message us on WhatsApp: 0335 8855076.</p>
+    </div>
+  </div>
+</div>

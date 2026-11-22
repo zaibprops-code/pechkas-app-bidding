@@ -20,7 +20,7 @@ Who decides:
   is about money owed or the law. A lawyer must read it before launch.
 - **You check** — a fact only you can confirm (a phone number, a price).
 
-_Last updated: 22 November 2026 (D18 decided and built as A105: the repeat rate looks back 12 months; D19 decided as A106: Online stays the technician's own switch). Before that, 18 November 2026 (D37.1 decided and built: the numbers as A102, the price limit on the work as A104; D15 decided as A103). Before that, 17 November 2026 (D38 decided and built as A99–A101; A5 decided and built; A25 reworded to match D37). The same list as a map you can tap through:
+_Last updated: 22 November 2026 (D20 decided as A107: Twilio SMS now, WhatsApp after Meta approves; D21 decided as A108: keep email sign-in, sent through Resend. Earlier the same day: D18 decided and built as A105: the repeat rate looks back 12 months; D19 decided as A106: Online stays the technician's own switch). Before that, 18 November 2026 (D37.1 decided and built: the numbers as A102, the price limit on the work as A104; D15 decided as A103). Before that, 17 November 2026 (D38 decided and built as A99–A101; A5 decided and built; A25 reworded to match D37). The same list as a map you can tap through:
 https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4 (private to your account)._
 
 ---
@@ -231,17 +231,13 @@ others depend on its answer.
 
 ### Before launch: signing in (you, then setup steps)
 
-#### D20. Who sends the sign-in codes by SMS
-- **The question:** Which SMS company sends the codes (Twilio, or a
-  Pakistani SMS company), or should codes go by WhatsApp? Each has a cost
-  per message.
-- **Today:** Only the test numbers you add in Supabase can sign in.
-- **Who decides:** You. Then follow the setup steps in OWNER.md.
+#### D20. Who sends the sign-in codes by SMS — decided 22 November 2026 (A107)
+- Decided: Twilio SMS now; WhatsApp through Twilio once Meta approves the
+  business. See A107. Set-up: OWNER.md, "Real sign-in codes: Twilio SMS".
 
-#### D21. Email codes
-- **The question:** Keep sign-in by email? If yes, it needs Resend
-  connected. Without it, real customers never receive their code.
-- **Who decides:** You. Then follow the setup steps in OWNER.md.
+#### D21. Email codes — decided 22 November 2026 (A108)
+- Decided: keep email sign-in, sent through Resend from pechkas.net. See
+  A108. Set-up: OWNER.md, "Sending email codes through Resend".
 
 #### D22. iPhone sign-in
 - **The question:** Before the iPhone version, build "Sign in with Apple"?
@@ -662,6 +658,8 @@ What the app and the website do today. Reopen any item by its number.
 | # | Decision |
 | --- | --- |
 | A31 | **Sign in with a mobile number or an email code** (6 digits). Google sign-in on Android. Nothing opens before signing in. |
+| A107 | **Sign-in codes go by SMS through Twilio** (D20, 22 November 2026), connected in Supabase's own phone settings: the app is unchanged. Only Pakistan is allowed in Twilio, SMS pumping protection is on, codes last 5 minutes, and Supabase limits how many are sent an hour. **WhatsApp comes later**, through the same Twilio account, once the business is registered (D2) and Meta approves Pechkas' WhatsApp sender and code template: then WhatsApp becomes the first choice, with "Send by SMS instead". Numbers already checked by SMS stay checked. Not ready until a real code has arrived on Jazz, Zong, Telenor and Ufone. |
+| A108 | **Email sign-in stays, sent through Resend** (D21, 22 November 2026) from `no-reply@pechkas.net`, connected as Supabase's own email sender: the app is unchanged. It is the way in for family abroad (only Pakistani mobile numbers sign in by phone), for somebody whose SMS does not arrive, and on iPhone until there is more than phone and email there. Resend's free plan: 100 emails a day, 3,000 a month. The email is `supabase/email/sign-in-code.html`, in Pechkas' colours. Not ready until a real code has arrived at an address outside the Supabase team. |
 | A32 | **One account, two modes** (customer and technician), like inDrive. |
 | A33 | **The app is in English only.** The website is English too, keeping the Roman-Urdu brand lines. Customers may still send a voice note in Urdu. |
 | A34 | **Pechkas has no email address.** Everything is on WhatsApp. |

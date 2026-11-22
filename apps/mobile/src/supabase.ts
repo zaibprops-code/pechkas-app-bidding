@@ -53,6 +53,21 @@ if (supabase && Platform.OS !== 'web') {
  */
 export const LINK_BACK = Linking.createURL('auth-callback');
 
+/**
+ * How a sign-in code reaches a phone (A107): by SMS, through whichever
+ * company Supabase is set up with (Twilio). Supabase also sends codes by
+ * WhatsApp through Twilio once Meta has approved Pechkas' WhatsApp sender;
+ * that is the day this becomes a choice on the code screen. Until then
+ * nothing asks for WhatsApp, so no code can be sent where it cannot arrive.
+ */
+export const PHONE_CODE_CHANNEL: 'sms' | 'whatsapp' = 'sms';
+
+/** Texts a sign-in code to a Pakistani mobile number, written as +92… (pakistaniMobile()). */
+export function sendPhoneCode(phone: string) {
+  if (!supabase) return Promise.resolve({ error: { message: 'The app is not connected to Pechkas yet.', status: 0 } });
+  return supabase.auth.signInWithOtp({ phone, options: { channel: PHONE_CODE_CHANNEL } });
+}
+
 /** Emails a code — and a link that opens this app — to somebody signing in by email. */
 export function sendEmailCode(email: string) {
   if (!supabase) return Promise.resolve({ error: { message: 'The app is not connected to Pechkas yet.', status: 0 } });

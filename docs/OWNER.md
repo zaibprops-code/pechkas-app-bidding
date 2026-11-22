@@ -2489,25 +2489,16 @@ they joined.
    **Supabase only lets you change a template once your own email sender is
    connected** — it says "Set up custom SMTP to edit templates". So do
    **"Sending email codes through Resend (once)"** below first, then come
-   back here. This is the step that makes the email show a **code**. Supabase's own message
-   holds only a link, and that link opens a web page that does not exist —
-   which is what you saw. Open **Magic Link**, set the **Subject** to
-   `Your Pechkas code`, delete everything in the message box, paste this,
-   and **Save**:
-
-   ```
-   <h2>Your Pechkas code</h2>
-   <p>Type this code in the Pechkas app:</p>
-   <p style="font-size:28px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
-   <p>Or, on the phone where you asked for it, tap: <a href="{{ .ConfirmationURL }}">Sign in to Pechkas</a></p>
-   <p>It works for one hour. If you did not ask for it, you can ignore this email.</p>
-   <p>Nobody reads replies to this address. To reach Pechkas, message us on WhatsApp: 0335 8855076.</p>
-   ```
-
-   Then open **Confirm signup** (a brand-new email address gets that one
-   instead) and do exactly the same. `{{ .Token }}` is where Supabase puts
-   the code, `{{ .ConfirmationURL }}` the link. Type them exactly, with the
-   two curly brackets each side.
+   back here. This is the step that makes the email show a **code**:
+   Supabase's own message holds only a link.
+   - Open `supabase/email/sign-in-code.html` in this repository on
+     GitHub, press **Raw**, select everything and copy it.
+   - Open **Magic Link**, set the **Subject** to `Your Pechkas code`,
+     delete everything in the message box, paste, and **Save**.
+   - Open **Confirm signup** (a brand-new email address gets that one
+     instead) and do exactly the same.
+   `{{ .Token }}` is where Supabase puts the code, `{{ .ConfirmationURL }}`
+   the link: they are already in the file, so paste it whole.
 4. **Authentication → URL Configuration.** This is what makes the link
    open the app:
    - **Site URL:** `https://pechkas.net` — **Save**. (It was
@@ -2544,9 +2535,12 @@ it has seen the DNS records.
 
 1. **resend.com → Domains → Add Domain.** Type `pechkas.net`. Region: leave
    the one it offers. **Add**.
-2. Resend shows **three or four DNS records** (an `MX` and a `TXT` on
-   `send`, a `TXT` on `resend._domainkey`, sometimes a `TXT` on `_dmarc`).
-   Keep that page open.
+2. Resend shows the **DNS records** for pechkas.net on the domain's
+   **Records** tab. Usually: a `TXT` on `resend._domainkey` (the
+   signature), and an `MX` and a `TXT` on `send` (bounces and SPF). Newer
+   accounts may show `CNAME` records instead. **Copy whatever Resend shows
+   for your domain, exactly**: the values are made for pechkas.net and
+   nobody can tell you them in advance. Keep that page open.
 3. Add each one where you added the Google Search Console record — the
    website's README, section 21 (**Vercel → your website project →
    Settings → Domains → pechkas.net → DNS records**, or wherever you bought
@@ -2554,8 +2548,11 @@ it has seen the DNS records.
    for the MX, **Priority** exactly as Resend shows them. They sit on
    `send.` and `resend._domainkey.`, so they do not touch the website, the
    `www` record or the Search Console record.
-4. Back in Resend, **Verify DNS Records**. It can take a few minutes to a
-   few hours; press it again until all of them say **Verified**.
+4. Back in Resend, **Verify DNS Records**. It is often done in 15
+   minutes, but can take up to 72 hours; press **Restart verification**
+   until all of them say **Verified**.
+5. Once verified, Resend suggests a `TXT` record on `_dmarc`. Add it too,
+   exactly as shown: it makes the codes less likely to land in spam.
 
 ### B. Resend: a key for Supabase
 
@@ -2569,7 +2566,7 @@ it has seen the DNS records.
 1. **Supabase → Authentication → Emails → SMTP Settings** (on some screens:
    **Project Settings → Authentication → SMTP Settings**). Switch on
    **Enable Custom SMTP**.
-2. **Sender email:** `codes@pechkas.net`. **Sender name:** `Pechkas`.
+2. **Sender email:** `no-reply@pechkas.net`. **Sender name:** `Pechkas`.
    (This is only a sender — there is no inbox behind it, which is why the
    email says to use WhatsApp. The website still shows no email address.)
 3. **Host:** `smtp.resend.com`. **Port:** `465`.
@@ -2579,23 +2576,137 @@ it has seen the DNS records.
    **60** an hour for now. Resend's free plan sends 100 a day and 3,000 a
    month; if sign-ups ever come near that, it is time for Resend's paid plan.
 6. Check the two templates from **"Setting up email sign-in"**, step 3, are
-   saved with `{{ .Token }}` in them.
+   saved (`supabase/email/sign-in-code.html`).
+7. **Authentication → Sign In / Providers → Email**: **Email OTP
+   Expiration** should be **3600** (one hour), because the email says the
+   code works for one hour. **Email OTP Length** stays **6**.
 
 ### D. Try it
 
 1. On your phone: **Me → Sign out**, then **Continue with email**, and
    type an email address that is **not** on your Supabase
    team — a family member's, or a second Gmail. **Send me a code**.
-2. The email comes from **Pechkas &lt;codes@pechkas.net&gt;** within a
+2. The email comes from **Pechkas &lt;no-reply@pechkas.net&gt;** within a
    minute. Check the spam folder the first time; if it is there, mark it
    **Not spam**.
 3. **Resend → Emails** lists every email sent, and says **Delivered** or why
    not. If the app shows a red box instead, it gives Supabase's own words:
-   send a screenshot to Claude. The usual ones: *"Error sending magic link
-   email"* — the SMTP password or domain is wrong (C4, A4); *"email rate
-   limit exceeded"* — C5.
+   send a screenshot to Claude. The usual ones:
+
+   | What you see | What it means | Fix |
+   | --- | --- | --- |
+   | *"Error sending magic link email"* or *"Error sending confirmation email"* | Supabase could not hand the email to Resend | C3–C4: host, port, username `resend`, and a key that has not been deleted; A4: the domain is **Verified** |
+   | *"email rate limit exceeded"* | More emails than C5 allows in an hour | Raise C5 a little |
+   | Nothing arrives, Resend says **Delivered** | It is in spam | Mark it **Not spam**; add the `_dmarc` record (A5) |
+   | Nothing arrives, Resend shows nothing | Supabase is still using its own test sender | C1: **Enable Custom SMTP** is on and saved |
+4. Try a **Gmail** address and an **Outlook/Hotmail** address, on Android.
+   When the iPhone version exists, try the link there too. **Do not call
+   email sign-in ready until a real code has arrived at an address outside
+   your Supabase team.**
 
 ---
+
+## Real sign-in codes: Twilio SMS (once)
+
+The decision (A107): codes go **by SMS through Twilio** now; by WhatsApp
+later, once Meta approves Pechkas (see the next section). The app does not
+change for this: it asks Supabase for a code, and Supabase hands it to
+Twilio. No new build, no migration. **Never paste a Twilio value into a
+chat**: each one goes only into the box named below.
+
+### A. Twilio: the account
+
+1. Make an account at **twilio.com**. Twilio starts you on a **trial**,
+   which can only text numbers you have verified yourself. To text real
+   customers, **Upgrade** (it asks for a card) and add some credit.
+2. On the Console's front page, note where it shows **Account SID** and
+   **Auth Token** (press **Show**). You copy them in C, not now.
+3. **Account → Billing → Usage triggers** (or **Alerts**): add one that
+   emails you when SMS spending passes an amount you choose, for example
+   $20 a day. If something ever sends codes nonstop, you hear at once.
+
+### B. Twilio: only Pakistan, and fraud protection
+
+1. **Messaging → Settings → Geo permissions**: switch **off** every
+   country except **Pakistan**. Pechkas only signs in Pakistani numbers,
+   so nobody can make Pechkas pay for texts to expensive foreign numbers.
+2. **Messaging → Settings → General → SMS Pumping Protection**: switch it
+   **on**. Twilio then blocks codes that look like fraud.
+3. **Messaging → Services → Create Messaging Service**, name it
+   `Pechkas sign-in`, use case **Verify users**. Add a sender when it asks.
+   **If Twilio says Pakistan needs a registered sender name, a special
+   number, or documents, stop and tell Claude exactly what the screen
+   says**: Pakistan's rules on who may send texts change, and they decide
+   what comes next.
+4. Note the service's **Messaging Service SID** (it starts with `MG`).
+
+### C. Supabase: send through Twilio
+
+1. **Supabase → Authentication → Sign In / Providers → Phone.** It is on
+   already (your test numbers use it).
+2. **SMS provider:** **Twilio** (not "Twilio Verify").
+3. Paste **Twilio Account SID**, **Twilio Auth Token** and **Twilio
+   Message Service SID** from A2 and B4, **here only**.
+4. **SMS OTP Length:** **6**. **SMS OTP Expiry:** **300** (five minutes:
+   enough for a slow text, short enough to be safe).
+5. **SMS Message:** `Your Pechkas code is {{ .Code }}. Do not share it with anyone, including Pechkas.`
+   Type `{{ .Code }}` exactly: that is where Supabase puts the code.
+6. **Test phone numbers and OTPs:** leave your test numbers as they are.
+   They keep signing in with their fixed code, and no text is sent or paid
+   for.
+7. **Save.**
+8. **Authentication → Rate Limits → Rate limit for sending SMS messages**:
+   **60** an hour for now. The app also waits a minute between codes for
+   one number, and says how many seconds are left.
+
+### D. Try it
+
+1. On your phone: **☰ → Settings → Sign out**, then **Continue with
+   phone**, and type a number that is **not** a test number.
+2. The code arrives by SMS. Type it: you are in.
+3. Try one number on each network: **Jazz, Zong, Telenor and Ufone**. A
+   text can reach one network and not another.
+4. **Twilio → Monitor → Logs → Messaging** lists every text and says
+   **Delivered** or why not.
+5. **Do not call phone sign-in ready until a real code has arrived on all
+   four networks.**
+
+### E. When a code does not arrive
+
+The app shows a sentence and, under it, Supabase's own words. Send Claude a
+screenshot, or look the words up here:
+
+| Supabase or Twilio says | What it means | Fix |
+| --- | --- | --- |
+| *"Error sending confirmation OTP to provider"* | Twilio refused; its own reason follows | Read the rest of the line, then Twilio's Messaging logs |
+| *"Permission to send an SMS has not been enabled for the region"* (Twilio 21408) | Pakistan is switched off in Geo permissions | B1 |
+| *"unverified"*, *"Trial accounts cannot send"* (Twilio 21608) | Still a trial account | A1: Upgrade |
+| *"is not a valid phone number"* (Twilio 21211) | The number is wrong | The person checks the number |
+| Twilio log shows **30450** | SMS Pumping Protection blocked it as fraud | If it was a real person, add their number to Twilio's safe list |
+| Twilio log shows **30007** | A network filtered the text | Tell Claude: usually the sender (B3) needs registering for Pakistan |
+| Twilio log shows **30003** or **30005** | The phone is off or the number does not exist | Try again later, or another number |
+| The app says *"Too many codes asked for"* | The C8 limit was reached | Wait, or raise C8 a little |
+
+## WhatsApp codes later (not now)
+
+Codes by WhatsApp cost far less than SMS. **Do not start this until the
+business is registered (D2)**: Meta checks the business before it lets
+anybody send codes on WhatsApp. When you do:
+
+1. In Twilio, **Messaging → Senders → WhatsApp senders → Create new
+   sender**, which connects to Meta and checks Pechkas' business. It needs
+   a phone number that is **not already on WhatsApp**, so not the office's
+   own WhatsApp number. Meta also reviews the display name, **Pechkas**.
+2. Twilio then helps you make a **message template** for sign-in codes.
+   Meta approves it.
+3. Tell Claude **"WhatsApp is approved"**. Claude then:
+   - switches the app to WhatsApp first, with **Send by SMS instead**;
+   - fills in Supabase's **Twilio Content SID** box with you;
+   - updates the privacy page and both stores' answers, because Meta then
+     carries the codes.
+
+Numbers already checked by SMS stay checked; nobody signs up again. Until
+step 3, nothing in the app asks for WhatsApp.
 
 ## Maps: the Google Maps key (once)
 
@@ -2749,22 +2860,10 @@ and nothing on the website changes.
 8. After **14 days**, **Dashboard → Apply for production**. Answer
    Google's questions about the test honestly.
 
-### F. Real sign-in codes (Twilio) — before the public can sign in
+### F. Real sign-in codes — before the public can sign in
 
-1. Make an account at **twilio.com**. In the Console, note where it shows
-   **Account SID** and **Auth Token**.
-2. **Messaging → Services → Create Messaging Service**, name it `Pechkas
-   sign-in`, and follow the steps to add a sender. **If Twilio says
-   Pakistan needs a registered sender name or a special number, stop and
-   tell Claude what it says** — that rule changes, and it decides what to
-   do next.
-3. Note the **Messaging Service SID**.
-4. **Supabase → Authentication → Sign In / Providers → Phone →** SMS
-   provider **Twilio**. Paste the Account SID, Auth Token and Messaging
-   Service SID **there**, never in a chat. Check **SMS OTP Length** says
-   **6**. **Save**.
-5. Try it from a number that is **not** a test number. Keep the reviewer
-   test numbers: Google's reviewers still need them.
+Follow **"Real sign-in codes: Twilio SMS (once)"** below. Keep the
+reviewer test numbers: Google's reviewers still need them.
 
 ### G. Going public
 

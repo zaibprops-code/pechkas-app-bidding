@@ -5,7 +5,7 @@ import { authErrorDetails, explainAuthError, pakistaniMobile } from '@pechkas/sh
 import { PhoneBox } from '../src/components/PhoneBox';
 import { Press } from '../src/components/Press';
 import { Button, Field, Notice, Screen } from '../src/components/ui';
-import { sendEmailCode, supabase, url } from '../src/supabase';
+import { sendEmailCode, sendPhoneCode, supabase, url } from '../src/supabase';
 import { colour, font } from '../src/theme';
 
 /**
@@ -61,7 +61,7 @@ export default function SignIn() {
       return;
     }
     setBusy(true);
-    const { error: e } = await supabase.auth.signInWithOtp({ phone });
+    const { error: e } = await sendPhoneCode(phone);
     setBusy(false);
     if (e) {
       // Supabase's own words go under the sentence, so a screenshot shows what is wrong.

@@ -20,6 +20,12 @@ test('each refusal gets its own sentence', () => {
   assert.match(explainAuthError('Signups not allowed for otp', 422), /New accounts/);
   assert.match(explainAuthError('Unsupported phone provider', 400), /switched off/);
   assert.match(explainAuthError('Invalid phone number format', 400), /not accepted/);
+  // Twilio, through Supabase (A107).
+  assert.match(explainAuthError("Error sending confirmation OTP to provider: The 'To' number +92300123 is not a valid phone number.", 422), /not accepted/);
+  assert.match(
+    explainAuthError('Error sending confirmation OTP to provider: Permission to send an SMS has not been enabled for the region indicated by the \'To\' number: +923001234567.', 422),
+    /could not be sent to this number/,
+  );
   assert.match(explainAuthError('Error sending magic link email', 500), /could not be emailed/);
   assert.match(explainAuthError('Error sending confirmation email', 500), /could not be emailed/);
   assert.match(explainAuthError('Email address "x@y" is invalid', 400), /email address was not accepted/);

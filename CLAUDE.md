@@ -203,6 +203,18 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   prefilled by `firstNameFrom()`. What Google sends (email, name, picture
   link, account number) is in the privacy page and the Play answers;
   change all three together.
+- **Codes are sent by Supabase, through Twilio (SMS, A107) and Resend
+  (email, A108)**, both connected in the Supabase dashboard, never in this
+  repository. Every phone code goes through `sendPhoneCode()` in
+  `src/supabase.ts`, with `PHONE_CODE_CHANNEL` (`'sms'`): WhatsApp, through
+  the same Twilio provider, is switched on there and only once Meta has
+  approved Pechkas' sender and template, with "Send by SMS instead"
+  beside it. A phone *change* (`updateUser({ phone })`) can only be SMS.
+  The sign-in email is `supabase/email/sign-in-code.html`, pasted into
+  Supabase's Magic Link and Confirm signup templates; it carries only the
+  code and the link, nothing the person typed. No CAPTCHA: it would need a
+  web view on the sign-in screens and a new build; Twilio's Pakistan-only
+  geo permission, pumping protection and Supabase's rate limits stand in.
 - Every sign-in failure shows `explainAuthError()` plus Supabase's own
   words and the project's host. Never go back to "check your signal" for
   everything: it hid a Supabase refusal for a whole afternoon.

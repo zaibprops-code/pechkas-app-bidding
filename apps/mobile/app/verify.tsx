@@ -7,7 +7,7 @@ import { Button, Notice, Screen } from '../src/components/ui';
 import { colour, font } from '../src/theme';
 import { useAccount, type Account } from '../src/account';
 import { routeFor } from '../src/route';
-import { sendEmailCode, supabase, url } from '../src/supabase';
+import { sendEmailCode, sendPhoneCode, supabase, url } from '../src/supabase';
 
 /**
  * How long before a new code may be asked for. Supabase refuses a second
@@ -146,7 +146,7 @@ export default function Verify() {
       ? await sendEmailCode(email)
       : changing
         ? await supabase.auth.updateUser({ phone: phone! })
-        : await supabase.auth.signInWithOtp({ phone: phone! });
+        : await sendPhoneCode(phone!);
     if (e) {
       // Too soon for Supabase: wait as long as it says, and say so plainly.
       const wait = waitFrom(e.message);
