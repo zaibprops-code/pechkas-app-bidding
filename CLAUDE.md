@@ -69,6 +69,18 @@ Apply this to every decision, every design and every review of an old one.
   `docs/DECISIONS.md`**: open ones numbered D1…, decided ones A1…. When the
   owner decides one, build it, then move it to the decided list with the
   date in the same commit. Never record a decision he has not made.
+- **Every decided or built decision also updates the decision map and the
+  briefing, in the same round, without being asked** (the owner's standing
+  request, 22 November 2026). The map is the artifact
+  https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4: read it with the
+  Artifact tool, mark the D… as decided (its `Object.assign(D.Dxx, {status:
+  'building', decided: […], today: …})`), its track step, a new "Already
+  decided" group for the A… rows, and the foot's "Updated" line; check the
+  script parses; publish to the same URL. The briefing is
+  `docs/BRIEFING.md` (its date, the decided list, the open list, the money
+  table and launch steps as they change), and its PDF
+  `docs/Pechkas-briefing.pdf`, rebuilt with `node scripts/briefing-pdf.mjs`
+  and sent to him. Then tell him both are done.
 
 ## Before you commit
 

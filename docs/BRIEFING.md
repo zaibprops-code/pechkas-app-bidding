@@ -45,7 +45,8 @@ decide there can be built straight away in the repositories.
     count at once), D38 (launch offers) and A104 (the first-job price
     limit on the work, not parts).
   - It is **not open to the public yet**: only test numbers can sign in
-    until an SMS company is connected (D20).
+    until Twilio (SMS codes, A107) and Resend (email codes, A108) are
+    connected in Supabase and a real code has been seen to arrive.
   - The Play Store closed test (12 testers for 14 days) is the next store
     step.
   - The app is on **edition 8**: six database changes (D37's two, A5's,
@@ -350,6 +351,15 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
     him (built);
   - A106: "Online" stays the technician's own switch; nothing turns it off
     automatically.
+- **A107–A108, sign-in codes (22 November 2026):**
+  - A107: codes by SMS through Twilio now (Pakistan only, fraud blocker
+    on, 5-minute codes); by WhatsApp through the same Twilio account once
+    the business is registered and Meta approves, with SMS as the other
+    choice. About $0.33–0.47 a text by SMS against about $0.015 by
+    WhatsApp, from public price lists;
+  - A108: email sign-in stays, sent through Resend from
+    no-reply@pechkas.net (free up to 100 a day): the way in for family
+    abroad and when an SMS does not arrive.
 - **A25–A30, trust:** no CNIC is stored; flags are only flags; blocking;
   hidden ratings; first name only before he is chosen; applying is free.
   - A25 now says approval is by rule (A85–A98), never a check in person
@@ -408,9 +418,6 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   price?
 - **D17:** are F-11, E-11 and G-13 the right sectors to start in? They
   should be where the first technicians live and work.
-- **D20:** **which SMS company sends the codes.** Nobody real can sign in
-  until this is done.
-- **D21:** email codes need Resend connected.
 - **D22:** Sign in with Apple before the iPhone version, or phone and email
   only on iPhone?
 - **D37.2, the identity service.** A company authorised to check CNICs
@@ -495,8 +502,9 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
    **Every legal choice is visibly marked `[DECIDE WITH A LAWYER]`.**
 2. **The identity service (D37.2).** Without it every technician stays on
    first-job limits for good.
-3. **Real sign-in:** an SMS company (D20), and Resend if email codes stay
-   (D21).
+3. **Real sign-in:** connect Twilio (A107) and Resend (A108) in Supabase,
+   following `docs/OWNER.md`, and see a real code arrive on all four
+   networks and at an outside email address.
 4. **Run the six database changes** (D37's two, then A5's, D38's, A104's
    and A105's) and install the one edition-8 build on the same day.
 5. **Type the decided numbers and the pay account:** the first-job
