@@ -36,6 +36,16 @@ for (const [key, value] of Object.entries({
   checker_fee_paisa: 100000, checker_answer_minutes: 60, checker_accountable_days: 30,
   legacy_basic_jobs: 3, legacy_risky_jobs: 10, identity_legacy_days: 30,
 })) await setup(`UPDATE public.settings SET value = $2 WHERE key = $1`, [key, value]);
+// The two example technicians are experienced: approved before the first-job rules, with
+// their identity seen in person then, so they work as before (trade_level 'full'). The
+// numbers that sort such technicians by their record are left unset in the demo: with them
+// set, the clock (every minute here) made both "new" a minute after the page opened, and
+// Ayesha could no longer choose Asad, whom she had used before. A technician who signs up
+// in the demo still meets every first-job rule.
+await setup(`UPDATE public.pros SET identity_seen_on = (now() - interval '100 days')::date WHERE id IN ($1, $2)`, [id(4), id(5)]);
+await setup(`UPDATE public.settings SET value = 0 WHERE key IN ('legacy_basic_jobs', 'legacy_risky_jobs')`);
+const level = (await setup(`SELECT string_agg(public.trade_level(pro_id, trade), ' ') AS s FROM public.pro_trades WHERE pro_id IN ($1, $2)`, [id(4), id(5)])).rows[0].s;
+if (!level || /trial|none|basic/.test(level)) throw new Error('the example technicians are not experienced: ' + level);
 // For trying the "Waiting for a database update" screen: a database one migration behind.
 if (process.env.DEMO_BEHIND) await setup(`DELETE FROM public.applied_migrations WHERE name = (SELECT max(name) FROM public.applied_migrations)`);
 await db.exec('CHECKPOINT');
