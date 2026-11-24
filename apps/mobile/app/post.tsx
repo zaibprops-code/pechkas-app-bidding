@@ -14,6 +14,8 @@ import { Sheet, SheetOption } from '../src/components/Sheet';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
 import { TradeArt } from '../src/components/TradeArt';
+import { YellowTop } from '../src/components/YellowTop';
+import { workArt } from '@pechkas/shared/src/work';
 import { usePriceRanges } from '../src/prices';
 import { PriceRangeCard } from '../src/components/PriceRange';
 import { ask, supabase } from '../src/supabase';
@@ -47,7 +49,7 @@ const CARD_OF: Record<string, string> = {
   power: 'good', parts: 'good',
   offer: 'price',
 };
-const CARDS = ['job', 'what', 'address', 'when', 'good', 'price'];
+const CARDS = ['job', 'what', 'when', 'address', 'good', 'price'];
 // Which refusals a change to each part of the form answers.
 const ANSWERS: Partial<Record<keyof Draft, string[]>> = {
   trade: ['trade', 'job_type'], jobType: ['job_type'],
@@ -495,7 +497,24 @@ export default function Post() {
   return (
     <Screen
       hero={{ title: 'Post a job', sub: 'Say what is wrong and name your price. Checked technicians send offers.', back: true }}
-      footer={<Button label={progress ?? `Post job · ${rupees(offer)}`} icon={progress ? undefined : 'arrowRight'} onPress={post} busy={busy && !progress} disabled={busy} />}
+      top={
+        d.trade ? (
+          <YellowTop after={<Text style={s.topHeading}>Post a job</Text>}>
+            <View style={s.topJob}>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={s.topTrade}>{tradeName(d.trade)}</Text>
+                <Text style={[s.topName, width < 360 && { fontSize: 20, lineHeight: 25 }]}>{chosen?.name ?? 'Something else, or not sure'}</Text>
+                <Text style={s.topPrice}>{chosen?.list_paisa ? `Usual price ${rupees(chosen.list_paisa)}` : 'Price after a look'}</Text>
+                <Press onPress={() => setSheet('trade')} accessibilityRole="button" accessibilityLabel="Change the job" sink={0.94} style={s.topChange}>
+                  <Text style={s.topChangeText}>Change</Text>
+                </Press>
+              </View>
+              <TradeArt trade={chosen ? workArt(d.trade, chosen.name) : d.trade} size={width < 360 ? 76 : 96} />
+            </View>
+          </YellowTop>
+        ) : undefined
+      }
+      footer={<Button kind="ink" label={progress ?? `Post job · ${rupees(offer)}`} icon={progress ? undefined : 'arrowRight'} onPress={post} busy={busy && !progress} disabled={busy} />}
     >
       {d.askFor ? (
         <View style={s.askFor}>
@@ -510,27 +529,11 @@ export default function Post() {
         </View>
       ) : null}
 
+      {/* With the job chosen it is the yellow picture at the top; this card is then only for
+          choosing one, or for saying the chosen kind is not open here yet. */}
+      {!d.trade || (closedNow && d.sector) || errors.trade || errors.job_type ? (
       <Card id="job" icon="briefcase" onY={atY} title="The job" error={errors.trade || errors.job_type}>
-        {/* Chosen before this screen (home, a kind of work, search): shown once, with Change.
-            Opened with nothing chosen: the two drop-downs, as before. */}
-        {d.trade ? (
-          <View style={s.chosen}>
-            <View style={s.chosenArt} accessible={false}>
-              <TradeArt trade={d.trade} size={38} />
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={s.chosenTrade}>{tradeName(d.trade)}</Text>
-              <Text style={s.chosenName}>{chosen?.name ?? 'Something else, or not sure'}</Text>
-              <Text style={s.chosenPrice}>{chosen?.list_paisa ? `Usual price ${rupees(chosen.list_paisa)}` : 'Price after a look'}</Text>
-              {/* Under the words, not beside them: beside them a long job name broke a word to a line at 320. */}
-              <Press onPress={() => setSheet('trade')} accessibilityRole="button" accessibilityLabel="Change the job" sink={0.94} style={s.chosenChange}>
-                <Text style={s.chosenChangeText}>Change</Text>
-              </Press>
-            </View>
-          </View>
-        ) : (
-          <Select label="Kind of work" value={null} placeholder="Choose" onPress={() => setSheet('trade')} />
-        )}
+        {d.trade ? null : <Select label="Kind of work" value={null} placeholder="Choose" onPress={() => setSheet('trade')} />}
         {closedNow && d.sector ? (
           <View style={s.closed}>
             <Text style={s.closedTitle}>This kind of job is not available on Pechkas yet.</Text>
@@ -542,11 +545,12 @@ export default function Post() {
           </View>
         ) : null}
       </Card>
+      ) : null}
 
-      <Card id="what" icon="chat" onY={atY} title="What is wrong?" hint="Say it, show it, or type it. Urdu is fine." error={errors.media || errors.description}>
-        {!voice || !video || photos.length < LIMITS.photos ? (
+      <Card id="what" icon="chat" n={1} onY={atY} title="What is wrong?" hint="Say it, show it, or write it. Urdu is fine." error={errors.media || errors.description}>
+        {voice ? null : <VoiceTile wide onDone={(m) => setMedia('voice', [m])} onProblem={setNotice} />}
+        {!video || photos.length < LIMITS.photos ? (
           <View style={s.tiles}>
-            {voice ? null : <VoiceTile onDone={(m) => setMedia('voice', [m])} onProblem={setNotice} />}
             {video ? null : <MediaTile icon="video" label="Video" limit={`Up to ${LIMITS.videoSeconds} sec`} onPress={() => setSheet('video')} />}
             {photos.length < LIMITS.photos ? (
               <MediaTile icon="camera" label={photos.length ? 'Add photo' : 'Photo'} limit={photos.length ? `${LIMITS.photos - photos.length} more` : `Up to ${LIMITS.photos}`} onPress={() => setSheet('photo')} />
@@ -589,11 +593,24 @@ export default function Post() {
         />
       </Card>
 
+      <Card id="when" icon="clock" n={2} onY={atY} title="Which day?" error={errors.when}>
+        {/* Only the day. A home repair is not a ride: nobody is waiting round the
+            corner, and the customer does not know the technicians' days. Each
+            offer says when he will come, and she chooses the one that suits her. */}
+        <View style={s.wrap}>
+          {days.map((day) => (
+            <Chip key={day} label={dayLabel(day, now.date)} on={d.whenDate === day} onPress={() => update({ whenKind: 'day', whenDate: day, whenFrom: null })} />
+          ))}
+        </View>
+        <Text style={s.hint}>Each technician says in his offer what time he can come that day. You choose the offer that suits you.</Text>
+      </Card>
+
       <Card
         id="address"
         icon="pin"
+        n={3}
         onY={atY}
-        title="Address"
+        title="Where?"
         hint="Put the pin on the house first. Only the technician you choose sees the house number."
       >
         {places.length ? <LinkRow icon="pin" label={places.length === 1 ? 'Use a saved address' : `Saved addresses (${places.length})`} onPress={() => setSheet('places')} /> : null}
@@ -733,17 +750,6 @@ export default function Post() {
         ) : null}
       </Card>
 
-      <Card id="when" icon="clock" onY={atY} title="When" error={errors.when}>
-        {/* Only the day. A home repair is not a ride: nobody is waiting round the
-            corner, and the customer does not know the technicians' days. Each
-            offer says when he will come, and she chooses the one that suits her. */}
-        <View style={s.wrap}>
-          {days.map((day) => (
-            <Chip key={day} label={dayLabel(day, now.date)} on={d.whenDate === day} onPress={() => update({ whenKind: 'day', whenDate: day, whenFrom: null })} />
-          ))}
-        </View>
-        <Text style={s.hint}>Each technician says in his offer what time he can come that day. You choose the offer that suits you.</Text>
-      </Card>
 
       <Card id="good" icon="help" onY={atY} title="Good to know" hint="Optional. Tap what is true." error={errors.power || errors.parts}>
         {d.trade && NEEDS_POWER.has(d.trade) ? (
@@ -758,7 +764,7 @@ export default function Post() {
         </View>
       </Card>
 
-      <Card id="price" icon="wallet" tone="money" onY={atY} title="Your price" error={errors.offer}>
+      <Card id="price" icon="wallet" n={4} tone="money" onY={atY} title="Your price" hint="Technicians accept it or offer theirs." error={errors.offer}>
         <View style={[s.offerRow, s.offerBox]}>
           <Press
             onPress={() => update({ offer: Math.max(min, offer - PRICE_STEP_PAISA) })}
@@ -908,14 +914,21 @@ function fromPlace(p: Place): Partial<Draft> {
 }
 
 /** One part of the form: a white card with its title, and its own error at the foot. */
-function Card({ id, icon, tone, onY, title, hint, error, children }: { id: string; icon: DuoName; tone?: 'money'; onY: (id: string, y: number) => void; title: string; hint?: string; error?: string; children: ReactNode }) {
+function Card({ id, icon, n, tone, onY, title, hint, error, children }: { id: string; icon: DuoName; n?: number; tone?: 'money'; onY: (id: string, y: number) => void; title: string; hint?: string; error?: string; children: ReactNode }) {
   return (
     <View style={[s.card, tone === 'money' && s.cardMoney]} onLayout={(e) => onY(id, e.nativeEvent.layout.y)}>
-      {/* Each part of the form says what it is the way the menu and home do: a two-tone icon on a soft tile. */}
+      {/* The four steps are numbered, so what comes next is plain without a progress bar;
+          an optional part keeps its two-tone icon. */}
       <View style={s.cardHead}>
-        <View style={[s.soft, tone === 'money' && { backgroundColor: colour.white }]}>
-          <DuoIcon name={icon} size={24} />
-        </View>
+        {n ? (
+          <View style={s.stepNo}>
+            <Text style={s.stepNoText}>{n}</Text>
+          </View>
+        ) : (
+          <View style={[s.soft, tone === 'money' && { backgroundColor: colour.white }]}>
+            <DuoIcon name={icon} size={24} />
+          </View>
+        )}
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={s.cardTitle} accessibilityRole="header">
             {title}
@@ -969,13 +982,11 @@ function Select({ label, value, placeholder, right, art, onPress }: { label: str
 function MediaTile({ icon, label, limit, onPress }: { icon: 'video' | 'camera'; label: string; limit: string; onPress: () => void }) {
   const narrow = useWindowDimensions().width < 360;
   return (
-    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}, ${limit}`} sink={0.96} style={tile.box}>
-      <View style={tile.dot}>
-        <DuoIcon name={icon} size={26} />
-      </View>
-      <View style={{ alignItems: 'center' }}>
-        <Text style={tile.label}>{label}</Text>
-        <Text style={[tile.limit, narrow && tile.limitNarrow]} numberOfLines={1}>{limit}</Text>
+    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}, ${limit}`} sink={0.96} style={s.media}>
+      <Icon name={icon} size={20} color={colour.ink} strokeWidth={2} />
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={s.mediaLabel}>{label}</Text>
+        <Text style={[s.mediaLimit, narrow && tile.limitNarrow]} numberOfLines={1}>{limit}</Text>
       </View>
     </Press>
   );
@@ -1011,6 +1022,18 @@ function PayFact({ text }: { text: string }) {
 }
 
 const s = StyleSheet.create({
+  topHeading: { fontFamily: font.display, fontSize: 18, color: colour.ink },
+  topJob: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 6, marginTop: 10 },
+  topTrade: { fontFamily: font.displayBold, fontSize: 13.5, color: colour.onYellow },
+  topName: { fontFamily: font.display, fontSize: 24, lineHeight: 29, letterSpacing: -0.5, color: colour.ink },
+  topPrice: { fontFamily: font.bodySemi, fontSize: 14, color: colour.onYellow, marginTop: 4 },
+  topChange: { minHeight: 44, minWidth: 44, justifyContent: 'center', alignSelf: 'flex-start' },
+  topChangeText: { fontFamily: font.display, fontSize: 15, color: colour.ink, textDecorationLine: 'underline' },
+  stepNo: { width: 34, height: 34, borderRadius: 17, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
+  stepNoText: { fontFamily: font.display, fontSize: 15, color: colour.ink },
+  media: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 56, paddingHorizontal: 12, borderRadius: 16, backgroundColor: colour.canvas },
+  mediaLabel: { fontFamily: font.display, fontSize: 14.5, color: colour.ink },
+  mediaLimit: { fontFamily: font.body, fontSize: 11.5, color: colour.steel },
   chosen: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, padding: 12, paddingBottom: 2, borderRadius: 18, backgroundColor: colour.cream },
   chosenArt: { width: 52, height: 52, borderRadius: 15, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },
   chosenTrade: { fontFamily: font.bodySemi, fontSize: 12.5, color: colour.steel },

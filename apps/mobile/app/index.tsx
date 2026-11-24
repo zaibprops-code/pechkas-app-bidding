@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Animated, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Animated, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,6 +10,7 @@ import { Icon } from '../src/components/Icon';
 import { MenuButton } from '../src/components/Menu';
 import { Press } from '../src/components/Press';
 import { ScrewSpinner } from '../src/components/ScrewSpinner';
+import { Rise, useRises } from '../src/components/Rise';
 import { SignInArt } from '../src/components/SignInArt';
 import { TradeArt } from '../src/components/TradeArt';
 import { SystemBars, useArrive } from '../src/components/ui';
@@ -164,6 +165,11 @@ export default function Home() {
                   )}
                 </View>
               </View>
+              {rest.length ? (
+                <Text style={[s.h2, { marginTop: 22 }]} accessibilityRole="header">
+                  More work
+                </Text>
+              ) : null}
               <View style={s.grid}>
                 {rest.map((t, i) => (
                   <Rise key={t.slug} v={rises[i + 3]} style={{ width: cell }}>
@@ -203,32 +209,6 @@ function Glow({ width, height }: { width: number; height: number }) {
   );
 }
 
-/** The tiles rise in one after another as home opens, once; still for less motion. */
-function useRises(count: number): Animated.Value[] {
-  const vs = useRef<Animated.Value[]>([]).current;
-  while (vs.length < count) vs.push(new Animated.Value(0));
-  const started = useRef(false);
-  useEffect(() => {
-    if (!count || started.current) return;
-    started.current = true;
-    AccessibilityInfo.isReduceMotionEnabled()
-      .catch(() => false)
-      .then((still) => {
-        if (still) return vs.forEach((v) => v.setValue(1));
-        Animated.stagger(
-          45,
-          vs.map((v) => Animated.spring(v, { toValue: 1, friction: 7, tension: 80, useNativeDriver: true })),
-        ).start();
-      });
-  }, [count, vs]);
-  return vs;
-}
-
-function Rise({ v, style, children }: { v?: Animated.Value; style?: object; children: ReactNode }) {
-  const y = v ? v.interpolate({ inputRange: [0, 1], outputRange: [26, 0] }) : 0;
-  return <Animated.View style={[style, { transform: [{ translateY: y }] }]}>{children}</Animated.View>;
-}
-
 type Trade = { slug: string; name: string };
 
 /** The first three: AC tall and yellow, the next two white beside it. */
@@ -264,25 +244,27 @@ function TileGlow() {
   );
 }
 
-/** Every other kind of work: a white card, its drawing on cream, its name and what it covers. */
+/** Every other kind of work: a white card, its drawing on a yellow disc, its name and what it covers. */
 function Tile({ trade, onPress, narrow }: { trade: Trade; onPress: () => void; narrow: boolean }) {
   const things = WORK_THINGS[trade.slug];
   return (
-    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={`${trade.name}. ${things ?? ''}`} sink={0.97} style={s.tile}>
-      <View style={[s.tileArt, narrow && { height: 58 }]}>
-        <TradeArt trade={trade.slug} size={narrow ? 40 : 48} />
+    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={`${trade.name}. ${things ?? ''}`} sink={0.97} style={[s.tile, narrow && s.tileNarrow]}>
+      <View style={[s.tileArt, narrow && s.tileArtNarrow]}>
+        <TradeArt trade={trade.slug} size={narrow ? 30 : 36} />
       </View>
-      <Text style={[s.tileName, narrow && { fontSize: 14 }]}>{trade.name}</Text>
-      {things ? <Text style={s.things}>{things}</Text> : null}
+      <View style={narrow ? null : { flex: 1, minWidth: 0 }}>
+        <Text style={[s.tileName, narrow && { fontSize: 14 }]}>{trade.name}</Text>
+        {things ? <Text style={s.tileThings}>{things}</Text> : null}
+      </View>
     </Press>
   );
 }
 
-/** For a new customer: the whole of Pechkas in three lines. Only what the app really does. */
+/** For a new customer: the whole of Pechkas in three lines, on green — trust — so it is never mistaken for a tile. */
 function HowItWorks() {
   const steps: [string, string][] = [
-    ['Say what is wrong and name your price', 'A voice note, a video, a photo or words.'],
-    ['Checked technicians send offers', 'Each says his price and when he will come. You choose.'],
+    ['Say what is wrong, name your price', 'A voice note, a video, a photo or words.'],
+    ['Checked technicians offer', 'Each says his price and when he will come. You choose.'],
     ['Pay him when it is done', 'Cash to him, once the work is finished.'],
   ];
   return (
@@ -385,10 +367,14 @@ const s = StyleSheet.create({
   bigArtTall: { right: -6, bottom: -4 },
   things: { fontFamily: font.body, fontSize: 12.5, lineHeight: 17, color: colour.steel, marginTop: 2 },
   thingsTall: { color: colour.onYellow },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 },
-  tile: { borderRadius: 22, backgroundColor: colour.white, padding: 10, paddingBottom: 12, minHeight: 150, boxShadow: shadow.card },
-  tileArt: { height: 70, borderRadius: 16, backgroundColor: colour.cream, alignItems: 'center', justifyContent: 'center', marginBottom: 9 },
-  tileName: { fontFamily: font.display, fontSize: 15.5, color: colour.ink, paddingHorizontal: 4 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  tile: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 84, borderRadius: 22, backgroundColor: colour.white, padding: 12, boxShadow: shadow.card },
+  // A small phone's card is about 140 points wide: the picture goes above the words, which keep every letter.
+  tileNarrow: { flexDirection: 'column', alignItems: 'flex-start', padding: 12, gap: 8 },
+  tileArt: { width: 54, height: 54, borderRadius: 27, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
+  tileArtNarrow: { width: 44, height: 44, borderRadius: 22 },
+  tileName: { fontFamily: font.display, fontSize: 15, lineHeight: 19, color: colour.ink },
+  tileThings: { fontFamily: font.body, fontSize: 12, lineHeight: 16, color: colour.steel, marginTop: 2 },
 
   live: { borderRadius: 20, backgroundColor: colour.white, borderWidth: 2, borderColor: colour.ink, padding: 14, gap: 12 },
   liveHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
@@ -401,12 +387,12 @@ const s = StyleSheet.create({
   liveBarQuiet: { backgroundColor: colour.canvas },
   liveBarText: { flex: 1, fontFamily: font.display, fontSize: 15, color: colour.ink },
 
-  how: { marginTop: 22, borderRadius: 24, backgroundColor: colour.white, padding: 18, paddingTop: 16, gap: 14, boxShadow: shadow.card },
-  howTitle: { fontFamily: font.display, fontSize: 18, color: colour.ink },
+  how: { marginTop: 22, borderRadius: 26, backgroundColor: colour.green, padding: 18, paddingTop: 16, gap: 14 },
+  howTitle: { fontFamily: font.display, fontSize: 19, color: colour.white },
   step: { flexDirection: 'row', gap: 12 },
   stepNo: { width: 30, height: 30, borderRadius: 15, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
   stepNoText: { fontFamily: font.display, fontSize: 14, color: colour.ink },
-  stepTitle: { fontFamily: font.display, fontSize: 15.5, color: colour.ink },
-  stepText: { fontFamily: font.body, fontSize: 13.5, lineHeight: 19, color: colour.steel, marginTop: 1 },
+  stepTitle: { fontFamily: font.display, fontSize: 15.5, color: colour.white },
+  stepText: { fontFamily: font.body, fontSize: 13.5, lineHeight: 19, color: colour.greenSoft, marginTop: 1 },
   foot: { fontFamily: font.bodyMedium, fontSize: 13, color: colour.steel, textAlign: 'center', marginTop: 22 },
 });

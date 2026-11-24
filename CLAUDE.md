@@ -1542,13 +1542,30 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   kind of work** with the things it covers under its name ("Plumber — Taps,
   toilet, geyser, motor"), the first three in the trades' own order big (AC
   tall and yellow), the rest two by two — a tap opens that kind of work's
-  page (`app/work/[trade].tsx`): "What is the problem?", its jobs in small
-  groups with their usual prices, and **Something else**. A job there or in
-  Search opens Post a job with that job chosen (`trade` and `type`), shown
-  once at the top with **Change**; opened with nothing chosen, Post a job
-  keeps its two drop-downs. A new customer's home ends with **How Pechkas
-  works** in three lines until her first job is done, then one line saying
-  My jobs, Help and Safety are in the menu. **Nothing else, on purpose — no
+  page (`app/work/[trade].tsx`). **These screens share the new look** (the
+  owner's choice, 24 November 2026): the yellow top (`YellowTop.tsx`, the
+  sign-in pictures' glow), big drawings, black buttons, prices in pills
+  (`PricePill`), and lists that rise in once (`Rise.tsx`). A kind of work's
+  page: its big drawing and "What is the problem?"; a trade with groups
+  shows them as **picture tiles** (Taps and sinks, Toilet, Geyser…, each
+  with its own drawing — `art` in `WORK_GROUPS`, drawn in `TradeArt.tsx`),
+  and a tap slides that group's jobs up in a `Sheet`; a short trade shows
+  its jobs as cards; **Something else** is the black tile with a yellow
+  microphone. **Search** (`app/find.tsx`): "What do you see?", and before
+  typing ten words to tap (`WORK_SUGGESTIONS`; `jobs.test.mjs` checks each
+  finds a job); results are cards with the job's drawing, its trade and
+  the price pill. A job there or on a kind of work's page opens **Post a
+  job** with that job chosen (`trade` and `type`): the job is the yellow
+  picture at the top (`Screen`'s `top`) with **Change**; then four
+  **numbered steps** — 1 What is wrong? (the voice note is the one big
+  black button, `VoiceTile wide`; Video and Photo under it), 2 Which day?,
+  3 Where?, 4 Your price — with Good to know unnumbered before the price,
+  and a black **Post job · Rs …**. Opened with nothing chosen, Post a job
+  keeps its drop-down. Home's other kinds of work are white cards with the
+  drawing on a yellow disc (the picture above the words under 360 wide). A
+  new customer's home ends with **How Pechkas works** on a green card until
+  her first job is done, then one line saying My jobs, Help and Safety are
+  in the menu. **Nothing else, on purpose — no
   duplicates** (the owner's rule): the map and "Set the job's address", the
   green call to action, voice and video, recent jobs and Why Pechkas were
   all second ways to somewhere else and are gone. How the work is shown is

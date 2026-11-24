@@ -23,7 +23,13 @@ import { clock, detailOf, LIMITS, type Media } from './media';
  * row to play back or throw away — so the row never holds a tile that does
  * nothing.
  */
-export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; onProblem: (m: string | Message) => void }) {
+/**
+ * `wide` is Post a job's look (the owner's choice, 24 November 2026): the
+ * voice note as the one big black button across the card, because speaking
+ * is the easiest way for most customers to say what is wrong. Recording, it
+ * says how much of the minute is left and fills from the left (transform).
+ */
+export function VoiceTile({ onDone, onProblem, wide = false }: { onDone: (m: Media) => void; onProblem: (m: string | Message) => void; wide?: boolean }) {
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const state = useAudioRecorderState(recorder, 250);
   const [busy, setBusy] = useState(false);
@@ -90,6 +96,26 @@ export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; o
   // What is left, counted down, and a bar that fills as the minute runs out.
   const left = Math.max(0, LIMITS.voiceSeconds - seconds);
   const used = Math.min(1, seconds / LIMITS.voiceSeconds);
+  if (wide) {
+    return (
+      <Press
+        onPress={live ? stop : start}
+        accessibilityRole="button"
+        accessibilityLabel={live ? `Stop recording. ${left} seconds left.` : `Record a voice note, up to ${LIMITS.voiceSeconds / 60} minute`}
+        sink={0.97}
+        style={[wideS.box, live && wideS.boxLive]}
+      >
+        {live ? <View style={[wideS.fill, { transform: [{ scaleX: used }] }]} accessible={false} /> : null}
+        <View style={wideS.dot}>{live ? <View style={s.stopSquare} /> : <Icon name="mic" size={21} color={colour.ink} strokeWidth={2.2} />}</View>
+        <View style={{ flex: 1 }}>
+          <Text style={wideS.title} accessibilityLiveRegion="polite">
+            {live ? `Recording · ${clock(left)} left` : busy ? 'Starting…' : 'Record a voice note'}
+          </Text>
+          <Text style={wideS.sub}>{live ? 'Tap to stop' : `Up to ${LIMITS.voiceSeconds / 60} min · Urdu or English`}</Text>
+        </View>
+      </Press>
+    );
+  }
   return (
     <Press
       onPress={live ? stop : start}
@@ -123,6 +149,15 @@ export function VoiceTile({ onDone, onProblem }: { onDone: (m: Media) => void; o
     </Press>
   );
 }
+
+const wideS = StyleSheet.create({
+  box: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 62, paddingHorizontal: 14, borderRadius: 18, backgroundColor: colour.ink, overflow: 'hidden' },
+  boxLive: { backgroundColor: colour.brick },
+  fill: { position: 'absolute', left: 0, top: 0, bottom: 0, right: 0, backgroundColor: 'rgba(255,255,255,0.14)', transformOrigin: 'left' },
+  dot: { width: 38, height: 38, borderRadius: 19, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
+  title: { fontFamily: font.display, fontSize: 16, color: colour.white },
+  sub: { fontFamily: font.bodyMedium, fontSize: 12.5, color: 'rgba(255,255,255,0.78)', marginTop: 1 },
+});
 
 /** The look every tile in the row shares: voice, video, photo. */
 export const tile = StyleSheet.create({

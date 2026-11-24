@@ -137,7 +137,11 @@ export function useScrollEnd(air = 24): number {
 const ScreenScroll = createContext<(y: number) => void>(() => {});
 export const useScreenScroll = () => useContext(ScreenScroll);
 
-export function Screen({ children, dark = false, footer, hero }: { children: ReactNode; footer?: ReactNode; hero?: HeroProps } & Tone) {
+/**
+ * `top` is drawn instead of the hero, full width at the head of the
+ * scrolling — Post a job's yellow picture of the chosen job (YellowTop).
+ */
+export function Screen({ children, dark = false, footer, hero, top }: { children: ReactNode; footer?: ReactNode; hero?: HeroProps; top?: ReactNode } & Tone) {
   const insets = useSafeAreaInsets();
   const scroll = useRef<ScrollView>(null);
   // Where the body starts inside the scrolling content, below the hero.
@@ -154,10 +158,10 @@ export function Screen({ children, dark = false, footer, hero }: { children: Rea
       <StatusBar style={dark ? 'light' : 'dark'} />
       {/* With a footer, the footer keeps clear of the button bar; without one, the scrolling has to. */}
       <ScrollView ref={scroll} contentContainerStyle={{ paddingBottom: footer ? 24 : insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
-        {hero ? <Hero dark={dark} {...hero} /> : null}
+        {top ?? (hero ? <Hero dark={dark} {...hero} /> : null)}
         <Animated.View
           onLayout={(e) => (bodyY.current = e.nativeEvent.layout.y)}
-          style={{ paddingTop: hero ? 8 : insets.top + 16, paddingHorizontal: 20, gap: 16, transform: [{ translateY: rise }] }}
+          style={{ paddingTop: top ? 16 : hero ? 8 : insets.top + 16, paddingHorizontal: 20, gap: 16, transform: [{ translateY: rise }] }}
         >
           <ScreenScroll.Provider value={scrollTo}>{children}</ScreenScroll.Provider>
         </Animated.View>

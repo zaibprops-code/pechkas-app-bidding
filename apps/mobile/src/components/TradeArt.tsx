@@ -8,7 +8,8 @@ import { colour } from '../theme';
  * yellow, sometimes green — never a person. On home, the search results,
  * a kind of work's page and the top of Post a job. A trade with no drawing
  * of its own gets the four squares, so a new trade added by migration is
- * never a blank tile.
+ * never a blank tile. The groups on a kind of work's page have drawings
+ * of their own (a geyser, a toilet, a fan…), named in packages/shared/src/work.ts.
  */
 const INK = colour.ink;
 const Y = colour.yellow;
@@ -100,6 +101,103 @@ const DRAWINGS: Record<string, () => ReactNode> = {
       <Rect x={8} y={9} width={48} height={33} rx={4} fill={W} {...L} />
       <Rect x={13} y={14} width={38} height={23} rx={2} fill={Y} />
       <Path d="M27 42l-3 10h16l-3-10M20 52h24" fill="none" {...L} />
+    </>
+  ),
+  // The groups on a kind of work's page.
+  'ac-service': () => (
+    <>
+      <Rect x={6} y={10} width={52} height={22} rx={5} fill={W} {...L} />
+      <Path d="M12 25h40" {...L} />
+      <Circle cx={50} cy={17} r={2} fill={INK} />
+      <Path d="M24 52l14-14M34 34a6 6 0 1 1 8 8l-4-1-3-3z" fill={Y} {...L} />
+    </>
+  ),
+  'ac-fitting': () => (
+    <>
+      <Rect x={10} y={10} width={44} height={20} rx={5} fill={W} {...L} />
+      <Path d="M15 23h34" {...L} />
+      <Rect x={14} y={40} width={36} height={16} rx={3} fill={Y} {...L} />
+      <Path d="M14 56l-6 4M50 56l6 4M32 30v10" {...L} />
+    </>
+  ),
+  fan: () => (
+    <>
+      <Path d="M32 6v12" {...L} />
+      <Circle cx={32} cy={24} r={5} fill={INK} />
+      <Path d="M30 22 8 18c-2 0-3 3-1 4l23 5M34 22l22-4c2 0 3 3 1 4l-23 5M32 29l-2 22c0 2 4 2 4 0z" fill={Y} {...L} />
+    </>
+  ),
+  socket: () => (
+    <>
+      <Rect x={10} y={10} width={44} height={44} rx={8} fill={W} {...L} />
+      <Circle cx={32} cy={32} r={13} fill={Y} {...L} />
+      <Circle cx={27} cy={30} r={2.2} fill={INK} />
+      <Circle cx={37} cy={30} r={2.2} fill={INK} />
+      <Rect x={30.5} y={35} width={3} height={5} rx={1.5} fill={INK} />
+    </>
+  ),
+  breaker: () => (
+    <>
+      <Rect x={8} y={8} width={48} height={48} rx={6} fill={W} {...L} />
+      {[16, 28, 40].map((x) => (
+        <Rect key={x} x={x} y={18} width={8} height={18} rx={2} fill={x === 28 ? Y : W} {...L} />
+      ))}
+      <Path d="M18 46h28" {...L} />
+    </>
+  ),
+  toilet: () => (
+    <>
+      <Rect x={14} y={8} width={26} height={16} rx={3} fill={W} {...L} />
+      <Path d="M10 30h40a16 16 0 0 1-16 16h-8a16 16 0 0 1-16-16z" fill={Y} {...L} />
+      <Path d="M22 46l-2 10h20l-2-10" fill={W} {...L} />
+      <Path d="M20 24v6" {...L} />
+    </>
+  ),
+  geyser: () => (
+    <>
+      <Rect x={18} y={6} width={28} height={44} rx={12} fill={W} {...L} />
+      <Circle cx={32} cy={22} r={6} fill={Y} {...L} />
+      <Path d="M32 22l3-3M24 50v8M40 50v8" {...L} />
+    </>
+  ),
+  motor: () => (
+    <>
+      <Rect x={10} y={22} width={32} height={24} rx={6} fill={Y} {...L} />
+      <Path d="M18 22v24M26 22v24M34 22v24" {...L} />
+      <Rect x={42} y={28} width={12} height={12} rx={2} fill={W} {...L} />
+      <Path d="M54 34h6M14 46v8h24v-8" fill="none" {...L} />
+    </>
+  ),
+  drain: () => (
+    <>
+      <Circle cx={32} cy={30} r={20} fill={W} {...L} />
+      <Path d="M22 22h20M20 30h24M22 38h20" {...L} />
+      <Path d="M32 50c-3 4-4 6-4 8a4 4 0 0 0 8 0c0-2-1-4-4-8z" fill={Y} {...L} />
+    </>
+  ),
+  door: () => (
+    <>
+      <Rect x={16} y={6} width={32} height={52} rx={3} fill={W} {...L} />
+      <Rect x={22} y={12} width={20} height={16} rx={2} fill={Y} {...L} />
+      <Circle cx={41} cy={36} r={3} fill={INK} />
+      <Path d="M10 58h44" {...L} />
+    </>
+  ),
+  cupboard: () => (
+    <>
+      <Rect x={10} y={8} width={44} height={46} rx={4} fill={W} {...L} />
+      <Path d="M32 8v46M10 40h44" {...L} />
+      <Rect x={10} y={40} width={44} height={14} rx={2} fill={Y} {...L} />
+      <Path d="M28 22v6M36 22v6M16 54v4M48 54v4" {...L} />
+    </>
+  ),
+  shelf: () => (
+    <>
+      <Path d="M8 12v44" {...L} />
+      <Rect x={8} y={26} width={46} height={6} rx={2} fill={Y} {...L} />
+      <Path d="M14 32l6 10M48 32l-6 10" {...L} />
+      <Rect x={18} y={14} width={8} height={12} rx={1} fill={W} {...L} />
+      <Rect x={28} y={18} width={14} height={8} rx={1} fill={W} {...L} />
     </>
   ),
 };

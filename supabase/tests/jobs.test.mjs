@@ -6,7 +6,7 @@
  * technician, and as staff who have been switched off.
  */
 import { as, denied, heading, migrate, nothing, ok, report, setup } from './harness.mjs';
-import { WORK_ALSO, WORK_GROUPS, WORK_THINGS } from '../../packages/shared/src/work.ts';
+import { findJobs, WORK_ALSO, WORK_GROUPS, WORK_SUGGESTIONS, WORK_THINGS } from '../../packages/shared/src/work.ts';
 
 await migrate();
 
@@ -240,6 +240,10 @@ heading('How the app shows the work matches the work there is');
   ok('no job is in two groups', twice.length === 0, twice);
   const noLine = trades.filter((t) => !WORK_THINGS[t.slug]);
   ok('every kind of work says what it covers on home', noLine.length === 0, noLine);
+  const { rows: names } = await setup(`SELECT slug, name FROM public.trades`);
+  const tradeName = (slug) => names.find((t) => t.slug === slug)?.name ?? slug;
+  const empty = WORK_SUGGESTIONS.filter((w) => findJobs(w, types, tradeName).length === 0);
+  ok('every word Search suggests finds a job', empty.length === 0, empty);
 }
 
 report();
