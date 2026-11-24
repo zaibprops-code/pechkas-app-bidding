@@ -1952,6 +1952,20 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## My jobs: Now and Past (24 November 2026)
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261124000000_job_history.sql`, after the files
+   before it. It should say **Success**. No new build: the screen comes to
+   your test phone by itself as an update.
+2. Until you run it, the app shows **Waiting for a database update** on
+   every phone that has the new screen. Run it first, then open the app.
+3. **Try it**: open the menu → **My jobs**. It opens on **Now**. Tap
+   **Past**: type a word from an old job in the box, then tap the filter
+   button at the end of the box and try **When** — tap a first day and a
+   last day on the calendar. The black button says how many jobs you will
+   see.
+
 ## The repeat rate looks back 12 months (A105, decided 22 November 2026)
 
 1. **Supabase → SQL Editor**: run

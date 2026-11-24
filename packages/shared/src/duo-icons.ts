@@ -149,6 +149,11 @@ export const DUO_ICONS = {
     { shape: "path", paint: "accent", d: "M6 7.5h12l-1 12a1.5 1.5 0 0 1-1.5 1.4h-7A1.5 1.5 0 0 1 7 19.5z" },
     { shape: "path", paint: "line", d: "M6 7.5h12l-1 12a1.5 1.5 0 0 1-1.5 1.4h-7A1.5 1.5 0 0 1 7 19.5zM4 7.5h16M9.5 7.5V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2.5M10.5 11v6M13.5 11v6" },
   ],
+  calendar: [
+    { shape: "path", paint: "accent", d: "M4 8.5A2.5 2.5 0 0 1 6.5 6h11A2.5 2.5 0 0 1 20 8.5V11H4z" },
+    { shape: "rect", paint: "line", x: 4, y: 6, width: 16, height: 14, rx: 2.5 },
+    { shape: "path", paint: "line", d: "M8 4v4M16 4v4M4 11h16" },
+  ],
   medal: [
     { shape: "circle", paint: "accent", cx: 12, cy: 10, r: 5.5 },
     { shape: "circle", paint: "line", cx: 12, cy: 10, r: 5.5 },

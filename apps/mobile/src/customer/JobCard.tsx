@@ -32,6 +32,8 @@ import { colour, font, radius } from '../theme';
 
 export type Job = JobNow & Omit<CancelFields, 'id' | 'ref' | 'status' | 'stage' | 'pro'> & {
   id: string;
+  /** When it ended, for My jobs' "finished 23 Nov" (my_jobs() has always sent it). */
+  finished_at?: string | null;
   ref: string;
   trade: string;
   title: string;

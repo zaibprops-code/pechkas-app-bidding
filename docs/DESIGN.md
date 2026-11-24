@@ -157,6 +157,16 @@ home.
   status, step and counts. Nothing estimated, no "usually replies in".
 - **Long things open one at a time** (Help's questions), so a page never
   becomes a wall of words.
+- **A list that grows is two tabs, then one box** (My jobs, the owner's
+  design): what is happening now opens first, the history is the other
+  tab. The history has ONE search box with a filter button at its end;
+  the filters are rows in one sheet, each opening its own page — never a
+  drop-down, which breaks at thirty choices. A long list of choices gets a
+  search box, the most used first, then A to Z, each with its count, and
+  only choices that would find something. Dates are a calendar: any two
+  days, quick choices above it, dots on days with something, the month's
+  name opens every month. The sheet's button says how many will show.
+  Filters on are green tags with ✕.
 - **Documents are a list, then a reader** (the owner's reference app):
   `app/legal/index.tsx` lists every legal page as one white card — icon
   tile, the page's own title and one-line summary (never typed in the

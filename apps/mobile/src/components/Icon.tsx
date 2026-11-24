@@ -9,6 +9,8 @@ import { colour } from '../theme';
 export type IconName =
   | 'pin'
   | 'chevronDown'
+  | 'chevronLeft'
+  | 'filter'
   | 'arrowRight'
   | 'arrowLeft'
   | 'mic'
@@ -73,6 +75,14 @@ export function Icon({ name, size = 24, color = colour.green, strokeWidth = 1.8,
         </>
       )}
       {name === 'chevronDown' && <Path {...s} d="M6 9l6 6 6-6" />}
+      {name === 'chevronLeft' && <Path {...s} d="M15 6l-6 6 6 6" />}
+      {name === 'filter' && (
+        <>
+          <Path {...s} d="M4 7h9M17 7h3M4 17h3M11 17h9" />
+          <Circle {...s} cx={15} cy={7} r={2.2} />
+          <Circle {...s} cx={9} cy={17} r={2.2} />
+        </>
+      )}
       {name === 'arrowRight' && <Path {...s} d="M5 12h14M13 6l6 6-6 6" />}
       {name === 'arrowLeft' && <Path {...s} d="M19 12H5M11 6l-6 6 6 6" />}
       {name === 'mic' && (

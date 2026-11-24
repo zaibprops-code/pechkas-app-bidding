@@ -524,22 +524,40 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   wide the price moves under the title and long button labels drop the
   price or the word "Pechkas", so nothing is cut or wrapped mid-figure.
   Every action is the same database call as before.
-- **My jobs (`app/jobs.tsx`) is the history, laid out like a ride app's**
-  — redesigned at the owner's request in the menu's and home's style. No
-  buttons on it but the cards themselves, each opening the job's screen.
-  **Happening now**: one white card per open or assigned job — the trade's
-  drawing on a cream tile (`artFor()` in `Art.tsx`, shared with Post a
-  job), trade · ref, title, the price she will pay; then a grey status
-  row read from the job (the screw turning while nobody has offered, a
-  yellow disc with the number of offers, his initial once chosen); four
-  steps (Chosen, On the way, Arrived, Working) once he is chosen; and a
-  yellow pill only when she has something to do (**Choose a technician**,
-  **Answer the new price**). **Earlier**: one sheet of rows — drawing,
-  title and price on one line (the title gets the width, never cut on a
-  320 phone), date · trade · ref, a status chip, and **Rate …** only while
-  `can_rate` says she still may. Then the green **Post a new job** card,
-  the same as home's. Every word comes from `my_jobs()`; nothing
-  estimated.
+- **My jobs (`app/jobs.tsx`) is two tabs on the yellow top, Now and Past**
+  (the owner's design, 24 November 2026, after many rounds), so nobody
+  scrolls past a hundred old jobs to find today's. It always opens on
+  **Now**, from `my_jobs()` every 10 s: **Needs you** (a yellow count; a
+  live job where she must act — choose, answer a new price, check the
+  work, he is at the door — and a finished one with a D35 payment question
+  or money owed, each with a yellow bar saying it, `todoOf()` / `payOf()`),
+  then **On its way** (calm: who, the steps), then quietly **When you have
+  a moment** (a rating `can_rate` still allows). Nothing on: one card,
+  "Nothing happening right now", with the way to home and to Past. The
+  green "Post a new job" card is gone (home has it: no duplicates).
+  **Past** (`src/customer/Past.tsx`) never reads `my_jobs()`: it asks
+  `my_history()` for twenty finished jobs at a time (the next twenty as she
+  nears the foot) and `my_history_facets()` for what the filters may offer
+  (migration `…_job_history`, tests `history.test.mjs`): her own jobs only,
+  no address, pin or phone, the technician a first name on jobs he worked,
+  searched and counted by the database. One box searches what the job was,
+  who came and the job number; the filter button at its end opens one
+  sheet of three rows — **What happened**, **Kind of work**, **When** —
+  each a page of its own, never a drop-down (the owner: a list of 30 must
+  still work): Kind of work offers only kinds she has had, with counts,
+  her three most used first, then A to Z, and a search box once it is
+  long; When is a calendar (`Calendar.tsx`: any two days, This month /
+  Last 3 months / This year / Last year, green dots on days she had a job,
+  the month's name opens every month of a year, Pakistan's days). The
+  sheet's black button always says how many jobs she will see. Filters on
+  show as green tags with ✕ and a count on the button. With nothing
+  searched, **Still under guarantee** sits on top in green (days left),
+  then month by month with each month's count and what she paid. Rows:
+  drawing, the whole title (never cut, even at 320), day · who · ref, how
+  it ended (Guaranteed · Done, Visit fee only, Cancelled, Nobody took it),
+  what she paid (Free on a Pechkas repair, — when nothing). A tap opens
+  the job's screen, which keeps the receipt, Book again, Rate and the
+  guarantee.
 - **Home shows what is still happening** (`LiveCard` in `app/index.tsx`),
   from `my_jobs()` every 10 s while focused; finished jobs are on My jobs
   only. Every headline is read from the job's own status

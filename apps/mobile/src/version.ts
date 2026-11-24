@@ -10,7 +10,7 @@ import Constants from 'expo-constants';
  * behind — the owner runs migrations by hand, and a skipped one makes whole
  * features quietly do nothing.
  */
-export const NEWEST_MIGRATION = '20261122000000_repeat_window';
+export const NEWEST_MIGRATION = '20261124000000_job_history';
 
 const extra = (Constants.expoConfig?.extra ?? {}) as { commit?: string | null; builtAt?: string | null };
 
