@@ -18,17 +18,19 @@ const AYESHA = 'e1111111-1111-4111-8111-111111111111';
 const SARA = 'e2222222-2222-4222-8222-222222222222';
 const BILAL = 'e3333333-3333-4333-8333-333333333333';
 const ASAD = 'e4444444-4444-4444-8444-444444444444';
+const BILAL2 = 'e5555555-5555-4555-8555-555555555555'; // another Bilal
 
 for (const [id, phone, role, name] of [
   [AYESHA, '923001111111', 'customer', 'Ayesha'],
   [SARA, '923002222222', 'customer', 'Sara'],
   [BILAL, '923003333333', 'pro', 'Bilal'],
   [ASAD, '923004444444', 'pro', 'Asad'],
+  [BILAL2, '923005555555', 'pro', 'Bilal'],
 ]) {
   await setup(`INSERT INTO auth.users (id, phone) VALUES ($1, $2)`, [id, phone]);
   await setup(`INSERT INTO public.profiles (id, role, first_name) VALUES ($1, $2, $3)`, [id, role, name]);
 }
-for (const [id, full, trades] of [[BILAL, 'Bilal Ahmed', '{plumber,ac}'], [ASAD, 'Asad Mehmood', '{ac}']]) {
+for (const [id, full, trades] of [[BILAL, 'Bilal Ahmed', '{plumber,ac}'], [ASAD, 'Asad Mehmood', '{ac}'], [BILAL2, 'Bilal Khan', '{plumber}']]) {
   await setup(`INSERT INTO public.pros (id, full_name, trades, years, sectors, status) VALUES ($1, $2, $3, 6, '{F-11}', 'approved')`, [id, full, trades]);
 }
 
@@ -153,17 +155,44 @@ heading('What the filters may offer');
 }
 
 // =============================================================================
+heading('Her own words, who came, and where');
+
+{
+  const sink = await past(AYESHA, 'plumber', 'Sink repair', 'done', BILAL2, 7, 150000);
+  await setup(`UPDATE public.jobs SET description = 'kitchen sink leaking under the cabinet', sector = 'G-11' WHERE id = $1`, [sink]);
+  ok('the search reads what she wrote: "cabinet"', titles(await hist(AYESHA, `p_q => 'cabinet'`)).join('|') === 'Sink repair');
+  ok('and her sector', titles(await hist(AYESHA, `p_q => 'g-11'`)).join('|') === 'Sink repair');
+  const f = (await call(AYESHA, `SELECT public.my_history_facets()`)).value;
+  const bilals = f.pros.filter((x) => x.name === 'Bilal');
+  ok('two men called Bilal are two choices', bilals.length === 2 && bilals[0].key !== bilals[1].key, JSON.stringify(f.pros));
+  ok('each with how many jobs and the kinds of work', bilals.find((x) => x.n === 3)?.trades.join(',') === 'Plumber', JSON.stringify(bilals));
+  ok('only men who worked on her jobs', f.pros.length === 3 && f.pros.every((x) => /^[a-f0-9]{32}$/.test(x.key)));
+  ok('no surname, no account id', !/Ahmed|Khan|Mehmood|e3333333|e5555555/.test(JSON.stringify(f.pros)));
+  const first = bilals.find((x) => x.n === 3);
+  ok('Who came: the first Bilal\'s three jobs', (await hist(AYESHA, `p_pro => '${first.key}'`)).found === 3);
+  const other = bilals.find((x) => x.n === 1);
+  ok('the other Bilal\'s one', titles(await hist(AYESHA, `p_pro => '${other.key}'`)).join('|') === 'Sink repair');
+  const saraKey = (await call(SARA, `SELECT public.my_history_facets()`)).value.pros[0]?.key;
+  ok('the same man is a different key for another customer', saraKey && saraKey !== first.key);
+  ok('and her key finds nothing in Ayesha\'s jobs', (await hist(AYESHA, `p_pro => '${saraKey}'`)).found === 0);
+  ok('Where: her two sectors, with counts', f.sectors.map((x) => `${x.sector}:${x.n}`).join(',') === 'F-11:6,G-11:1', JSON.stringify(f.sectors));
+  ok('Where filters', titles(await hist(AYESHA, `p_sector => 'G-11'`)).join('|') === 'Sink repair');
+  ok('every filter together', (await hist(AYESHA, `p_q => 'sink', p_pro => '${other.key}', p_sector => 'G-11', p_trade => 'plumber', p_what => 'done'`)).found === 1);
+}
+
+// =============================================================================
 heading('The owner runs migrations by hand');
 
 {
   let error = null;
   try {
-    await db.exec(await readFile(join(MIGRATIONS, '20261124000000_job_history.sql'), 'utf8'));
+    for (const file of ['20261125000000_history_who_where.sql', '20261124000000_job_history.sql', '20261125000000_history_who_where.sql'])
+      await db.exec(await readFile(join(MIGRATIONS, file), 'utf8'));
   } catch (e) {
     error = e.message;
   }
-  ok('running it a second time works', error === null, error);
-  ok('and it still answers', (await hist(AYESHA)).found === 6);
+  ok('both files run again, in either order', error === null, error);
+  ok('and it still answers, with every filter', (await hist(AYESHA)).found === 7 && (await hist(AYESHA, `p_sector => 'G-11'`)).found === 1);
 }
 
 report();

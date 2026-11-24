@@ -25,17 +25,28 @@
 -- rule. What she paid is collect_paisa, fixed when the job ended; a repair
 -- Pechkas paid for is "free", never Rs 0.
 --
+-- 25 November 2026: this file now makes the same functions as
+-- 20261125000000_history_who_where (the search reads what she wrote; Who
+-- came; Where), so the two can be run in either order, or again, and end the
+-- same. Whichever ran first, the other changes nothing.
+--
 -- Safe to run twice.
 -- =============================================================================
 
 BEGIN;
 
-/** Her finished jobs, one row each, with the few things Past shows. */
-CREATE OR REPLACE FUNCTION public.history_rows(p_customer uuid)
+-- The row helper gains columns, and Postgres cannot change what a function
+-- returns in place: it is dropped and made again. my_history() takes two
+-- more filters, so its old form is dropped too.
+DROP FUNCTION IF EXISTS public.my_history(text, text, text, date, date, timestamptz, uuid, integer);
+DROP FUNCTION IF EXISTS public.history_rows(uuid);
+
+/** Her finished jobs, one row each, with the few things Past shows and searches. */
+CREATE FUNCTION public.history_rows(p_customer uuid)
 RETURNS TABLE (
-  id uuid, ref text, trade text, trade_name text, title text, job_type_id integer,
-  status text, cancelled_by text, stop_reason text, paid_by_pechkas boolean,
-  at timestamptz, day date, pro text, paid_paisa bigint, guarantee_until timestamptz,
+  id uuid, ref text, trade text, trade_name text, title text, description text, job_type_id integer,
+  status text, cancelled_by text, stop_reason text, paid_by_pechkas boolean, sector text,
+  at timestamptz, day date, pro text, pro_key text, paid_paisa bigint, guarantee_until timestamptz,
   can_rate boolean, my_rating smallint
 )
 LANGUAGE sql
@@ -43,10 +54,11 @@ STABLE
 SECURITY DEFINER
 SET search_path = ''
 AS $$
-  SELECT j.id, j.ref, j.trade, t.name, j.title, j.job_type_id,
-         j.status, j.cancelled_by, j.stop_reason, j.paid_by_pechkas,
+  SELECT j.id, j.ref, j.trade, t.name, j.title, j.description, j.job_type_id,
+         j.status, j.cancelled_by, j.stop_reason, j.paid_by_pechkas, j.sector,
          x.at, public.pk_day(x.at),
          CASE WHEN j.status IN ('done', 'stopped') THEN (SELECT split_part(r.full_name, ' ', 1) FROM public.pros r WHERE r.id = j.pro_id) END,
+         CASE WHEN j.status IN ('done', 'stopped') AND j.pro_id IS NOT NULL THEN md5(j.pro_id::text || ':' || p_customer::text) END,
          CASE WHEN j.status IN ('done', 'stopped') AND NOT j.paid_by_pechkas THEN j.collect_paisa END,
          CASE WHEN j.status = 'done' THEN j.finished_at + make_interval(days => public.guarantee_days_of(j.id)) END,
          j.status IN ('done', 'stopped')
@@ -63,11 +75,11 @@ $$;
 
 /**
  * One page of her finished jobs. Every word of the search must appear in the
- * job's title, number, kind of work or technician's first name. p_what is
- * all | done | covered (still under guarantee) | fee (visit fee only) |
- * cancelled | nobody (nobody took it). p_from / p_to are days, either may be
- * left out. The next page starts after p_before / p_before_id, the last row
- * of this one. `found` is how many match in all, for "Show 23 jobs".
+ * job's title, what she wrote, its number, its kind of work, its sector or
+ * the technician's first name. p_what is all | done | covered | fee |
+ * cancelled | nobody. p_pro is a key from my_history_facets().pros, p_sector
+ * one of her sectors. p_from / p_to are days. The next page starts after
+ * p_before / p_before_id. `found` is how many match in all.
  */
 CREATE OR REPLACE FUNCTION public.my_history(
   p_q text DEFAULT NULL,
@@ -77,7 +89,9 @@ CREATE OR REPLACE FUNCTION public.my_history(
   p_to date DEFAULT NULL,
   p_before timestamptz DEFAULT NULL,
   p_before_id uuid DEFAULT NULL,
-  p_limit integer DEFAULT 20
+  p_limit integer DEFAULT 20,
+  p_pro text DEFAULT NULL,
+  p_sector text DEFAULT NULL
 )
 RETURNS jsonb
 LANGUAGE sql
@@ -91,6 +105,8 @@ AS $$
   matching AS (
     SELECT h.* FROM public.history_rows(auth.uid()) h, words
     WHERE (p_trade IS NULL OR h.trade = p_trade)
+      AND (p_pro IS NULL OR h.pro_key = p_pro)
+      AND (p_sector IS NULL OR h.sector = p_sector)
       AND (p_from IS NULL OR h.day >= p_from)
       AND (p_to IS NULL OR h.day <= p_to)
       AND CASE coalesce(p_what, 'all')
@@ -103,7 +119,7 @@ AS $$
           END
       AND NOT EXISTS (
         SELECT 1 FROM unnest(words.w) AS q(word)
-        WHERE position(q.word IN lower(concat_ws(' ', h.title, h.ref, h.trade_name, h.trade, h.pro))) = 0
+        WHERE position(q.word IN lower(concat_ws(' ', h.title, h.description, h.ref, h.trade_name, h.trade, h.sector, h.pro))) = 0
       )
   ),
   page AS (
@@ -119,8 +135,8 @@ AS $$
     'jobs', coalesce((SELECT jsonb_agg(jsonb_build_object(
         'id', s.id, 'ref', s.ref, 'trade', s.trade, 'title', s.title, 'job_type_id', s.job_type_id,
         'status', s.status, 'cancelled_by', s.cancelled_by, 'stop_reason', s.stop_reason,
-        'free', s.paid_by_pechkas, 'at', s.at, 'day', s.day, 'pro', s.pro, 'paid_paisa', s.paid_paisa,
-        'guarantee_until', s.guarantee_until, 'covered', coalesce(s.guarantee_until > now(), false),
+        'free', s.paid_by_pechkas, 'sector', s.sector, 'at', s.at, 'day', s.day, 'pro', s.pro,
+        'paid_paisa', s.paid_paisa, 'guarantee_until', s.guarantee_until, 'covered', coalesce(s.guarantee_until > now(), false),
         'can_rate', s.can_rate, 'my_rating', s.my_rating
       ) ORDER BY s.at DESC, s.id DESC) FROM shown s), '[]'::jsonb),
     'more', (SELECT count(*) FROM page) > least(greatest(coalesce(p_limit, 20), 1), 50),
@@ -143,6 +159,12 @@ AS $$
     'since', (SELECT min(h.day) FROM h),
     'trades', coalesce((SELECT jsonb_agg(jsonb_build_object('trade', x.trade, 'n', x.n) ORDER BY x.n DESC, x.trade)
                         FROM (SELECT h.trade, count(*) AS n FROM h GROUP BY h.trade) x), '[]'::jsonb),
+    'pros', coalesce((SELECT jsonb_agg(jsonb_build_object('key', x.pro_key, 'name', x.name, 'n', x.n, 'trades', x.trades) ORDER BY x.n DESC, x.name)
+                      FROM (SELECT h.pro_key, min(h.pro) AS name, count(*) AS n,
+                                   array_agg(DISTINCT coalesce(h.trade_name, h.trade) ORDER BY coalesce(h.trade_name, h.trade)) AS trades
+                            FROM h WHERE h.pro_key IS NOT NULL GROUP BY h.pro_key) x), '[]'::jsonb),
+    'sectors', coalesce((SELECT jsonb_agg(jsonb_build_object('sector', x.sector, 'n', x.n) ORDER BY x.n DESC, x.sector)
+                         FROM (SELECT h.sector, count(*) AS n FROM h GROUP BY h.sector) x), '[]'::jsonb),
     'days', coalesce((SELECT jsonb_agg(DISTINCT h.day) FROM h), '[]'::jsonb),
     'months', coalesce((SELECT jsonb_agg(jsonb_build_object('month', x.month, 'n', x.n, 'paid_paisa', x.paid) ORDER BY x.month DESC)
                         FROM (SELECT to_char(h.day, 'YYYY-MM') AS month, count(*) AS n, coalesce(sum(h.paid_paisa), 0) AS paid
@@ -164,12 +186,12 @@ $$;
 
 REVOKE ALL ON FUNCTION
   public.history_rows(uuid),
-  public.my_history(text, text, text, date, date, timestamptz, uuid, integer),
+  public.my_history(text, text, text, date, date, timestamptz, uuid, integer, text, text),
   public.my_history_facets()
 FROM PUBLIC, anon, authenticated;
 
 GRANT EXECUTE ON FUNCTION
-  public.my_history(text, text, text, date, date, timestamptz, uuid, integer),
+  public.my_history(text, text, text, date, date, timestamptz, uuid, integer, text, text),
   public.my_history_facets()
 TO authenticated;
 

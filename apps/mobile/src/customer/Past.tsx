@@ -25,7 +25,9 @@ import { RangeCalendar, dayText, presets, rangeText, type Range } from './Calend
  *   - Then month by month, compact rows, twenty at a time, the next twenty
  *     loading as she nears the foot (`nearEnd`).
  *
- * The filters are three rows — What happened, Kind of work, When — each a
+ * The filters are rows — What happened, Kind of work, Who came (the men
+ * who worked on her jobs, by a key made from him and her account), Where
+ * (only when her jobs are at more than one address), When — each a
  * page of its own in the sheet, so a list of thirty or three hundred never
  * opens inside another: Kind of work has a search box once the list is long,
  * her most used first, then A to Z, each with how many of her jobs it has,
@@ -46,6 +48,7 @@ type Hist = {
   title: string;
   status: 'done' | 'stopped' | 'cancelled';
   cancelled_by: string | null;
+  sector: string;
   free: boolean;
   day: string;
   at: string;
@@ -58,15 +61,18 @@ type Facets = {
   total: number;
   since: string | null;
   trades: { trade: string; n: number }[];
+  /** Who came: a key made from him and her account, his first name, how many jobs, the kinds of work. */
+  pros: { key: string; name: string; n: number; trades: string[] }[];
+  sectors: { sector: string; n: number }[];
   days: string[];
   months: { month: string; n: number; paid_paisa: number }[];
   what: Record<'done' | 'covered' | 'fee' | 'cancelled' | 'nobody', number>;
   covered: { id: string; title: string; trade: string; pro: string | null; until: string }[];
 };
 type What = 'all' | 'done' | 'covered' | 'fee' | 'cancelled' | 'nobody';
-type Filters = { what: What; trade: string | null; range: Range };
+type Filters = { what: What; trade: string | null; pro: string | null; sector: string | null; range: Range };
 
-const NONE: Filters = { what: 'all', trade: null, range: { from: null, to: null } };
+const NONE: Filters = { what: 'all', trade: null, pro: null, sector: null, range: { from: null, to: null } };
 const WHAT_LABEL: Record<What, string> = {
   all: 'Everything',
   done: 'Done',
@@ -82,16 +88,25 @@ const args = (q: string, f: Filters, extra: Record<string, unknown> = {}) => ({
   p_q: q.trim() || null,
   p_what: f.what,
   p_trade: f.trade,
+  p_pro: f.pro,
+  p_sector: f.sector,
   p_from: f.range.from,
   p_to: f.range.to ?? (f.range.from ? f.range.from : null),
   ...extra,
 });
-const filtersOn = (f: Filters) => (f.what !== 'all' ? 1 : 0) + (f.trade ? 1 : 0) + (f.range.from || f.range.to ? 1 : 0);
+const filtersOn = (f: Filters) => (f.what !== 'all' ? 1 : 0) + (f.trade ? 1 : 0) + (f.pro ? 1 : 0) + (f.sector ? 1 : 0) + (f.range.from || f.range.to ? 1 : 0);
 const open = (id: string) => router.push(`/job/${id}`);
 const shortDay = (d: string) => {
   const [, m, day] = d.split('-').map(Number);
   return `${day} ${MONTHS[m - 1].slice(0, 3)}`;
 };
+/** His first name, and the kinds of work as well when she has had two men of that name. */
+function proLabel(facets: Facets, key: string): string {
+  const p = facets.pros.find((x) => x.key === key);
+  if (!p) return 'Technician';
+  const twin = facets.pros.filter((x) => x.name === p.name).length > 1;
+  return twin ? `${p.name} (${p.trades.join(', ')})` : p.name;
+}
 const daysLeft = (until: string) => Math.max(0, Math.ceil((new Date(until).getTime() - Date.now()) / 86400000));
 
 export function Past({ tradeName, nearEnd, onFacets }: { tradeName: (slug: string) => string; nearEnd: boolean; onFacets?: (f: Facets) => void }) {
@@ -194,7 +209,7 @@ export function Past({ tradeName, nearEnd, onFacets }: { tradeName: (slug: strin
           onChangeText={setTyped}
           placeholder="Search past jobs"
           placeholderTextColor={colour.steel}
-          accessibilityLabel="Search past jobs: what it was, who came, or the job number"
+          accessibilityLabel="Search past jobs: what it was, what you wrote, who came, where, or the job number"
           autoCorrect={false}
           returnKeyType="search"
           underlineColorAndroid="transparent"
@@ -226,6 +241,8 @@ export function Past({ tradeName, nearEnd, onFacets }: { tradeName: (slug: strin
         <View style={s.tags}>
           {f.what !== 'all' ? <Tag text={WHAT_LABEL[f.what]} onRemove={() => setF({ ...f, what: 'all' })} /> : null}
           {f.trade ? <Tag text={tradeName(f.trade)} onRemove={() => setF({ ...f, trade: null })} /> : null}
+          {f.pro && facets ? <Tag text={proLabel(facets, f.pro)} onRemove={() => setF({ ...f, pro: null })} /> : null}
+          {f.sector ? <Tag text={f.sector} onRemove={() => setF({ ...f, sector: null })} /> : null}
           {f.range.from || f.range.to ? <Tag text={rangeText(f.range)} onRemove={() => setF({ ...f, range: { from: null, to: null } })} /> : null}
         </View>
       ) : null}
@@ -295,7 +312,7 @@ export function Past({ tradeName, nearEnd, onFacets }: { tradeName: (slug: strin
           </View>
           <View style={s.list}>
             {g.rows.map((r, i) => (
-              <Row key={r.id} job={r} last={i === g.rows.length - 1} />
+              <Row key={r.id} job={r} last={i === g.rows.length - 1} where={(facets?.sectors.length ?? 0) > 1} />
             ))}
           </View>
         </View>
@@ -347,10 +364,11 @@ function statusOf(j: Hist): { text: string; tone: 'good' | 'quiet' } {
 }
 
 /** One finished job: its drawing, what it was, when and who, what she paid, how it ended. */
-function Row({ job, last }: { job: Hist; last: boolean }) {
+function Row({ job, last, where }: { job: Hist; last: boolean; where: boolean }) {
   const st = statusOf(job);
   const price = job.free ? 'Free' : job.paid_paisa ? rupees(job.paid_paisa) : '—';
-  const meta = [shortDay(job.day), job.pro, job.ref].filter(Boolean).join(' · ');
+  // The sector only for somebody with more than one address: for everybody else it says nothing.
+  const meta = [shortDay(job.day), job.pro, where ? job.sector : null, job.ref].filter(Boolean).join(' · ');
   return (
     <Press onPress={() => open(job.id)} accessibilityRole="button" accessibilityLabel={`${job.title}. ${meta}. ${price === '—' ? '' : `${price}. `}${st.text}`} sink={0.98} style={[s.row, !last && s.rule]}>
       <TradeTile trade={job.trade} size={44} />
@@ -369,7 +387,7 @@ function Row({ job, last }: { job: Hist; last: boolean }) {
   );
 }
 
-type Page = 'main' | 'what' | 'kind' | 'when';
+type Page = 'main' | 'what' | 'kind' | 'who' | 'where' | 'when';
 
 /**
  * Every filter in one sheet: three rows, each opening a page of its own.
@@ -472,6 +490,50 @@ function FilterSheet({ facets, start, q, tradeName, onClose, onApply }: { facets
     );
   }
 
+  if (page === 'who') {
+    const typedQ = kindQ.trim().toLowerCase();
+    const list = typedQ ? facets.pros.filter((p) => p.name.toLowerCase().startsWith(typedQ)) : facets.pros;
+    const pick = (pro: string | null) => {
+      setD({ ...d, pro });
+      setKindQ('');
+      setPage('main');
+    };
+    return (
+      <Sheet onClose={onClose} closeLabel="Close the filters">
+        {back('Who came', 'The technicians who worked on your jobs')}
+        {facets.pros.length > 8 ? (
+          <View style={s.kindBox}>
+            <Icon name="search" size={18} color={colour.ink} strokeWidth={2.2} />
+            <TextInput value={kindQ} onChangeText={setKindQ} placeholder="Search by first name" placeholderTextColor={colour.steel} accessibilityLabel="Search technicians by first name" autoCorrect={false} underlineColorAndroid="transparent" style={s.input} />
+          </View>
+        ) : null}
+        {!typedQ ? <Choice label="Anyone" n={facets.total} on={!d.pro} onPress={() => pick(null)} /> : null}
+        {list.map((p, i) => (
+          <Choice key={p.key} label={p.name} sub={p.trades.join(', ')} n={p.n} on={d.pro === p.key} last={i === list.length - 1} onPress={() => pick(p.key)} />
+        ))}
+        {typedQ && !list.length ? <Text style={s.pageSub}>Nobody of that name came to your jobs.</Text> : null}
+        <View style={{ marginTop: 18 }}>{foot}</View>
+      </Sheet>
+    );
+  }
+
+  if (page === 'where') {
+    const pick = (sector: string | null) => {
+      setD({ ...d, sector });
+      setPage('main');
+    };
+    return (
+      <Sheet onClose={onClose} closeLabel="Close the filters">
+        {back('Where', 'The sectors of your own jobs')}
+        <Choice label="Every address" n={facets.total} on={!d.sector} onPress={() => pick(null)} />
+        {facets.sectors.map((x, i) => (
+          <Choice key={x.sector} label={`Sector ${x.sector}`} n={x.n} on={d.sector === x.sector} last={i === facets.sectors.length - 1} onPress={() => pick(x.sector)} />
+        ))}
+        <View style={{ marginTop: 18 }}>{foot}</View>
+      </Sheet>
+    );
+  }
+
   if (page === 'when') {
     return (
       <Sheet onClose={onClose} closeLabel="Close the filters">
@@ -509,6 +571,9 @@ function FilterSheet({ facets, start, q, tradeName, onClose, onApply }: { facets
     <Sheet onClose={onClose} closeLabel="Close the filters" title="Filter past jobs">
       <FilterRow icon="jobs" label="What happened" value={d.what === 'all' ? 'Everything' : WHAT_LABEL[d.what]} on={d.what !== 'all'} onPress={() => setPage('what')} />
       <FilterRow icon="briefcase" label="Kind of work" value={d.trade ? tradeName(d.trade) : 'All'} on={Boolean(d.trade)} onPress={() => setPage('kind')} />
+      {facets.pros.length ? <FilterRow icon="person" label="Who came" value={d.pro ? proLabel(facets, d.pro) : 'Anyone'} on={Boolean(d.pro)} onPress={() => setPage('who')} /> : null}
+      {/* Only for somebody with jobs at more than one address: for everybody else it would be a filter with one answer. */}
+      {facets.sectors.length > 1 || d.sector ? <FilterRow icon="pin" label="Where" value={d.sector ? `Sector ${d.sector}` : 'Every address'} on={Boolean(d.sector)} onPress={() => setPage('where')} /> : null}
       <FilterRow icon="calendar" label="When" value={rangeText(d.range)} on={Boolean(d.range.from || d.range.to)} onPress={() => setPage('when')} last />
       {filtersOn(d) ? (
         <Press onPress={() => setD(NONE)} accessibilityRole="button" sink={0.95} style={s.anyTime}>
@@ -527,7 +592,7 @@ function FilterRow({ icon, label, value, on, onPress, last = false }: { icon: Du
         <DuoIcon name={icon} size={22} />
       </View>
       <Text style={s.flabel}>{label}</Text>
-      <Text style={[s.fvalue, on && s.fvalueOn]} numberOfLines={1}>
+      <Text style={[s.fvalue, on && s.fvalueOn]} numberOfLines={2}>
         {value}
       </Text>
       <Icon name="chevronRight" size={18} color={colour.steel} strokeWidth={2.4} />
@@ -535,10 +600,13 @@ function FilterRow({ icon, label, value, on, onPress, last = false }: { icon: Du
   );
 }
 
-function Choice({ label, n, on, onPress, last = false }: { label: string; n: number; on: boolean; onPress: () => void; last?: boolean }) {
+function Choice({ label, sub, n, on, onPress, last = false }: { label: string; sub?: string; n: number; on: boolean; onPress: () => void; last?: boolean }) {
   return (
-    <Press onPress={onPress} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={`${label}, ${n} ${n === 1 ? 'job' : 'jobs'}`} sink={0.98} style={[s.choice, !last && s.rule]}>
-      <Text style={[s.choiceText, on && s.choiceTextOn]}>{label}</Text>
+    <Press onPress={onPress} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={`${label}${sub ? `, ${sub}` : ''}, ${n} ${n === 1 ? 'job' : 'jobs'}`} sink={0.98} style={[s.choice, !last && s.rule]}>
+      <View style={{ flex: 1, paddingVertical: sub ? 6 : 0 }}>
+        <Text style={[s.choiceText, on && s.choiceTextOn]}>{label}</Text>
+        {sub ? <Text style={s.choiceSub}>{sub}</Text> : null}
+      </View>
       <Text style={s.choiceN}>{n}</Text>
       <View style={[s.radio, on && s.radioOn]}>{on ? <Icon name="check" size={13} color={colour.white} strokeWidth={3.4} /> : null}</View>
     </Press>
@@ -598,8 +666,9 @@ const s = StyleSheet.create({
   fvalue: { flexShrink: 1, maxWidth: '45%', fontFamily: font.bodySemi, fontSize: 14, color: colour.steel, textAlign: 'right' },
   fvalueOn: { fontFamily: font.displayBold, color: colour.green },
   choice: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, paddingHorizontal: 6 },
-  choiceText: { flex: 1, fontFamily: font.bodySemi, fontSize: 15.5, color: colour.ink },
+  choiceText: { fontFamily: font.bodySemi, fontSize: 15.5, color: colour.ink },
   choiceTextOn: { fontFamily: font.display },
+  choiceSub: { fontFamily: font.bodySemi, fontSize: 12.5, color: colour.steel, marginTop: 1 },
   choiceN: { fontFamily: font.bodySemi, fontSize: 13, color: colour.steel },
   radio: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#c9cdd1', alignItems: 'center', justifyContent: 'center' },
   radioOn: { borderWidth: 0, backgroundColor: colour.green },

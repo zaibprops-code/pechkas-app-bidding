@@ -1955,8 +1955,11 @@ Claude to refresh it whenever the app changes.
 ## My jobs: Now and Past (24 November 2026)
 
 1. **Supabase → SQL Editor**: run
-   `supabase/migrations/20261124000000_job_history.sql`, after the files
-   before it. It should say **Success**. No new build: the screen comes to
+   `supabase/migrations/20261124000000_job_history.sql`, then
+   `supabase/migrations/20261125000000_history_who_where.sql` (the search
+   reads what you wrote; **Who came** and **Where**), after the files
+   before them. Each should say **Success**. If you already ran the first
+   one yesterday, run only the second. No new build: the screen comes to
    your test phone by itself as an update.
 2. Until you run it, the app shows **Waiting for a database update** on
    every phone that has the new screen. Run it first, then open the app.
@@ -1964,7 +1967,8 @@ Claude to refresh it whenever the app changes.
    **Past**: type a word from an old job in the box, then tap the filter
    button at the end of the box and try **When** — tap a first day and a
    last day on the calendar. The black button says how many jobs you will
-   see.
+   see. **Who came** lists the technicians who worked for you; **Where**
+   appears only when your jobs were at more than one address.
 
 ## The repeat rate looks back 12 months (A105, decided 22 November 2026)
 

@@ -541,10 +541,17 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (migration `…_job_history`, tests `history.test.mjs`): her own jobs only,
   no address, pin or phone, the technician a first name on jobs he worked,
   searched and counted by the database. One box searches what the job was,
-  who came and the job number; the filter button at its end opens one
-  sheet of three rows — **What happened**, **Kind of work**, **When** —
-  each a page of its own, never a drop-down (the owner: a list of 30 must
-  still work): Kind of work offers only kinds she has had, with counts,
+  what she wrote herself, who came, the sector and the job number; the
+  filter button at its end opens one sheet of rows — **What happened**,
+  **Kind of work**, **Who came**, **Where**, **When** — each a page of its
+  own, never a drop-down (the owner: a list of 30 must still work). **Who
+  came** (migration `…_history_who_where`) lists the men who worked on her
+  jobs by first name, with counts and the kinds of work, chosen by a key
+  that is md5(his id : her id) — two Bilals are two choices, the key means
+  nothing to anyone else, and no technician's account id reaches her phone.
+  **Where** is the sectors of her own jobs and is drawn only when there is
+  more than one. The two history migrations make the same functions, so
+  they run in either order or again. Kind of work offers only kinds she has had, with counts,
   her three most used first, then A to Z, and a search box once it is
   long; When is a calendar (`Calendar.tsx`: any two days, This month /
   Last 3 months / This year / Last year, green dots on days she had a job,
