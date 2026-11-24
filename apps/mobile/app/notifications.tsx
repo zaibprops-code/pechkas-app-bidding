@@ -396,7 +396,7 @@ export default function Notifications() {
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <View style={s.titleRow}>
                       <Text style={s.title}>
-                                                {tidy(n.title)}
+                        {tidy(n.title)}
                         {n.read ? '' : '  '}
                         {n.read ? null : <Text style={s.dot}>●</Text>}
                       </Text>
