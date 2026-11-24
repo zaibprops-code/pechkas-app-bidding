@@ -36,7 +36,7 @@ export const colour = {
 /**
  * The welcome pages' backgrounds (the owner's choice, 24 November 2026): each
  * page's own colour with a soft light behind its drawing, fading darker to the
- * edges. Four stops each, at GLOW_STOPS; the middle one is the brand colour
+ * edges. The sign-in screens' picture card uses the yellow one. Four stops each, at GLOW_STOPS; the middle one is the brand colour
  * itself, so the words sit on the colour they were checked against.
  */
 export const glow = {
@@ -45,21 +45,6 @@ export const glow = {
   ink: ['#20453f', '#1a2624', '#14171a', '#0b0d0f'],
 } as const;
 export const GLOW_STOPS = [0, 0.38, 0.62, 1] as const;
-
-/**
- * The sign-in screens' background (the owner's choice, 24 November 2026):
- * deep amber at the top, behind the question, lightening to cream at the
- * foot, where the phone's own light keyboard meets it softly. `amberInk` is
- * the quieter text on it: a warm dark grey that stays above 4.5:1 on every
- * stop, where steel grey looked dirty on yellow.
- */
-export const amber = {
-  stops: ['#f6a823', '#ffbd38', '#ffcd55', '#ffdd85', '#ffe9b0'],
-  at: [0, 0.22, 0.45, 0.7, 1],
-  /** The soft light in the top corner. */
-  light: '#ffe696',
-  ink: '#3d382b',
-} as const;
 
 /** The one shadow under a white card: barely there, as inDrive's. */
 export const shadow = { card: '0px 2px 10px rgba(20, 23, 26, 0.05)' } as const;

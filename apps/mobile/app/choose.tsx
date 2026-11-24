@@ -1,32 +1,38 @@
+import { useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import Svg, { Path, Rect } from 'react-native-svg';
 import { showMobile } from '@pechkas/shared';
-import { AuthButton, AuthScreen } from '../src/components/AuthScreen';
-import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
+import { AuthButton, AuthNote, AuthScreen } from '../src/components/AuthScreen';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
+import { Pop } from '../src/components/SignInArt';
 import { useAccount } from '../src/account';
 import type { Mode } from '../src/mode';
-import { amber, colour, font } from '../src/theme';
+import { colour, font } from '../src/theme';
 
 /**
- * The first question after signing in for the first time: how is this
- * person going to use Pechkas? On the amber sign-in screen (AuthScreen), so
- * it follows the code without a jump — there is no separate "signed in"
- * screen (the owner's choice, 24 November 2026): the code's boxes turn green,
- * and the app comes straight here.
+ * The first question after signing in for the first time: customer or
+ * technician? On the sign-in screen (AuthScreen, design "C"), so it follows
+ * the code without a jump — there is no separate "signed in" screen (the
+ * owner's choice, 24 November 2026): the code's boxes turn green, and the
+ * app comes straight here.
  *
- * Two big cards and nothing else, the way inDrive asks "passenger or driver"
- * before anything else. The two must never look alike: the customer's is
- * white, the technician's green, each naming its side with its own icon.
- * No back button: going back to the code would make no sense once it has
- * worked. It is not for ever — either side can switch from the menu later
- * (src/mode.ts, public.switch_mode) — and the screen says so, so nobody
- * agonises over it. Which account this is, and Sign out, are at the foot.
+ * Two cards side by side, each with its own drawing and the words people
+ * use: "I need something repaired" / "I repair things and want work". A tap
+ * picks a card — a tick pops in, its drawing in the picture above gives a
+ * small hop — and the button underneath says what was picked ("Continue as
+ * a customer"), so a slip of the finger goes nowhere. No back button: going
+ * back to the code makes no sense once it has worked. It is not for ever —
+ * either side can switch from the menu later (src/mode.ts,
+ * public.switch_mode) — and the screen says so, so nobody agonises over it.
+ * Which account this is, and Not you? Sign out, are at the foot.
  */
 export default function Choose() {
   const { next } = useLocalSearchParams<{ next?: string }>();
   const { account, signOut } = useAccount();
+  const [picked, setPicked] = useState<Mode | null>(null);
+  const [hop, setHop] = useState<{ side: Mode; n: number } | null>(null);
 
   // Already chosen: this screen has nothing to ask.
   if (account?.role) {
@@ -34,77 +40,128 @@ export default function Choose() {
     return <Redirect href={account.role === 'pro' ? '/pro' : '/'} />;
   }
 
-  const pick = (as: Mode) => router.push({ pathname: '/welcome', params: { as, next: next ?? '' } });
+  const pick = (as: Mode) => {
+    setPicked(as);
+    setHop((h) => ({ side: as, n: (h?.n ?? 0) + 1 }));
+  };
+  const go = () => picked && router.push({ pathname: '/welcome', params: { as: picked, next: next ?? '' } });
   const who = account?.phone ? showMobile(account.phone) : account?.email ?? null;
 
   return (
     <AuthScreen
-      title="How will you use Pechkas?"
-      sub="Choose one. You can switch any time from the menu."
+      art="both"
+      artHop={hop}
+      title="Are you a customer or a technician?"
       back={false}
       footer={
         <>
-          {who ? <Text style={s.who}>Signed in as {who}</Text> : null}
           <AuthButton
-            kind="second"
-            icon="logout"
-            label="Not you? Sign out"
-            onPress={async () => {
-              await signOut();
-              router.replace('/start');
-            }}
+            label={picked === 'customer' ? 'Continue as a customer' : picked === 'pro' ? 'Continue as a technician' : 'Continue'}
+            arrow
+            off={!picked}
+            hint="Choose customer or technician first."
+            onPress={go}
           />
+          <View style={s.foot}>
+            {who ? (
+              <Text style={s.who} numberOfLines={1}>
+                Signed in as {who}
+              </Text>
+            ) : null}
+            <Press
+              onPress={async () => {
+                await signOut();
+                router.replace('/start');
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Not you? Sign out"
+              sink={0.94}
+              style={s.out}
+            >
+              <Text style={s.outText}>Not you? Sign out</Text>
+            </Press>
+          </View>
         </>
       }
     >
-      <View style={{ gap: 12 }} accessibilityRole="radiogroup">
-        <Card side="customer" icon="home" label="Customer" title="I need something fixed" sub="Post a job, name your price and choose who comes." onPress={() => pick('customer')} />
-        <Card side="pro" icon="briefcase" label="Technician" title="I fix things" sub="Apply to work with Pechkas and get jobs in your areas." onPress={() => pick('pro')} />
+      <View style={s.cards} accessibilityRole="radiogroup">
+        <Card side="customer" picked={picked} label="Customer" line="I need something repaired" onPress={() => pick('customer')} />
+        <Card side="pro" picked={picked} label="Technician" line="I repair things and want work" onPress={() => pick('pro')} />
       </View>
+      <AuthNote icon="swap" text="You can change this later from the menu." />
     </AuthScreen>
   );
 }
 
-function Card({ side, icon, label, title, sub, onPress }: { side: Mode; icon: DuoName; label: string; title: string; sub: string; onPress: () => void }) {
-  const pro = side === 'pro';
-  // A small phone keeps the title on one line and the card short.
+function Card({ side, picked, label, line, onPress }: { side: Mode; picked: Mode | null; label: string; line: string; onPress: () => void }) {
+  const on = picked === side;
+  // A small phone keeps both cards side by side; only the drawing and the type shrink.
   const narrow = useWindowDimensions().width < 360;
   return (
     <Press
       onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={`${label}. ${title}. ${sub}`}
+      accessibilityRole="radio"
+      accessibilityState={{ checked: on }}
+      accessibilityLabel={`${label}. ${line}.`}
       sink={0.97}
-      style={[s.card, pro ? s.cardPro : s.cardCustomer, narrow && s.cardNarrow]}
+      style={[s.card, on ? s.cardOn : s.cardOff, narrow && s.cardNarrow]}
     >
-      <View style={[s.tile, pro && s.tilePro, narrow && s.tileNarrow]}>
-        <DuoIcon name={icon} size={26} ink={pro ? colour.white : colour.ink} />
-      </View>
-      <View style={s.words}>
-        <Text style={[s.label, pro && s.labelPro]}>{label}</Text>
-        <Text style={[s.title, pro && s.titlePro, narrow && s.titleNarrow]}>{title}</Text>
-        <Text style={[s.sub, pro && s.subPro]}>{sub}</Text>
-      </View>
-      <Icon name="chevronRight" size={22} color={pro ? colour.white : colour.ink} strokeWidth={2.2} />
+      {on ? (
+        <Pop style={[s.mark, s.markOn]}>
+          <Icon name="check" size={14} color={colour.white} strokeWidth={3} />
+        </Pop>
+      ) : (
+        <View style={[s.mark, s.markOff]} />
+      )}
+      <View style={narrow ? s.drawingNarrow : s.drawing}>{side === 'customer' ? <House /> : <Toolbox />}</View>
+      <Text style={[s.label, narrow && s.labelNarrow]}>{label}</Text>
+      <Text style={s.line}>{line}</Text>
     </Press>
   );
 }
 
+const LINE = { stroke: colour.ink, strokeWidth: 3.2, strokeLinejoin: 'round' as const, strokeLinecap: 'round' as const };
+
+/** The customer's card: a house, its door yellow. */
+function House() {
+  return (
+    <Svg width="100%" height="100%" viewBox="0 0 120 110">
+      <Path d="M10 52 60 12l50 40" fill="none" {...LINE} />
+      <Path d="M22 44v58h76V44" fill={colour.white} {...LINE} />
+      <Rect x={50} y={68} width={20} height={34} fill={colour.yellow} {...LINE} />
+      <Rect x={30} y={56} width={14} height={14} fill={colour.greenSoft} {...LINE} />
+    </Svg>
+  );
+}
+
+/** The technician's card: a toolbox. */
+function Toolbox() {
+  return (
+    <Svg width="100%" height="100%" viewBox="0 0 120 110">
+      <Rect x={12} y={40} width={96} height={62} rx={9} fill={colour.yellow} {...LINE} />
+      <Path d="M42 40V28a8 8 0 0 1 8-8h20a8 8 0 0 1 8 8v12" fill="none" {...LINE} />
+      <Path d="M12 64h96" {...LINE} />
+      <Rect x={52} y={57} width={16} height={15} rx={3} fill={colour.white} {...LINE} />
+    </Svg>
+  );
+}
+
 const s = StyleSheet.create({
-  card: { flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 22, padding: 18, minHeight: 96 },
-  cardCustomer: { backgroundColor: colour.white, boxShadow: '0px 6px 18px rgba(120, 70, 0, 0.12)' },
-  cardPro: { backgroundColor: colour.green, boxShadow: '0px 10px 24px rgba(11, 81, 72, 0.28)' },
-  tile: { width: 52, height: 52, borderRadius: 16, backgroundColor: colour.softYellow, alignItems: 'center', justifyContent: 'center' },
-  tilePro: { backgroundColor: colour.greenDark },
-  cardNarrow: { padding: 14, gap: 12 },
-  tileNarrow: { width: 44, height: 44, borderRadius: 14 },
-  titleNarrow: { fontSize: 17, lineHeight: 22 },
-  words: { flex: 1, minWidth: 0, gap: 2 },
-  label: { fontFamily: font.displayBold, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: amber.ink },
-  labelPro: { color: colour.greenSoft },
-  title: { fontFamily: font.display, fontSize: 19, lineHeight: 24, color: colour.ink },
-  titlePro: { color: colour.white },
-  sub: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft, marginTop: 2 },
-  subPro: { color: colour.greenSoft },
-  who: { fontFamily: font.bodyMedium, fontSize: 14, color: amber.ink, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  cards: { flexDirection: 'row', gap: 12 },
+  card: { flex: 1, minWidth: 0, borderRadius: 22, padding: 14, paddingBottom: 16, minHeight: 180 },
+  cardOn: { backgroundColor: colour.softYellow, borderWidth: 2.5, borderColor: colour.ink },
+  cardOff: { backgroundColor: colour.white, borderWidth: 1.5, borderColor: 'rgba(20,23,26,0.14)' },
+  cardNarrow: { padding: 12, minHeight: 0 },
+  mark: { position: 'absolute', right: 12, top: 12, width: 26, height: 26, borderRadius: 13 },
+  markOn: { backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
+  markOff: { borderWidth: 2, borderColor: 'rgba(20,23,26,0.25)' },
+  drawing: { width: 74, height: 66 },
+  drawingNarrow: { width: 60, height: 54 },
+  label: { fontFamily: font.display, fontSize: 19, color: colour.ink, marginTop: 10 },
+  labelNarrow: { fontSize: 17 },
+  line: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.steel, marginTop: 3 },
+  foot: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', columnGap: 4 },
+  who: { fontFamily: font.bodyMedium, fontSize: 14, color: colour.steel, fontVariant: ['tabular-nums'] },
+  out: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 },
+  outText: { fontFamily: font.display, fontSize: 14, color: colour.ink, textDecorationLine: 'underline' },
 });

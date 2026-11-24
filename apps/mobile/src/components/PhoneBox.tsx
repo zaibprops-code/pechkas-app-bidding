@@ -4,6 +4,7 @@ import { pakistaniMobile, typedMobile } from '@pechkas/shared';
 import { authBox } from './AuthScreen';
 import { Icon } from './Icon';
 import { Press } from './Press';
+import { Pop } from './SignInArt';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { colour, font } from '../theme';
 
@@ -22,20 +23,21 @@ import { colour, font } from '../theme';
  * leading 0 or a pasted +92 dropped), and the keypad is the plain digits one
  * — the dialler's + * # have nothing to do here, since +92 is fixed.
  *
- * `amber` is the sign-in screens' look (AuthScreen): a white box lifted off
- * the yellow, an ink outline while typing, and a green tick in place of the
- * clear button once the number is a whole Pakistani mobile number.
+ * `big` is the sign-in screens' look (AuthScreen): big type in the soft grey
+ * box, white with an ink outline while typing, and a green tick that pops in
+ * (Pop) in place of the clear button once the number is a whole Pakistani
+ * mobile number.
  */
-export function PhoneBox({ error, hint, amber = false, ...input }: TextInputProps & { error?: string | null; hint?: string; amber?: boolean }) {
+export function PhoneBox({ error, hint, big = false, ...input }: TextInputProps & { error?: string | null; hint?: string; big?: boolean }) {
   const [focused, setFocused] = useState(false);
   const value = typeof input.value === 'string' ? input.value : '';
   const whole = Boolean(pakistaniMobile(value));
   const change = (t: string) => input.onChangeText?.(typedMobile(t));
   // Under 360 points the whole "300 111 2222" must still fit beside +92 and the tick.
   const narrow = useWindowDimensions().width < 360;
-  if (amber) {
+  if (big) {
     return (
-      <View style={[s.box, s.amberBox, authBox.box, error ? authBox.bad : focused ? authBox.focused : null]}>
+      <View style={[s.box, s.bigBox, authBox.box, error ? authBox.bad : focused ? authBox.focused : value ? authBox.filled : null]}>
         <View style={s.country} accessible accessibilityLabel="Pakistan, plus 92">
           <Flag />
           <Text style={s.code}>+92</Text>
@@ -60,12 +62,14 @@ export function PhoneBox({ error, hint, amber = false, ...input }: TextInputProp
           autoComplete="tel"
           maxLength={20}
           underlineColorAndroid="transparent"
-          style={[s.input, s.amberInput, narrow && s.amberNarrow]}
+          style={[s.input, s.bigInput, narrow && s.bigNarrow]}
         />
         {whole ? (
-          <View style={s.tick} accessible accessibilityLabel="A whole mobile number">
-            <Icon name="check" size={15} color={colour.white} strokeWidth={3} />
-          </View>
+          <Pop style={s.tick}>
+            <View accessible accessibilityLabel="A whole mobile number">
+              <Icon name="check" size={15} color={colour.white} strokeWidth={3} />
+            </View>
+          </Pop>
         ) : value ? (
           <Press onPress={() => input.onChangeText?.('')} accessibilityRole="button" accessibilityLabel="Clear the number" hitSlop={10} sink={0.9} style={s.clear}>
             <Icon name="cross" size={14} color={colour.white} strokeWidth={3} />
@@ -144,9 +148,9 @@ const s = StyleSheet.create({
   rule: { width: 1, height: 26, backgroundColor: colour.rule, marginHorizontal: 12 },
   // minWidth 0: a typing box has a natural width of its own, and at 320 points it pushed the row past the screen.
   input: { flex: 1, minWidth: 0, alignSelf: 'stretch', fontFamily: font.bodyMedium, fontSize: 19, color: colour.ink, paddingRight: 14, outlineWidth: 0 },
-  amberBox: { minHeight: 66, paddingRight: 12 },
-  amberInput: { fontFamily: font.bodySemi, fontSize: 22, letterSpacing: 0.6, fontVariant: ['tabular-nums'] },
-  amberNarrow: { fontSize: 19, letterSpacing: 0, paddingRight: 6 },
+  bigBox: { minHeight: 66, paddingRight: 12 },
+  bigInput: { fontFamily: font.bodySemi, fontSize: 22, letterSpacing: 0.6, fontVariant: ['tabular-nums'] },
+  bigNarrow: { fontSize: 19, letterSpacing: 0, paddingRight: 6 },
   tick: { width: 28, height: 28, borderRadius: 14, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },
   clear: { width: 24, height: 24, borderRadius: 12, backgroundColor: '#c9cdd1', alignItems: 'center', justifyContent: 'center' },
   error: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },

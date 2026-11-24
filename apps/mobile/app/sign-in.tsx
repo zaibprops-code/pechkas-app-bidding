@@ -1,22 +1,20 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, explainAuthError, pakistaniMobile } from '@pechkas/shared';
-import { AuthButton, AuthNote, AuthScreen, authBox } from '../src/components/AuthScreen';
-import { Icon } from '../src/components/Icon';
+import { AuthButton, AuthField, AuthNote, AuthScreen } from '../src/components/AuthScreen';
 import { PhoneBox } from '../src/components/PhoneBox';
 import { Notice } from '../src/components/ui';
 import { sendEmailCode, sendPhoneCode, supabase, url } from '../src/supabase';
-import { colour, font } from '../src/theme';
 
 /**
- * Sign in with a mobile number — or an email — on the amber sign-in screen
- * (AuthScreen, the owner's design of 24 November 2026): one question, one
- * box with +92 fixed in front, one quiet line under it, and two full-size
- * buttons above the keyboard. **Continue** stays pale until the number is a
- * whole Pakistani mobile number (the box shows a green tick then), so a code
- * is never sent to half a number. A code is sent; nothing else is asked for,
- * and there is no password to forget.
+ * Sign in with a mobile number — or an email — on the sign-in screen
+ * (AuthScreen, design "C"): a picture of a phone getting a text (or a letter
+ * for email), one question, one box with +92 fixed in front, one quiet line
+ * under it, Continue above the keyboard and the other way as a link under it.
+ * **Continue** stays pale until the number is a whole Pakistani mobile
+ * number (the box's green tick pops in then), so a code is never sent to
+ * half a number. A code is sent; nothing else is asked for, and there is no
+ * password to forget.
  */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -30,7 +28,6 @@ export default function SignIn() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [focused, setFocused] = useState(true);
 
   const ready = mode === 'phone' ? Boolean(pakistaniMobile(typed)) : EMAIL.test(email.trim().toLowerCase());
 
@@ -82,8 +79,9 @@ export default function SignIn() {
   const phone = mode === 'phone';
   return (
     <AuthScreen
+      art={phone ? 'phone' : 'mail'}
       title={phone ? 'What is your mobile number?' : 'What is your email?'}
-      sub={phone ? 'We will text you a code to confirm it is you.' : 'We will email you a code. No password needed.'}
+      sub={phone ? 'We will text you a code to make sure it is you.' : 'We will email you a code. No password needed.'}
       back={router.canGoBack()}
       footer={
         <>
@@ -96,7 +94,7 @@ export default function SignIn() {
             hint={phone ? 'Write your whole mobile number first.' : 'Write your whole email address first.'}
           />
           <AuthButton
-            kind="second"
+            kind="link"
             icon={phone ? 'mail' : 'phone'}
             label={phone ? 'Use email instead' : 'Use mobile instead'}
             onPress={() => switchTo(phone ? 'email' : 'phone')}
@@ -106,7 +104,7 @@ export default function SignIn() {
     >
       {phone ? (
         <PhoneBox
-          amber
+          big
           value={typed}
           onChangeText={(t) => {
             setTyped(t);
@@ -118,31 +116,25 @@ export default function SignIn() {
           error={error}
         />
       ) : (
-        <View style={[s.email, authBox.box, error ? authBox.bad : focused ? authBox.focused : null]}>
-          <Icon name="mail" size={20} color={colour.ink} strokeWidth={2} />
-          <TextInput
-            value={email}
-            onChangeText={(t) => {
-              setEmail(t);
-              if (error) setError(null);
-            }}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-            accessibilityLabel="Email address"
-            placeholder="name@gmail.com"
-            placeholderTextColor="#a59d88"
-            keyboardType="email-address"
-            textContentType="emailAddress"
-            autoComplete="email"
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoFocus
-            returnKeyType="send"
-            onSubmitEditing={() => ready && send()}
-            underlineColorAndroid="transparent"
-            style={s.emailInput}
-          />
-        </View>
+        <AuthField
+          icon="mail"
+          value={email}
+          onChangeText={(t) => {
+            setEmail(t);
+            if (error) setError(null);
+          }}
+          error={Boolean(error)}
+          accessibilityLabel="Email address"
+          placeholder="name@gmail.com"
+          keyboardType="email-address"
+          textContentType="emailAddress"
+          autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoFocus
+          returnKeyType="send"
+          onSubmitEditing={() => ready && send()}
+        />
       )}
       {error ? (
         <AuthNote icon="alert" tone="bad" text={error} />
@@ -155,8 +147,3 @@ export default function SignIn() {
     </AuthScreen>
   );
 }
-
-const s = StyleSheet.create({
-  email: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 66, paddingHorizontal: 16 },
-  emailInput: { flex: 1, minWidth: 0, alignSelf: 'stretch', fontFamily: font.bodySemi, fontSize: 19, color: colour.ink, outlineWidth: 0 },
-});

@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { firstNameFrom } from '@pechkas/shared';
+import { firstNameFrom, pakistaniMobile } from '@pechkas/shared';
 import { StyleSheet, Text, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { AuthButton, AuthField, AuthNote, AuthScreen } from '../src/components/AuthScreen';
 import { Icon } from '../src/components/Icon';
 import { PhoneBox } from '../src/components/PhoneBox';
 import { Press } from '../src/components/Press';
-import { Button, Field, Notice, Screen } from '../src/components/ui';
+import { Notice } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { ask } from '../src/supabase';
-import { colour, font, radius } from '../src/theme';
+import { colour, font } from '../src/theme';
 
 type Role = 'customer' | 'pro';
 
@@ -18,8 +19,11 @@ type Role = 'customer' | 'pro';
  * here: the technician they choose, or the customer who chooses them, has to
  * be able to ring. A number Supabase checked by SMS is never asked for again.
  *
- * The choice arrives as `as`; the top of the screen repeats it, with a way
- * back to change it, so nobody fills in a name on the wrong side.
+ * The choice arrives as `as`; the screen repeats it in one row, with a way
+ * back to change it, so nobody fills in a name on the wrong side. It is the
+ * last of the sign-in screens (AuthScreen, design "C"): the picture is a name
+ * tag that swings in on its hook — or the phone, when only the number is
+ * still wanted — and Continue stays pale until what is asked is written.
  */
 export default function Welcome() {
   const { next, as } = useLocalSearchParams<{ next?: string; as?: string }>();
@@ -77,74 +81,80 @@ export default function Welcome() {
   // Back to the choice already underneath, rather than a second copy of it.
   const change = () => router.dismissTo({ pathname: '/choose', params: { next: next ?? '' } });
 
+  const pro = side === 'pro';
+  const ready = (known || name.trim().length > 0) && (!needsPhone || Boolean(pakistaniMobile(phone)));
   return (
-    <Screen
-      hero={{
-        title: known ? 'One more thing' : side === 'pro' ? 'About you' : 'Welcome',
-        sub: known
-          ? 'Your mobile number, so the other side can call you.'
-          : side === 'pro'
-            ? 'Your first name, then a short application.'
-            : needsPhone
-              ? 'Your name and number, and you are in.'
-              : 'Your first name, and you are in.',
-        back: known ? undefined : change,
-      }}
-      footer={<Button label={!known && side === 'pro' ? 'Continue to the application' : 'Continue'} onPress={go} busy={busy} icon={!known && side === 'pro' ? 'arrowRight' : undefined} />}
+    <AuthScreen
+      art={known ? 'phone' : 'tag'}
+      title={known ? 'What is your mobile number?' : 'What is your first name?'}
+      sub={
+        known
+          ? pro
+            ? 'So the customer who chooses you can call you.'
+            : 'So the technician you choose can call you.'
+          : pro
+            ? 'Customers will see this name.'
+            : 'Technicians see your first name only.'
+      }
+      back={!known}
+      footer={
+        <AuthButton
+          label={!known && pro ? 'Continue to the application' : 'Continue'}
+          arrow
+          onPress={go}
+          busy={busy}
+          off={!ready}
+          hint={needsPhone ? 'Write your name and your whole mobile number first.' : 'Write your first name first.'}
+        />
+      }
     >
       {known ? null : (
         <View style={s.chosen}>
-          <View style={s.chosenIcon}>
-            <Icon name={side === 'pro' ? 'tool' : 'home'} size={20} color={colour.yellow} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={s.chosenLabel}>You are here to</Text>
-            <Text style={s.chosenText}>{side === 'pro' ? 'Fix things for customers' : 'Get something fixed'}</Text>
-          </View>
-          <Press onPress={change} accessibilityRole="button" accessibilityLabel="Change how you will use Pechkas" style={s.changeButton}>
+          <Icon name={pro ? 'briefcase' : 'home'} size={19} color={colour.ink} strokeWidth={2} />
+          <Text style={s.chosenText}>{pro ? 'You are a technician' : 'You are a customer'}</Text>
+          <Press onPress={change} accessibilityRole="button" accessibilityLabel="Change customer or technician" sink={0.94} style={s.changeButton}>
             <Text style={s.change}>Change</Text>
           </Press>
         </View>
       )}
-      {needsPhone ? (
-        <View style={{ gap: 6 }}>
-          <Text style={s.label}>Your mobile number</Text>
-          <PhoneBox
-            value={phone}
-            onChangeText={setPhone}
-            error={errors.phone}
-            hint={side === 'pro'
-              ? 'The customer who chooses you rings you on this number. Only they and the Pechkas office see it.'
-              : 'The technician you choose rings you on this number. Only they and the Pechkas office see it.'}
-          />
-        </View>
-      ) : null}
       {known ? null : (
-      <Field
-        label="Your first name"
-        value={name}
-        onChangeText={setName}
-        placeholder="Ayesha"
-        autoCapitalize="words"
-        textContentType="givenName"
-        autoComplete="name-given"
-        error={errors.first_name}
-        hint={side === 'pro' ? 'Customers will see this name.' : 'This is the only name a technician sees.'}
-      />
+        <AuthField
+          icon="me"
+          value={name}
+          onChangeText={setName}
+          error={Boolean(errors.first_name)}
+          accessibilityLabel="Your first name"
+          placeholder="Your first name"
+          autoCapitalize="words"
+          textContentType="givenName"
+          autoComplete="name-given"
+          autoFocus
+          returnKeyType={needsPhone ? 'next' : 'done'}
+          onSubmitEditing={() => ready && go()}
+        />
       )}
-      {errors.role ? <Text style={s.error}>{errors.role}</Text> : null}
+      {errors.first_name ? <AuthNote icon="alert" tone="bad" text={errors.first_name} /> : null}
+      {needsPhone ? (
+        <>
+          {known ? null : <Text style={s.label}>Your mobile number</Text>}
+          <PhoneBox big value={phone} onChangeText={setPhone} error={errors.phone} autoFocus={known} />
+          {errors.phone ? (
+            <AuthNote icon="alert" tone="bad" text={errors.phone} />
+          ) : (
+            <AuthNote icon="lock" text={pro ? 'Only the customer who chooses you, and Pechkas, will see it.' : 'Only the technician you choose, and Pechkas, will see it.'} />
+          )}
+        </>
+      ) : null}
+      {errors.role ? <AuthNote icon="alert" tone="bad" text={errors.role} /> : null}
       <Notice text={notice} />
-    </Screen>
+    </AuthScreen>
   );
 }
 
 const s = StyleSheet.create({
-  label: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
-  error: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
-  chosen: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, paddingRight: 4, borderRadius: radius.big, backgroundColor: colour.white },
-  chosenIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },
-  chosenLabel: { fontFamily: font.body, fontSize: 13, color: colour.steel },
-  chosenText: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
+  label: { fontFamily: font.displayBold, fontSize: 14, color: colour.ink, marginTop: 4, marginLeft: 4 },
+  chosen: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 54, paddingLeft: 14, paddingRight: 4, borderRadius: 16, backgroundColor: colour.cream },
+  chosenText: { flex: 1, fontFamily: font.bodySemi, fontSize: 15, color: colour.ink },
   changeButton: { minHeight: 44, minWidth: 44, paddingHorizontal: 12, justifyContent: 'center' },
-  change: { fontFamily: font.bodySemi, fontSize: 15, color: colour.green, textDecorationLine: 'underline' },
+  change: { fontFamily: font.display, fontSize: 15, color: colour.ink, textDecorationLine: 'underline' },
 });

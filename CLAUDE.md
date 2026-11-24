@@ -178,9 +178,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `profiles.role` is the mode in use — which side of the app this phone
   shows — and nothing about a job reads it: every job function works out
   the asker's side from the job's own `customer_id` and `pro_id`. The first
-  question is `app/choose.tsx` (two big cards that must never look alike: the
-  customer's white, the technician's green, each naming its side, on the
-  amber sign-in screen with no back button), then `welcome.tsx` takes
+  question is `app/choose.tsx` (two cards side by side, a house and a toolbox,
+  picked with a tick and confirmed by a button naming the choice, on the
+  sign-in screen with no back button), then `welcome.tsx` takes
   the name with the choice as `as`. Changing it later is only
   `switch_mode()` (`src/mode.ts`, `ModeSwitch` at the foot of the menu and
   on Me), never `start_as()`, which refuses a different mode. Technician
@@ -1619,29 +1619,48 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   words and buttons take the current page's colours when it settles —
   colours snap. The headline shrinks with the width so "technicians." never
   breaks at 320. Every page says only what is true today: no numbers, no
-  ratings, and the pages never turn by themselves. **The sign-in screens — number, code
-  and "How will you use Pechkas?" — share `AuthScreen`**
-  (`src/components/AuthScreen.tsx`, the owner's design of 24 November
-  2026): deep amber at the top lightening to cream at the foot (`amber` in
-  `packages/shared/src/tokens.ts`; its `ink` is the quiet text, above 4.5:1
-  on every stop), a back button and no logo, one question, one box, one
-  quiet line (`AuthNote`), and full-size buttons above the keyboard
-  (`AuthButton`: `main` black on the amber — pale and inert until it can
-  act — and `second` white, the same size). **Continue** stays pale until
-  `pakistaniMobile()` accepts the number; the box then shows a green tick.
-  `PhoneBox` (with `amber`) has the flag and **+92** fixed in front — a
+  ratings, and the pages never turn by themselves. **The sign-in screens — number, email, code,
+  customer or technician, and name — share `AuthScreen`**
+  (`src/components/AuthScreen.tsx`, the owner's choice of 24 November 2026,
+  design "C"): a white page, which meets the phone's light keyboard with no
+  line; at the top a yellow picture card (`glow.yellow`) whose drawing says
+  what is happening before a word is read (`SignInArt.tsx`: a phone getting
+  a text, a letter with the code, a code beside a padlock, a house and a
+  toolbox, a "Hello" name tag — objects, never people), with the back
+  button inside it and no logo; then one question, one box, one quiet line
+  (`AuthNote`), and at the foot above the keyboard **one black button**
+  (`AuthButton` `main`, pale and inert until it can act) and the other way
+  as an underlined link 46 points tall (`link`). Boxes are soft grey at
+  rest and white with an ink line while typing (`authBox`, `AuthField`).
+  The picture card is 196 tall, 160 under 760 points of height and 128
+  under 700, so the box still shows above the keyboard. **The motion is
+  the owner's request**: each drawing moves once as its screen opens, in
+  under a second, then stays still — the phone stands up and its message
+  grows from its tail, the padlock drops beside the code, the house and the
+  toolbox rise one after the other, the tag swings in on its hook and its
+  signature is written. A part turns or grows about its own point on the
+  220 × 150 grid (`about()`), transform only, native driver, and with
+  "remove animations" on every part is simply in place (`useStill()`).
+  Ticks pop in (`Pop`). A wrong code shakes the boxes (counted by `fails`,
+  so the same sentence twice still shakes); the right one turns them green
+  and opens the padlock. **Continue** stays pale until
+  `pakistaniMobile()` accepts the number; the box's green tick pops in then.
+  `PhoneBox` (with `big`) has the flag and **+92** fixed in front — a
   label, not a menu — and shows what is typed grouped 3-3-4 through
   `typedMobile()` (digits only, a leading 0 or pasted +92 dropped), on the
-  plain digits keypad, never the dialler's. The code screen names where the
-  code went in one row with a **Change** button (back to the number), says
-  "Never share this code with anyone", and offers **Send a new code** as a
-  full button, pale with a 0:42 clock until it may be pressed. **There is
-  no "signed in" screen** (the owner's choice): a right code turns the six
-  boxes green with "Verified. Signing you in…" for `SHOW_VERIFIED_MS`
-  (700), then the app moves on by itself; a wrong one turns them brick with
-  one sentence. "How will you use Pechkas?" has no back button and says
-  "Signed in as …" above **Not you? Sign out**. The welcome screen's number
-  box is the same `PhoneBox`. No passkey: it needs
+  plain digits keypad, never the dialler's. The code screen says where the
+  code went with a **Change** button (back to the number), says "Never
+  share this code with anyone", and offers **Send a new code** as the link,
+  grey with a 0:42 clock until it may be pressed. **There is no "signed
+  in" screen** (the owner's choice): a right code turns the six boxes green
+  with "Verified. Signing you in…" for `SHOW_VERIFIED_MS` (700), then the
+  app moves on by itself; a wrong one turns them brick with one sentence.
+  "Are you a customer or a technician?" has no back button: two cards side
+  by side, a tap picks one (tick, and its drawing above hops) and the
+  button says the choice ("Continue as a customer"), with "Signed in as …"
+  and **Not you? Sign out** under it. The name screen repeats the choice
+  with **Change**; an email account types its number there in the same
+  `PhoneBox`. No passkey: it needs
   its own set-up and is not well supported on the phones customers have.
 - **The typeface is Plus Jakarta Sans** (`font` in `theme.ts`, loaded in
   `_layout.tsx`): the owner found the first pair, Bricolage Grotesque and

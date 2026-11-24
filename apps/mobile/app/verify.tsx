@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { AppState, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { AccessibilityInfo, Animated, AppState, Easing, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, CODE_DIGITS, explainAuthError, readCode, showMobile } from '@pechkas/shared';
 import { AuthButton, AuthNote, AuthScreen, authBox } from '../src/components/AuthScreen';
-import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { Notice } from '../src/components/ui';
 import { colour, font } from '../src/theme';
@@ -47,6 +46,12 @@ export default function Verify() {
   const [sent, setSent] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [verified, setVerified] = useState(false);
+  // Counts wrong codes, so the boxes shake for each one — even the same sentence twice.
+  const [fails, setFails] = useState(0);
+  const wrong = (m: string) => {
+    setError(m);
+    setFails((n) => n + 1);
+  };
   // The countdown is worked out from the clock, not counted down a second at
   // a time. Counting stalled whenever the phone paused the app — which is
   // exactly what happens while somebody goes to their email to read the
@@ -132,9 +137,9 @@ export default function Verify() {
       setBusy(false);
       // Supabase says "Token has expired or is invalid" for both, so this one
       // cannot tell which it was and does not pretend to.
-      if (/expired or is invalid/i.test(e.message)) setError('That code is not right, or it has expired. Check it, or ask for a new one.');
-      else if (/expired/i.test(e.message)) setError('That code has expired. Ask for a new one.');
-      else if (/invalid|token|otp/i.test(e.message)) setError('That code is not right. Check it and try again.');
+      if (/expired or is invalid/i.test(e.message)) wrong('That code is not right, or it has expired. Check it, or ask for a new one.');
+      else if (/expired/i.test(e.message)) wrong('That code has expired. Ask for a new one.');
+      else if (/invalid|token|otp/i.test(e.message)) wrong('That code is not right. Check it and try again.');
       // Anything else is not the code's fault: say what Supabase said.
       else setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);
       return;
@@ -184,14 +189,27 @@ export default function Verify() {
   const where = email ?? (phone ? showMobile(phone) : 'your phone');
   return (
     <AuthScreen
-      title="Enter the code"
-      sub={email ? 'We sent it by email to:' : 'We sent it by SMS to:'}
+      art="code"
+      artOpen={verified}
+      title={`Enter the ${CODE_DIGITS}-digit code`}
+      sub={
+        // Where the code went, and the way back to change it: a real button, 44 points tall.
+        <View style={s.sentTo}>
+          <Text style={s.sentToText}>
+            {email ? 'Sent by email to ' : 'Sent by SMS to '}
+            <Text style={s.where}>{where}</Text>
+          </Text>
+          <Press onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={email ? 'Change the email address' : 'Change the number'} sink={0.94} style={s.change}>
+            <Text style={s.changeText}>Change</Text>
+          </Press>
+        </View>
+      }
       footer={
         verified ? null : (
           <>
             {code.length === CODE_DIGITS && !error ? <AuthButton label="Check the code" arrow onPress={() => check()} busy={busy} /> : null}
             <AuthButton
-              kind="second"
+              kind="link"
               icon="refresh"
               label={left > 0 ? `Send a new code in ${clock(left)}` : 'Send a new code'}
               off={left > 0}
@@ -201,18 +219,7 @@ export default function Verify() {
         )
       }
     >
-      {/* Where the code went, and the way back to change it: one row, one real button. */}
-      <View style={s.sentTo}>
-        <Icon name={email ? 'mail' : 'phone'} size={18} color={colour.ink} strokeWidth={2.2} />
-        <Text style={s.sentToText} numberOfLines={1}>
-          {where}
-        </Text>
-        <Press onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={email ? 'Change the email address' : 'Change the number'} sink={0.94} style={s.change}>
-          <Icon name="pencil" size={15} color={colour.ink} strokeWidth={2.2} />
-          <Text style={s.changeText}>Change</Text>
-        </Press>
-      </View>
-      <CodeBoxes value={code} onChange={typed} email={Boolean(email)} error={error} verified={verified} onSubmit={() => check()} />
+      <CodeBoxes value={code} onChange={typed} email={Boolean(email)} error={error} fails={fails} verified={verified} onSubmit={() => check()} />
       {verified ? (
         <AuthNote icon="check" tone="good" text="Verified. Signing you in…" />
       ) : error ? (
@@ -241,16 +248,35 @@ export default function Verify() {
  * it stopped at six, a longer code pasted in would be cut short without a
  * word; this way `readCode()` sees how many arrived and the screen says so.
  */
-function CodeBoxes({ value, onChange, email, error, verified, onSubmit }: {
+function CodeBoxes({ value, onChange, email, error, fails, verified, onSubmit }: {
   value: string;
   onChange: (text: string) => void;
   email: boolean;
   error: string | null;
+  /** Wrong codes so far: each new one shakes the row. */
+  fails: number;
   verified: boolean;
   onSubmit: () => void;
 }) {
   const input = useRef<TextInput>(null);
   const [focused, setFocused] = useState(true);
+  // A wrong code shakes the row, the way a phone shakes at a wrong PIN: understood without reading.
+  const shake = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!fails) return;
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then((still) => {
+        if (!alive || still) return;
+        shake.setValue(0);
+        Animated.timing(shake, { toValue: 1, duration: 420, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
+      });
+    return () => {
+      alive = false;
+    };
+  }, [fails, shake]);
+  const shift = shake.interpolate({ inputRange: [0, 0.15, 0.3, 0.45, 0.6, 0.8, 1], outputRange: [0, -10, 9, -7, 5, -3, 0] });
   const { width } = useWindowDimensions();
   const digits = value.slice(0, CODE_DIGITS);
   // Each box gets a real size in points. They used to share the row with
@@ -260,6 +286,7 @@ function CodeBoxes({ value, onChange, email, error, verified, onSubmit }: {
   const gap = 9;
   const size = Math.max(32, Math.min(56, Math.floor((width - 40 - gap * (CODE_DIGITS - 1)) / CODE_DIGITS)));
   return (
+    <Animated.View style={{ transform: [{ translateX: shift }] }}>
     <Press onPress={() => input.current?.focus()} sink={1} accessible={false} style={[s.boxes, { gap }]}>
       {Array.from({ length: CODE_DIGITS }, (_, i) => {
         const here = focused && !verified && i === Math.min(digits.length, CODE_DIGITS - 1);
@@ -270,7 +297,7 @@ function CodeBoxes({ value, onChange, email, error, verified, onSubmit }: {
               s.box,
               authBox.box,
               { width: size, height: Math.round(size * 1.12), borderRadius: Math.round(size * 0.27) },
-              verified ? authBox.good : error ? authBox.bad : here ? authBox.focused : null,
+              verified ? authBox.good : error ? authBox.bad : here ? authBox.focused : digits[i] ? authBox.filled : null,
             ]}
           >
             <Text style={[s.digit, { fontSize: Math.round(size * 0.5) }, verified && { color: colour.green }]}>{digits[i] ?? ''}</Text>
@@ -299,14 +326,16 @@ function CodeBoxes({ value, onChange, email, error, verified, onSubmit }: {
         style={s.hidden}
       />
     </Press>
+    </Animated.View>
   );
 }
 
 const s = StyleSheet.create({
-  sentTo: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 54, paddingLeft: 16, paddingRight: 8, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.7)', marginBottom: 6 },
-  sentToText: { flex: 1, minWidth: 0, fontFamily: font.bodySemi, fontSize: 16, color: colour.ink, fontVariant: ['tabular-nums'] },
-  change: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 12, borderRadius: 12, backgroundColor: colour.white },
-  changeText: { fontFamily: font.display, fontSize: 14, color: colour.ink },
+  sentTo: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: 2, marginVertical: -6 },
+  sentToText: { flexShrink: 1, fontFamily: font.body, fontSize: 15.5, lineHeight: 22, color: colour.steel },
+  where: { fontFamily: font.display, color: colour.ink, fontVariant: ['tabular-nums'] },
+  change: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 },
+  changeText: { fontFamily: font.display, fontSize: 15.5, color: colour.ink, textDecorationLine: 'underline' },
   boxes: { flexDirection: 'row', position: 'relative', alignSelf: 'stretch' },
   box: { alignItems: 'center', justifyContent: 'center' },
   digit: { fontFamily: font.display, fontSize: 28, color: colour.ink, fontVariant: ['tabular-nums'] },

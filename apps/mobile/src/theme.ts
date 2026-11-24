@@ -10,7 +10,7 @@
  * turned them down. The app is Pakistani in how it works, not in ornament.
  */
 // Colours and the card shadow are shared with the admin panel: packages/shared/src/tokens.ts.
-export { amber, colour, glow, GLOW_STOPS, shadow } from '@pechkas/shared/src/tokens';
+export { colour, glow, GLOW_STOPS, shadow } from '@pechkas/shared/src/tokens';
 
 /**
  * Font family names, as registered in app/_layout.tsx. The fonts ship inside
