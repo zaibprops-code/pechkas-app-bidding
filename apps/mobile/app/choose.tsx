@@ -1,35 +1,32 @@
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import { Art, type ArtName } from '../src/components/Art';
+import { showMobile } from '@pechkas/shared';
+import { AuthButton, AuthScreen } from '../src/components/AuthScreen';
 import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
-import { Screen, useArrive } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import type { Mode } from '../src/mode';
-import { colour, font, shadow, TAP } from '../src/theme';
+import { amber, colour, font } from '../src/theme';
 
 /**
  * The first question after signing in for the first time: how is this
- * person going to use Pechkas? Two big cards and nothing else, the way
- * inDrive asks "passenger or driver" before anything else — so the choice
- * cannot be missed under a form.
+ * person going to use Pechkas? On the amber sign-in screen (AuthScreen), so
+ * it follows the code without a jump — there is no separate "signed in"
+ * screen (the owner's choice, 24 November 2026): the code's boxes turn green,
+ * and the app comes straight here.
  *
- * It is not for ever. Either side can switch from the menu later
- * (src/mode.ts, public.switch_mode), and the screen says so, so nobody
- * agonises over it.
- *
- * The two cards must never look alike (the owner's screenshot: two cream
- * cards on a cream-grey screen read as one block). The customer's is the
- * white card every screen uses; the technician's is the screen's one green
- * card. Each names its side ("Customer", "Technician") with its own icon,
- * and an "or" stands between them.
+ * Two big cards and nothing else, the way inDrive asks "passenger or driver"
+ * before anything else. The two must never look alike: the customer's is
+ * white, the technician's green, each naming its side with its own icon.
+ * No back button: going back to the code would make no sense once it has
+ * worked. It is not for ever — either side can switch from the menu later
+ * (src/mode.ts, public.switch_mode) — and the screen says so, so nobody
+ * agonises over it. Which account this is, and Sign out, are at the foot.
  */
 export default function Choose() {
   const { next } = useLocalSearchParams<{ next?: string }>();
   const { account, signOut } = useAccount();
-  const arrive = useArrive();
-  const rise = arrive.interpolate({ inputRange: [0, 1], outputRange: [24, 0] });
 
   // Already chosen: this screen has nothing to ask.
   if (account?.role) {
@@ -38,116 +35,76 @@ export default function Choose() {
   }
 
   const pick = (as: Mode) => router.push({ pathname: '/welcome', params: { as, next: next ?? '' } });
+  const who = account?.phone ? showMobile(account.phone) : account?.email ?? null;
 
   return (
-    <Screen hero={{ title: 'How will you use Pechkas?', sub: 'Choose one. You can switch any time from the menu.' }}>
-      <Animated.View style={{ gap: 14, transform: [{ translateY: rise }] }} accessibilityRole="radiogroup">
-        <Card
-          side="customer"
-          icon="home"
-          label="Customer"
-          art="ac"
-          title="I need something fixed"
-          sub="Post a job and name your price. Checked technicians make offers, and you choose one."
-          onPress={() => pick('customer')}
-        />
-        <View style={s.or} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <View style={s.orLine} />
-          <Text style={s.orText}>or</Text>
-          <View style={s.orLine} />
-        </View>
-        <Card
-          side="pro"
-          icon="briefcase"
-          label="Technician"
-          art="electrician"
-          title="I fix things"
-          sub="Apply to work with Pechkas. Once we have checked you, jobs in your areas come to your phone."
-          onPress={() => pick('pro')}
-        />
-      </Animated.View>
-      <Press
-        onPress={async () => {
-          await signOut();
-          router.replace('/start');
-        }}
-        accessibilityRole="button"
-        style={s.out}
-      >
-        <Text style={s.outText}>Not you? Sign out</Text>
-      </Press>
-    </Screen>
+    <AuthScreen
+      title="How will you use Pechkas?"
+      sub="Choose one. You can switch any time from the menu."
+      back={false}
+      footer={
+        <>
+          {who ? <Text style={s.who}>Signed in as {who}</Text> : null}
+          <AuthButton
+            kind="second"
+            icon="logout"
+            label="Not you? Sign out"
+            onPress={async () => {
+              await signOut();
+              router.replace('/start');
+            }}
+          />
+        </>
+      }
+    >
+      <View style={{ gap: 12 }} accessibilityRole="radiogroup">
+        <Card side="customer" icon="home" label="Customer" title="I need something fixed" sub="Post a job, name your price and choose who comes." onPress={() => pick('customer')} />
+        <Card side="pro" icon="briefcase" label="Technician" title="I fix things" sub="Apply to work with Pechkas and get jobs in your areas." onPress={() => pick('pro')} />
+      </View>
+    </AuthScreen>
   );
 }
 
-function Card({
-  side,
-  icon,
-  label,
-  art,
-  title,
-  sub,
-  onPress,
-}: {
-  side: Mode;
-  icon: DuoName;
-  label: string;
-  art: ArtName;
-  title: string;
-  sub: string;
-  onPress: () => void;
-}) {
+function Card({ side, icon, label, title, sub, onPress }: { side: Mode; icon: DuoName; label: string; title: string; sub: string; onPress: () => void }) {
   const pro = side === 'pro';
+  // A small phone keeps the title on one line and the card short.
+  const narrow = useWindowDimensions().width < 360;
   return (
     <Press
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${label}. ${title}. ${sub}`}
       sink={0.97}
-      style={[s.card, pro ? s.cardPro : s.cardCustomer]}
+      style={[s.card, pro ? s.cardPro : s.cardCustomer, narrow && s.cardNarrow]}
     >
-      <View style={s.side}>
-        <View style={[s.tile, pro && s.tilePro]}>
-          <DuoIcon name={icon} size={24} ink={pro ? colour.white : colour.ink} />
-        </View>
-        <Text style={[s.label, pro && s.labelPro]}>{label}</Text>
+      <View style={[s.tile, pro && s.tilePro, narrow && s.tileNarrow]}>
+        <DuoIcon name={icon} size={26} ink={pro ? colour.white : colour.ink} />
       </View>
       <View style={s.words}>
-        <Text style={[s.title, pro && s.titlePro]}>{title}</Text>
+        <Text style={[s.label, pro && s.labelPro]}>{label}</Text>
+        <Text style={[s.title, pro && s.titlePro, narrow && s.titleNarrow]}>{title}</Text>
         <Text style={[s.sub, pro && s.subPro]}>{sub}</Text>
       </View>
-      <View style={s.foot}>
-        <View style={s.go}>
-          <Icon name="arrowRight" size={22} color={colour.ink} strokeWidth={2.2} />
-        </View>
-        <View style={s.art}>
-          <Art name={art} width={112} height={84} />
-        </View>
-      </View>
+      <Icon name="chevronRight" size={22} color={pro ? colour.white : colour.ink} strokeWidth={2.2} />
     </Press>
   );
 }
 
 const s = StyleSheet.create({
-  card: { borderRadius: 24, padding: 18, gap: 12, overflow: 'hidden' },
-  cardCustomer: { backgroundColor: colour.white, boxShadow: shadow.card },
-  cardPro: { backgroundColor: colour.green },
-  side: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  tile: { width: 44, height: 44, borderRadius: 14, backgroundColor: colour.softYellow, alignItems: 'center', justifyContent: 'center' },
+  card: { flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 22, padding: 18, minHeight: 96 },
+  cardCustomer: { backgroundColor: colour.white, boxShadow: '0px 6px 18px rgba(120, 70, 0, 0.12)' },
+  cardPro: { backgroundColor: colour.green, boxShadow: '0px 10px 24px rgba(11, 81, 72, 0.28)' },
+  tile: { width: 52, height: 52, borderRadius: 16, backgroundColor: colour.softYellow, alignItems: 'center', justifyContent: 'center' },
   tilePro: { backgroundColor: colour.greenDark },
-  label: { fontFamily: font.displayBold, fontSize: 12.5, letterSpacing: 1, textTransform: 'uppercase', color: colour.steel },
+  cardNarrow: { padding: 14, gap: 12 },
+  tileNarrow: { width: 44, height: 44, borderRadius: 14 },
+  titleNarrow: { fontSize: 17, lineHeight: 22 },
+  words: { flex: 1, minWidth: 0, gap: 2 },
+  label: { fontFamily: font.displayBold, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: amber.ink },
   labelPro: { color: colour.greenSoft },
-  words: { gap: 6, maxWidth: 300 },
-  title: { fontFamily: font.display, fontSize: 24, lineHeight: 29, color: colour.ink },
+  title: { fontFamily: font.display, fontSize: 19, lineHeight: 24, color: colour.ink },
   titlePro: { color: colour.white },
-  sub: { fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.inkSoft },
+  sub: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.inkSoft, marginTop: 2 },
   subPro: { color: colour.greenSoft },
-  foot: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
-  go: { width: 52, height: 52, borderRadius: 26, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
-  art: { width: 124, height: 92, borderRadius: 18, backgroundColor: colour.cream, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  or: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 8 },
-  orLine: { flex: 1, height: 1, backgroundColor: colour.rule },
-  orText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel },
-  out: { alignSelf: 'center', minHeight: TAP, justifyContent: 'center', paddingHorizontal: 12 },
-  outText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.green, textDecorationLine: 'underline' },
+  who: { fontFamily: font.bodyMedium, fontSize: 14, color: amber.ink, textAlign: 'center', fontVariant: ['tabular-nums'] },
 });

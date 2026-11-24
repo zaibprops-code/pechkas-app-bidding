@@ -38,6 +38,8 @@ body { overflow: hidden; background: var(--stage); color: var(--ink); font-famil
 .screw::after { content: ""; position: absolute; left: 14px; right: 14px; top: 28px; height: 8px; border-radius: 4px; background: #6b4e2a; animation: turn 1.2s linear infinite; }
 @keyframes turn { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .screw::after { animation: none; } }
+/* A phone draws no focus rectangle round a box being typed in; the browser does. The app shows focus with its own outline. */
+#root input:focus, #root textarea:focus { outline: none; }
 .loading h1 { margin: 0; font-size: 22px; font-weight: 800; }
 .loading p { margin: 0; color: #cfe3df; font-size: 14.5px; line-height: 1.5; max-width: 300px; }
 .loading .fail { color: #fff; background: rgba(0,0,0,.2); border-radius: 12px; padding: 12px 14px; }

@@ -80,6 +80,19 @@ export function pakistaniMobile(typed: string): string | null {
   return /^3\d{9}$/.test(local) ? `+92${local}` : null;
 }
 
+/**
+ * What the number box shows while somebody types after the fixed "+92":
+ * digits only, grouped 3-3-4 ("300 111 2222"), at most ten. A leading 0, or
+ * a pasted 92 / +92, is dropped, because "+92" is already in front of the
+ * box; whatever comes out is still read by pakistaniMobile(), the one rule.
+ */
+export function typedMobile(typed: string): string {
+  let d = (typed ?? '').replace(/\D/g, '');
+  if (d.startsWith('92') && d.length > 10) d = d.slice(2);
+  d = d.replace(/^0+/, '').slice(0, 10);
+  return [d.slice(0, 3), d.slice(3, 6), d.slice(6)].filter(Boolean).join(' ');
+}
+
 /** "+923001234567" → "0300 1234567", the way people read their own number. */
 export function showMobile(e164: string): string {
   const local = e164.replace(/^\+?92/, '0');

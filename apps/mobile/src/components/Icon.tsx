@@ -50,7 +50,9 @@ export type IconName =
   | 'briefcase'
   | 'wallet'
   | 'share'
-  | 'swap';
+  | 'swap'
+  | 'pencil'
+  | 'refresh';
 
 type Props = {
   name: IconName;
@@ -136,6 +138,8 @@ export function Icon({ name, size = 24, color = colour.green, strokeWidth = 1.8,
       {name === 'alert' && <Path {...s} d="M12 3L2 20h20zM12 10v4M12 17v.5" />}
       {name === 'cross' && <Path {...s} d="M6 6l12 12M18 6L6 18" />}
       {name === 'check' && <Path {...s} d="M5 12.5l4.5 4.5L19 7.5" />}
+      {name === 'pencil' && <Path {...s} d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4" />}
+      {name === 'refresh' && <Path {...s} d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" />}
       {name === 'camera' && (
         <>
           <Path {...s} d="M4 8.5h3.2l1.8-2.5h6l1.8 2.5H20v10.5H4z" />

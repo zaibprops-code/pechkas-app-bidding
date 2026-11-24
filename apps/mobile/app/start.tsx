@@ -91,6 +91,8 @@ const ON: Record<Tone, { base: string; fg: string; muted: string; dotOff: string
 
 /** A page's background: its colour, lit from behind the drawing and darker at the edges. */
 function Glow({ tone, id, width, height }: { tone: Tone; id: string; width: number; height: number }) {
+  // Nothing to draw before the page has a size (an ellipse of radius 0 cannot be stretched).
+  if (!(width > 0 && height > 0)) return null;
   const cx = width * 0.8;
   const cy = height * 0.62;
   // An ellipse 0.9 of the width across and 0.6 of the height tall: a circle stretched sideways.

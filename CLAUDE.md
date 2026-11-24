@@ -179,8 +179,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   shows — and nothing about a job reads it: every job function works out
   the asker's side from the job's own `customer_id` and `pro_id`. The first
   question is `app/choose.tsx` (two big cards that must never look alike: the
-  customer's white, the technician's green, each naming its side, an "or"
-  between), then `welcome.tsx` takes
+  customer's white, the technician's green, each naming its side, on the
+  amber sign-in screen with no back button), then `welcome.tsx` takes
   the name with the choice as `as`. Changing it later is only
   `switch_mode()` (`src/mode.ts`, `ModeSwitch` at the foot of the menu and
   on Me), never `start_as()`, which refuses a different mode. Technician
@@ -1619,10 +1619,29 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   words and buttons take the current page's colours when it settles —
   colours snap. The headline shrinks with the width so "technicians." never
   breaks at 320. Every page says only what is true today: no numbers, no
-  ratings, and the pages never turn by themselves. The number screen (`sign-in.tsx`) is one big
-  `PhoneBox` with the flag and **+92** fixed in front — a label, not a
-  menu, since only Pakistani numbers work — and **Next** at the foot. The
-  welcome screen's number box is the same `PhoneBox`. No passkey: it needs
+  ratings, and the pages never turn by themselves. **The sign-in screens — number, code
+  and "How will you use Pechkas?" — share `AuthScreen`**
+  (`src/components/AuthScreen.tsx`, the owner's design of 24 November
+  2026): deep amber at the top lightening to cream at the foot (`amber` in
+  `packages/shared/src/tokens.ts`; its `ink` is the quiet text, above 4.5:1
+  on every stop), a back button and no logo, one question, one box, one
+  quiet line (`AuthNote`), and full-size buttons above the keyboard
+  (`AuthButton`: `main` black on the amber — pale and inert until it can
+  act — and `second` white, the same size). **Continue** stays pale until
+  `pakistaniMobile()` accepts the number; the box then shows a green tick.
+  `PhoneBox` (with `amber`) has the flag and **+92** fixed in front — a
+  label, not a menu — and shows what is typed grouped 3-3-4 through
+  `typedMobile()` (digits only, a leading 0 or pasted +92 dropped), on the
+  plain digits keypad, never the dialler's. The code screen names where the
+  code went in one row with a **Change** button (back to the number), says
+  "Never share this code with anyone", and offers **Send a new code** as a
+  full button, pale with a 0:42 clock until it may be pressed. **There is
+  no "signed in" screen** (the owner's choice): a right code turns the six
+  boxes green with "Verified. Signing you in…" for `SHOW_VERIFIED_MS`
+  (700), then the app moves on by itself; a wrong one turns them brick with
+  one sentence. "How will you use Pechkas?" has no back button and says
+  "Signed in as …" above **Not you? Sign out**. The welcome screen's number
+  box is the same `PhoneBox`. No passkey: it needs
   its own set-up and is not well supported on the phones customers have.
 - **The typeface is Plus Jakarta Sans** (`font` in `theme.ts`, loaded in
   `_layout.tsx`): the owner found the first pair, Bricolage Grotesque and

@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { StyleSheet, Text, TextInput, useWindowDimensions, View, type TextInputProps } from 'react-native';
+import { pakistaniMobile, typedMobile } from '@pechkas/shared';
+import { authBox } from './AuthScreen';
+import { Icon } from './Icon';
+import { Press } from './Press';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { colour, font } from '../theme';
 
@@ -13,9 +17,63 @@ import { colour, font } from '../theme';
  *
  * The outline is green while typing and brick when the number is wrong; it
  * snaps, like every Field.
+ *
+ * What is typed is shown grouped 3-3-4 (typedMobile(): digits only, a
+ * leading 0 or a pasted +92 dropped), and the keypad is the plain digits one
+ * — the dialler's + * # have nothing to do here, since +92 is fixed.
+ *
+ * `amber` is the sign-in screens' look (AuthScreen): a white box lifted off
+ * the yellow, an ink outline while typing, and a green tick in place of the
+ * clear button once the number is a whole Pakistani mobile number.
  */
-export function PhoneBox({ error, hint, ...input }: TextInputProps & { error?: string | null; hint?: string }) {
+export function PhoneBox({ error, hint, amber = false, ...input }: TextInputProps & { error?: string | null; hint?: string; amber?: boolean }) {
   const [focused, setFocused] = useState(false);
+  const value = typeof input.value === 'string' ? input.value : '';
+  const whole = Boolean(pakistaniMobile(value));
+  const change = (t: string) => input.onChangeText?.(typedMobile(t));
+  // Under 360 points the whole "300 111 2222" must still fit beside +92 and the tick.
+  const narrow = useWindowDimensions().width < 360;
+  if (amber) {
+    return (
+      <View style={[s.box, s.amberBox, authBox.box, error ? authBox.bad : focused ? authBox.focused : null]}>
+        <View style={s.country} accessible accessibilityLabel="Pakistan, plus 92">
+          <Flag />
+          <Text style={s.code}>+92</Text>
+        </View>
+        <View style={s.rule} />
+        <TextInput
+          {...input}
+          onChangeText={change}
+          onFocus={(e) => {
+            setFocused(true);
+            input.onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            input.onBlur?.(e);
+          }}
+          accessibilityLabel="Mobile number"
+          placeholder="3XX XXX XXXX"
+          placeholderTextColor="#a59d88"
+          keyboardType="number-pad"
+          textContentType="telephoneNumber"
+          autoComplete="tel"
+          maxLength={20}
+          underlineColorAndroid="transparent"
+          style={[s.input, s.amberInput, narrow && s.amberNarrow]}
+        />
+        {whole ? (
+          <View style={s.tick} accessible accessibilityLabel="A whole mobile number">
+            <Icon name="check" size={15} color={colour.white} strokeWidth={3} />
+          </View>
+        ) : value ? (
+          <Press onPress={() => input.onChangeText?.('')} accessibilityRole="button" accessibilityLabel="Clear the number" hitSlop={10} sink={0.9} style={s.clear}>
+            <Icon name="cross" size={14} color={colour.white} strokeWidth={3} />
+          </Press>
+        ) : null}
+      </View>
+    );
+  }
   return (
     <View style={{ gap: 6 }}>
       <View
@@ -42,10 +100,11 @@ export function PhoneBox({ error, hint, ...input }: TextInputProps & { error?: s
             setFocused(false);
             input.onBlur?.(e);
           }}
+          onChangeText={change}
           accessibilityLabel="Mobile number"
           placeholder="300 1234567"
           placeholderTextColor="#7a838a"
-          keyboardType="phone-pad"
+          keyboardType="number-pad"
           textContentType="telephoneNumber"
           autoComplete="tel"
           style={s.input}
@@ -85,6 +144,11 @@ const s = StyleSheet.create({
   rule: { width: 1, height: 26, backgroundColor: colour.rule, marginHorizontal: 12 },
   // minWidth 0: a typing box has a natural width of its own, and at 320 points it pushed the row past the screen.
   input: { flex: 1, minWidth: 0, alignSelf: 'stretch', fontFamily: font.bodyMedium, fontSize: 19, color: colour.ink, paddingRight: 14, outlineWidth: 0 },
+  amberBox: { minHeight: 66, paddingRight: 12 },
+  amberInput: { fontFamily: font.bodySemi, fontSize: 22, letterSpacing: 0.6, fontVariant: ['tabular-nums'] },
+  amberNarrow: { fontSize: 19, letterSpacing: 0, paddingRight: 6 },
+  tick: { width: 28, height: 28, borderRadius: 14, backgroundColor: colour.green, alignItems: 'center', justifyContent: 'center' },
+  clear: { width: 24, height: 24, borderRadius: 12, backgroundColor: '#c9cdd1', alignItems: 'center', justifyContent: 'center' },
   error: { fontFamily: font.bodySemi, fontSize: 13, color: colour.brick },
   hint: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
 });

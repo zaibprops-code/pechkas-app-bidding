@@ -1,17 +1,22 @@
 import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, explainAuthError, pakistaniMobile } from '@pechkas/shared';
+import { AuthButton, AuthNote, AuthScreen, authBox } from '../src/components/AuthScreen';
+import { Icon } from '../src/components/Icon';
 import { PhoneBox } from '../src/components/PhoneBox';
-import { Press } from '../src/components/Press';
-import { Button, Field, Notice, Screen } from '../src/components/ui';
+import { Notice } from '../src/components/ui';
 import { sendEmailCode, sendPhoneCode, supabase, url } from '../src/supabase';
 import { colour, font } from '../src/theme';
 
 /**
- * Sign in with a mobile number — or an email — laid out as inDrive's is:
- * one big box with the country already in it, and Next at the foot. A code
- * is sent; nothing else is asked for, and there is no password to forget.
+ * Sign in with a mobile number — or an email — on the amber sign-in screen
+ * (AuthScreen, the owner's design of 24 November 2026): one question, one
+ * box with +92 fixed in front, one quiet line under it, and two full-size
+ * buttons above the keyboard. **Continue** stays pale until the number is a
+ * whole Pakistani mobile number (the box shows a green tick then), so a code
+ * is never sent to half a number. A code is sent; nothing else is asked for,
+ * and there is no password to forget.
  */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -25,6 +30,9 @@ export default function SignIn() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [focused, setFocused] = useState(true);
+
+  const ready = mode === 'phone' ? Boolean(pakistaniMobile(typed)) : EMAIL.test(email.trim().toLowerCase());
 
   function switchTo(m: 'phone' | 'email') {
     setMode(m);
@@ -71,56 +79,84 @@ export default function SignIn() {
     router.push({ pathname: '/verify', params: { phone, next: next ?? '' } });
   }
 
+  const phone = mode === 'phone';
   return (
-    <Screen
-      hero={{
-        title: mode === 'phone' ? 'Join with your mobile number' : 'Join with your email',
-        sub: mode === 'phone' ? 'We will text you a code to check your number.' : 'We will email you a code. No password needed.',
-        back: router.canGoBack(),
-      }}
-      footer={<Button label="Next" onPress={send} busy={busy} />}
+    <AuthScreen
+      title={phone ? 'What is your mobile number?' : 'What is your email?'}
+      sub={phone ? 'We will text you a code to confirm it is you.' : 'We will email you a code. No password needed.'}
+      back={router.canGoBack()}
+      footer={
+        <>
+          <AuthButton
+            label="Continue"
+            arrow
+            onPress={send}
+            busy={busy}
+            off={!ready}
+            hint={phone ? 'Write your whole mobile number first.' : 'Write your whole email address first.'}
+          />
+          <AuthButton
+            kind="second"
+            icon={phone ? 'mail' : 'phone'}
+            label={phone ? 'Use email instead' : 'Use mobile instead'}
+            onPress={() => switchTo(phone ? 'email' : 'phone')}
+          />
+        </>
+      }
     >
-      {mode === 'phone' ? (
+      {phone ? (
         <PhoneBox
+          amber
           value={typed}
           onChangeText={(t) => {
             setTyped(t);
             if (error) setError(null);
           }}
           returnKeyType="send"
-          onSubmitEditing={send}
+          onSubmitEditing={() => ready && send()}
           autoFocus
           error={error}
-          hint="Your number goes only to the person you end up working with, and to the Pechkas office."
         />
       ) : (
-        <>
-          <Field
-            label="Email address"
+        <View style={[s.email, authBox.box, error ? authBox.bad : focused ? authBox.focused : null]}>
+          <Icon name="mail" size={20} color={colour.ink} strokeWidth={2} />
+          <TextInput
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(t) => {
+              setEmail(t);
+              if (error) setError(null);
+            }}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            accessibilityLabel="Email address"
             placeholder="name@gmail.com"
+            placeholderTextColor="#a59d88"
             keyboardType="email-address"
             textContentType="emailAddress"
             autoComplete="email"
             autoCapitalize="none"
             autoCorrect={false}
+            autoFocus
             returnKeyType="send"
-            onSubmitEditing={send}
-            error={error}
-            hint="You will be asked for your mobile number next, so the technician you choose can call you."
+            onSubmitEditing={() => ready && send()}
+            underlineColorAndroid="transparent"
+            style={s.emailInput}
           />
-        </>
+        </View>
+      )}
+      {error ? (
+        <AuthNote icon="alert" tone="bad" text={error} />
+      ) : phone ? (
+        <AuthNote icon="lock" text="Only the technician you choose, and Pechkas, will see it." />
+      ) : (
+        <AuthNote icon="phone" text="We will ask for your mobile number next, so the technician you choose can call you." />
       )}
       <Notice text={notice} />
-      <Press onPress={() => switchTo(mode === 'phone' ? 'email' : 'phone')} accessibilityRole="button" style={s.switch}>
-        <Text style={s.switchText}>{mode === 'phone' ? 'Use my email instead' : 'Use my mobile number instead'}</Text>
-      </Press>
-    </Screen>
+    </AuthScreen>
   );
 }
 
 const s = StyleSheet.create({
-  switch: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
-  switchText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.green, textDecorationLine: 'underline' },
+  email: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 66, paddingHorizontal: 16 },
+  emailInput: { flex: 1, minWidth: 0, alignSelf: 'stretch', fontFamily: font.bodySemi, fontSize: 19, color: colour.ink, outlineWidth: 0 },
 });

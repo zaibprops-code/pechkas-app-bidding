@@ -15,9 +15,9 @@ async function open(W, H) {
 async function signIn(p, num) {
   const r = p.locator('#root');
   await r.getByText('Continue with phone').click(); await p.waitForTimeout(700);
-  await p.getByLabel('Mobile number').last().fill(num);
-  await r.getByText('Next', { exact: true }).last().click(); await p.waitForTimeout(1200);
-  await p.getByLabel('Code', { exact: false }).last().fill('123456'); await p.waitForTimeout(3500);
+  await p.getByLabel('Mobile number', { exact: true }).last().fill(num);
+  await r.getByText('Continue', { exact: true }).last().click(); await p.waitForTimeout(1200);
+  await p.getByLabel('Code, 6 numbers', { exact: true }).last().fill('123456'); await p.waitForTimeout(3500);
 }
 const shot = (p, n) => p.screenshot({ path: `${S}/d-${n}.png` });
 // The customer

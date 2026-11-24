@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { AppState, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { authErrorDetails, CODE_DIGITS, explainAuthError, readCode, showMobile } from '@pechkas/shared';
+import { AuthButton, AuthNote, AuthScreen, authBox } from '../src/components/AuthScreen';
+import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
-import { Button, Notice, Screen } from '../src/components/ui';
+import { Notice } from '../src/components/ui';
 import { colour, font } from '../src/theme';
 import { useAccount, type Account } from '../src/account';
 import { routeFor } from '../src/route';
@@ -16,6 +18,16 @@ import { sendEmailCode, sendPhoneCode, supabase, url } from '../src/supabase';
  * wait, the screen takes its number instead (see `waitFrom`).
  */
 const WAIT = 60;
+
+/**
+ * How long the boxes stay green, saying "Verified", before the app moves on:
+ * long enough to be seen, short enough that nobody waits for it. There is no
+ * separate "signed in" screen (the owner's choice): the code itself confirms.
+ */
+const SHOW_VERIFIED_MS = 700;
+
+/** 42 → "0:42", as a clock reads. */
+const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
 /** "...you can only request this after 42 seconds." → 42. */
 function waitFrom(message: string): number | null {
@@ -34,6 +46,7 @@ export default function Verify() {
   // Good news — a new code was sent — is not a warning, so it is not red.
   const [sent, setSent] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [verified, setVerified] = useState(false);
   // The countdown is worked out from the clock, not counted down a second at
   // a time. Counting stalled whenever the phone paused the app — which is
   // exactly what happens while somebody goes to their email to read the
@@ -126,15 +139,16 @@ export default function Verify() {
       else setNotice(`${explainAuthError(e.message, e.status)}\n\n${authErrorDetails(e.message, e.status, url)}`);
       return;
     }
+    // Right: the boxes turn green and say so, then the app moves on by itself.
+    setBusy(false);
+    setVerified(true);
+    const shown = new Promise((r) => setTimeout(r, SHOW_VERIFIED_MS));
     if (changing) {
-      await refresh();
-      setBusy(false);
+      await Promise.all([refresh(), shown]);
       router.replace('/pro/first-jobs');
       return;
     }
-    const { data } = await supabase.rpc('my_account');
-    await refresh();
-    setBusy(false);
+    const [{ data }] = await Promise.all([supabase.rpc('my_account'), refresh(), shown]);
     routeFor((data as Account | null) ?? null, next);
   }
 
@@ -167,30 +181,53 @@ export default function Verify() {
     );
   }
 
+  const where = email ?? (phone ? showMobile(phone) : 'your phone');
   return (
-    <Screen
-      hero={{
-        title: 'Enter the code',
-        sub: email ? `Sent to ${email}` : `Sent to ${phone ? showMobile(phone) : 'your phone'}`,
-        back: true,
-      }}
-      footer={<Button label="Continue" onPress={() => check()} busy={busy} />}
+    <AuthScreen
+      title="Enter the code"
+      sub={email ? 'We sent it by email to:' : 'We sent it by SMS to:'}
+      footer={
+        verified ? null : (
+          <>
+            {code.length === CODE_DIGITS && !error ? <AuthButton label="Check the code" arrow onPress={() => check()} busy={busy} /> : null}
+            <AuthButton
+              kind="second"
+              icon="refresh"
+              label={left > 0 ? `Send a new code in ${clock(left)}` : 'Send a new code'}
+              off={left > 0}
+              onPress={resend}
+            />
+          </>
+        )
+      }
     >
-      <CodeBoxes value={code} onChange={typed} email={Boolean(email)} error={error} onSubmit={() => check()} />
-      {error ? <Text style={s.error}>{error}</Text> : null}
-      {email ? <Text style={s.hint}>Or, on this phone, tap the link in the email. Not in your inbox? Look in spam.</Text> : null}
+      {/* Where the code went, and the way back to change it: one row, one real button. */}
+      <View style={s.sentTo}>
+        <Icon name={email ? 'mail' : 'phone'} size={18} color={colour.ink} strokeWidth={2.2} />
+        <Text style={s.sentToText} numberOfLines={1}>
+          {where}
+        </Text>
+        <Press onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={email ? 'Change the email address' : 'Change the number'} sink={0.94} style={s.change}>
+          <Icon name="pencil" size={15} color={colour.ink} strokeWidth={2.2} />
+          <Text style={s.changeText}>Change</Text>
+        </Press>
+      </View>
+      <CodeBoxes value={code} onChange={typed} email={Boolean(email)} error={error} verified={verified} onSubmit={() => check()} />
+      {verified ? (
+        <AuthNote icon="check" tone="good" text="Verified. Signing you in…" />
+      ) : error ? (
+        <AuthNote icon="alert" tone="bad" text={error} />
+      ) : (
+        <AuthNote icon="shield" text="Never share this code with anyone." />
+      )}
+      {email && !verified ? <AuthNote icon="mail" text="Or, on this phone, tap the link in the email. Not in your inbox? Look in spam." /> : null}
       <Notice text={notice} />
       {sent ? (
         <View style={s.sent} accessibilityRole="alert">
           <Text style={s.sentText}>{sent}</Text>
         </View>
       ) : null}
-      <Press onPress={left > 0 ? undefined : resend} accessibilityRole="button" accessibilityState={{ disabled: left > 0 }} style={s.resend}>
-        <Text style={[s.resendText, left > 0 && { color: colour.steel, textDecorationLine: 'none' }]}>
-          {left > 0 ? `Send a new code in ${left}s` : 'Send a new code'}
-        </Text>
-      </Press>
-    </Screen>
+    </AuthScreen>
   );
 }
 
@@ -204,11 +241,12 @@ export default function Verify() {
  * it stopped at six, a longer code pasted in would be cut short without a
  * word; this way `readCode()` sees how many arrived and the screen says so.
  */
-function CodeBoxes({ value, onChange, email, error, onSubmit }: {
+function CodeBoxes({ value, onChange, email, error, verified, onSubmit }: {
   value: string;
   onChange: (text: string) => void;
   email: boolean;
   error: string | null;
+  verified: boolean;
   onSubmit: () => void;
 }) {
   const input = useRef<TextInput>(null);
@@ -219,15 +257,23 @@ function CodeBoxes({ value, onChange, email, error, onSubmit }: {
   // `flex: 1`, which worked in a browser and on Android collapsed every box to
   // its own border. The screen has 20 points of margin each side and a box is
   // never wider than 56, so six fit from a 320-point phone upwards.
-  const gap = 8;
+  const gap = 9;
   const size = Math.max(32, Math.min(56, Math.floor((width - 40 - gap * (CODE_DIGITS - 1)) / CODE_DIGITS)));
   return (
     <Press onPress={() => input.current?.focus()} sink={1} accessible={false} style={[s.boxes, { gap }]}>
       {Array.from({ length: CODE_DIGITS }, (_, i) => {
-        const here = focused && i === Math.min(digits.length, CODE_DIGITS - 1);
+        const here = focused && !verified && i === Math.min(digits.length, CODE_DIGITS - 1);
         return (
-          <View key={i} style={[s.box, { width: size, height: Math.round(size * 1.12), borderRadius: Math.round(size * 0.25) }, digits[i] ? s.boxFull : null, here ? s.boxHere : null, error ? s.boxError : null]}>
-            <Text style={[s.digit, { fontSize: Math.round(size * 0.5) }]}>{digits[i] ?? ''}</Text>
+          <View
+            key={i}
+            style={[
+              s.box,
+              authBox.box,
+              { width: size, height: Math.round(size * 1.12), borderRadius: Math.round(size * 0.27) },
+              verified ? authBox.good : error ? authBox.bad : here ? authBox.focused : null,
+            ]}
+          >
+            <Text style={[s.digit, { fontSize: Math.round(size * 0.5) }, verified && { color: colour.green }]}>{digits[i] ?? ''}</Text>
           </View>
         );
       })}
@@ -244,6 +290,7 @@ function CodeBoxes({ value, onChange, email, error, onSubmit }: {
         autoComplete={email ? 'one-time-code' : 'sms-otp'}
         maxLength={CODE_DIGITS + 6}
         autoFocus
+        editable={!verified}
         caretHidden
         // Android draws a line under every text box unless told not to: it
         // showed as a small dash beside the first box.
@@ -256,17 +303,14 @@ function CodeBoxes({ value, onChange, email, error, onSubmit }: {
 }
 
 const s = StyleSheet.create({
+  sentTo: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 54, paddingLeft: 16, paddingRight: 8, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.7)', marginBottom: 6 },
+  sentToText: { flex: 1, minWidth: 0, fontFamily: font.bodySemi, fontSize: 16, color: colour.ink, fontVariant: ['tabular-nums'] },
+  change: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 12, borderRadius: 12, backgroundColor: colour.white },
+  changeText: { fontFamily: font.display, fontSize: 14, color: colour.ink },
   boxes: { flexDirection: 'row', position: 'relative', alignSelf: 'stretch' },
-  box: { borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(20,23,26,0.16)', backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },
-  boxFull: { borderColor: colour.ink },
-  boxHere: { borderColor: colour.green, borderWidth: 2.5 },
-  boxError: { borderColor: colour.brick, borderWidth: 2 },
-  digit: { fontFamily: font.display, fontSize: 28, color: colour.ink },
+  box: { alignItems: 'center', justifyContent: 'center' },
+  digit: { fontFamily: font.display, fontSize: 28, color: colour.ink, fontVariant: ['tabular-nums'] },
   hidden: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, color: 'transparent', backgroundColor: 'transparent', fontSize: 1, borderWidth: 0, outlineWidth: 0 },
-  error: { fontFamily: font.bodySemi, fontSize: 14, color: colour.brick, marginTop: -6 },
   sent: { padding: 14, borderRadius: 14, backgroundColor: colour.greenSoft },
   sentText: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.greenDark },
-  hint: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.steel },
-  resend: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
-  resendText: { fontFamily: font.bodySemi, fontSize: 15, color: colour.green, textDecorationLine: 'underline' },
 });
