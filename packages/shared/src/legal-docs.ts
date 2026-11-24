@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "4ff8eae";
+export const LEGAL_FROM = "95cc3b4";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -777,7 +777,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " on iPhone. A notification says only the kind of work, the sector, a first name, a price and the job number — never an address or a phone number."
+              "t": " on iPhone. A notification says only the kind of work, the sector, a first name, a price and the job number — never an address or a phone number. Pechkas keeps a copy of each notification it sends you, and when you opened it in the app, so the app's Notifications page can show you the last 90 days of them."
             }
           ],
           [

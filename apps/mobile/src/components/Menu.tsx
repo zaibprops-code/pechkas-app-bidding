@@ -48,7 +48,7 @@ import { colour, font } from '../theme';
  * way Pechkas has always answered, and says so; Help has the phone number too.
  */
 
-type Item = { icon: DuoName; label: string; to?: Href; open?: () => void; note?: string; count?: boolean };
+type Item = { icon: DuoName; label: string; to?: Href; open?: () => void; note?: string; count?: boolean; unread?: boolean };
 
 const support: Item = { icon: 'support', label: 'Support', note: 'WhatsApp', open: () => void Linking.openURL(OFFICE_WHATSAPP).catch(() => {}) };
 
@@ -70,7 +70,7 @@ const REST: Item[] = [
 const CUSTOMER: Item[] = [
   { icon: 'home', label: 'Home', to: '/' },
   { icon: 'jobs', label: 'My jobs', to: '/jobs', count: true },
-  { icon: 'bell', label: 'Notifications', to: '/notifications' },
+  { icon: 'bell', label: 'Notifications', to: '/notifications', unread: true },
   ...REST,
 ];
 
@@ -78,7 +78,7 @@ const technician = (approved: boolean): Item[] => [
   { icon: 'briefcase', label: 'Jobs', to: '/pro' },
   // An unapproved technician has no account screen yet.
   ...(approved ? [{ icon: 'wallet', label: 'My account', to: '/pro/money' } as Item, { icon: 'medal', label: 'Guarantee claims', to: '/pro/claims' } as Item] : []),
-  { icon: 'bell', label: 'Notifications', to: '/notifications' },
+  { icon: 'bell', label: 'Notifications', to: '/notifications', unread: true },
   ...REST,
 ];
 
@@ -118,6 +118,7 @@ function Drawer({ onClose }: { onClose: () => void }) {
   const x = useRef(new Animated.Value(-panel)).current;
   const [top, setTop] = useState({ w: 0, h: 0 });
   const [happening, setHappening] = useState(0);
+  const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled()
@@ -139,6 +140,18 @@ function Drawer({ onClose }: { onClose: () => void }) {
       alive = false;
     };
   }, [pro]);
+
+  // How many notifications of the last 90 days are unread: the number beside Notifications.
+  useEffect(() => {
+    if (!supabase) return;
+    let alive = true;
+    void supabase.rpc('my_unread_notifications').then(({ data }) => {
+      if (alive && typeof data === 'number') setUnread(data);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // The phone's Back button closes the menu, as in every app, rather than leaving the screen under it.
   useEffect(() => {
@@ -208,14 +221,14 @@ function Drawer({ onClose }: { onClose: () => void }) {
           <View style={s.list}>
             {items.map((i) => {
               const on = Boolean(i.to) && i.to === here;
-              const n = i.count ? happening : 0;
+              const n = i.count ? happening : i.unread ? unread : 0;
               return (
                 <Press
                   key={i.label}
                   onPress={() => go(i)}
                   accessibilityRole={i.open ? 'link' : 'button'}
                   accessibilityState={{ selected: on }}
-                  accessibilityLabel={n ? `${i.label}, ${n} happening now` : i.label}
+                  accessibilityLabel={n ? `${i.label}, ${n} ${i.unread ? 'unread' : 'happening now'}` : i.label}
                   accessibilityHint={i.note ? `Opens ${i.note}` : i.label === 'Tell a friend' ? "Opens your phone's share menu" : undefined}
                   style={[s.item, on && s.itemOn]}
                   sink={0.98}
@@ -228,7 +241,7 @@ function Drawer({ onClose }: { onClose: () => void }) {
                   </Text>
                   {n ? (
                     <View style={s.count}>
-                      <Text style={s.countText}>{n}</Text>
+                      <Text style={s.countText}>{n > 99 ? '99+' : n}</Text>
                     </View>
                   ) : null}
                   {i.note && panel >= 300 ? <Text style={s.note}>{i.note}</Text> : null}

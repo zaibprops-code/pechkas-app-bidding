@@ -1952,6 +1952,20 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## Notifications: what Pechkas told you (25 November 2026)
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261127000000_notifications_inbox.sql`, after the
+   files before it (including `20261126000000_job_story.sql`). It should
+   say **Success**. No new build: the screen comes as an update.
+2. **Try it**: menu → **Notifications** (the row shows how many are
+   unread). You see every notification Pechkas sent you in the last 90
+   days, newest first, 30 at a time. Tap one to open its job. **Unread**
+   shows only the new ones; **Mark all read** clears the number.
+3. Notifications older than 90 days are no longer shown, but the database
+   still keeps them: they are the office's proof in a dispute. How long to
+   keep them is still your decision, like the photos (B1).
+
 ## A finished job's own page (25 November 2026)
 
 1. **Supabase → SQL Editor**: run

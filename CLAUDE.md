@@ -597,6 +597,30 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   rating words; the cancellation; `pro_left`; his note; `chat_until`; the
   job a free repair was for and the repair a claim led to. A new kind of
   step needs a line in that list and in `stepWords()`, or it is not shown.
+- **Notifications is an inbox** (`app/notifications.tsx`, the owner's
+  choice of 25 November 2026, migration `…_notifications_inbox`, tests
+  `inbox.test.mjs`): what Pechkas actually told this person in the **last
+  90 days** (the owner's number), newest first, **30 at a time** with
+  "Show older notifications", under Today / Yesterday / the day. It reads
+  `push_log`, which `send_push()` always wrote, even to a phone with
+  notifications off; the only new thing kept is `push_log.read_at`.
+  `my_notifications()` names every field and only the asker's rows;
+  `state` says what became of an offer (chose / closed), a new price
+  (`job_changes.status`) or a new job for a technician (open / offered /
+  yours / gone — "No longer open", never "taken by someone else", which a
+  block or a cancellation would make untrue). Repeats on one job, kind and
+  day are one row ("and 2 more like it", `merge()`). A tap marks read and
+  opens the job (`/job/<id>` for her, `/pro` or `/pro/money` for him).
+  All / Unread, Mark all read; the menu row shows the unread count, 99+
+  at most (`my_unread_notifications()`). On top, one card: on for this
+  phone, or the button that turns it on — never a switch, the app cannot
+  turn a phone's notifications off. At the foot, "What Pechkas tells you
+  about" opens a sheet with the `CUSTOMER` / `TECHNICIAN` lines in five
+  groups each; those lines still say only what `push_words` really sends
+  (change the two together). Older `push_log` rows are not shown but are
+  kept: they are the office's proof in a nobody-home dispute, and how long
+  to keep them is the owner's decision. No quiet hours (the owner's no).
+  The privacy page says a copy is kept and shown for 90 days.
 - **His note for her** is `pro_set_note(job, note)`: his own job, while
   working, checking or disputed, or within a day of it ending; 300 letters,
   no phone number, no CNIC, empty takes it away, logged as `pro_note`. The
@@ -1540,8 +1564,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (`components/Panel.tsx`), `RowCard` / `DuoRow` (`components/Rows.tsx`),
   `EmergencyTiles`, `TradeTile` / `Steps` (`customer/bits.tsx`). Every
   screen now follows the rules: Emergency draws the same `EmergencyTiles`
-  as Safety; Notifications is a status card (green when on, soft yellow
-  when off) and tick rows; the technician's application and its "received"
+  as Safety; Notifications is a soft-green or soft-yellow status card and
+  an inbox of rows, each the job's drawing with a badge; the technician's application and its "received"
   screen are `Panel`s and `DuoRow`s under a ☰ hero; Chat has a white
   messenger header with his initial and a round yellow send button. A
   `Select` in Post a job shows its price **under** the name, never beside
@@ -1612,8 +1636,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   its own window, and on the owner's Android 9 phone it stopped short of
   the status bar and the button bar, so the dimming did not reach the
   edges. The phone's Back button closes it. Every item goes to a real screen:
-  `/notifications` says whether this phone is told and lists only what
-  `push_words` really sends to that side (change the two together), and
+  `/notifications` is what Pechkas told you (below), and
   Support opens the office on WhatsApp. Customer screens are a light grey
   `colour.canvas` with white rounded cards, bold black headings, yellow as
   the one highlight. **Home shows only what matters, each thing once** (the owner's

@@ -209,6 +209,14 @@ home.
   "Technician"), and an "or" between them.
 - **Empty is a card, not a blank**: an icon on a soft tile, one line, and
   the button that fills it.
+- **A list of what happened is an inbox, not a description** (Notifications):
+  newest first under Today / Yesterday / the day, each row the job's
+  drawing on a cream tile with a small white badge for what happened, the
+  same words the lock screen showed, the time on the right, unread rows on
+  cream with a green dot, and a grey or yellow tag for what became of it
+  since. Repeats merge into one row. A long list loads 30 more with a
+  button at its foot, never by itself. The description of what may be
+  sent waits behind one row at the foot.
 - **A page about something that is over is two cards and two buttons**
   (a finished job, `PastJob.tsx`): the money card, the visit card, then
   the two things she may want next side by side, then rows for help,
