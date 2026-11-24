@@ -1414,6 +1414,17 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   are added in the browser (`server.mjs`), so their days are always
   tomorrow. The page cannot use a camera, a real map, location or
   notifications, and says so.
+- **The decision map carries the demo and the screens too** (the owner's
+  request, 24 November 2026). Three buttons at its top: **Decision map**,
+  **App screens** (`#screens`: every screen as a screenshot, with review
+  notes; the same pictures as https://claude.ai/artifact/Cwq32rcn2JGAbbbYan9yMD)
+  and **Try the demo** (`demo/index.html` inside the map's own artifact: the
+  built demo as a full HTML page, with links back, keeping the map's `pk-…`
+  settings when it clears its storage). When the demo is refreshed, publish
+  its files under `demo/` of the map as well; when screens change a lot,
+  retake the screenshots (Playwright over the local demo, at 390 × 844,
+  scale 2) and republish both. The map is shared by link, so the screens and
+  the demo are too: made-up people only.
 - **Over-the-air updates (EAS Update, the owner's yes, 17 November 2026).**
   `expo-updates`, `runtimeVersion` policy `appVersion`, channels `preview`
   (his test phone) and `production` (the store) in `eas.json`. Every push
