@@ -29,6 +29,8 @@ export const colour = {
   /** The fill of a two-tone icon on a soft brick tile (Delete my account). */
   brickTint: '#f3b9a8',
   brick: '#9e3b22',
+  /** Quiet words on the brand yellow (a greeting, a line under a name): a warm dark brown, 7:1 on yellow. */
+  onYellow: '#3d2f12',
   white: '#ffffff',
   rule: 'rgba(20,23,26,0.1)',
 } as const;

@@ -541,8 +541,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the same as home's. Every word comes from `my_jobs()`; nothing
   estimated.
 - **Home shows what is still happening** (`LiveCard` in `app/index.tsx`),
-  from `my_jobs()` every 10 s while focused; finished jobs are the recent
-  list under the question. Every headline is read from the job's own status
+  from `my_jobs()` every 10 s while focused; finished jobs are on My jobs
+  only. Every headline is read from the job's own status
   and step — nothing estimated, no "usually replies in" figure.
 - After posting, `post.tsx` dismisses to home and **pushes** the job, so
   Back from it is home, never the empty form.
@@ -1533,24 +1533,36 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `push_words` really sends to that side (change the two together), and
   Support opens the office on WhatsApp. Customer screens are a light grey
   `colour.canvas` with white rounded cards, bold black headings, yellow as
-  the one highlight. **Home is inDrive's home** (the owner's screenshot):
-  over the map, the ☰ button, a yellow **"We could not find you — Tap to
-  turn on location"** bar while the phone's location is off (a tap asks;
-  once refused, it opens the phone's settings), a pin in the middle with
-  **"Set the job's address ›"** (opens the post screen straight on the
-  pin, starting where the map was), and the locate button at the map's
-  lower right. Then the sheet, redesigned at the owner's request in the
-  menu's style: a greeting by the phone's clock and the person's first name
-  over **"What needs fixing?"**; any job still happening; one big tile (AC),
-  one wide (Electrician), two small (Plumber, UPS) on warm cream, the big
-  two with a small arrow in a white disc; **every other trade in a 4 × 2
-  grid** with All trades last — never a sideways row, which cut "Ca…" off
-  the edge — whose gaps close on a narrow phone so every name stays whole;
-  the question **"What needs fixing & for how much?"** as the one green
-  call to action; **Recent jobs** with See all and a status label; and
-  "Describe it your way" and "Why Pechkas" with two-tone icons
-  (`DuoIcon.tsx`) on soft yellow tiles. No discount or count on any
-  tile. The drawings are `src/components/Art.tsx` — objects, never people,
+  the one highlight. **Home shows only what matters, each thing once** (the owner's
+  choice, 24 November 2026, replacing the map home): the yellow top as the
+  sign-in pictures — the ☰ menu, the greeting, "What needs fixing?", a house
+  whose wrench taps once (`SignInArt` kind `house`) and the search box,
+  which opens **Search** (`app/find.tsx`); any job still happening, on top
+  until it is over, its yellow bar saying what she has to do; then **every
+  kind of work** with the things it covers under its name ("Plumber — Taps,
+  toilet, geyser, motor"), the first three in the trades' own order big (AC
+  tall and yellow), the rest two by two — a tap opens that kind of work's
+  page (`app/work/[trade].tsx`): "What is the problem?", its jobs in small
+  groups with their usual prices, and **Something else**. A job there or in
+  Search opens Post a job with that job chosen (`trade` and `type`), shown
+  once at the top with **Change**; opened with nothing chosen, Post a job
+  keeps its two drop-downs. A new customer's home ends with **How Pechkas
+  works** in three lines until her first job is done, then one line saying
+  My jobs, Help and Safety are in the menu. **Nothing else, on purpose — no
+  duplicates** (the owner's rule): the map and "Set the job's address", the
+  green call to action, voice and video, recent jobs and Why Pechkas were
+  all second ways to somewhere else and are gone. How the work is shown is
+  `packages/shared/src/work.ts`: `WORK_THINGS` (the line under each name),
+  `WORK_GROUPS` (a job in no group goes under "More jobs", never hidden),
+  `WORK_ALSO` (UPS and inverter has no list of its own, so its page offers
+  the electrician's "UPS or inverter connection" with its trade's name) and
+  `findJobs()` (a word must start a word of a job's name; only when no name
+  matches does it look at the trade and what it covers; English only, no
+  Roman Urdu words until the owner says so). `jobs.test.mjs` fails if a
+  group names a job that does not exist, misses one, or a trade has no
+  line. The drawings on these screens are `TradeArt.tsx` (the sign-in
+  screens' style). The tiles rise in once as home opens; nothing moves
+  after. The drawings are `src/components/Art.tsx` — objects, never people,
   over a yellow sweep; every trade in `public.trades` has one.
 - **The technician side is inDrive's driver side** (`src/pro/Work.tsx`):
   the ☰ menu, the **Online / Offline switch** in the middle of the top bar
@@ -1581,15 +1593,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   owner's request, so nothing changes shape when the key arrives: without
   the key `MapBox` draws a street plan (`MapDrawing.tsx`: Islamabad-style
   grid and green belts, no names, never "you are here") with the pin on it.
-  Home keeps its map layout, locate button and yellow bar (finding the phone
-  needs no key); "Set the job's address" goes to the Address card instead of
-  the pin picker, which needs a real map to move; Post a job and the
+  Home has no map any more (the owner's no-duplicates rule): the address is
+  set on Post a job, which goes to the Address card instead of the pin
+  picker when there is no key, since the picker needs a real map to move; Post a job and the
   technician's job show the box once there is a spot, and his tap still
   opens directions in Google Maps. Never render `MapView` on Android
   without the key. The iPhone uses Apple's maps and needs no key.
   `Map.web.tsx` is the browser's stand-in, the same drawing — never shipped. Location is
-  asked for only when a button is pressed (`askPosition()`); the home map
-  uses `knownPosition()`, which never asks. The pin a customer places is
+  asked for only when a button is pressed (`askPosition()`);
+  `knownPosition()` never asks. The pin a customer places is
   the same `lat`/`lng` the job always had, now required (see "The address
   is map first"). The
   Maps key is inside the app on purpose, as every Android map key is,
@@ -1795,6 +1807,6 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   Without them the privacy policy's last line sat behind the Back and Home
   buttons and could never be scrolled clear, and every long page ran under
   the clock. A fixed top bar (chat, the technician's bar) covers the clock
-  on its own; home's map may show under the clock but its sheet may not, so
-  a strip follows the sheet's edge up (transform only). Check any new
+  on its own; home's yellow top may run under the clock, since its own
+  colour is the strip. Check any new
   screen with Android's bars in place, at 320 wide too.

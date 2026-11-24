@@ -20,7 +20,7 @@ import { colour, font } from '../theme';
  * that grid (`about()`), so a message grows out of its tail and a tag swings
  * from its hook, the way the real things do.
  */
-export type ArtKind = 'phone' | 'mail' | 'code' | 'both' | 'tag';
+export type ArtKind = 'phone' | 'mail' | 'code' | 'both' | 'tag' | 'house';
 
 const VW = 220;
 const VH = 150;
@@ -99,6 +99,7 @@ export function SignInArt({ kind, height, open = false, hop = null }: {
       {kind === 'code' ? <CodeArt {...props} open={open} /> : null}
       {kind === 'both' ? <BothArt {...props} hop={hop} /> : null}
       {kind === 'tag' ? <TagArt {...props} /> : null}
+      {kind === 'house' ? <HouseArt {...props} /> : null}
     </View>
   );
 }
@@ -300,6 +301,34 @@ function TagArt({ k, width, height, still }: Frame) {
         <Animated.View style={{ flex: 1, backgroundColor: colour.white, transform: [{ translateX: from(write, 0, sw) }] }} />
       </View>
     </Animated.View>
+  );
+}
+
+/**
+ * Home: a house, and a wrench beside it that gives one small tap as home
+ * opens — the house rises into place first. Then nothing moves.
+ */
+function HouseArt({ k, width, height, still }: Frame) {
+  const f = { k, width, height, still };
+  const house = useOnce(still, (v) => spring(v));
+  const tap = useOnce(still, (v) => Animated.timing(v, { toValue: 1, duration: 700, delay: 350, easing: Easing.out(Easing.quad), useNativeDriver: true }));
+  const turn = tap.interpolate({ inputRange: [0, 0.35, 0.7, 1], outputRange: ['0deg', '-14deg', '6deg', '0deg'] });
+  return (
+    <>
+      <Layer f={f} move={[{ translateY: from(house, 20 * k) }]}>
+        <Path d="M34 70 82 30l48 40" fill="none" {...LINE} />
+        <Path d="M46 62v72h72V62" fill={colour.white} {...LINE} />
+        <Rect x={70} y={92} width={24} height={42} fill={colour.yellow} {...LINE} />
+        <Rect x={54} y={74} width={14} height={14} fill={colour.greenSoft} {...LINE} />
+      </Layer>
+      <Layer f={f} move={about(f, 178, 128, [{ translateY: from(house, 20 * k) }, { rotate: turn }])}>
+        <G rotation={-30} origin="158, 92">
+          <Rect x={152} y={44} width={12} height={62} rx={5} fill={colour.yellow} {...LINE} />
+          <Path d="M144 40a14 14 0 0 1 28 0v6h-8v-8h-12v8h-8z" fill={colour.white} {...LINE} />
+          <Rect x={150} y={104} width={16} height={30} rx={6} fill={INK} {...LINE} />
+        </G>
+      </Layer>
+    </>
   );
 }
 

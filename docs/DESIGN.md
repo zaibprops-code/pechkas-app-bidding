@@ -114,9 +114,17 @@ a screen; use the token.
 | `AtDoorCard` / `NotHomeEnded` | `customer/NotHome.tsx` | He cannot get in: a soft-yellow card with a two-tone icon on a white tile, "Bilal is at your door", the deadline on Pakistan's clock, **I am coming** (yellow) over **Cancel the job**. After his report, the same card says what happened, that nothing is charged, and offers **I was home** for 24 hours. His side is `CantGetIn` in `pro/OnTheJob.tsx`: a soft-yellow box under the start code with the countdown, **Nobody is answering** / **The guard will not let me in**, then the gate photo and **Report: nobody home**. |
 | `PriceRangeCard` | `components/PriceRange.tsx` | Where a price sits against what recent jobs of its kind went for: a dot and one verdict first (in line / below / above) with a line of what it means, then a bar with the middle half in green, a yellow marker for the price being set and the two ends written under it, then how many jobs it comes from. White on a coloured card; `onWhite` makes it grey on a white sheet. Shown only when the database sends a range. |
 
-A green call-to-action card (home's "What needs fixing & for how much?",
-My jobs' "Post a new job") is: green card, white title, one line, a yellow
-disc with an arrow on the right.
+A green call-to-action card (My jobs' "Post a new job") is: green card,
+white title, one line, a yellow disc with an arrow on the right. Home has
+none: there the kinds of work are the way in.
+
+Finding the work is three steps, each in one place: home (a kind of work,
+or the search box), a kind of work's page or Search (the jobs, each with
+its usual price), then Post a job with that job chosen. A drawing of a kind
+of work is `TradeArt` (`components/TradeArt.tsx`), in the sign-in screens'
+style; what it covers and how its jobs are grouped is
+`packages/shared/src/work.ts`. Never put a second way to the same screen on
+home.
 
 ## 7. How screens are laid out
 

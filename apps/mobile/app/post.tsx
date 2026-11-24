@@ -1,6 +1,6 @@
 import { VisitFeeNote } from '../src/customer/VisitFee';
 import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
-import { Art, artFor, type ArtName } from '../src/components/Art';
+import { Art, type ArtName } from '../src/components/Art';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Image, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
@@ -13,6 +13,7 @@ import { Button, Chip, Field, Loading, Notice, Screen, useScreenScroll } from '.
 import { Sheet, SheetOption } from '../src/components/Sheet';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
+import { TradeArt } from '../src/components/TradeArt';
 import { usePriceRanges } from '../src/prices';
 import { PriceRangeCard } from '../src/components/PriceRange';
 import { ask, supabase } from '../src/supabase';
@@ -73,10 +74,9 @@ function videoTrouble(e: unknown): Message | null {
   return null;
 }
 
-const artOf = artFor;
 
 export default function Post() {
-  const params = useLocalSearchParams<{ trade?: string; start?: string; ask?: string; minutes?: string; lat?: string; lng?: string; again?: string }>();
+  const params = useLocalSearchParams<{ trade?: string; type?: string; start?: string; ask?: string; minutes?: string; lat?: string; lng?: string; again?: string }>();
   const { ready, session, account } = useAccount();
   const lists = useLists();
   const ranges = usePriceRanges();
@@ -153,9 +153,12 @@ export default function Post() {
           saveDraft(next);
         }
       }
-      if (params.trade && params.trade !== next.trade && !params.again) {
-        next = { ...next, trade: params.trade, jobType: null, offer: null };
-        // Kept on the phone at once, so a trade chosen before signing in is
+      // Arriving with the work chosen — from a kind of work's page or from
+      // search: that job, or the trade with Something else when no job is named.
+      const type = params.type && Number.isFinite(Number(params.type)) ? Number(params.type) : null;
+      if (params.trade && !params.again && (params.trade !== next.trade || type !== (next.jobType ?? null))) {
+        next = { ...next, trade: params.trade, jobType: type, offer: params.trade === next.trade ? next.offer : null };
+        // Kept on the phone at once, so a job chosen before signing in is
         // still chosen when the form comes back after it.
         saveDraft(next);
       }
@@ -168,7 +171,7 @@ export default function Post() {
       }
       setD(freshWhen(next));
     })();
-  }, [params.trade, params.ask, params.minutes, params.again]);
+  }, [params.trade, params.type, params.ask, params.minutes, params.again]);
 
   /**
    * Media is changed from the newest copy of the form, never from the one the
@@ -508,15 +511,26 @@ export default function Post() {
       ) : null}
 
       <Card id="job" icon="briefcase" onY={atY} title="The job" error={errors.trade || errors.job_type}>
-        <Select label="Kind of work" art={d.trade ? artOf(d.trade) : undefined} value={d.trade ? tradeName(d.trade) : null} placeholder="Choose" onPress={() => setSheet('trade')} />
+        {/* Chosen before this screen (home, a kind of work, search): shown once, with Change.
+            Opened with nothing chosen: the two drop-downs, as before. */}
         {d.trade ? (
-          <Select
-            label="Which job"
-            value={chosen?.name ?? 'Something else, or not sure'}
-            right={chosen?.list_paisa ? rupees(chosen.list_paisa) : 'Price after a look'}
-            onPress={() => setSheet('type')}
-          />
-        ) : null}
+          <View style={s.chosen}>
+            <View style={s.chosenArt} accessible={false}>
+              <TradeArt trade={d.trade} size={38} />
+            </View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text style={s.chosenTrade}>{tradeName(d.trade)}</Text>
+              <Text style={s.chosenName}>{chosen?.name ?? 'Something else, or not sure'}</Text>
+              <Text style={s.chosenPrice}>{chosen?.list_paisa ? `Usual price ${rupees(chosen.list_paisa)}` : 'Price after a look'}</Text>
+              {/* Under the words, not beside them: beside them a long job name broke a word to a line at 320. */}
+              <Press onPress={() => setSheet('trade')} accessibilityRole="button" accessibilityLabel="Change the job" sink={0.94} style={s.chosenChange}>
+                <Text style={s.chosenChangeText}>Change</Text>
+              </Press>
+            </View>
+          </View>
+        ) : (
+          <Select label="Kind of work" value={null} placeholder="Choose" onPress={() => setSheet('trade')} />
+        )}
         {closedNow && d.sector ? (
           <View style={s.closed}>
             <Text style={s.closedTitle}>This kind of job is not available on Pechkas yet.</Text>
@@ -997,6 +1011,13 @@ function PayFact({ text }: { text: string }) {
 }
 
 const s = StyleSheet.create({
+  chosen: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, padding: 12, paddingBottom: 2, borderRadius: 18, backgroundColor: colour.cream },
+  chosenArt: { width: 52, height: 52, borderRadius: 15, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center' },
+  chosenTrade: { fontFamily: font.bodySemi, fontSize: 12.5, color: colour.steel },
+  chosenName: { fontFamily: font.display, fontSize: 16, lineHeight: 21, color: colour.ink },
+  chosenPrice: { fontFamily: font.body, fontSize: 13, color: colour.steel, marginTop: 1 },
+  chosenChange: { minHeight: 44, minWidth: 44, justifyContent: 'center', alignSelf: 'flex-start' },
+  chosenChangeText: { fontFamily: font.display, fontSize: 14.5, color: colour.ink, textDecorationLine: 'underline' },
   closed: { gap: 10, padding: 12, borderRadius: 16, backgroundColor: colour.softBrick },
   closedTitle: { fontFamily: font.bodySemi, fontSize: 15, lineHeight: 21, color: colour.ink },
   card: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.04)' },

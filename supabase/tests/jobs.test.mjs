@@ -6,6 +6,7 @@
  * technician, and as staff who have been switched off.
  */
 import { as, denied, heading, migrate, nothing, ok, report, setup } from './harness.mjs';
+import { WORK_ALSO, WORK_GROUPS, WORK_THINGS } from '../../packages/shared/src/work.ts';
 
 await migrate();
 
@@ -217,6 +218,28 @@ ok('Ayesha deletes her account', (await call('authenticated', AYESHA, `SELECT pu
   // bucket must take exactly that much, or a video the app allowed is turned away at the door.
   const { rows } = await setup(`SELECT file_size_limit FROM storage.buckets WHERE id = 'job-media'`);
   ok('the job-media bucket takes files up to 50 MB, the same as the app', Number(rows[0]?.file_size_limit) === 50 * 1024 * 1024, rows[0]);
+}
+
+// =============================================================================
+heading('How the app shows the work matches the work there is');
+{
+  // packages/shared/src/work.ts groups the jobs on a kind of work's page. A
+  // job renamed by a migration would drop out of its group without a word,
+  // so every name there must be a real job of that trade.
+  const { rows: types } = await setup(`SELECT trade, name FROM public.job_types`);
+  const { rows: trades } = await setup(`SELECT slug FROM public.trades`);
+  const real = new Set(types.map((t) => `${t.trade}|${t.name}`));
+  const named = Object.entries(WORK_GROUPS).flatMap(([trade, groups]) => groups.flatMap((g) => g.jobs.map((job) => ({ trade, job }))));
+  const also = Object.values(WORK_ALSO).flat();
+  const missing = [...named, ...also].filter((x) => !real.has(`${x.trade}|${x.job}`));
+  ok('every job named in the groups is a real job of its trade', missing.length === 0, missing);
+  const grouped = new Set(named.map((x) => `${x.trade}|${x.job}`));
+  const loose = types.filter((t) => WORK_GROUPS[t.trade] && !grouped.has(`${t.trade}|${t.name}`));
+  ok('every job of a grouped trade is in one of its groups', loose.length === 0, loose);
+  const twice = named.filter((x, i) => named.findIndex((y) => y.trade === x.trade && y.job === x.job) !== i);
+  ok('no job is in two groups', twice.length === 0, twice);
+  const noLine = trades.filter((t) => !WORK_THINGS[t.slug]);
+  ok('every kind of work says what it covers on home', noLine.length === 0, noLine);
 }
 
 report();
