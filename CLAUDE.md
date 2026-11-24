@@ -1604,12 +1604,22 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `ListRow` for settings-style lists, `Avatar` for a first letter in a
   circle. A new screen uses them rather than inventing its own header.
   **The first two screens are inDrive's, the owner's reference.** The
-  welcome screen (`app/start.tsx`) is white: the name at the top, three
-  pages to swipe (a `WelcomeArt` drawing — objects, never people — a
-  headline and one line each), dots, then **Continue with phone** (black)
-  and **Continue with email** (light grey) and the terms line. Every page
-  says only what is true today: no numbers, no ratings, and the pages never
-  turn by themselves. The number screen (`sign-in.tsx`) is one big
+  welcome screen (`app/start.tsx`) was redesigned at the owner's request
+  (24 November 2026, "2B"): three pages to swipe, each full screen in one
+  brand colour — yellow, green, ink — with a soft light behind its drawing
+  (`glow` and `GLOW_STOPS` in `packages/shared/src/tokens.ts`, drawn with
+  react-native-svg, no new native library); a big two-line headline ("Your
+  price.", "Checked technicians.", "Pay when it's done."), one short line
+  and one `WelcomeArt` drawing (a price tag and screwdriver, a badge on a
+  lanyard, a ticked job slip on banknotes — objects, never people, never a
+  face); the name over the top; at the foot small dots, **Continue with
+  phone** in the page's main colour (Google takes that place when it is on,
+  phone then second), **Continue with email** as a plain link and the terms
+  line. Less on each page on purpose: people swipe past welcome pages. The
+  words and buttons take the current page's colours when it settles —
+  colours snap. The headline shrinks with the width so "technicians." never
+  breaks at 320. Every page says only what is true today: no numbers, no
+  ratings, and the pages never turn by themselves. The number screen (`sign-in.tsx`) is one big
   `PhoneBox` with the flag and **+92** fixed in front — a label, not a
   menu, since only Pakistani numbers work — and **Next** at the foot. The
   welcome screen's number box is the same `PhoneBox`. No passkey: it needs

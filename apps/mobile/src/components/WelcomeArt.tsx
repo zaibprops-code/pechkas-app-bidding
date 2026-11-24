@@ -1,12 +1,21 @@
-import Svg, { Circle, G, Path, Rect } from 'react-native-svg';
-import { colour } from '../theme';
+import Svg, { Circle, G, Path, Rect, Text as SvgText } from 'react-native-svg';
+import { colour, font } from '../theme';
 
 /**
- * The three drawings on the welcome pages, where inDrive puts its people
- * over a lime sweep. Pechkas draws objects, never people — the same rule as
- * the home tiles (Art.tsx) — over the same yellow sweep, in the same flat
- * brand colours. Each says what its page says in words, so each is hidden
- * from screen readers.
+ * The three drawings on the welcome pages (the owner's choice, 24 November
+ * 2026, replacing the drawings over a yellow sweep). Each is one whole object
+ * somebody recognises, drawn flat in the brand colours, sitting on a faint
+ * disc so it holds its place on the page's glowing background:
+ *
+ *   price    a price tag marked "Rs" on its string, with a screwdriver —
+ *            what you pay, for the repair;
+ *   checked  a technician's badge on a lanyard, his initial (never a face)
+ *            and a checked seal;
+ *   cash     the job slip with every line ticked, on banknotes.
+ *
+ * Objects, never people, as everywhere in the app (Art.tsx). Each says what
+ * its page says in words, so each is hidden from screen readers. Drawn in a
+ * 300 × 300 box and scaled to whatever square the page gives it.
  */
 export type WelcomeArtName = 'price' | 'checked' | 'cash';
 
@@ -14,54 +23,80 @@ const SHADE = '#d9d5cc';
 const WHITE = colour.white;
 const INK = colour.ink;
 const GREEN = colour.green;
+const YELLOW = colour.yellow;
 
-export function WelcomeArt({ name, width = 240, height = 180 }: { name: WelcomeArtName; width?: number; height?: number }) {
+export function WelcomeArt({ name, size = 300 }: { name: WelcomeArtName; size?: number | string }) {
   return (
-    <Svg width={width} height={height} viewBox="0 0 240 180" accessible={false}>
-      <Path d="M14 158 C 54 58, 140 30, 228 40 L 228 108 C 170 102, 124 126, 98 180 L 14 180 Z" fill={colour.yellow} />
+    <Svg width={size} height={size} viewBox="0 0 300 300" accessible={false}>
       {name === 'price' && (
         <G>
-          {/* A price tag, and the screwdriver in front of it: what you pay, and the job. */}
-          <Path d="M64 40 H148 L182 74 L148 108 H64 A10 10 0 0 1 54 98 V50 A10 10 0 0 1 64 40 Z" fill={SHADE} />
-          <Path d="M60 34 H144 L178 68 L144 102 H60 A10 10 0 0 1 50 92 V44 A10 10 0 0 1 60 34 Z" fill={WHITE} />
-          <Circle cx={150} cy={68} r={7} fill={SHADE} />
-          <Rect x={66} y={52} width={58} height={10} rx={5} fill={INK} />
-          <Rect x={66} y={72} width={38} height={8} rx={4} fill={GREEN} />
-          <G transform="rotate(-18 120 138)">
-            <Rect x={34} y={127} width={60} height={22} rx={11} fill={GREEN} />
-            <Rect x={92} y={132} width={12} height={12} rx={2} fill={SHADE} />
-            <Rect x={102} y={135} width={92} height={6} rx={2} fill={INK} />
-            <Path d="M194 133 L206 135 V141 L194 143 Z" fill={INK} />
+          <Circle cx={150} cy={150} r={128} fill="#b97800" opacity={0.13} />
+          <Path d="M206 160 C 236 120, 236 78, 206 52" stroke={INK} strokeWidth={4} fill="none" strokeLinecap="round" />
+          <G transform="rotate(-14 150 165)">
+            <Path d="M74 112 H196 L238 165 L196 218 H74 A14 14 0 0 1 60 204 V126 A14 14 0 0 1 74 112 Z" fill="#c98a0c" opacity={0.35} transform="translate(6 8)" />
+            <Path d="M74 112 H196 L238 165 L196 218 H74 A14 14 0 0 1 60 204 V126 A14 14 0 0 1 74 112 Z" fill={WHITE} />
+            <Circle cx={208} cy={165} r={9} fill="#f6b52a" />
+            <SvgText x={82} y={168} fontFamily={font.display} fontSize={44} fill={INK} letterSpacing={-1}>
+              Rs
+            </SvgText>
+            <Rect x={84} y={182} width={88} height={10} rx={5} fill={GREEN} />
+          </G>
+          <G transform="rotate(-16 150 246)">
+            <Rect x={44} y={234} width={72} height={26} rx={13} fill={GREEN} />
+            <Rect x={114} y={240} width={14} height={14} rx={3} fill={SHADE} />
+            <Rect x={126} y={244} width={112} height={7} rx={2.5} fill={INK} />
+            <Path d="M238 242 L252 245 V250 L238 253 Z" fill={INK} />
           </G>
         </G>
       )}
       {name === 'checked' && (
         <G>
-          {/* An identity card and a shield with a tick: checked before anybody comes. */}
-          <Rect x={30} y={62} width={116} height={78} rx={12} fill={SHADE} />
-          <Rect x={26} y={56} width={116} height={78} rx={12} fill={WHITE} />
-          <Rect x={40} y={72} width={34} height={42} rx={7} fill={colour.paper2} />
-          <Rect x={84} y={76} width={44} height={8} rx={4} fill={INK} />
-          <Rect x={84} y={92} width={34} height={6} rx={3} fill={SHADE} />
-          <Rect x={84} y={104} width={40} height={6} rx={3} fill={SHADE} />
-          <Path d="M172 36 L212 52 V88 C212 116 196 134 172 146 C148 134 132 116 132 88 V52 Z" fill={GREEN} />
-          <Path d="M152 90 L166 104 L194 74" stroke={WHITE} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          <Circle cx={150} cy={150} r={128} fill={WHITE} opacity={0.07} />
+          <Path d="M112 22 L142 86 M188 22 L158 86" stroke={YELLOW} strokeWidth={14} strokeLinecap="round" />
+          <Rect x={136} y={78} width={28} height={22} rx={6} fill="#c9cfcc" />
+          <G transform="rotate(5 150 180)">
+            <Rect x={92} y={106} width={128} height={170} rx={18} fill="#04302a" opacity={0.45} />
+            <Rect x={86} y={98} width={128} height={170} rx={18} fill={WHITE} />
+            <Rect x={134} y={108} width={32} height={8} rx={4} fill={SHADE} />
+            <Rect x={106} y={128} width={88} height={70} rx={12} fill={colour.greenSoft} />
+            <SvgText x={150} y={179} textAnchor="middle" fontFamily={font.display} fontSize={40} fill={GREEN}>
+              B
+            </SvgText>
+            <Rect x={106} y={212} width={70} height={10} rx={5} fill={INK} />
+            <Rect x={106} y={230} width={50} height={8} rx={4} fill={SHADE} />
+          </G>
+          <Circle cx={212} cy={236} r={34} fill={YELLOW} stroke={GREEN} strokeWidth={6} />
+          <Path d="M196 236 l11 11 21-22" stroke={INK} strokeWidth={8} fill="none" strokeLinecap="round" strokeLinejoin="round" />
         </G>
       )}
       {name === 'cash' && (
         <G>
-          {/* Notes and a finished job list: paid in cash, when the work is done. */}
-          <G transform="rotate(-10 100 110)">
-            <Rect x={36} y={78} width={128} height={66} rx={8} fill={colour.greenDark} />
+          <Circle cx={150} cy={150} r={128} fill={WHITE} opacity={0.07} />
+          <G transform="rotate(-16 150 190)">
+            <Rect x={40} y={168} width={200} height={96} rx={12} fill="#0e6457" />
+            <Rect x={52} y={180} width={176} height={72} rx={8} fill="none" stroke={colour.greenSoft} strokeWidth={2} opacity={0.5} />
+            <Circle cx={140} cy={216} r={20} fill={colour.greenSoft} opacity={0.55} />
           </G>
-          <Rect x={40} y={86} width={128} height={66} rx={8} fill={GREEN} />
-          <Rect x={50} y={96} width={108} height={46} rx={5} fill="none" stroke={colour.greenSoft} strokeWidth={2} />
-          <Circle cx={104} cy={119} r={14} fill={colour.greenSoft} />
-          <Rect x={150} y={36} width={62} height={84} rx={9} fill={SHADE} />
-          <Rect x={146} y={30} width={62} height={84} rx={9} fill={WHITE} />
-          <Rect x={164} y={24} width={26} height={12} rx={5} fill={INK} />
-          <Path d="M156 54 l5 5 9 -10 M156 76 l5 5 9 -10 M156 98 l5 5 9 -10" stroke={GREEN} strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          <Path d="M178 56 h20 M178 78 h20 M178 100 h16" stroke={INK} strokeWidth={4} strokeLinecap="round" />
+          <G transform="rotate(-6 150 200)">
+            <Rect x={56} y={180} width={200} height={96} rx={12} fill={GREEN} />
+            <Rect x={68} y={192} width={176} height={72} rx={8} fill="none" stroke={colour.greenSoft} strokeWidth={2} opacity={0.55} />
+            <Circle cx={156} cy={228} r={20} fill={colour.greenSoft} opacity={0.65} />
+          </G>
+          <G transform="rotate(6 150 130)">
+            <Path d="M92 40 H208 V196 l-14.5 12 -14.5 -12 -14.5 12 -14.5 -12 -14.5 12 -14.5 -12 -14.5 12 -14.5 -12 Z" fill={WHITE} />
+            <Rect x={92} y={40} width={116} height={26} fill={INK} />
+            <Rect x={104} y={50} width={48} height={7} rx={3.5} fill={YELLOW} />
+            {[86, 116, 146].map((y) => (
+              <G key={y}>
+                <Circle cx={114} cy={y} r={10} fill={GREEN} />
+                <Path d={`M109 ${y} l4 4 7-8`} stroke={WHITE} strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <Rect x={132} y={y - 4} width={y === 146 ? 44 : 60} height={8} rx={4} fill={SHADE} />
+              </G>
+            ))}
+            <Rect x={104} y={170} width={92} height={3} rx={1.5} fill="#ece9e2" />
+          </G>
+          <Circle cx={86} cy={190} r={32} fill={YELLOW} />
+          <Path d="M71 190 l10 10 20-21" stroke={INK} strokeWidth={8} fill="none" strokeLinecap="round" strokeLinejoin="round" />
         </G>
       )}
     </Svg>

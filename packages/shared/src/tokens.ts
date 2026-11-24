@@ -33,5 +33,18 @@ export const colour = {
   rule: 'rgba(20,23,26,0.1)',
 } as const;
 
+/**
+ * The welcome pages' backgrounds (the owner's choice, 24 November 2026): each
+ * page's own colour with a soft light behind its drawing, fading darker to the
+ * edges. Four stops each, at GLOW_STOPS; the middle one is the brand colour
+ * itself, so the words sit on the colour they were checked against.
+ */
+export const glow = {
+  yellow: ['#fff1c2', '#ffd45c', '#ffc53d', '#f0a316'],
+  green: ['#1f8a76', '#11695b', '#0b5148', '#063a33'],
+  ink: ['#20453f', '#1a2624', '#14171a', '#0b0d0f'],
+} as const;
+export const GLOW_STOPS = [0, 0.38, 0.62, 1] as const;
+
 /** The one shadow under a white card: barely there, as inDrive's. */
 export const shadow = { card: '0px 2px 10px rgba(20, 23, 26, 0.05)' } as const;
