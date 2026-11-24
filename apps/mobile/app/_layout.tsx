@@ -19,6 +19,7 @@ import { colour } from '../src/theme';
 import { LaunchScrew } from '../src/components/LaunchScrew';
 import { ToastHost } from '../src/components/Toast';
 import { MenuHost } from '../src/components/Menu';
+import { SwitchCoverHost } from '../src/components/SwitchCover';
 import { Trouble } from '../src/components/Trouble';
 import { ControlProvider, useControl } from '../src/control';
 
@@ -57,6 +58,7 @@ export default function RootLayout() {
         <NotificationTaps />
         <Gate onDecided={onDecided} />
         <ToastHost>
+         <SwitchCoverHost>
           <MenuHost>
             <Stack
               screenOptions={{
@@ -65,6 +67,7 @@ export default function RootLayout() {
               }}
             />
           </MenuHost>
+         </SwitchCoverHost>
         </ToastHost>
         <OfficeSwitches />
         <LaunchTrouble />

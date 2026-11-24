@@ -1509,21 +1509,41 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   components still accept it). On a light screen yellow is a background,
   never text: amounts a technician keeps or owes are green or ink.
 - **Laid out the way inDrive is — the owner's reference.** No tab bar: the
-  ☰ `MenuButton` (`src/components/Menu.tsx`) opens a side menu laid out as
-  inDrive's, redesigned at the owner's request — **one plain list, no
-  group headings** (he asked for a better design, not categories): the
-  Pechkas mark and a close button on top; the person on a green card with
-  their initial on a yellow disc and Customer or Technician (tap for
-  Settings); then Home or Jobs, My jobs or My account, Notifications,
-  Safety, Help, Support, Settings, Legal — each row a **two-tone icon**
-  (`DuoIcon.tsx`: ink outline, yellow fill on the part that matters), the
-  words and a light chevron, the current screen on soft yellow; at the
-  foot **Tell a friend about Pechkas** (the phone's share sheet, words
-  that claim only what is true) and the big yellow **Technician mode /
-  Customer mode** button (`ModeSwitch pill`: swap icon and one line saying
-  what it does), with the version and edition under it. Below the mark and
-  the ×, **the menu is one scrolling page**: on a short phone the person,
-  the rows and the buttons scroll together, because a fixed foot once hid
+  ☰ `MenuButton` (`src/components/Menu.tsx`) opens a side menu,
+  redesigned at the owner's request (24 November 2026) after many rounds:
+  **the app's yellow top** (the same lit yellow as home, `Glow` from
+  `YellowTop.tsx`) with the Pechkas mark, the × and the person — initial
+  in yellow on an ink disc, name, number, a white chip saying Customer or
+  Technician (not a button: Settings is a row); then **one plain list
+  straight on white — no cards, no lines, no groups, no headings** (he:
+  "professional apps don't categorise them, just keep a proper sequence")
+  in one order: Home or Jobs, My jobs or My account and Guarantee claims,
+  Notifications, Settings, Help, Support (saying "WhatsApp"), Safety,
+  Legal, Tell a friend (the phone's share sheet, words that claim only what
+  is true). Rows are 44 tall, the tightest a finger can safely tap: a
+  **two-tone icon** (`DuoIcon.tsx`) on a 36 soft-yellow tile, the words, a
+  light chevron; the current screen on soft yellow, its tile full yellow.
+  My jobs carries the number of her jobs still happening, read from
+  `my_jobs()` as the menu opens — no badge at nought. At the foot one crisp
+  yellow button, **"⇆ Technician mode" / "⇆ Customer mode"** (`ModeSwitch
+  menu`: one line, no second line, no arrow — the owner's "crisp, sharp"),
+  and the version under it. **The icons were redrawn for this**
+  (`packages/shared/src/duo-icons.ts`, so Settings, Help and the office
+  panel changed too): inside 3–21, one clear shape and at most two
+  details, yellow on one part — the busier set looked "collapsed" at 22
+  points. Guarantee claims is `medal`; `flag` stays Report. **Switching
+  mode is one movement** (`SwitchCover.tsx`, `SwitchCoverHost` in
+  `_layout.tsx`, the owner's choice from a video): the new side's colour
+  (green technician, yellow customer) grows from the tapped button, the
+  screw turns with the side's name rising under it while `switch_mode()`
+  runs, then the cover lifts off the new side's first screen. `go(before,
+  from)` in `src/mode.ts` waits for the full colour (`covered()`) before
+  `refresh()` and the navigation, because each side's screens send the
+  other side home the moment the role changes; a refusal shrinks the
+  colour back (`drop()`); a customer with no application is not covered
+  (that tap opens the form). Transform only; "remove animations" skips it.
+  **The whole menu is one scrolling page**: on a short phone the yellow
+  top, the rows and the button scroll together, because a fixed foot once hid
   the last four rows behind the buttons at 320 × 640. **It is drawn by
   `MenuHost` at the root (`_layout.tsx`), never in a Modal**: a Modal is
   its own window, and on the owner's Android 9 phone it stopped short of

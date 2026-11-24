@@ -18,7 +18,7 @@ export function Duo({ name, size = 24, accent = colour.yellow, ink = colour.ink 
             : p.paint === 'ink'
               ? { fill: ink }
               : p.paint === 'white'
-                ? { fill: colour.white, stroke: ink, strokeWidth: 1.8 }
+                ? { fill: colour.white, stroke: ink, strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
                 : { fill: 'none', stroke: ink, strokeWidth: p.strokeWidth ?? 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
         if (p.shape === 'path') return <path key={i} {...paint} d={p.d} />;
         if (p.shape === 'rect') return <rect key={i} {...paint} x={p.x} y={p.y} width={p.width} height={p.height} rx={p.rx} />;

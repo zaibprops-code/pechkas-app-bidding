@@ -36,7 +36,12 @@ export function YellowTop({ back = true, after, children, light = 0.72 }: { back
   );
 }
 
-function Glow({ width, height, at }: { width: number; height: number; at: number }) {
+/**
+ * The lit background of a yellow (or green) top: the brand colour, light
+ * behind the drawing at `at` across, deeper at the edges. The menu's top and
+ * the mode-switch cover draw it too, so every yellow top is the same yellow.
+ */
+export function Glow({ width, height, at = 0.72, stops = glow.yellow, id = 'yellow-top' }: { width: number; height: number; at?: number; stops?: readonly string[]; id?: string }) {
   const cx = width * at;
   const cy = height * 0.35;
   const r = Math.max(height, 1);
@@ -44,13 +49,13 @@ function Glow({ width, height, at }: { width: number; height: number; at: number
   return (
     <Svg style={StyleSheet.absoluteFill} width={width} height={height} pointerEvents="none">
       <Defs>
-        <RadialGradient id="yellow-top" cx={cx} cy={cy} r={r} fx={cx} fy={cy} gradientUnits="userSpaceOnUse" gradientTransform={`translate(${cx} ${cy}) scale(${sx} 1) translate(${-cx} ${-cy})`}>
+        <RadialGradient id={id} cx={cx} cy={cy} r={r} fx={cx} fy={cy} gradientUnits="userSpaceOnUse" gradientTransform={`translate(${cx} ${cy}) scale(${sx} 1) translate(${-cx} ${-cy})`}>
           {GLOW_STOPS.map((o, i) => (
-            <Stop key={o} offset={o} stopColor={glow.yellow[i]} />
+            <Stop key={o} offset={o} stopColor={stops[i]} />
           ))}
         </RadialGradient>
       </Defs>
-      <Rect x={0} y={0} width={width} height={height} fill="url(#yellow-top)" />
+      <Rect x={0} y={0} width={width} height={height} fill={`url(#${id})`} />
     </Svg>
   );
 }

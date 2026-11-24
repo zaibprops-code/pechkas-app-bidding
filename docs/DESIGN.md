@@ -34,7 +34,7 @@ through `apps/mobile/src/theme.ts` and the admin panel as CSS variables
 | --- | --- |
 | `colour.canvas` | The screen behind everything (light grey). |
 | `colour.white` | Every card. |
-| `colour.green` | Trust and "this is you / this is us": the person card in the menu and Settings, the office card in Help, a technician's initial, a done step, "notifications are on", the green call to action. **At most one big green card per screen.** |
+| `colour.green` | Trust and "this is you / this is us": the person card in Settings, the office card in Help, the technician's side in the mode-switch cover, a technician's initial, a done step, "notifications are on", the green call to action. **At most one big green card per screen.** |
 | `colour.yellow` | Action and money: the main button, a count, an arrow disc. **Never as text on a light background** (it cannot be read). |
 | `colour.softYellow` | The tile behind a two-tone icon; a money card ("Your price", "Pay Bilal in cash", a new price to approve); the current row in the menu. |
 | `colour.cream` | Behind a drawing: trade tiles, media tiles (Voice, Video, Photo), the drawing tiles on the "How will you use Pechkas?" cards. Never a whole card on the canvas: cream on `canvas` has no edge you can see. |
@@ -79,10 +79,15 @@ a screen; use the token.
 
 - **Two-tone icons (`DuoIcon.tsx`)** for anything that names a section, a
   row or a tile: ink outline, yellow fill on the part that matters, on a
-  `softYellow` tile 40–56 square. Their shapes are data in
+  `softYellow` tile 36–56 square (36 in the menu). Their shapes are data in
   `packages/shared/src/duo-icons.ts`, drawn by the app's `DuoIcon` and the
   admin panel's `Duo`; add a new one there, in the same 24-unit grid and
-  style, and both get it.
+  style, and both get it. **Drawn to stay clear at 22 points** (the owner
+  found a busier set "collapsed" in the menu): everything inside 3–21 so
+  nothing touches the tile's edge, one clear shape with at most two
+  details, yellow on ONE main part, a white knock-out (`white` paint) for
+  a door, a clip or a hole. Safety is in the same black and yellow as the
+  rest, not brick.
 - **Line icons (`Icon.tsx`)** only inside buttons, chevrons, ticks and small
   status discs.
 - **Drawings (`Art.tsx`)** for trades: objects, never people, over a yellow
@@ -133,6 +138,16 @@ home.
   (cancel, block, delete, sign out), where nobody taps them by mistake.
 - **No group headings in menus and settings lists.** The owner asked for a
   better design, not categories. Separate cards are enough.
+- **The side menu is the one plain list** (the owner, 24 November 2026):
+  the app's yellow top (the same lit yellow as home, `Glow`) with the mark,
+  the × and the person — initial in yellow on an ink disc, name, number,
+  a white chip saying Customer or Technician; then rows straight on white,
+  **no cards, no lines, no groups**, one order (your pages, Settings, Help,
+  Support, Safety, Legal, Tell a friend), 44 tall — the tightest a finger
+  can safely tap. Each row: icon on a 36 soft-yellow tile, the words, a
+  light chevron; the current one on soft yellow with its tile full yellow.
+  At the foot one crisp yellow button, "⇆ Technician mode", one line, no
+  second line, no arrow; the version under it.
   A **section heading** is used only where the content changes kind
   ("Happening now" / "Earlier", "Offers" / "Your job", "Common questions").
 - **One yellow main action per screen**, plus at most one yellow pill per
@@ -194,6 +209,12 @@ home.
 - Things snap (switch colours, a chevron turning). Sheets and banners
   slide by transform. The screw turns its slot only, clockwise, resting on
   whole turns.
+- **Switching mode is one movement** (`SwitchCover.tsx`): the new side's
+  colour (green for technician, yellow for customer) grows from the tapped
+  button, the screw turns with the side's name rising under it while the
+  database switches, and the cover lifts off the new side's first screen.
+  The screens and the account change only under the full colour. A refusal
+  shrinks it back into the button.
 - With "remove animations" on, everything stands still.
 
 ## 9. Words on screens
