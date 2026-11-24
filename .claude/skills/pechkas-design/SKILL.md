@@ -214,6 +214,14 @@ home.
   "Technician"), and an "or" between them.
 - **Empty is a card, not a blank**: an icon on a soft tile, one line, and
   the button that fills it.
+- **A page about something that is over is two cards and two buttons**
+  (a finished job, `PastJob.tsx`): the money card, the visit card, then
+  the two things she may want next side by side, then rows for help,
+  safety and blocking. Each fact once — the date at the top only; times
+  inside the cards are clocks ("done at 5:41pm"); the full record waits
+  behind "See every step". Buttons and rows on such a page are **56**
+  tall: it is read later, often by somebody older, and nothing on it is
+  urgent enough to excuse a small target.
 - A screen whose first load fails shows `Trouble` under its own header;
   once something is on screen, a failed refresh is only the top banner.
 

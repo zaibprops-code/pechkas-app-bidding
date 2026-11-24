@@ -93,10 +93,10 @@ export const sendAnswers = (jobId: string, a: TrialAnswers) =>
  * pauses his work in this trade at once and reaches the Pechkas office in
  * writing. During the job or within its guarantee.
  */
-export function SafetyReport({ jobId, name, onChanged }: { jobId: string; name: string; onChanged: () => void }) {
+export function SafetyReport({ jobId, name, onChanged, startOpen = false, onCancel }: { jobId: string; name: string; onChanged: () => void; startOpen?: boolean; onCancel?: () => void }) {
   const { session } = useAccount();
   const toast = useToast();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
   const [words, setWords] = useState('');
   const [photo, setPhoto] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
@@ -110,6 +110,7 @@ export function SafetyReport({ jobId, name, onChanged }: { jobId: string; name: 
     if (!r.ok) return setMsg(r.why);
     toast.show(done(`${name} takes no new jobs of this kind until Pechkas has looked at it.`, 'Reported'));
     setOpen(false);
+    onCancel?.();
     onChanged();
   }
 
@@ -123,7 +124,7 @@ export function SafetyReport({ jobId, name, onChanged }: { jobId: string; name: 
       {session ? <MediaPick paths={photo} setPaths={setPhoto} userId={session.user.id} max={1} onProblem={setMsg} /> : null}
       <Notice text={msg} inline />
       <Button kind="danger" label="Send to Pechkas" busy={busy} onPress={send} />
-      <Button kind="outline" label="Not now" onPress={() => setOpen(false)} />
+      <Button kind="outline" label="Not now" onPress={() => (onCancel ? onCancel() : setOpen(false))} />
     </View>
   );
 }

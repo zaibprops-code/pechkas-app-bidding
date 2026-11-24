@@ -63,7 +63,7 @@ test('the pages name the screens the app really has', () => {
   }
   assert.match(textOf('delete-account'), /Settings/);
   // The terms tell a customer which button claims the guarantee; the job screen must have it, word for word.
-  const job = readFileSync(new URL('../../../apps/mobile/src/customer/UnderWay.tsx', import.meta.url), 'utf8');
+  const job = readFileSync(new URL('../../../apps/mobile/src/customer/PastJob.tsx', import.meta.url), 'utf8');
   const guarantee = allRuns('terms').find((r, i, all) => r.b && /If it fails in that time, tap $/.test(all[i - 1]?.t ?? ''));
   assert.ok(guarantee, 'the terms name the guarantee button');
   assert.ok(job.includes(`label="${guarantee!.t}"`), `the job screen has a "${guarantee!.t}" button, as the terms say`);

@@ -517,10 +517,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   checked and years, the four steps, Call / Chat / Family / Report as
   square two-tone buttons, Emergency full-width red, never a tile), the
   start code in ink, a new price as a soft-yellow card with Approve over
-  Decline; once over, **what to pay** large on soft yellow (his work and
-  parts split when there were parts), Photos, Rate, and the guarantee or
-  "something not right"; and at the foot one card for ask again, block
-  and cancel, where nobody taps them by mistake. On a phone under 360
+  Decline; and at the foot one card for find another and cancel, where
+  nobody taps them by mistake. Once the job is over the screen is
+  `PastJob.tsx` instead (below). On a phone under 360
   wide the price moves under the title and long button labels drop the
   price or the word "Pechkas", so nothing is cut or wrapped mid-figure.
   Every action is the same database call as before.
@@ -563,8 +562,47 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   drawing, the whole title (never cut, even at 320), day · who · ref, how
   it ended (Guaranteed · Done, Visit fee only, Cancelled, Nobody took it),
   what she paid (Free on a Pechkas repair, — when nothing). A tap opens
-  the job's screen, which keeps the receipt, Book again, Rate and the
-  guarantee.
+  the job's screen.
+- **A job that is over has its own clean page** (`src/customer/PastJob.tsx`,
+  the owner's design of 25 November 2026; `app/job/[id].tsx` draws it for
+  done, stopped and cancelled jobs instead of `JobCard`, whose old `Ended`
+  is gone). Two cards and two buttons, every tap target 56 tall, nothing
+  said twice: the yellow top (trade · ref, title, how it ended and the ONE
+  date, on Pakistan's clock, the trade's drawing); anything she must
+  answer first (`PaymentCard`, `FeeCard` only while `feeNeedsHer()`, an
+  open `ClaimCard`, `NotHomeEnded`); the **money card** — the figure large
+  (`feeHead()` for a visit fee, the same rule as `FeeCard`), work · parts
+  · the time, "Agreed Rs a → Rs b, with your OK", Pechkas' decision,
+  **Share receipt** (the phone's share sheet, plain words, never the
+  address or a number), the guarantee with **It has failed again** (the
+  terms quote that label; `legal.test.ts` now reads `PastJob.tsx`), or how
+  a closed claim ended with a link to the repair it led to; the **visit
+  card** — who came (or "A technician who has left Pechkas"), five 56-tall
+  star buttons while she may rate, else "You gave ★★★★★ · her words",
+  his note for her, Took, Address, **See every step** (a `Sheet`: the
+  record to the minute, what she wrote, her messages while `chat_until`)
+  and the photos as 96-tall tiles (Before, After, Shop receipt, Video);
+  then **Ask … again** and **Book again** side by side (Book again alone
+  is black), and rows: **Get help with this job** (the office on WhatsApp
+  with the job number typed), **Report something unsafe**, **Never send me
+  …**. A cancelled job's card says what happened in a sentence the top has
+  not said, her or the office's words, "Nothing was charged", Posted,
+  Offers, Your price, Address. Everything is `my_jobs()` plus
+  **`my_job_story(job)`** (migration `…_job_story`, tests
+  `story.test.mjs`): her own job only; the steps from `job_events` as a
+  fixed list of kinds with only safe fields (never an office note, his
+  withdrawal or refusal reason, an address or a phone), turned into words
+  by `stepWords()`; arrival, start, "work finished" and how long the work
+  took; first and chosen price; the new prices and who said yes; her
+  rating words; the cancellation; `pro_left`; his note; `chat_until`; the
+  job a free repair was for and the repair a claim led to. A new kind of
+  step needs a line in that list and in `stepWords()`, or it is not shown.
+- **His note for her** is `pro_set_note(job, note)`: his own job, while
+  working, checking or disputed, or within a day of it ending; 300 letters,
+  no phone number, no CNIC, empty takes it away, logged as `pro_note`. The
+  finish form saves it before `finish_work()`, so a refused note never
+  leaves a finished job without it. She sees it only once the job is over,
+  never in a notification. The privacy page says so.
 - **Home shows what is still happening** (`LiveCard` in `app/index.tsx`),
   from `my_jobs()` every 10 s while focused; finished jobs are on My jobs
   only. Every headline is read from the job's own status

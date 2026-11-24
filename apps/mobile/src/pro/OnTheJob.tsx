@@ -167,6 +167,8 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
   const [video, setVideo] = useState<string | null>(null);
   const [videoBusy, setVideoBusy] = useState(false);
   const [reply, setReply] = useState('');
+  // His optional note for her (job_story): saved first, so a refused note never leaves the job finished without it.
+  const [advice, setAdvice] = useState('');
 
   const map =
     j.lat !== null && j.lng !== null
@@ -190,6 +192,7 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
   }
 
   const reset = () => {
+    setAdvice('');
     setPhotos([]);
     setCode('');
     setParts('');
@@ -503,6 +506,19 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
             )}
             <Text style={s.note}>{w.showWorkingNote}</Text>
           </View>
+          <View style={{ gap: 6 }}>
+            <Text style={s.label}>{w.adviceLabel}</Text>
+            <TextInput
+              value={advice}
+              onChangeText={setAdvice}
+              maxLength={300}
+              multiline
+              accessibilityLabel={w.adviceLabel}
+              style={[s.input, { minHeight: 72, textAlignVertical: 'top' }]}
+            />
+            {msg && msgField === 'advice' ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
+            <Text style={s.note}>{w.adviceNote}</Text>
+          </View>
           {commissionBps !== null && !j.paid_by_pechkas ? (
             <Text style={s.feeLine}>{fill(w.feeKeep, { fee: rupees(commission(labour, commissionBps)), keep: rupees(j.agreed_paisa - commission(labour, commissionBps)) })}</Text>
           ) : null}
@@ -510,13 +526,26 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
             kind="yellow"
             label={w.finish}
             busy={busy}
-            onPress={() => run('finish_work', { p_job: j.id, p_photos: photos, p_parts_paisa: partsPaisa, p_receipt: partsPaisa > 0 ? (receipt[0] ?? null) : null, p_video: video }, reset)}
+            onPress={async () => {
+              if (advice.trim()) {
+                setBusy(true);
+                setMsg(null);
+                const r = await ask('pro_set_note', { p_job: j.id, p_note: advice });
+                setBusy(false);
+                if (!r.ok) {
+                  setMsg(proError(w, r.field, r.why));
+                  setMsgField('advice');
+                  return;
+                }
+              }
+              run('finish_work', { p_job: j.id, p_photos: photos, p_parts_paisa: partsPaisa, p_receipt: partsPaisa > 0 ? (receipt[0] ?? null) : null, p_video: video }, reset);
+            }}
           />
           <Text style={s.note}>{j.paid_by_pechkas ? w.guaranteeRepairNote : fill(w.finishNote, { price: rupees(j.agreed_paisa) })}</Text>
         </View>
       ) : null}
 
-      {msg && !j.code_locked && !['code', 'photos', 'parts', 'receipt', 'report', 'reply'].includes(msgField ?? '') ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
+      {msg && !j.code_locked && !['code', 'photos', 'parts', 'receipt', 'report', 'reply', 'advice'].includes(msgField ?? '') ? <Text style={s.error} accessibilityRole="alert">{msg}</Text> : null}
     </View>
   );
 }

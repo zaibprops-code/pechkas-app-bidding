@@ -1952,6 +1952,27 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## A finished job's own page (25 November 2026)
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261126000000_job_story.sql`, after the files
+   before it. It should say **Success**. No new build: the screens come to
+   your test phone by themselves as an update.
+2. Until you run it, the app shows **Waiting for a database update**. Run
+   it first, then open the app.
+3. **Try it**: menu → **My jobs** → **Past** → tap a job. Done jobs show
+   what you paid, **Share receipt**, the guarantee and **It has failed
+   again**, then who came, your stars, the technician's note for you, and
+   **See every step** (everything that happened, to the minute). At the
+   foot: **Ask … again**, **Book again**, **Get help with this job**
+   (WhatsApp, with the job number already typed), **Report something
+   unsafe** and **Never send me …**. A cancelled job says what happened
+   and that nothing was charged.
+4. **Technicians**: when they tap **Work finished** there is a new, optional
+   box, **A note for the customer**. It refuses phone numbers and CNICs.
+   The customer reads it on that job's page. The website's privacy page
+   says so already.
+
 ## My jobs: Now and Past (24 November 2026)
 
 1. **Supabase → SQL Editor**: run

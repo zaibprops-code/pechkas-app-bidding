@@ -8,6 +8,7 @@ import { useAccount } from '../../src/account';
 import { useLists } from '../../src/lists';
 import { useNotify } from '../../src/notifications';
 import { JobCard, type Job } from '../../src/customer/JobCard';
+import { PastJob } from '../../src/customer/PastJob';
 import { supabase } from '../../src/supabase';
 import { Trouble } from '../../src/components/Trouble';
 import { noAnswer, type NoAnswer } from '../../src/net';
@@ -100,6 +101,28 @@ export default function LiveJob() {
   }
 
   const trade = lists?.trades.find((t) => t.slug === job.trade)?.name ?? job.trade;
+
+  // Over, however it ended: its own clean page (PastJob.tsx), under the yellow top.
+  if (job.status === 'done' || job.status === 'stopped' || job.status === 'cancelled') {
+    return (
+      <View style={{ flex: 1, backgroundColor: colour.canvas }}>
+        <StatusBar style="dark" />
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: end }}
+          refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor={colour.green} />}
+        >
+          <PastJob job={job} trade={trade} onChanged={load} />
+          {problem ? (
+            <View style={{ paddingHorizontal: 14, paddingTop: 12 }}>
+              <Notice text={problem} />
+            </View>
+          ) : null}
+        </ScrollView>
+        <SystemBars bg={colour.canvas} />
+      </View>
+    );
+  }
+
   const offers = job.live_offers;
   const head = headline(job);
 

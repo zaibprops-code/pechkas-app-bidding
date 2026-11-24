@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "319b7e0";
+export const LEGAL_FROM = "4ff8eae";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -619,7 +619,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": ", her note and her photo. The customer sees his one-line reply."
+              "t": ", her note and her photo. The customer sees his one-line reply. When he finishes, the technician may leave a short note for the customer, such as care advice; she reads it on the job's page, and Pechkas keeps it with the job."
             }
           ],
           [

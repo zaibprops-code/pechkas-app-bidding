@@ -114,9 +114,39 @@ async function seed() {
   must(await one(ASAD, `SELECT public.tech_step($1, 'on_way', $2::jsonb)`, [done.id, at]), 'arrive done');
   const code = (await asOwner(`SELECT start_code FROM public.jobs WHERE id = $1`, [done.id])).rows[0].start_code;
   must(await one(ASAD, `SELECT public.start_work($1, $2, $3::jsonb)`, [done.id, code, JSON.stringify([await upload(ASAD)])]), 'start done');
+  // A new price at the door, which she approved, and his note for her (the finished job's page shows both).
+  must(await one(ASAD, `SELECT public.ask_change($1, $2, $3, $4)`, [done.id, 350000, 'The outdoor fan capacitor had worn out and needed changing.', await upload(ASAD)]), 'change done');
+  const ch = (await asOwner(`SELECT id FROM public.job_changes WHERE job_id = $1`, [done.id])).rows[0].id;
+  must(await one(AYESHA, `SELECT public.decide_change($1, true)`, [ch]), 'approve done');
+  must(await one(ASAD, `SELECT public.pro_set_note($1, $2)`, [done.id, 'Clean the filters every 3 months. The outdoor stand will need replacing within a year.']), 'note done');
   must(await one(ASAD, `SELECT public.finish_work($1, $2::jsonb, 0, NULL)`, [done.id, JSON.stringify([await upload(ASAD)])]), 'finish done');
   must(await one(AYESHA, `SELECT public.confirm_work($1)`, [done.id]), 'confirm done');
   await asOwner(`UPDATE public.jobs SET created_at = now() - interval '6 days' WHERE id = $1`, [done.id]);
+
+  // A job that stopped at the door: she said no to a new price, so a visit fee only, which he says she paid.
+  const gas = await type('ac', '%gas%');
+  const stop = must(await one(AYESHA, POST, ['ac', gas, 'The lounge AC blows warm air.', 450000, 'F-11', 'Street 34', 'House 12', 33.6837, 72.9876, tomorrow]), 'post stopped');
+  must(await one(ASAD, `SELECT public.make_offer($1, $2, NULL, NULL, 10::smallint)`, [stop.id, 450000]), 'offer stopped');
+  const o2 = (await asOwner(`SELECT id FROM public.offers WHERE job_id = $1`, [stop.id])).rows[0].id;
+  must(await one(AYESHA, `SELECT public.choose_offer($1)`, [o2]), 'choose stopped');
+  await one(ASAD, `SELECT public.tech_step($1, 'chosen')`, [stop.id]);
+  must(await one(ASAD, `SELECT public.tech_step($1, 'on_way', $2::jsonb)`, [stop.id, at]), 'arrive stopped');
+  const code2 = (await asOwner(`SELECT start_code FROM public.jobs WHERE id = $1`, [stop.id])).rows[0].start_code;
+  must(await one(ASAD, `SELECT public.start_work($1, $2, $3::jsonb)`, [stop.id, code2, JSON.stringify([await upload(ASAD)])]), 'start stopped');
+  must(await one(ASAD, `SELECT public.ask_change($1, $2, $3, $4)`, [stop.id, 900000, 'The compressor has failed and must be replaced.', await upload(ASAD)]), 'change stopped');
+  const ch2 = (await asOwner(`SELECT id FROM public.job_changes WHERE job_id = $1`, [stop.id])).rows[0].id;
+  must(await one(AYESHA, `SELECT public.decide_change($1, false)`, [ch2]), 'decline stopped');
+  must(await one(ASAD, `SELECT public.pro_visit_fee($1, true)`, [stop.id]), 'fee paid');
+  await asOwner(`UPDATE public.jobs SET created_at = now() - interval '20 days', finished_at = finished_at - interval '19 days' WHERE id = $1`, [stop.id]);
+
+  // A job she cancelled before choosing anyone.
+  const tap = await type('plumber', '%tap%');
+  const gone = must(await one(AYESHA, POST, ['plumber', tap, 'The kitchen tap drips all night.', 120000, 'F-11', 'Street 34', 'House 12', 33.6837, 72.9876, tomorrow]), 'post cancelled');
+  must(await one(AYESHA, `SELECT public.cancel_job($1, $2)`, [gone.id, 'A neighbour fixed it for me.']), 'cancel');
+  await asOwner(`UPDATE public.jobs SET created_at = now() - interval '35 days' WHERE id = $1`, [gone.id]);
+  await asOwner(`UPDATE public.cancellations SET cancelled_at = now() - interval '35 days' + interval '2 hours' WHERE job_id = $1`, [gone.id]);
+  await asOwner(`UPDATE public.job_events SET at = at - interval '35 days' WHERE job_id = $1`, [gone.id]);
+  await asOwner(`UPDATE public.job_events SET at = at - interval '19 days' WHERE job_id = $1`, [stop.id]);
 
   // Ayesha's open job: a leaking AC, with an offer from Asad waiting for her.
   const leak = await type('ac', '%leak%');

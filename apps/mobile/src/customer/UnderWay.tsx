@@ -1,23 +1,19 @@
-import { useToast } from '../components/Toast';
-import { done } from '../message';
 import { useState } from 'react';
 import { Image, Linking, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
 import { rupees, showMobile } from '@pechkas/shared';
 import { Button, Notice } from '../components/ui';
 import { Press } from '../components/Press';
-import { Stars } from '../components/Stars';
 import { DuoIcon } from '../components/DuoIcon';
 import { Action, Panel, SHADOW, SOFT_YELLOW, Steps } from './bits';
 import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
 import { useSignedUrls } from '../post/RemoteMedia';
 import { ask } from '../supabase';
 import { colour, font, radius } from '../theme';
-import { CheckCard, ClaimCard, DecisionCard, DisputeCard, GuaranteeRepairNote, LastRound, type CheckFields } from './Checking';
-import { FeeCard, type CustomerFee } from './VisitFee';
+import { CheckCard, DecisionCard, DisputeCard, GuaranteeRepairNote, LastRound, type CheckFields } from './Checking';
+import type { CustomerFee } from './VisitFee';
 import { Face } from './Face';
 import { DoorCard } from './FirstJobs';
-import { PaymentCard } from './Payment';
 import type { PaymentView } from '../pro/Unpaid';
 
 /**
@@ -268,177 +264,6 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
       <LastRound job={job} />
       {job.stage === 'working' && job.dispute_outcome === 'return' ? <DecisionCard job={job} /> : null}
 
-      <Notice text={msg} />
-    </>
-  );
-}
-
-/** The end of a job: what to pay, the photos, and a way to say something is wrong. */
-export function Ended({ job, onChanged }: { job: JobNow; onChanged: () => void }) {
-  const photos = job.photos.filter((p) => p.stage !== 'change');
-  const [stars, setStars] = useState(0);
-  const [words, setWords] = useState('');
-  const guarantee = job.status === 'done' && job.guarantee_until && new Date(job.guarantee_until) > new Date() ? new Date(job.guarantee_until) : null;
-  const urls = useSignedUrls(photos.map((p) => ({ kind: p.stage === 'video' ? 'video' : 'photo', path: p.path, seconds: null })));
-  const [writing, setWriting] = useState(false);
-  const [text, setText] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
-  const name = job.pro?.first_name ?? 'the technician';
-
-  const toast = useToast();
-
-  async function rate() {
-    if (!stars) return setMsg('Choose from one to five stars.');
-    setBusy(true);
-    setMsg(null);
-    const r = await ask('rate_job', { p_job: job.id, p_stars: stars, p_words: words });
-    setBusy(false);
-    if (!r.ok) return setMsg(r.why);
-    toast.show(done('Your rating is saved.', 'Thank you'));
-    onChanged();
-  }
-
-  async function report() {
-    setBusy(true);
-    setMsg(null);
-    const r = await ask('report_problem', { p_job: job.id, p_text: text });
-    setBusy(false);
-    if (!r.ok) return setMsg(r.why);
-    setWriting(false);
-    toast.show(done('Your message has gone to the Pechkas office.'));
-    onChanged();
-  }
-
-  const stages = (['before', 'after', 'video', 'fix', 'receipt'] as const).filter((stage) => photos.some((p) => p.stage === stage));
-  const claim = job.claim && (job.claim.status !== 'fixed' && job.claim.status !== 'not_covered' ? true : job.claim.closed_at && Date.now() - new Date(job.claim.closed_at).getTime() < 7 * 864e5) ? job.claim : null;
-  const help = job.claim_open || guarantee || job.problem_at || job.can_report;
-
-  return (
-    <>
-      {/* A payment question waiting for her answer, or holding her back, comes before everything (D35). */}
-      {job.payment ? <PaymentCard p={job.payment} name={name} jobId={job.id} onChanged={onChanged} /> : null}
-      {/* An open guarantee claim is why she opened this job: it comes first. */}
-      {claim && !['fixed', 'not_covered'].includes(claim.status) ? <ClaimCard job={job} onChanged={onChanged} /> : null}
-      {/* A stopped job: the visit fee's own card, with what she can do about it (visit_fee). */}
-      {job.status === 'stopped' && job.visit_fee ? <FeeCard fee={job.visit_fee} name={name} jobId={job.id} onChanged={onChanged} /> : null}
-      {/* What to pay, large: the one figure she needs at the door. */}
-      {job.status === 'stopped' && job.visit_fee ? null : <View style={[s.panel, s.pay]}>
-        <Text style={s.payLabel}>
-          {job.paid_by_pechkas
-            ? 'Guarantee repair'
-            : job.payment && job.payment.status !== 'closed'
-              ? 'Price of the job'
-              : job.status === 'done'
-                ? `Pay ${name} directly`
-                : `Pay ${name} the visit fee`}
-        </Text>
-        <Text style={s.payAmount}>{job.paid_by_pechkas ? 'Nothing to pay' : rupees(job.collect_paisa)}</Text>
-        {job.paid_by_pechkas ? <Text style={s.line}>Pechkas pays {name} for this repair.</Text> : null}
-        {!job.paid_by_pechkas && job.status === 'done' && !(job.payment && job.payment.status !== 'closed') ? (
-          <Text style={s.line}>In cash, or by JazzCash or Easypaisa, straight to {name}.</Text>
-        ) : null}
-        {job.status === 'done' && job.confirmed_by === 'clock' ? <Text style={s.line}>Nobody checked it within a day, so it counts as finished.</Text> : null}
-        {job.status === 'stopped' && !job.dispute_outcome ? <Text style={s.line}>You declined the new price, so the job stopped there.</Text> : null}
-        {job.parts_paisa ? (
-          <View style={s.split}>
-            <View style={s.splitRow}>
-              <Text style={s.line}>His work</Text>
-              <Text style={s.splitFigure}>{rupees((job.collect_paisa ?? 0) - job.parts_paisa)}</Text>
-            </View>
-            <View style={s.splitRow}>
-              <Text style={s.line}>Parts he bought{stages.includes('receipt') ? ' (receipt below)' : ''}</Text>
-              <Text style={s.splitFigure}>{rupees(job.parts_paisa)}</Text>
-            </View>
-          </View>
-        ) : null}
-      </View>}
-
-      {stages.length ? (
-        <Panel icon="camera" title="Photos" hint="Tap one to see it full size.">
-          {stages.map((stage) => (
-            <View key={stage} style={{ gap: 8 }}>
-              <Text style={s.small}>{{ before: 'Before', after: 'After', video: 'Video of it working', fix: 'Guarantee repair', receipt: 'Shop receipt' }[stage]}</Text>
-              <View style={s.photos}>
-                {photos
-                  .filter((p) => p.stage === stage)
-                  .map((p) =>
-                    p.stage === 'video' && urls[p.path] ? (
-                      <Press key={p.path} onPress={() => Linking.openURL(urls[p.path])} accessibilityRole="button" accessibilityLabel="Watch his video">
-                        <View style={[s.photo, s.videoTile]}>
-                          <Text style={s.videoText}>▶ Video</Text>
-                        </View>
-                      </Press>
-                    ) : urls[p.path] ? (
-                      <Press key={p.path} onPress={() => Linking.openURL(urls[p.path])} accessibilityRole="imagebutton" accessibilityLabel={`${stage} photo`}>
-                        <Image source={{ uri: urls[p.path] }} style={s.photo} />
-                      </Press>
-                    ) : (
-                      <View key={p.path} style={[s.photo, { backgroundColor: colour.paper2 }]} />
-                    ),
-                  )}
-              </View>
-            </View>
-          ))}
-        </Panel>
-      ) : null}
-
-      {job.can_rate ? (
-        <Panel icon="star" title={`Rate ${name}`} hint={`${name} sees it once he has rated you too, or after two days.`}>
-          <Stars value={stars} onPick={setStars} label={`Rate ${name}`} />
-          {stars ? (
-            <>
-              <TextInput value={words} onChangeText={setWords} maxLength={300} placeholder="Anything to say? (optional)" placeholderTextColor={colour.steel} accessibilityLabel="Anything to say" style={[s.input, { minHeight: 52 }]} />
-              {/* offer_profile() shows these words to customers choosing him, never with her name. */}
-              <Text style={s.small}>Customers choosing {name} later may read what you write, without your name.</Text>
-              <Button kind="green" label="Send rating" busy={busy} onPress={rate} />
-            </>
-          ) : null}
-        </Panel>
-      ) : null}
-      {job.my_rating ? (
-        <Panel icon="star" title={`You rated ${name}`}>
-          <Stars value={job.my_rating} size={22} />
-        </Panel>
-      ) : null}
-
-      <DecisionCard job={job} />
-      {claim && !['fixed', 'not_covered'].includes(claim.status) ? null : claim ? <ClaimCard job={job} onChanged={onChanged} /> : null}
-
-      {help ? (
-        <Panel
-          icon="shield"
-          title={guarantee ? `Guaranteed until ${guarantee.toLocaleDateString('en-PK', { day: 'numeric', month: 'long' })}` : 'Something not right?'}
-          hint={
-            guarantee
-              ? `${job.guarantee_days ?? ''} days on this job. If the same fault comes back, ${name} must come back and fix it, free.`
-              : undefined
-          }
-        >
-          {job.claim_open && !claim ? <Text style={s.line}>Your guarantee claim is with the Pechkas office. They will call you.</Text> : null}
-          {/* In the first day "Something is wrong" covers it; after that, the guarantee. */}
-          {guarantee && job.can_claim && !job.can_report ? (
-            <>
-              {/* The terms (/app/terms) tell customers to tap exactly this; legal.test.ts checks the two agree. */}
-              <Button kind="outline" label="It has failed again" onPress={() => router.push({ pathname: '/claim/[id]', params: { id: job.id } })} />
-              <Text style={s.small}>
-                Describe it and add a photo or video.{' '}
-                {job.payment && job.payment.status !== 'closed' ? 'While the payment question is open, the Pechkas office handles it.' : `${name} has 24 hours to answer.`}
-              </Text>
-            </>
-          ) : null}
-          {job.problem_at ? <Text style={s.line}>You told us something is wrong. The Pechkas office will call you.</Text> : null}
-          {job.can_report && !writing ? <Button kind="outline" label="Something is wrong" onPress={() => setWriting(true)} /> : null}
-          {job.can_report && writing ? (
-            <View style={{ gap: 8 }}>
-              <Text style={s.line}>Tell us what is wrong. The Pechkas office reads it and calls you.</Text>
-              <TextInput value={text} onChangeText={setText} maxLength={500} multiline accessibilityLabel="What is wrong" style={s.input} />
-              <Button kind="green" label="Send to Pechkas" busy={busy} onPress={report} />
-              <Button kind="outline" label="Go back" onPress={() => setWriting(false)} />
-            </View>
-          ) : null}
-        </Panel>
-      ) : null}
       <Notice text={msg} />
     </>
   );

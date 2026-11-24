@@ -11,7 +11,7 @@ import { SHADOW, TradeTile } from './bits';
 import { Stars } from '../components/Stars';
 import { Press } from '../components/Press';
 import { Icon } from '../components/Icon';
-import { Ended, UnderWay, type JobNow } from './UnderWay';
+import { UnderWay, type JobNow } from './UnderWay';
 import { ProProfile } from './ProProfile';
 import { NoOffers } from './NoOffers';
 import { VisitFeeNote } from './VisitFee';
@@ -37,6 +37,8 @@ export type Job = JobNow & Omit<CancelFields, 'id' | 'ref' | 'status' | 'stage' 
   ref: string;
   trade: string;
   title: string;
+  /** What she wrote when she posted it. */
+  description?: string | null;
   offered_paisa: number;
   when_kind: 'now' | 'today' | 'tomorrow' | 'later';
   when_part: 'morning' | 'afternoon' | 'evening' | null;
@@ -282,7 +284,6 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
       {job.status === 'cancelled' && job.not_home && ['submitted', 'disputed', 'confirmed', 'rejected'].includes(job.not_home.status) ? (
         <NotHomeEnded job={job} onChanged={onChanged} />
       ) : null}
-      {ended ? <Ended job={job} onChanged={onChanged} /> : null}
 
       {/* D37: a safety report, during the job or within its guarantee. */}
       {job.can_report_safety && job.pro ? (

@@ -67,6 +67,28 @@ const WHY: Record<CustomerFee['reason'], string> = {
 };
 
 /**
+ * The fee's heading and figure, the one rule for both this card and a
+ * finished job's page. Pechkas paying for a guarantee visit; an unpaid fee
+ * Pechkas covered is still hers to settle.
+ */
+export function feeHead(fee: CustomerFee, name: string): { pechkas: boolean; label: string; figure: string; why: string } {
+  const pechkas = fee.payer === 'pechkas' && !fee.blocks_posting;
+  const label = pechkas
+    ? 'Visit fee'
+    : fee.status === 'waived'
+      ? 'No visit fee'
+      : fee.status === 'paid'
+        ? `Visit fee paid to ${name}`
+        : `Pay ${name} the visit fee`;
+  const figure = pechkas || fee.status === 'waived' ? 'Nothing to pay' : rupees(fee.amount_paisa);
+  return { pechkas, label, figure, why: WHY[fee.reason] };
+}
+
+/** Whether the fee still needs her: to pay, to answer, or to settle with the office. */
+export const feeNeedsHer = (fee: CustomerFee) =>
+  ['due', 'unpaid', 'disputed'].includes(fee.status) || (fee.status === 'covered' && fee.blocks_posting) || fee.refund === 'owed';
+
+/**
  * What she owes after a job stopped, the one figure large, and what she can
  * do about it: "I disagree" within 24 hours, or "I have paid him" when he
  * says she has not. Both go to the office.
@@ -92,16 +114,7 @@ export function FeeCard({ fee, name, jobId, onChanged }: { fee: CustomerFee; nam
     onChanged();
   }
 
-  // Pechkas paying for a guarantee visit; an unpaid fee Pechkas covered is still hers to settle.
-  const pechkas = fee.payer === 'pechkas' && !fee.blocks_posting;
-  const label = pechkas
-    ? 'Visit fee'
-    : fee.status === 'waived'
-      ? 'No visit fee'
-      : fee.status === 'paid'
-        ? `Visit fee paid to ${name}`
-        : `Pay ${name} the visit fee`;
-  const figure = pechkas || fee.status === 'waived' ? 'Nothing to pay' : amount;
+  const { pechkas, label, figure } = feeHead(fee, name);
 
   return (
     <View style={[s.card, fee.status === 'unpaid' ? s.cardWarn : null]}>
