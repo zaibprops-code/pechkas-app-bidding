@@ -307,7 +307,11 @@ export function WaitingView({ job, search, tick, onChanged, notify, askNotify }:
           <Ask
             icon="search"
             title="Still looking for a technician?"
-            text={`${nearCount || search.seen} ${(nearCount || search.seen) === 1 ? 'technician near you has' : 'technicians near you have'} seen your job at ${rupees(price)}. Nobody has offered yet.`}
+            text={
+              search.seen
+                ? `${search.seen} ${search.seen === 1 ? 'technician near you has' : 'technicians near you have'} seen your job at ${rupees(price)}. Nobody has offered yet.`
+                : `Technicians near you were told about your job at ${rupees(price)}. Nobody has offered yet.`
+            }
             main="Keep looking, wider"
             onMain={() => setStill('done')}
             second={canRaise ? 'Raise my price first' : null}
