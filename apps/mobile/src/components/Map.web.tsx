@@ -73,11 +73,11 @@ export function Pin() {
   );
 }
 
-export function MapBox({ center, zoom = 0.012, pin, style, other, path, dots }: { center: Point; pin?: Point | null; zoom?: number; interactive?: boolean; showsUser?: boolean; style?: StyleProp<ViewStyle>; other?: { point: Point; letter: string } | null; path?: Point[] | null; dots?: Point[] | null }) {
+export function MapBox({ center, zoom = 0.012, pin, style, other, path, dots, home }: { center: Point; pin?: Point | null; zoom?: number; interactive?: boolean; showsUser?: boolean; style?: StyleProp<ViewStyle>; other?: { point: Point; letter: string } | null; path?: Point[] | null; dots?: Point[] | null; home?: Point | null }) {
   return (
     <View style={[s.box, style]}>
       <MapDrawing />
-      <DrawnMarks center={center} zoom={zoom} dots={dots} other={other} path={path} />
+      <DrawnMarks center={center} zoom={zoom} dots={dots} other={other} path={path} home={home} />
       {pin ? (
         <View style={s.centre} pointerEvents="none">
           <Pin />

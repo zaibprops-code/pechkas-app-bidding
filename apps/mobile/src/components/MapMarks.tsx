@@ -15,9 +15,11 @@ import { colour, font } from '../theme';
 
 type Point = { latitude: number; longitude: number };
 
-export function DrawnMarks({ center, zoom, dots, other, path }: {
+export function DrawnMarks({ center, zoom, dots, other, path, home }: {
   center: Point;
   zoom: number;
+  /** Her home as the green dot (him coming), placed where a map would put it. */
+  home?: Point | null;
   dots?: Point[] | null;
   other?: { point: Point; letter: string } | null;
   path?: Point[] | null;
@@ -49,6 +51,14 @@ export function DrawnMarks({ center, zoom, dots, other, path }: {
             );
           })
         : null}
+      {size.w && home ? (() => {
+        const q = at(home);
+        return (
+          <View style={{ position: 'absolute', left: q.x - 13, top: q.y - 13 }}>
+            <HomeDot />
+          </View>
+        );
+      })() : null}
       {size.w && other ? (() => {
         const q = at(other.point);
         return (
@@ -57,6 +67,24 @@ export function DrawnMarks({ center, zoom, dots, other, path }: {
           </View>
         );
       })() : null}
+    </View>
+  );
+}
+
+/** The screw head alone, as the mocks draw her home while she waits: no stem, a soft glow behind it (drawn by the screen). */
+export function ScrewDot() {
+  return (
+    <View style={s.head} pointerEvents="none">
+      <View style={s.slot} />
+    </View>
+  );
+}
+
+/** Her home while he comes, as the mocks draw it: a green dot in a white ring. */
+export function HomeDot() {
+  return (
+    <View style={s.homeRing} pointerEvents="none">
+      <View style={s.homeDot} />
     </View>
   );
 }
@@ -71,6 +99,10 @@ export function TechDot() {
 }
 
 const s = StyleSheet.create({
+  head: { width: 34, height: 34, borderRadius: 17, backgroundColor: colour.yellow, borderWidth: 3, borderColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
+  slot: { width: 16, height: 5, borderRadius: 3, backgroundColor: colour.ink, transform: [{ rotate: '-30deg' }] },
+  homeRing: { width: 26, height: 26, borderRadius: 13, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', boxShadow: '0px 2px 6px rgba(20, 23, 26, 0.2)' },
+  homeDot: { width: 14, height: 14, borderRadius: 7, backgroundColor: colour.green },
   dot: { position: 'absolute', width: 28, height: 28, borderRadius: 14, backgroundColor: colour.white, borderWidth: 2, borderColor: colour.yellow, alignItems: 'center', justifyContent: 'center' },
   other: { position: 'absolute', width: 40, height: 40, borderRadius: 20, backgroundColor: colour.yellow, borderWidth: 3, borderColor: colour.white, alignItems: 'center', justifyContent: 'center' },
   otherText: { fontFamily: font.display, fontSize: 16, color: colour.ink },

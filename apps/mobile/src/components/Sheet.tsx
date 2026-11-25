@@ -10,7 +10,7 @@ import { colour, font } from '../theme';
  * job, and every drop-down on Post a job. Tap outside it, the cross or the
  * phone's Back to close. Only the sheet moves, by transform.
  */
-export function Sheet({ children, onClose, closeLabel = 'Close', title }: { children: ReactNode; onClose: () => void; closeLabel?: string; title?: string }) {
+export function Sheet({ children, onClose, closeLabel = 'Close', title, bare = false }: { children: ReactNode; onClose: () => void; closeLabel?: string; title?: string; /** Only the handle on top, no × (the approved mocks' question sheets); the backdrop and Back still close it. */ bare?: boolean }) {
   const insets = useSafeAreaInsets();
   const y = useRef(new Animated.Value(600)).current;
   useEffect(() => {
@@ -33,9 +33,11 @@ export function Sheet({ children, onClose, closeLabel = 'Close', title }: { chil
                 {title}
               </Text>
             ) : null}
-            <Press onPress={onClose} accessibilityRole="button" accessibilityLabel={closeLabel} sink={0.9} style={s.close}>
-              <Icon name="cross" size={20} color={colour.ink} strokeWidth={2.4} />
-            </Press>
+            {bare ? null : (
+              <Press onPress={onClose} accessibilityRole="button" accessibilityLabel={closeLabel} sink={0.9} style={s.close}>
+                <Icon name="cross" size={20} color={colour.ink} strokeWidth={2.4} />
+              </Press>
+            )}
           </View>
           <ScrollView contentContainerStyle={{ paddingHorizontal: 4, paddingBottom: 8 }} keyboardShouldPersistTaps="handled">
             {children}

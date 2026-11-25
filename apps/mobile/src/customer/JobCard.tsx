@@ -300,7 +300,7 @@ export function JobCard({ job, trade, tick, onChanged, onOpen, coming = false }:
       {assigned && job.pro && job.eta_at && !job.no_show && !job.pro_late ? <RunningLateCard job={job} onDone={onChanged} /> : null}
       {/* He is at her door and cannot get in (nobody_home): I'm coming, or cancel. */}
       {assigned && job.pro && (job.not_home?.status === 'asking' || job.not_home?.status === 'coming') ? <AtDoorCard job={job} onChanged={onChanged} /> : null}
-      {assigned && job.pro ? <UnderWay job={job} onChanged={onChanged} head={!coming} /> : null}
+      {assigned && job.pro ? <UnderWay job={job} onChanged={onChanged} head={!coming} noCode={coming && job.stage === 'arrived'} /> : null}
       {/* In the map-and-sheet view (Coming.tsx) the job itself comes after the code. */}
       {coming ? jobPanel : null}
       {job.status === 'cancelled' && job.not_home && ['submitted', 'disputed', 'confirmed', 'rejected'].includes(job.not_home.status) ? (

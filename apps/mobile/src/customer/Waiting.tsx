@@ -5,7 +5,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { rupees } from '@pechkas/shared';
-import { MapBox, Pin, type Point } from '../components/Map';
+import { MapBox, type Point } from '../components/Map';
+import { ScrewDot } from '../components/MapMarks';
 import { DuoIcon } from '../components/DuoIcon';
 import { Icon } from '../components/Icon';
 import { Press } from '../components/Press';
@@ -151,7 +152,7 @@ export function WaitingView({ job, search, tick, onChanged, notify, askNotify }:
   const km = Math.max(1, Math.round(search.reach_m / 1000));
   // The map shows a little more than the reach, so the dots inside it are on it.
   const zoom = Math.min(0.6, Math.max(0.03, (search.reach_m * 2.6) / 111000));
-  const mapH = Math.round(Math.min(560, Math.max(330, height * 0.5)));
+  const mapH = Math.round(Math.min(520, Math.max(300, height * 0.44)));
   const nearCount = search.near_count ?? 0;
   const letters = wide ? search.letters : search.near_letters ?? [];
   const count = wide ? search.seen : nearCount;
@@ -165,9 +166,7 @@ export function WaitingView({ job, search, tick, onChanged, notify, askNotify }:
           <MapBox center={at ?? { latitude: 33.6844, longitude: 73.0479 }} zoom={zoom} dots={(search.near ?? []).map((n) => ({ latitude: n.lat, longitude: n.lng }))} style={StyleSheet.absoluteFill} />
           <Waves />
           <View style={s.centre} pointerEvents="none">
-            <View style={{ marginBottom: 46 }}>
-              <Pin />
-            </View>
+            <ScrewDot />
           </View>
           <View style={s.chip} pointerEvents="none">
             <Icon name="search" size={16} color={colour.ink} strokeWidth={2.2} />
@@ -303,7 +302,7 @@ export function WaitingView({ job, search, tick, onChanged, notify, askNotify }:
       <SystemBars bg={colour.white} />
 
       {still === 'shown' && !live && !cancelling ? (
-        <Sheet onClose={() => setStill('done')}>
+        <Sheet bare onClose={() => setStill('done')}>
           <Ask
             icon="search"
             title="Still looking for a technician?"
@@ -327,7 +326,7 @@ export function WaitingView({ job, search, tick, onChanged, notify, askNotify }:
         </Sheet>
       ) : null}
       {nobody === 'shown' && !live && !cancelling ? (
-        <Sheet onClose={() => setNobody('done')}>
+        <Sheet bare onClose={() => setNobody('done')}>
           <Ask
             icon="bell"
             title="No offer yet. You don’t have to wait here."
@@ -504,7 +503,7 @@ export function CancelSheet({ job, onClose, onDone }: { job: Job; onClose: () =>
     onDone();
   }
   return (
-    <Sheet onClose={onClose}>
+    <Sheet bare onClose={onClose}>
       <View style={{ gap: 12, paddingBottom: 6 }}>
         <Text style={s.askTitle}>Cancel this job?</Text>
         <View style={s.subRow}>

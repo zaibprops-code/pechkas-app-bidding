@@ -92,7 +92,7 @@ const HEAD: Record<Stage, (name: string) => string> = {
   disputed: (n) => `Pechkas is looking at ${n}’s work`,
 };
 
-export function UnderWay({ job, onChanged, head = true }: { job: JobNow; onChanged: () => void; head?: boolean }) {
+export function UnderWay({ job, onChanged, head = true, noCode = false }: { job: JobNow; onChanged: () => void; head?: boolean; /** The start code is in the sheet's head already (Coming.tsx, at the door). */ noCode?: boolean }) {
   const pro = job.pro!;
   const urls = useSignedUrls(job.change ? [{ kind: 'photo', path: job.change.photo, seconds: null }] : []);
   const [declining, setDeclining] = useState(false);
@@ -192,7 +192,7 @@ export function UnderWay({ job, onChanged, head = true }: { job: JobNow; onChang
         <DoorCard jobId={job.id} name={pro.first_name} photo={job.pro_photo ?? null} onChanged={onChanged} />
       ) : null}
 
-      {job.start_code && !job.code_locked && !(job.face_needed && job.stage === 'arrived') ? (
+      {!noCode && job.start_code && !job.code_locked && !(job.face_needed && job.stage === 'arrived') ? (
         <View style={s.codeBox}>
           <View style={s.codeHead}>
             <DuoIcon name="lock" size={22} ink={colour.paper} />
