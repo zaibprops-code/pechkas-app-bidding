@@ -37,7 +37,7 @@ export default function LegalList() {
         );
       })}
       {/* Not a document, but where a question about one goes: Help has the office's hours, WhatsApp and phone. */}
-      <Card icon="support" title="Contact Pechkas" text="The office’s hours, WhatsApp and phone number." onPress={() => router.push('/help')} />
+      <Card icon="support" title="Contact Pechkas" text="The answers to common questions, and the office on WhatsApp." onPress={() => router.push('/help')} />
     </Screen>
   );
 }

@@ -484,17 +484,27 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   keep the label); one quiet "Version … · details" line that opens
   `ThisCopy` in a sheet. The mode switch and the legal pages are not here:
   they are in the menu (no duplicates).
-- **Help (`app/help.tsx`) is in the same style**: the office on a green
-  card (hours, number, **WhatsApp** and **Call** side by side, stacked
-  under 360 wide), **Common questions** that open one at a time (the
-  chevron turns by transform and snaps), then the legal pages and Safety as
-  `DuoRow`s from `src/components/Rows.tsx`, which Settings uses too. The
-  answers are different for each side and are only rules the app already
-  keeps, in its screens' own words; a number that can vary or is still
-  undecided (the credit limit and visit fee the office may set, the
-  guarantee's 15-or-30 days) is never written there — the answer points to
-  the screen showing the real figure. The 10% and 7% are locked
-  settings, as in the terms: change them and this page in the same week.
+- **Help (`app/help/index.tsx`, `app/help/[topic].tsx`) is topics, then
+  answers** (the owner's design, 25 November 2026): the side's coloured
+  top (yellow customer, green technician) with "How can we help?" and a
+  search box; every topic as a `DuoRow` — icon, name, what is inside, how
+  many answers — each opening its own page (the topic on the top, its
+  questions in one card, the first open, one at a time, the chevron turned
+  by transform and snapped; then two other topics and the office); and
+  **Message the office** on WhatsApp as the last row. **WhatsApp only, no
+  Call** (the owner cannot take calls). Nothing about one job (the job's
+  own screen says what to do next) and no legal or Safety rows (they are
+  in the menu). Typing searches every answer of that side, each result
+  naming its topic. The words are `src/help.ts` (`CUSTOMER_HELP`,
+  `TECHNICIAN_HELP`): only rules the app already keeps, in its screens'
+  own words, a button's name in `**bold**` — and `help.test.ts` fails if a
+  bold name is not a label some screen really draws, if an answer has a
+  phone number or says "call the office", or if the guarantee answer stops
+  naming **It has failed again**. A number that can vary or is undecided
+  (the credit limit and visit fee the office may set, the lowest offer) is
+  never written there — the answer points to the screen showing the real
+  figure. The 10%, 7%, 30 and 7 days and 14 + 3 days are locked settings,
+  as in the terms: change them and this file in the same week.
 - **Safety (`app/safety.tsx`) is in the same style**, and still open
   signed out and never covered by a pause: the four numbers from
   `src/emergency.ts` as big white tiles two by two (the number large in
@@ -1384,8 +1394,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - **Legal is a list, then a reader**, the owner's reference app's way: the
   menu's **Legal** row opens **Legal documents** (`app/legal/index.tsx`),
   one card per page with the page's own `title` and `lede` (never typed
-  there) and a **Contact Pechkas** card to Help; Settings and Help each
-  have one **Legal documents** row instead of a row per page. The reader
+  there) and a **Contact Pechkas** card to Help; Settings and Help have no
+  row per page (the menu's Legal row is the way in). The reader
   pins **Last updated** (the page's first `meta` line) at the foot, colours
   its headings green, and shows a × that closes every legal page at once
   when more than one is open. **The guarantee button is named in the

@@ -34,7 +34,7 @@ through `apps/mobile/src/theme.ts` and the admin panel as CSS variables
 | --- | --- |
 | `colour.canvas` | The screen behind everything (light grey). |
 | `colour.white` | Every card. |
-| `colour.green` | Trust and "this is you / this is us": the person card in Settings, the office card in Help, the technician's side in the mode-switch cover, a technician's initial, a done step, "notifications are on", the green call to action. **At most one big green card per screen.** |
+| `colour.green` | Trust and "this is you / this is us": the person card in Settings, the technician's side in the mode-switch cover, a technician's initial, a done step, "notifications are on", the green call to action. **At most one big green card per screen.** |
 | `colour.yellow` | Action and money: the main button, a count, an arrow disc. **Never as text on a light background** (it cannot be read). |
 | `colour.softYellow` | The tile behind a two-tone icon; a money card ("Your price", "Pay Bilal in cash", a new price to approve); the current row in the menu. |
 | `colour.cream` | Behind a drawing: trade tiles, media tiles (Voice, Video, Photo), the drawing tiles on the "How will you use Pechkas?" cards. Never a whole card on the canvas: cream on `canvas` has no edge you can see. |
@@ -156,7 +156,9 @@ home.
 - **Say what is happening in words read from the data**: the job's own
   status, step and counts. Nothing estimated, no "usually replies in".
 - **Long things open one at a time** (Help's questions), so a page never
-  becomes a wall of words.
+  becomes a wall of words. **Help is topics, then answers**: the topics as
+  rows with how many answers each holds, a topic on its own page (never a
+  pop-up), a search across every answer, and the office as the last row.
 - **A list that grows is two tabs, then one box** (My jobs, the owner's
   design): what is happening now opens first, the history is the other
   tab. The history has ONE search box with a filter button at its end;
