@@ -1952,6 +1952,29 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## Minutes from Google Maps, and seeing him come (25 November 2026)
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261204000000_google_minutes.sql`, after
+   `20261203000000_jobs_near_him.sql`. It should say **Success**.
+2. **Make a key for Google's Routes service** (the minutes). In
+   **console.cloud.google.com**, open the same project as your Maps key:
+   - **APIs & Services → Library**, search **Routes API**, tap **Enable**.
+     Billing must be on for the project; the first 10,000 requests each
+     month are free, then about $5 per 1,000.
+   - **APIs & Services → Credentials → Create credentials → API key**.
+     Open the new key, and under **API restrictions** choose **Restrict
+     key** and tick only **Routes API**. Save.
+3. **Put the key in Supabase, never in the chat**: Supabase → your project
+   → **Project Settings → Vault** (or **Integrations → Vault**) → **Add new
+   secret**. Name: `google_routes_key`. Secret: paste the key. Save.
+4. **Try it**: as a technician, make an offer while online. As the
+   customer, the offer shows "9 min away · 2.1 km" within a minute (before
+   the key, it shows "About 2 km away"). Choose him; when he taps **On my
+   way**, she sees him on her map with the road and the minutes left.
+5. If the minutes never appear: Supabase → **Database → Extensions**,
+   check **pg_net** is on (notifications already need it).
+
 ## Jobs near the technician, and the waiting screen (25 November 2026)
 
 1. **Supabase → SQL Editor**: run

@@ -118,6 +118,23 @@ CREATE TABLE IF NOT EXISTS net.sent (
   headers jsonb
 );
 CREATE TABLE IF NOT EXISTS net.fail (on_purpose boolean);
+-- pg_net's answers, as far as the migrations read them (google_minutes):
+-- the real table has more columns; these are the ones read. Tests write the
+-- answer Google would have given.
+CREATE TABLE IF NOT EXISTS net._http_response (
+  id          bigint,
+  status_code integer,
+  content     text,
+  created     timestamptz NOT NULL DEFAULT now()
+);
+
+-- Supabase Vault, as far as the migrations read it: secrets by name. The
+-- real one encrypts them; here a test writes a pretend key, never a real one.
+CREATE SCHEMA IF NOT EXISTS vault;
+CREATE TABLE IF NOT EXISTS vault.decrypted_secrets (
+  name             text PRIMARY KEY,
+  decrypted_secret text
+);
 
 CREATE OR REPLACE FUNCTION net.http_post(
   url text,

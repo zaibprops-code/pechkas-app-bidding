@@ -405,9 +405,28 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
+  // How far each technician is (google_minutes): Google's minutes when Pechkas has them,
+  // otherwise the straight line. Never where he is. Nearest first.
+  const [far, setFar] = useState<Record<string, { eta_seconds: number | null; route_m: number | null; distance_m: number | null }>>({});
   useEffect(() => {
     supabase?.rpc('job_offers', { p_job: job.id }).then(({ data }) => setOffers((data as Offer[]) ?? []));
+    supabase?.rpc('offer_extras', { p_job: job.id }).then(({ data, error }) => {
+      if (error || !Array.isArray(data)) return setFar({});
+      setFar(Object.fromEntries((data as { offer_id: string; eta_seconds: number | null; route_m: number | null; distance_m: number | null }[]).map((x) => [x.offer_id, x])));
+    });
   }, [job.id, job.live_offers, tick]);
+  const away = (id: string): string | null => {
+    const f = far[id];
+    if (!f) return null;
+    if (f.eta_seconds !== null) {
+      const min = Math.max(1, Math.round(f.eta_seconds / 60));
+      const km = f.route_m ?? f.distance_m;
+      return `${min} min away${km !== null ? ` · ${(km / 1000).toFixed(1)} km` : ''}`;
+    }
+    if (f.distance_m !== null) return f.distance_m < 1000 ? 'Less than 1 km away' : `About ${Math.round(f.distance_m / 1000)} km away`;
+    return null;
+  };
+  const rank = (id: string) => far[id]?.eta_seconds ?? (far[id]?.distance_m ?? 1e9) / 10;
 
   /**
    * "No thanks" to one offer. The database checks it is her job, still open,
@@ -455,7 +474,7 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
         </View>
       </View>
       {job.visit_fee_paisa ? <VisitFeeNote fee={job.visit_fee_paisa} compact /> : null}
-      {offers.map((o) => {
+      {[...offers].sort((a, b) => rank(a.id) - rank(b.id)).map((o) => {
         const left = Math.max(0, Math.ceil((new Date(o.expires_at).getTime() - Date.now()) / 60000));
         return (
           <View key={o.id} style={s.panel}>
@@ -479,6 +498,12 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
                   )}
                   {o.jobs_done !== undefined ? <Text style={s.offerMeta}>{o.jobs_done} {o.jobs_done === 1 ? 'job' : 'jobs'} done</Text> : null}
                 </View>
+                {away(o.id) ? (
+                  <View style={s.away}>
+                    <Icon name="pin" size={14} color={colour.ink} strokeWidth={2.2} />
+                    <Text style={s.awayText}>{away(o.id)}</Text>
+                  </View>
+                ) : null}
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={s.offerPrice}>{rupees(o.price_paisa)}</Text>
@@ -557,6 +582,8 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
 /** Once chosen: who is coming, what was agreed, and how to reach him. */
 
 const s = StyleSheet.create({
+  away: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', marginTop: 4, paddingHorizontal: 10, minHeight: 28, borderRadius: 14, backgroundColor: colour.softYellow },
+  awayText: { fontFamily: font.display, fontSize: 12.5, color: colour.ink },
   profileLink: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', minHeight: 44 },
   profileLinkText: { fontFamily: font.bodySemi, fontSize: 14.5, color: colour.green },
   panel: { gap: 14, padding: 16, borderRadius: 24, backgroundColor: colour.white, boxShadow: SHADOW },

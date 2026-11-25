@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Modal, Platform, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, type Region } from 'react-native-maps';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE, type Region } from 'react-native-maps';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -141,13 +141,17 @@ export async function fixNow(): Promise<Fix> {
  * A map to look at: a place with the Pechkas pin on it, or just an area.
  * Not draggable unless `interactive`, so it never steals a scroll.
  */
-export function MapBox({ center, pin, zoom = 0.012, interactive = false, showsUser = false, style }: {
+export function MapBox({ center, pin, zoom = 0.012, interactive = false, showsUser = false, style, other, path }: {
   center: Point;
   pin?: Point | null;
   zoom?: number;
   interactive?: boolean;
   showsUser?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Somebody else on the map: the technician on his way, as a disc with his first letter. */
+  other?: { point: Point; letter: string } | null;
+  /** The road he is taking, from Google (google_minutes). */
+  path?: Point[] | null;
 }) {
   // No key in this build: the drawing, with the pin in the middle, in the same box.
   if (!mapsReady()) {
@@ -162,16 +166,18 @@ export function MapBox({ center, pin, zoom = 0.012, interactive = false, showsUs
       </View>
     );
   }
-  return <RealMap center={center} pin={pin} zoom={zoom} interactive={interactive} showsUser={showsUser} style={style} />;
+  return <RealMap center={center} pin={pin} zoom={zoom} interactive={interactive} showsUser={showsUser} style={style} other={other} path={path} />;
 }
 
-function RealMap({ center, pin, zoom, interactive, showsUser, style }: {
+function RealMap({ center, pin, zoom, interactive, showsUser, style, other, path }: {
   center: Point;
   pin?: Point | null;
   zoom: number;
   interactive: boolean;
   showsUser: boolean;
   style?: StyleProp<ViewStyle>;
+  other?: { point: Point; letter: string } | null;
+  path?: Point[] | null;
 }) {
   const ref = useRef<MapView>(null);
   useEffect(() => {
@@ -194,6 +200,14 @@ function RealMap({ center, pin, zoom, interactive, showsUser, style }: {
         showsMyLocationButton={false}
         showsPointsOfInterests={false}
       >
+        {path && path.length > 1 ? <Polyline coordinates={path} strokeColor={colour.ink} strokeWidth={5} /> : null}
+        {other ? (
+          <Marker coordinate={other.point} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={false}>
+            <View style={s.other}>
+              <Text style={s.otherText}>{other.letter}</Text>
+            </View>
+          </Marker>
+        ) : null}
         {pin ? (
           <Marker coordinate={pin} anchor={{ x: 0.5, y: 1 }} tracksViewChanges={false}>
             <Pin />
@@ -328,6 +342,8 @@ const s = StyleSheet.create({
   bubble: { flex: 1, minHeight: 48, justifyContent: 'center', paddingHorizontal: 14, borderRadius: 16, backgroundColor: colour.white, boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.18)' },
   bubbleText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   pickerBottom: { position: 'absolute', left: 0, right: 0, bottom: 0, gap: 10, paddingHorizontal: 16, paddingTop: 16, backgroundColor: colour.white, borderTopLeftRadius: 28, borderTopRightRadius: 28 },
+  other: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.yellow, borderWidth: 3, borderColor: colour.white, alignItems: 'center', justifyContent: 'center' },
+  otherText: { fontFamily: font.display, fontSize: 16, color: colour.ink },
   spot: { width: 14, height: 6, borderRadius: 3, backgroundColor: 'rgba(20, 23, 26, 0.3)' },
   note: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.brick },
 });

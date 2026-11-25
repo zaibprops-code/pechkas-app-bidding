@@ -41,6 +41,7 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
       search_start_m: 'A new job first reaches technicians within (metres)',
       search_full_m: 'Distance that counts as all of Islamabad (metres)',
       search_full_minutes: 'Minutes for the search to grow to all of Islamabad',
+      route_every_seconds: 'While a technician is on his way, ask Google for fresh minutes at most every (seconds)',
       position_fresh_minutes: 'A technician\u2019s last position counts for (minutes), then his home area',
       max_posts_per_day: 'Jobs one customer may post in a day',
     },

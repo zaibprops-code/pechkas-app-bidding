@@ -10,6 +10,7 @@ import { useNotify } from '../../src/notifications';
 import { JobCard, type Job } from '../../src/customer/JobCard';
 import { PastJob } from '../../src/customer/PastJob';
 import { SearchCard, SearchMap, type JobSearch } from '../../src/customer/Search';
+import { OnHisWay } from '../../src/customer/Live';
 import { supabase } from '../../src/supabase';
 import { Trouble } from '../../src/components/Trouble';
 import { noAnswer, type NoAnswer } from '../../src/net';
@@ -183,6 +184,9 @@ export default function LiveJob() {
             />
           ) : null}
 
+          {job.status === 'assigned' && job.stage === 'on_way' && job.pro ? (
+            <OnHisWay job={job.id} name={job.pro.first_name} home={typeof job.lat === 'number' && typeof job.lng === 'number' ? { latitude: job.lat, longitude: job.lng } : null} />
+          ) : null}
           <Notice text={problem} />
           <JobCard job={job} trade={trade} tick={tick} onChanged={load} />
         </View>

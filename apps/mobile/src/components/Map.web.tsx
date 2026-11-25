@@ -72,10 +72,15 @@ export function Pin() {
   );
 }
 
-export function MapBox({ pin, style }: { center: Point; pin?: Point | null; zoom?: number; interactive?: boolean; showsUser?: boolean; style?: StyleProp<ViewStyle> }) {
+export function MapBox({ pin, style, other }: { center: Point; pin?: Point | null; zoom?: number; interactive?: boolean; showsUser?: boolean; style?: StyleProp<ViewStyle>; other?: { point: Point; letter: string } | null; path?: Point[] | null }) {
   return (
     <View style={[s.box, style]}>
       <MapDrawing />
+      {other ? (
+        <View style={s.other} pointerEvents="none">
+          <Text style={s.otherText}>{other.letter}</Text>
+        </View>
+      ) : null}
       {pin ? (
         <View style={s.centre} pointerEvents="none">
           <Pin />
@@ -134,6 +139,9 @@ export function PinPicker({ start, onConfirm, onCancel }: { start: Point; onConf
 
 const s = StyleSheet.create({
   box: { overflow: 'hidden', backgroundColor: colour.tile },
+  // The browser cannot place him on a drawing; he is shown up and to the left of her pin.
+  other: { position: 'absolute', left: '28%', top: '22%', width: 40, height: 40, borderRadius: 20, backgroundColor: colour.yellow, borderWidth: 3, borderColor: colour.white, alignItems: 'center', justifyContent: 'center' },
+  otherText: { fontFamily: font.display, fontSize: 16, color: colour.ink },
   pin: { alignItems: 'center' },
   pinHead: { width: 34, height: 34, borderRadius: 17, backgroundColor: colour.yellow, borderWidth: 3, borderColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
   pinSlot: { width: 16, height: 5, borderRadius: 3, backgroundColor: colour.ink, transform: [{ rotate: '-30deg' }] },

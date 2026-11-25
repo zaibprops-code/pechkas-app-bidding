@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "7f34fc9";
+export const LEGAL_FROM = "58f0cd3";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -272,6 +272,22 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             },
             {
               "t": ", that place is kept until you change it, and is used when your last position is a few hours old. Only the office sees either."
+            }
+          ],
+          [
+            {
+              "t": "Where you are while you are on your way to a customer.",
+              "b": true
+            },
+            {
+              "t": " After you tap "
+            },
+            {
+              "t": "On my way",
+              "b": true
+            },
+            {
+              "t": ", the app sends your position every 15 seconds while it is open, and the customer sees it on her map with the road and the minutes left, like a ride app. It stops when you arrive. Your position and her pin go to Google Maps to work out the minutes and the road (see Services we use)."
             }
           ],
           [
@@ -834,7 +850,14 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " on iPhone draw the maps inside the app. To draw one they receive the area being shown: the place you pin, or where you are if you tap to show it. When you put the pin on the house, the phone's own map service (Google's on Android, Apple's on iPhone) is also asked which sector and street the pin is in, so that you do not have to type them; it receives the place you pinned. If you type a street or a place into the map's search box, those words go to the same map service to find it, and Pechkas does not keep them. Pechkas itself keeps only the pin of a job you post, and, for technicians, the position while online, the home area and the location checks described above. Checking a location uses no outside map service: the distance is worked out by Pechkas itself."
+              "t": " on iPhone draw the maps inside the app. To draw one they receive the area being shown: the place you pin, or where you are if you tap to show it. When you put the pin on the house, the phone's own map service (Google's on Android, Apple's on iPhone) is also asked which sector and street the pin is in, so that you do not have to type them; it receives the place you pinned. If you type a street or a place into the map's search box, those words go to the same map service to find it, and Pechkas does not keep them. To work out how many minutes a technician is from a customer, Pechkas sends his position and her pin to "
+            },
+            {
+              "t": "Google's Routes service",
+              "b": true
+            },
+            {
+              "t": ": when he makes an offer, and every two minutes at most while he is on his way. Google receives only the two points, never a name, a number or an address. Pechkas itself keeps only the pin of a job you post, and, for technicians, the position while online, the home area and the location checks described above. Checking a location uses no outside map service: the distance is worked out by Pechkas itself."
             }
           ]
         ]
@@ -2467,7 +2490,14 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " you must allow Pechkas your location while the app is open; it is never read in the background. While you are online, you see jobs near you in the trades open to you, and further away the longer a job waits: the sector, about how far it is, the customer's first name, what is wrong and the price offered. Not the address or number. If your phone stops giving your location, you are taken offline; jobs you already have go on."
+              "t": " you must allow Pechkas your location while the app is open; it is never read in the background. While you are online, you see jobs near you in the trades open to you, and further away the longer a job waits: the sector, about how far it is, the customer's first name, what is wrong and the price offered. Not the address or number. If your phone stops giving your location, you are taken offline; jobs you already have go on. When you make an offer, the customer sees about how far you are; Pechkas works out the minutes with Google Maps from where your phone is. After you tap "
+            },
+            {
+              "t": "On my way",
+              "b": true
+            },
+            {
+              "t": ", she sees where you are on her map until you arrive."
             }
           ],
           [

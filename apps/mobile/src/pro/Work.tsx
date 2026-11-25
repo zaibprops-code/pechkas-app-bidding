@@ -220,6 +220,19 @@ export function Work({ firstName }: { firstName: string }) {
   const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
   const online = feed?.online ?? false;
 
+  // On his way to a customer (google_minutes): where he is every 15 seconds
+  // while this screen is open, so she sees him coming. Stops when he arrives.
+  const onWay = mine.some((j) => j.stage === 'on_way');
+  useFocusEffect(
+    useCallback(() => {
+      if (!onWay) return;
+      sendWhere();
+      const t = setInterval(() => sendWhere(), 15000);
+      return () => clearInterval(t);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [onWay]),
+  );
+
   // Online: where he is, every few minutes while this screen is open. If the
   // phone stops saying, he goes offline at once; jobs he already has go on.
   useFocusEffect(

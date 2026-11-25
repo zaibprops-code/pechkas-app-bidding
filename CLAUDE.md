@@ -449,6 +449,39 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - `APP_EDITION` is 9: an older copy cannot go online (it sends no position).
   Tests: `nearhim.test.mjs`.
 
+### Minutes from Google Maps, and his route (Part 2b, migration `…_google_minutes`)
+- **He never types how long he will take** (A115). When he makes or renews
+  an offer, `offer_where()` (BEFORE trigger) puts where his phone is (a
+  position from the last 10 minutes, never his home area) and the straight
+  line to her pin on the offer, and `ask_route()` asks Google's Routes
+  service (`computeRoutes`, DRIVE, TRAFFIC_AWARE) through `pg_net`;
+  `collect_routes()` (pg_cron every minute, and before every read) puts the
+  answer on the offer (`eta_seconds`, `route_m`). Renewing in place (the
+  insert that becomes an update) asks again only if he has moved 300 m or
+  the minutes are 30 minutes old.
+- **The key is Supabase's**: Vault secret `google_routes_key`, read only by
+  `routes_key()`, sent only in the request header. The app never has it.
+  **Without it nothing is asked** and every screen shows only the straight
+  line ("About 2 km away") — never made-up minutes. A failed answer changes
+  nothing.
+- Her offers (`offer_extras(job)`, her own job only): minutes and road km,
+  or the straight line; nearest first; never his position.
+- Choosing keeps his minutes on the job (`chosen_eta_seconds`,
+  `chosen_distance_m`, trigger `offers_chosen_eta`): Part 2c measures
+  lateness from them.
+- **While he is on his way, and only then** (stage `on_way`),
+  `job_live(job)` gives her his position (from the last 3 minutes), the road
+  as Google's polyline and fresh minutes, asked at most every
+  `route_every_seconds` (120, office setting 60–900). Work.tsx sends his
+  position every 15 s while a job of his is on the way and the screen is
+  open. `src/customer/Live.tsx` (`OnHisWay`) draws it: her pin, his disc,
+  the road, "4 min away · 1.0 km by road · from Google Maps". Before he
+  sets off and once he has arrived she sees nothing of where he is.
+- `supabase/local/bootstrap.sql` stands in for `net._http_response` and
+  `vault.decrypted_secrets`; tests write Google's answers. Tests:
+  `googleminutes.test.mjs`. The privacy page, technician agreement and
+  data-safety answers say all of this; change them together.
+
 ### Bidding (phase 3)
 - **One rule for what a technician may see: `pro_may_see(job)`.** The feed,
   the storage policy for voice notes and photos, and `make_offer()` all ask

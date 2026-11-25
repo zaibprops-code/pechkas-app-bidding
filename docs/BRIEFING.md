@@ -381,7 +381,8 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   count); lowest price 60% of the usual, office-changeable; showing the
   problem stays required — all built. Also built: location on to go online
   and jobs near him (A114), the waiting screen and the automatic choice
-  (A115). Building next: offers with Google's minutes and distance (A115);
+  (A115), offers with Google's minutes and distance and his route while on
+  his way (A115; needs the Google key in Supabase). Building next:
   late after Google's time + 15 minutes, jobs 7am to 10pm (A116).
 
 ## 7. Still open: what the owner has to decide
