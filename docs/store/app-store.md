@@ -177,7 +177,7 @@ Technician: on a second device, sign in with the second number. Tap "Offline" to
 
 The app sells no digital goods and takes no payments: it arranges repairs done in person at the customer's home, paid for in cash to the technician (guideline 3.1.3(e)).
 
-Account deletion: "Me" → "Delete my account", and https://pechkas.net/app/delete-account.
+Account deletion: menu → "Settings" → "Delete my account" (hold "Hold to delete" for 2 seconds), and https://pechkas.net/app/delete-account, where an account can be deleted without the app with the same sign-in code.
 
 The emergency button shows Pakistani emergency numbers and alerts the Pechkas office. It is only available while a job is on.
 ```

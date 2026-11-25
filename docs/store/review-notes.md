@@ -49,5 +49,5 @@ To try the customer side: sign in with the first number. Tap a trade (e.g. AC), 
 
 To try the technician side: on a second device, sign in with the second number. You land on the technician's screen. Tap "Offline" to go online; the customer's job appears. Press "Accept" to accept the price. On the customer's device, choose the technician in "My jobs".
 
-The app takes no payments: customers pay technicians in cash. Account deletion is in "Me" → "Delete my account", and at https://pechkas.net/app/delete-account.
+The app takes no payments: customers pay technicians in cash. Account deletion is in the menu → "Settings" → "Delete my account" (hold "Hold to delete" for 2 seconds), and at https://pechkas.net/app/delete-account, which deletes an account without the app using the same sign-in code. Deleting waits while a job is still open or under way.
 ```

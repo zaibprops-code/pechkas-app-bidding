@@ -493,6 +493,28 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   keep the label); one quiet "Version … · details" line that opens
   `ThisCopy` in a sheet. The mode switch and the legal pages are not here:
   they are in the menu (no duplicates).
+- **Delete account (`app/delete.tsx`) is its own page** (the owner's
+  design, 25 November 2026; migration `…_delete_account`, tests
+  `deleting.test.mjs`): Settings' **Delete my account** opens it. The
+  side's coloured top with the person (as Settings), one white strip of
+  their own numbers from `my_delete_summary()` (customer: jobs, photos and
+  videos, voice notes; technician: jobs, photos, messages), "Also deleted,
+  at once" as a list with red ✕, what Pechkas keeps without their name as
+  one grey note (a technician's money record only when he has one), and a
+  red **Delete my account**; the sheet's red button must be HELD for 2
+  seconds (`HoldToDelete`: the fill moves by transform, letting go snaps
+  it back; a screen reader double-taps instead). **Never in the middle of a
+  job** (the owner's yes): `delete_blocker()` — her job open or assigned,
+  his job assigned — and `delete_my_account()` refuses with `field: 'job'`;
+  the page shows that job's card with "Finish or cancel this job first".
+  The person's storage folder is emptied first, then the account, then
+  `app/goodbye.tsx` (in `OPEN`, because they are signed out). **Without the
+  app**, pechkas.net/app/delete-account does the same with the app's own
+  sign-in code (never creating an account) and the same two functions; its
+  form is outside the page's `.legal` section, so `copy-legal.mjs` (which
+  now passes over empty elements such as `<input>`) copies only the text.
+  The delete-account page names **Delete my account** and **Hold to
+  delete**: change them together.
 - **Help (`app/help/index.tsx`, `app/help/[topic].tsx`) is topics, then
   answers** (the owner's design, 25 November 2026): the side's coloured
   top (yellow customer, green technician) with "How can we help?" and a

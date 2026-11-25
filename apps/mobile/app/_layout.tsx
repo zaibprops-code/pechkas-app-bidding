@@ -83,7 +83,7 @@ export default function RootLayout() {
  * of signing in, and the safety page — its emergency numbers are offered on
  * the "paused" and "please update" screens to everybody, signed in or not.
  */
-const OPEN = new Set(['start', 'sign-in', 'verify', 'auth-callback', 'legal', 'safety']);
+const OPEN = new Set(['start', 'sign-in', 'verify', 'auth-callback', 'legal', 'safety', 'goodbye']);
 /** Screens a signed-in account may be on before it has a mode and a number. */
 const SETTING_UP = new Set(['choose', 'welcome', 'verify', 'auth-callback', 'legal']);
 

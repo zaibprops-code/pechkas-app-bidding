@@ -41,8 +41,8 @@ import { colour, font, glow, radius, shadow, TAP } from '../src/theme';
  * Each fact once: the mode switch and the legal pages are in the menu.
  *
  * The numbers are my_settings(), his words my_ratings(), the name
- * set_my_name() (migration …_settings_page). Deleting an account is still
- * here because both stores require it inside the app.
+ * set_my_name() (migration …_settings_page). Delete my account opens its
+ * own page (app/delete.tsx): both stores require it inside the app.
  */
 
 type Summary = {
@@ -79,7 +79,6 @@ export default function Me() {
   const [newPhone, setNewPhone] = useState('');
   const toast = useToast();
   const [phoneError, setPhoneError] = useState<string | null>(null);
-  const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [sum, setSum] = useState<Summary | null>(null);
@@ -111,35 +110,6 @@ export default function Me() {
         <ThisCopy />
       </Screen>
     );
-  }
-
-  async function remove() {
-    setBusy(true);
-    setNotice(null);
-    // Voice notes, videos and photos of somebody's home go with the account.
-    // The database cannot delete stored files itself, so the phone does it
-    // first, from the customer's own folder, which only they may empty.
-    if (supabase && session) {
-      const folder = session.user.id;
-      const { data: files } = await supabase.storage.from('job-media').list(folder, { limit: 1000 });
-      if (files?.length) {
-        const { error } = await supabase.storage.from('job-media').remove(files.map((f) => `${folder}/${f.name}`));
-        if (error) {
-          setBusy(false);
-          setNotice('Your photos and recordings could not be deleted. Check your signal and try again.');
-          return;
-        }
-      }
-    }
-    const r = await ask('delete_my_account');
-    if (!r.ok) {
-      setBusy(false);
-      setNotice(r.why);
-      return;
-    }
-    await signOut();
-    setBusy(false);
-    router.replace('/start');
   }
 
   const number = account?.phone ?? session.user.phone ?? '';
@@ -341,23 +311,14 @@ export default function Me() {
               <DuoIcon name="logout" size={18} />
               <Text style={s.leaveText}>Sign out</Text>
             </Press>
-            {/* Both stores require deleting an account inside the app; the delete-account page names this button. */}
-            <Press onPress={() => setConfirming(true)} accessibilityRole="button" sink={0.97} style={s.leaveButton}>
+            {/* Both stores require deleting an account inside the app; the delete-account page names this button. It opens its own page (app/delete.tsx). */}
+            <Press onPress={() => router.push('/delete')} accessibilityRole="button" sink={0.97} style={s.leaveButton}>
               <DuoIcon name="trash" size={18} accent={colour.brickTint} ink={colour.brick} />
               <Text style={[s.leaveText, { color: colour.brick }]} numberOfLines={1}>
                 Delete my account
               </Text>
             </Press>
           </View>
-          {confirming ? (
-            <View style={s.danger}>
-              <Text style={s.dangerText}>
-                This deletes your account and everything in it: your name, your number, {pro ? 'your application, ' : ''}{account?.role === 'customer' ? 'your jobs, voice notes, videos and photos, ' : ''}all of it. It cannot be undone.
-              </Text>
-              <Button kind="danger" label="Yes, delete it" onPress={remove} busy={busy} />
-              <Button kind="outline" label="No, keep it" onPress={() => setConfirming(false)} />
-            </View>
-          ) : null}
           <Notice text={notice} />
 
           {/* One quiet line; the details are for a screenshot when something is missing. */}

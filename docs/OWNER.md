@@ -1952,6 +1952,30 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## Deleting an account, redesigned (25 November 2026)
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261201000000_delete_account.sql`, after the files
+   before it. It should say **Success**. No new build: the screen comes as
+   an update.
+2. **In the app**: menu → **Settings** → **Delete my account** now opens its
+   own page: your numbers, what goes, what is kept, and a red button you
+   hold for 2 seconds. With a job still open or under way it asks you to
+   finish or cancel that job first.
+3. **On the website, without the app** (Google Play needs this): in
+   **Vercel → the Pechkas website project → Settings → Environment
+   Variables**, add two, for Production:
+   - `PUBLIC_APP_SUPABASE_URL` — the same value as the app's
+     `EXPO_PUBLIC_SUPABASE_URL` in Expo.
+   - `PUBLIC_APP_SUPABASE_ANON_KEY` — the same value as the app's
+     `EXPO_PUBLIC_SUPABASE_ANON_KEY` in Expo. It is the app's public key,
+     already inside every copy of the app; never the service-role key.
+   Then **Deployments → the newest → Redeploy**. Until both are set, the
+   page tells people to use the app instead.
+4. **Try it** on pechkas.net/app/delete-account with a test account: the
+   number, the code, then **Delete my account**. Each try sends one text
+   message, like signing in.
+
 ## Everything with the office happens in the app (25 November 2026)
 
 Your rule: no calls and no WhatsApp, either way. People write to the

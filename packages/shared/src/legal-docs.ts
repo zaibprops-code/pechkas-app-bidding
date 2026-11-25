@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "030eb2f";
+export const LEGAL_FROM = "55bb720";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -3663,7 +3663,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   },
   "delete-account": {
     "title": "Delete your Pechkas app account",
-    "lede": "You can do it yourself in the app in a few seconds, or ask us if you no longer have it.",
+    "lede": "Do it yourself in the app in a few seconds, or here on this page with a code if you no longer have the app.",
     "web": "https://pechkas.net/app/delete-account",
     "blocks": [
       {
@@ -3699,14 +3699,26 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": ", then "
+              "t": ". The page shows what goes and what is kept."
+            }
+          ],
+          [
+            {
+              "t": "Tap "
             },
             {
-              "t": "Yes, delete it",
+              "t": "Delete my account",
               "b": true
             },
             {
-              "t": "."
+              "t": " again, then hold "
+            },
+            {
+              "t": "Hold to delete",
+              "b": true
+            },
+            {
+              "t": " for 2 seconds."
             }
           ]
         ]
@@ -3720,6 +3732,18 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         ]
       },
       {
+        "k": "p",
+        "c": [
+          {
+            "t": "Not in the middle of a job.",
+            "b": true
+          },
+          {
+            "t": " If a job of yours is still open or under way, finish or cancel it first: somebody may be on the way to your door. Cancelling is free until you give the technician the start code."
+          }
+        ]
+      },
+      {
         "k": "h2",
         "text": "Without the app"
       },
@@ -3727,36 +3751,14 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "k": "p",
         "c": [
           {
-            "t": "Message or call us "
+            "t": "On "
           },
           {
-            "t": "from the phone number on the account",
-            "b": true
+            "t": "pechkas.net/app/delete-account",
+            "href": "/app/delete-account"
           },
           {
-            "t": ", so we know the request is yours, and say you want the app account deleted. We delete it within "
-          },
-          {
-            "t": "[HOW MANY DAYS]",
-            "ph": true
-          },
-          {
-            "t": " and tell you when it is done."
-          }
-        ]
-      },
-      {
-        "k": "actions",
-        "items": [
-          {
-            "label": "Ask on WhatsApp",
-            "href": "https://wa.me/923358855076?text=Please%20delete%20my%20Pechkas%20app%20account.%20The%20number%20on%20the%20account%20is%20this%20one.",
-            "kind": "whatsapp"
-          },
-          {
-            "label": "Call 0335 8855076",
-            "href": "tel:+923358855076",
-            "kind": "call"
+            "t": ", on any phone or computer: type the mobile number on the account (or its email, if you signed up with email), then the code we send you, and delete it there. The code proves the account is yours, so nobody needs to message or call anybody. It is the same as deleting in the app, and it happens at once."
           }
         ]
       },

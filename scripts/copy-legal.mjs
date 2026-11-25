@@ -55,7 +55,10 @@ function parse(html) {
     const href = /href="([^"]*)"/.exec(attrs)?.[1];
     const node = { tag, cls, href: href === undefined ? undefined : decode(href), children: [] };
     top.children.push(node);
-    if (VOID.has(tag)) throw new Error(`<${tag}> is not understood in a legal page`);
+    // An empty element (an input box in the delete-account page's form, outside
+    // the legal section) is a leaf. Inside the legal section the blocks and
+    // inlines below still refuse any element they do not know.
+    if (VOID.has(tag)) continue;
     stack.push(node);
   }
   if (stack.length !== 1) throw new Error(`Unclosed <${stack[stack.length - 1].tag}>`);
