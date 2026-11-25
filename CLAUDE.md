@@ -27,6 +27,15 @@ Apply this to every decision, every design and every review of an old one.
   and no design may depend on a call with him. An exception he handles
   reaches him as a written item in the office panel, which he answers in
   his own time.
+- **Everything between a person and the office happens inside the app**
+  (the owner's rule, 25 November 2026). No call and no WhatsApp, either
+  way: people write to the office in the app, and the office's answers,
+  decisions and replies reach them only in the app, with a notification
+  that says only that something came. No screen, refusal, notification
+  or legal page may tell anybody to call or WhatsApp the office, or
+  promise that the office will call or WhatsApp them. Customers and
+  technicians may still call each other about a job, and anybody may
+  call the emergency services; neither is the office.
 
 ## The app is the product; the website is marketing (the owner, 16 November 2026)
 
