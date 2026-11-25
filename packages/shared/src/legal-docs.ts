@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "fa1d8b7";
+export const LEGAL_FROM = "7f34fc9";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -260,7 +260,32 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Where your phone is, at two moments only",
+              "t": "Where you are while you are online.",
+              "b": true
+            },
+            {
+              "t": " Going online needs your location: the app sends it when you go online and every few minutes while Pechkas is open on Jobs, never in the background. Only the latest position is kept, and it is deleted a few hours after you were last seen. It is used to show you jobs near you and to tell you how far each one is; customers never see it. If you set a "
+            },
+            {
+              "t": "home area",
+              "b": true
+            },
+            {
+              "t": ", that place is kept until you change it, and is used when your last position is a few hours old. Only the office sees either."
+            }
+          ],
+          [
+            {
+              "t": "That you opened a job.",
+              "b": true
+            },
+            {
+              "t": " The customer is shown how many technicians have looked at her job, with the first letter of each one's name. Never your name, photo or where you are."
+            }
+          ],
+          [
+            {
+              "t": "Where your phone is, when you arrive",
               "b": true
             },
             {
@@ -278,7 +303,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": "), and when you report that nobody is home. We record the position, how precise your phone said it was, when it was taken, whether your phone reported it as faked, and how far it was from the customer's pin, to check that you reached the address. Never in the background and never between those moments. If you refuse location, the app still works and the office looks at the arrival instead."
+              "t": "), and when you report that nobody is home. We record the position, how precise your phone said it was, when it was taken, whether your phone reported it as faked, and how far it was from the customer's pin, to check that you reached the address. Never in the background."
             }
           ]
         ]
@@ -809,7 +834,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " on iPhone draw the maps inside the app. To draw one they receive the area being shown: the place you pin, or where you are if you tap to show it. When you put the pin on the house, the phone's own map service (Google's on Android, Apple's on iPhone) is also asked which sector and street the pin is in, so that you do not have to type them; it receives the place you pinned. If you type a street or a place into the map's search box, those words go to the same map service to find it, and Pechkas does not keep them. Pechkas itself keeps only the pin of a job you post, and, for technicians, the two location checks described above. Checking a location uses no outside map service: the distance is worked out by Pechkas itself."
+              "t": " on iPhone draw the maps inside the app. To draw one they receive the area being shown: the place you pin, or where you are if you tap to show it. When you put the pin on the house, the phone's own map service (Google's on Android, Apple's on iPhone) is also asked which sector and street the pin is in, so that you do not have to type them; it receives the place you pinned. If you type a street or a place into the map's search box, those words go to the same map service to find it, and Pechkas does not keep them. Pechkas itself keeps only the pin of a job you post, and, for technicians, the position while online, the home area and the location checks described above. Checking a location uses no outside map service: the distance is worked out by Pechkas itself."
             }
           ]
         ]
@@ -2435,14 +2460,14 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "items": [
           [
             {
-              "t": "While you are "
+              "t": "To be "
             },
             {
               "t": "online",
               "b": true
             },
             {
-              "t": ", you see jobs in the trades open to you and your sectors: the sector, the customer's first name, what is wrong and the price offered. Not the address or number."
+              "t": " you must allow Pechkas your location while the app is open; it is never read in the background. While you are online, you see jobs near you in the trades open to you, and further away the longer a job waits: the sector, about how far it is, the customer's first name, what is wrong and the price offered. Not the address or number. If your phone stops giving your location, you are taken offline; jobs you already have go on."
             }
           ],
           [

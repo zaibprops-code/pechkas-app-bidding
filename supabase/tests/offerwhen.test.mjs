@@ -37,7 +37,7 @@ async function call(who, sql, params = []) {
 }
 const token = (name) => `ExponentPushToken[${name.padEnd(22, 'x')}]`;
 for (const [who, n] of [[AYESHA, 'ayesha-w'], [BILAL, 'bilal-w'], [ASAD, 'asad-w']]) await call(who, `SELECT public.save_push_token($1, 'android', 'en')`, [token(n)]);
-for (const who of [BILAL, ASAD]) await call(who, `SELECT public.pro_set_online(true)`);
+for (const who of [BILAL, ASAD]) await setup(`UPDATE public.pros SET online = true, last_seen_at = now() WHERE id = $1`, [who]);
 
 const now = (await setup(`SELECT (now() AT TIME ZONE 'Asia/Karachi')::date::text AS d, extract(hour FROM now() AT TIME ZONE 'Asia/Karachi')::int AS h`)).rows[0];
 const plus = async (n) => (await setup(`SELECT ($1::date + $2::int)::text AS d`, [now.d, n])).rows[0].d;

@@ -40,7 +40,7 @@ const token = (name) => `ExponentPushToken[${name.padEnd(22, 'x')}]`;
 for (const [who, name] of [[AYESHA, 'ayesha'], [BILAL, 'bilal'], [ASAD, 'asad']]) {
   await call('authenticated', who, `SELECT public.save_push_token($1, 'android', 'en')`, [token(name)]);
 }
-for (const who of [BILAL, ASAD]) await call('authenticated', who, `SELECT public.pro_set_online(true)`);
+for (const who of [BILAL, ASAD]) await setup(`UPDATE public.pros SET online = true, last_seen_at = now() WHERE id = $1`, [who]);
 
 let seen = (await setup(`SELECT coalesce(max(id), 0)::int AS n FROM net.sent`)).rows[0].n;
 async function sentSince() {

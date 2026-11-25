@@ -74,7 +74,8 @@ ok('a customer cannot go online', (await call('authenticated', SARA, `SELECT pub
   const r = await call('authenticated', BILAL, FEED);
   ok('an approved technician sees nothing while offline', r.value?.approved === true && r.value?.online === false && r.value?.jobs.length === 0);
 }
-for (const who of [BILAL, ASAD, KAMRAN, DANISH]) await call('authenticated', who, `SELECT public.pro_set_online(true)`);
+// Online without a position (jobs_near_him tests going online properly): these tests are about sectors.
+for (const who of [BILAL, ASAD, KAMRAN, DANISH]) await setup(`UPDATE public.pros SET online = true, last_seen_at = now() WHERE id = $1`, [who]);
 
 // =============================================================================
 heading('Who sees which job');

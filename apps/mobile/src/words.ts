@@ -53,7 +53,7 @@ const PRO = {
   goodAfternoon: 'Good afternoon',
   goodEvening: 'Good evening',
   offlineText: 'Go online to see jobs. While you are online, new jobs appear here automatically.',
-  noJobs: 'There are no new jobs in your areas at the moment. This screen updates automatically.',
+  noJobs: 'There are no new jobs near you at the moment. This screen updates automatically.',
   newJob: 'New job',
   now: 'Now',
   today: 'Today',
@@ -522,7 +522,7 @@ const PRO = {
   openSettings: 'Open settings',
   // The work screen, laid out as inDrive's driver side.
   goOnline: 'Go online',
-  requestsTitle: 'Jobs in your areas',
+  requestsTitle: 'Jobs near you',
   justNow: 'Just now',
   minAgo: '{n} min ago',
   hoursAgo: '{n} h ago',

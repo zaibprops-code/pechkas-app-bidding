@@ -118,7 +118,7 @@ ok('nobody can ask whether somebody ELSE may see a job', Boolean((await as('auth
   await call('authenticated', SARA, SAVE, [token('sara'), 'android', 'en']);
 }
 
-for (const who of [BILAL, ASAD, KAMRAN, DANISH]) await call('authenticated', who, `SELECT public.pro_set_online(true)`);
+for (const who of [BILAL, ASAD, KAMRAN, DANISH]) await setup(`UPDATE public.pros SET online = true, last_seen_at = now() WHERE id = $1`, [who]);
 // Waqas cannot go online, Noman simply has not.
 await sentSince();
 

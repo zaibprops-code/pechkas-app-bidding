@@ -128,8 +128,14 @@ The following follow from the same principles:
      days, she sees the middle half of what such jobs really cost.
 3. **Offers.**
    - **Who sees the job:** approved technicians in that trade and sector
-     who are online. (Decided, building next: technicians near where they
-     are, widening to all of Islamabad, A114.) Before he is chosen, a technician sees her first name
+     who are online and near the job: within 5 km of where they are (sent
+     from the phone while the app is open; location is needed to be
+     online), growing evenly to all of Islamabad in 8 minutes (A114). With
+     no recent position, his home area; with neither, his sectors.
+   - **While she waits:** her map with the search growing, how many
+     technicians have looked (first letters only), and an **automatic
+     choice**, off by default: the first technician who accepts her price
+     is chosen for her (A115). Before he is chosen, a technician sees her first name
      and the sector only, never the address or phone number.
    - **What an offer can be:** he accepts her price, or asks for more, up
      to 2× her price.
@@ -373,9 +379,9 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 - **A109–A116, a faster Post a job (25 November 2026):** three steps; every
   job as soon as possible; anywhere in Islamabad (Bahria Town and DHA
   count); lowest price 60% of the usual, office-changeable; showing the
-  problem stays required — all built. Decided and building next: location
-  on to go online and jobs near him (A114); offers with Google's minutes and
-  distance, rating, years and jobs, automatic choice off by default (A115);
+  problem stays required — all built. Also built: location on to go online
+  and jobs near him (A114), the waiting screen and the automatic choice
+  (A115). Building next: offers with Google's minutes and distance (A115);
   late after Google's time + 15 minutes, jobs 7am to 10pm (A116).
 
 ## 7. Still open: what the owner has to decide

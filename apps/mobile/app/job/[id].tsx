@@ -9,6 +9,7 @@ import { useLists } from '../../src/lists';
 import { useNotify } from '../../src/notifications';
 import { JobCard, type Job } from '../../src/customer/JobCard';
 import { PastJob } from '../../src/customer/PastJob';
+import { SearchCard, SearchMap, type JobSearch } from '../../src/customer/Search';
 import { supabase } from '../../src/supabase';
 import { Trouble } from '../../src/components/Trouble';
 import { noAnswer, type NoAnswer } from '../../src/net';
@@ -43,6 +44,8 @@ export default function LiveJob() {
   const [problem, setProblem] = useState<string | null>(null);
   const [trouble, setTrouble] = useState<NoAnswer | null>(null);
   const [tick, setTick] = useState(0);
+  // The search, while the job is open (job_search(), jobs_near_him); null from an older database.
+  const [search, setSearch] = useState<JobSearch | null>(null);
   const open = job?.status === 'open';
   const { notify, ask: askNotify } = useNotify(Boolean(open));
 
@@ -55,8 +58,13 @@ export default function LiveJob() {
     }
     setTrouble(null);
     setProblem(null);
-    setJob(((data as Job[]) ?? []).find((j) => j.id === id) ?? null);
+    const found = ((data as Job[]) ?? []).find((j) => j.id === id) ?? null;
+    setJob(found);
     setTick((n) => n + 1);
+    if (found?.status === 'open') {
+      const r = await supabase.rpc('job_search', { p_job: id });
+      setSearch(r.error ? null : ((r.data as JobSearch) ?? null));
+    } else setSearch(null);
   }, [id]);
 
   useFocusEffect(
@@ -135,7 +143,13 @@ export default function LiveJob() {
       >
         <Hero title={head.title} sub={head.sub} back={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
         <View style={{ paddingHorizontal: 14, gap: 14 }}>
-          {open ? (
+          {open && search ? (
+            <>
+              <SearchMap at={typeof job.lat === 'number' && typeof job.lng === 'number' ? { latitude: job.lat, longitude: job.lng } : null} search={search} />
+              <SearchCard job={job.id} search={search} offers={offers} onChanged={load} />
+              {job.preferred ? <Text style={s.note}>Sent to {job.preferred.first_name} first. The card below says until when.</Text> : null}
+            </>
+          ) : open ? (
             <>
               <Searching
                 found={offers}
@@ -189,7 +203,7 @@ function headline(job: Job): { title: string; sub?: string } {
     }
     // Told once that nobody has offered (when_nobody_offers): say so, plainly, at the top.
     if (job.nudged && job.paid_by_pechkas) return { title: 'No offers yet', sub: 'Still looking. Pechkas has been told, and you pay nothing.' };
-    if (job.nudged) return { title: 'No offers yet', sub: 'Still looking. You can raise your price or choose another day.' };
+    if (job.nudged) return { title: 'No offers yet', sub: 'Still looking. You can raise your price below.' };
     return { title: 'Finding a technician', sub: 'Offers appear here the moment one is sent.' };
   }
   if (job.status === 'assigned' && job.stage === 'checking') return { title: 'Check the work', sub: 'Pay only once you are happy with it.' };

@@ -1952,6 +1952,30 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## Jobs near the technician, and the waiting screen (25 November 2026)
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261203000000_jobs_near_him.sql`, after
+   `20261202000000_fast_posting.sql`. It should say **Success**. No new
+   build: the screens come as an update.
+2. **On your test phone, as a technician**: switch to Offline, then **Go
+   online**. The first time, a card explains why Pechkas needs your
+   location; then the phone asks. Allow it "only while using the app".
+   Each job now says "About 3 km away". Under **Go online** you can tap
+   **Make where I am now my home area**.
+3. **As a customer**, post a job. The waiting screen shows your map with
+   soft waves, "Searching within 5 km" growing to all of Islamabad in 8
+   minutes, how many technicians have looked, and a switch:
+   **Automatically choose the first technician who accepts** your price
+   (off unless you turn it on).
+4. **To change the numbers**: Admin → **Settings** → Jobs and offers: the
+   first distance (5,000 metres), all of Islamabad (40,000 metres), the
+   minutes to get there (8), and how long a technician's last position
+   counts (180 minutes).
+5. Older copies of the app cannot go online any more (they send no
+   location). Once this update is on every test phone, you can ask older
+   copies to update in Admin → Settings → App switches (edition 9).
+
 ## A faster Post a job (25 November 2026)
 
 What you decided: three steps instead of one long page; every job as soon

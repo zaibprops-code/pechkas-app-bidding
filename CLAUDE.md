@@ -409,6 +409,46 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   Background location and background audio are switched off in `app.json`;
   Google Play asks questions about both.
 
+### Jobs near him, the waiting screen, the automatic choice (Part 2a, migration `…_jobs_near_him`)
+- **The owner's decisions A114–A115 (25 November 2026).** A technician
+  **needs location to be online**: Work.tsx explains once (`WhereCard`),
+  then the phone's own question; `pro_here()` sends where he is when he goes
+  online and every 3 minutes while Jobs is open (`WHERE_EVERY`), never in
+  the background; `pro_set_online(true)` refuses without a position from the
+  last 10 minutes (field `location`). If the phone stops giving it, he is
+  taken offline at once; jobs he has go on. Only his latest position is kept
+  (`pro_positions`), deleted by `forget_positions()` after twice
+  `position_fresh_minutes`. His **home area** (`set_home_area()`, "Make where
+  I am now my home area" under Go online) stands in when his position is
+  older than `position_fresh_minutes`. Customers never see either.
+- **`pro_may_see_as()` is still the one rule**, with "in one of his sectors"
+  replaced by `within_reach(job, pro)`: the job's pin within `reach_at(job,
+  now)` of `pro_point(pro)` — `search_start_m` (5 km) at announcement,
+  growing evenly to `search_full_m` (40 km: all of Islamabad) over
+  `search_full_minutes` (8), after which every technician in the trade may
+  see it. No pin, or no position and no home area: his sectors, as before.
+  `widen_reach()` (pg_cron, every minute) tells the online technicians the
+  growing reach has just come to, once each (`push_log` is who was told).
+  The four numbers are the office's (setting_limits). Older tests set
+  `online` directly; going online properly is `nearhim.test.mjs`.
+- He sees **"About 3 km away"** on each job (`pro_distances()`: a straight
+  line, rounded, never a route or a time). Opening a job is
+  `pro_saw_job()`; she sees **how many technicians have looked and their
+  first letters**, never a name, face or place (`job_search()`).
+- **Her waiting screen** (`src/customer/Search.tsx`, on the job's screen
+  while open): her map with soft waves of colour and a soft area drawn to
+  the share of the search done (not to scale; the chip says the real km),
+  the countdown to all of Islamabad with the bar emptying, who has looked,
+  "You don't have to wait here" once it has reached everyone, **Still
+  looking?** once, and the **automatic choice**: `set_auto_choose(job, on)`,
+  off by default; while on, the first live offer AT HER PRICE is chosen by
+  `choose_offer()` itself, as her, from the `offers_auto_choose` trigger
+  (`auto_choose_offer()`), so every rule it keeps still applies; switched on
+  with such an offer waiting, that one is chosen. Waves move by transform
+  only and carry no words.
+- `APP_EDITION` is 9: an older copy cannot go online (it sends no position).
+  Tests: `nearhim.test.mjs`.
+
 ### Bidding (phase 3)
 - **One rule for what a technician may see: `pro_may_see(job)`.** The feed,
   the storage policy for voice notes and photos, and `make_offer()` all ask
@@ -1809,7 +1849,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the ☰ menu, the **Online / Offline switch** in the middle of the top bar
   and what he owes on the right (tap: his account); under it a greeting by
   the phone's clock and his first name over the screen's heading (**My
-  jobs** while he has one, otherwise **Jobs in your areas**, or **Ready for
+  jobs** while he has one, otherwise **Jobs near you**, or **Ready for
   work?** offline); offline, one green card with a big yellow **Go
   online**; online, the request cards — the customer's initial on a yellow
   disc, first name, when, how long ago (`created_at`), the price large,

@@ -24,6 +24,9 @@ import { noAnswer, type NoAnswer } from '../net';
 import { PayPauseBanner, type PayPause } from './PayPause';
 import { fill, useProWords, type ProWords } from '../words';
 import { colour, font, radius, shadow } from '../theme';
+import * as Location from 'expo-location';
+import { fixNow } from '../components/Map';
+import { done, type Message } from '../message';
 
 /**
  * An approved technician's work, laid out as inDrive's driver side (the
@@ -99,6 +102,8 @@ type Feed = {
 };
 
 const EVERY = 15000;
+/** While he is online and on this screen, where he is goes to Pechkas this often (never in the background). */
+const WHERE_EVERY = 3 * 60 * 1000;
 const ETAS = [15, 30, 45, 60, 90];
 /** Asking for more is in plain steps above her price, never a price we suggest. */
 const STEPS = [20000, 50000, 100000];
@@ -118,6 +123,12 @@ export function Work({ firstName }: { firstName: string }) {
   const [open, setOpen] = useState<string | null>(null);
   const [first, setFirst] = useState<FirstJobsBrief | null>(null);
   const [checks, setChecks] = useState<{ status: string; ref: string }[]>([]);
+  // Jobs near him (jobs_near_him): how far each job is, in a straight line, and
+  // why he cannot go online when location is the reason.
+  const [far, setFar] = useState<Record<string, number>>({});
+  const [where, setWhere] = useState<null | 'explain' | 'denied' | 'off' | 'unavailable'>(null);
+  const [homing, setHoming] = useState(false);
+  const [said, setSaid] = useState<string | Message | null>(null);
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -137,6 +148,7 @@ export function Work({ firstName }: { firstName: string }) {
     setProblem(null);
     setFeed(f.data as Feed);
     setMine((m.data as ActiveJob[]) ?? []);
+    supabase.rpc('pro_distances').then(({ data, error }) => setFar(error ? {} : ((data as Record<string, number>) ?? {})));
     setFinished((d.data as FinishedJob[]) ?? []);
   }, []);
 
@@ -150,20 +162,80 @@ export function Work({ firstName }: { firstName: string }) {
     }, [load]),
   );
 
-  async function setOnline(next: boolean) {
+  /**
+   * Where he is, sent to Pechkas: only from this screen, only while it is
+   * open. False, with the reason on screen, when the phone will not say.
+   */
+  async function sendWhere(): Promise<boolean> {
+    const fix = await fixNow();
+    if ('reason' in fix) {
+      setWhere(fix.reason === 'denied' ? 'denied' : 'unavailable');
+      return false;
+    }
+    const r = await ask('pro_here', { p_lat: fix.lat, p_lng: fix.lng, p_accuracy: fix.accuracy === null ? null : Math.round(fix.accuracy) });
+    if (!r.ok) {
+      setWhere('unavailable');
+      return false;
+    }
+    setWhere(null);
+    return true;
+  }
+
+  async function setOnline(next: boolean, explained = false) {
+    // Online needs location (the owner's rule, A114): the first time, a card
+    // says why before the phone's own question; refused, it says how to allow it.
+    if (next && !explained) {
+      const perm = await Location.getForegroundPermissionsAsync().catch(() => null);
+      if (!perm?.granted) {
+        setWhere(perm && !perm.canAskAgain ? 'denied' : 'explain');
+        return;
+      }
+    }
     // Going online is when being told obviously helps, so that is when the
     // phone asks. He goes online whatever he answers.
     if (next && notify === 'ask') await askNotify();
     setSwitching(true);
-    await ask('pro_set_online', { p_online: next });
+    if (next && !(await sendWhere())) {
+      setSwitching(false);
+      return;
+    }
+    const r = await ask('pro_set_online', { p_online: next });
+    if (!r.ok && r.field === 'location') setWhere('unavailable');
     await load();
     setSwitching(false);
+  }
+
+  /** His home area: where he is now, kept for when his last position is hours old. */
+  async function setHome() {
+    setHoming(true);
+    const fix = await fixNow();
+    setHoming(false);
+    if ('reason' in fix) return setWhere(fix.reason === 'denied' ? 'denied' : 'unavailable');
+    const r = await ask('set_home_area', { p_lat: fix.lat, p_lng: fix.lng });
+    setSaid(r.ok ? done('Jobs near it reach you when Pechkas has not seen where you are for a few hours.', 'Home area saved') : r.why);
   }
 
   const hour = new Date().getHours();
   const greeting = hour >= 5 && hour < 12 ? w.goodMorning : hour >= 12 && hour < 17 ? w.goodAfternoon : w.goodEvening;
   const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
   const online = feed?.online ?? false;
+
+  // Online: where he is, every few minutes while this screen is open. If the
+  // phone stops saying, he goes offline at once; jobs he already has go on.
+  useFocusEffect(
+    useCallback(() => {
+      if (!online) return;
+      const t = setInterval(async () => {
+        if (!(await sendWhere())) {
+          await ask('pro_set_online', { p_online: false });
+          setWhere('off');
+          load();
+        }
+      }, WHERE_EVERY);
+      return () => clearInterval(t);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [online, load]),
+  );
   const opened = feed?.jobs.find((j) => j.id === open) ?? null;
 
   return (
@@ -207,6 +279,7 @@ export function Work({ firstName }: { firstName: string }) {
       >
         {/* Jobs on screen: a failed refresh is a line at the top. None yet: the full card says it. */}
         <Notice text={feed ? problem : null} />
+        <Notice text={said} />
         {feed === null && trouble ? <Trouble kind={trouble} onRetry={load} /> : null}
 
         {/* Who this is for, and where he stands, before anything to tap. */}
@@ -313,6 +386,10 @@ export function Work({ firstName }: { firstName: string }) {
               </View>
             </View>
             <Button label={w.goOnline} onPress={() => setOnline(true)} busy={switching} />
+            <Press onPress={setHome} accessibilityRole="button" sink={0.98} style={s.homeLink}>
+              <Icon name="home" size={18} color={colour.white} strokeWidth={2} />
+              <Text style={s.homeLinkText}>{homing ? 'Finding you…' : 'Make where I am now my home area'}</Text>
+            </Press>
           </View>
         ) : null}
 
@@ -343,7 +420,11 @@ export function Work({ firstName }: { firstName: string }) {
               </View>
             ) : null}
             {feed?.jobs.map((j) => (
-              <RequestRow key={j.id} j={j} w={w} trade={tradeName(j.trade)} onOpen={() => setOpen(j.id)} />
+              <RequestRow key={j.id} j={j} w={w} trade={tradeName(j.trade)} metres={far[j.id]} onOpen={() => {
+                setOpen(j.id);
+                // Counted once: the customer sees how many technicians have looked, never who.
+                ask('pro_saw_job', { p_job: j.id }).catch(() => {});
+              }} />
             ))}
           </View>
         ) : null}
@@ -352,6 +433,12 @@ export function Work({ firstName }: { firstName: string }) {
       </ScrollView>
       {/* The top bar already covers the clock; this keeps the list clear of the button bar. */}
       <SystemBars bg={colour.canvas} top={false} />
+
+      {where ? (
+        <Sheet onClose={() => setWhere(null)}>
+          <WhereCard kind={where} onAllow={() => { setWhere(null); setOnline(true, true); }} onClose={() => setWhere(null)} />
+        </Sheet>
+      ) : null}
 
       {opened && feed ? (
         <Sheet onClose={() => setOpen(null)} closeLabel={w.closeJob}>
@@ -392,7 +479,61 @@ function mediaLine(media: StoredMedia[], w: ProWords): string | null {
  * One request in the list, as inDrive shows a ride: who and when on top, the
  * price large on the right, then what and where. A tap opens the job.
  */
-function RequestRow({ j, w, trade, onOpen }: { j: FeedJob; w: ProWords; trade: string; onOpen: () => void }) {
+/**
+ * Why he is not online: location is needed (the owner's rule, A114), said
+ * once before the phone's own question, and plainly when it was refused or
+ * switched off. Only while the app is open; never in the background.
+ */
+function WhereCard({ kind, onAllow, onClose }: { kind: 'explain' | 'denied' | 'off' | 'unavailable'; onAllow: () => void; onClose: () => void }) {
+  const title = {
+    explain: 'Pechkas needs your location to show you jobs',
+    denied: 'Location is switched off for Pechkas',
+    off: 'Your phone’s location is off',
+    unavailable: 'Your location could not be found',
+  }[kind];
+  const text = {
+    explain: 'You see jobs near where you are, and the customer knows how far you are. Your location is read only while Pechkas is open on this screen, never in the background.',
+    denied: 'Turn it on in Settings to go online: Permissions → Location → Allow only while using the app. Then come back here.',
+    off: 'You have gone offline, so no new jobs are sent to you. Jobs you already have carry on. Switch location on to go online again.',
+    unavailable: 'Step near a window or outside, and try again.',
+  }[kind];
+  return (
+    <View style={{ gap: 14, paddingBottom: 8 }}>
+      <View style={s.whereTile}>
+        <DuoIcon name="pin" size={34} />
+      </View>
+      <Text style={s.whereTitle}>{title}</Text>
+      <Text style={s.whereText}>{text}</Text>
+      {kind === 'explain' ? (
+        <View style={{ gap: 6 }}>
+          {['Customers never see where you are', 'They see only “about 3 km away”', 'Without it you cannot go online'].map((x) => (
+            <View key={x} style={s.whereTick}>
+              <Icon name="check" size={16} color={colour.green} strokeWidth={2.6} />
+              <Text style={s.whereTickText}>{x}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+      {kind === 'denied' ? (
+        <Button kind="green" label="Open settings" onPress={() => Linking.openSettings()} />
+      ) : kind === 'explain' || kind === 'unavailable' || kind === 'off' ? (
+        <Button kind="green" label={kind === 'explain' ? 'Allow location' : 'Try again'} onPress={onAllow} />
+      ) : null}
+      <Press onPress={onClose} accessibilityRole="button" style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={s.whereNot}>Not now</Text>
+      </Press>
+    </View>
+  );
+}
+
+/** "About 3 km away": a straight line, rounded, never a route or a time. */
+function farText(m: number | undefined): string | null {
+  if (m === undefined || m === null) return null;
+  if (m < 1000) return 'Less than 1 km away';
+  return `About ${Math.round(m / 1000)} km away`;
+}
+
+function RequestRow({ j, w, trade, metres, onOpen }: { j: FeedJob; w: ProWords; trade: string; metres?: number; onOpen: () => void }) {
   const live = j.my_offer?.live ? j.my_offer : null;
   const media = mediaLine(j.media, w);
   const when = ago(j.created_at, w);
@@ -425,6 +566,11 @@ function RequestRow({ j, w, trade, onOpen }: { j: FeedJob; w: ProWords; trade: s
       </View>
       <View style={s.reqFoot}>
         <View style={[s.reqTags, { flex: 1 }]}>
+          {farText(metres) ? (
+            <View style={[s.tag, s.tagNear]}>
+              <Text style={[s.tagText, { color: colour.green }]}>{farText(metres)}</Text>
+            </View>
+          ) : null}
           {j.asked_you ? (
             <View style={[s.tag, s.tagYellow]}>
               <Text style={s.tagText}>{w.askedBadge}</Text>
@@ -877,6 +1023,15 @@ const s = StyleSheet.create({
   error: { fontFamily: font.bodySemi, fontSize: 13, lineHeight: 18, color: colour.brick },
   addr: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
   addrSub: { fontFamily: font.body, fontSize: 14, color: colour.inkSoft },
+  homeLink: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 44 },
+  homeLinkText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.white, textDecorationLine: 'underline' },
+  tagNear: { backgroundColor: colour.greenSoft },
+  whereTile: { width: 72, height: 72, borderRadius: 36, backgroundColor: colour.greenSoft, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
+  whereTitle: { fontFamily: font.display, fontSize: 22, lineHeight: 27, color: colour.ink, textAlign: 'center' },
+  whereText: { fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.steel, textAlign: 'center' },
+  whereTick: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, minHeight: 32, borderRadius: 12, backgroundColor: colour.canvas },
+  whereTickText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
+  whereNot: { fontFamily: font.bodySemi, fontSize: 14.5, color: colour.steel, textDecorationLine: 'underline' },
 });
 
 

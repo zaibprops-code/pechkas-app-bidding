@@ -46,7 +46,7 @@ async function call(who, sql, params = []) {
 }
 const token = (name) => `ExponentPushToken[${name.padEnd(22, 'x')}]`;
 await call(BILAL, `SELECT public.save_push_token($1, 'android', 'en')`, [token('bilal-days')]);
-await call(BILAL, `SELECT public.pro_set_online(true)`);
+await setup(`UPDATE public.pros SET online = true, last_seen_at = now() WHERE id = $1`, [BILAL]);
 
 const today = (await setup(`SELECT (now() AT TIME ZONE 'Asia/Karachi')::date::text AS d, extract(hour FROM now() AT TIME ZONE 'Asia/Karachi')::int AS h`)).rows[0];
 const plus = async (n) => (await setup(`SELECT ($1::date + $2::int)::text AS d`, [today.d, n])).rows[0].d;
