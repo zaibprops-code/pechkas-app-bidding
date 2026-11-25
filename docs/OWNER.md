@@ -1952,6 +1952,32 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## A faster Post a job (25 November 2026)
+
+What you decided: three steps instead of one long page; every job as soon
+as possible; anywhere in Islamabad (Bahria Town and DHA too); and a lowest
+price of 60% of the usual price.
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261202000000_fast_posting.sql`, after the files
+   before it. It should say **Success**. No new build: the screens come as
+   an update.
+2. **Try it on your phone**: home → a kind of work → a job.
+   - **1 of 3**: tap the big black button and say what is wrong, or add a
+     photo, then **Next**.
+   - **2 of 3**: the map fills the screen. Drag it; the street and sector
+     are read for you. **Confirm this spot**, type the house number,
+     **Next**. Put the pin in Rawalpindi to see "Islamabad only, for now".
+   - **3 of 3**: press − until it stops: that is the lowest for the job
+     (60% of the usual price). Then **Post job**.
+3. **To change the 60%**: Admin → **Settings** → Jobs and offers → "Lowest
+   price for a job, as a share of its usual price". 6000 is 60%; anything
+   from 3000 (30%) to 10000 (100%) is allowed, and every change is kept on
+   record.
+4. The app's terms and privacy page on pechkas.net were updated to say the
+   same (jobs anywhere in Islamabad; the map's search). They go live with
+   the website's next deploy.
+
 ## Deleting an account, redesigned (25 November 2026)
 
 1. **Supabase → SQL Editor**: run

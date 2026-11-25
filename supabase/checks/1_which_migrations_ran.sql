@@ -49,7 +49,8 @@ WITH expected(name) AS (VALUES
   ('20261128000000_settings_page'),
   ('20261129000000_office_answers'),
   ('20261130000000_in_the_app'),
-  ('20261201000000_delete_account')
+  ('20261201000000_delete_account'),
+  ('20261202000000_fast_posting')
 )
 SELECT e.name || '.sql' AS file,
        CASE WHEN a.name IS NULL THEN 'NOT RUN — run this file'

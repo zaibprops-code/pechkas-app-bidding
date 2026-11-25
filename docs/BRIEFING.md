@@ -1,6 +1,6 @@
 # Pechkas: a complete briefing for an adviser
 
-_Written 16 November 2026, updated 22 November 2026, from the two repositories as they stand today
+_Written 16 November 2026, updated 25 November 2026, from the two repositories as they stand today
 (app `zaibprops-code/pechkas-app-bidding`, website `zaibprops-code/Pechkas`).
 Every rule below is something the code actually does, not a plan, unless it
 says "open" or "not built"._
@@ -110,22 +110,26 @@ The following follow from the same principles:
    - **Nothing opens before sign-in.**
    - **One account has two modes**, customer and technician, and you switch
      between them in the menu. You cannot switch in the middle of a job.
-2. **Posting a job.** Everything is on one page:
-   - **The job:** the trade, then the job type. Each type shows the
-     usual Pechkas price as "Usual price".
-   - **What is wrong:** a voice note (up to 1 minute), a video (up to 20
-     seconds), photos (up to 4) and words.
-   - **The address:** a map pin is required. The app reads the sector from
-     the pin, and the customer types the house or flat and the street.
-   - **The day:** today, tomorrow, or a day in the coming week. She does
-     not choose a time.
-   - **Her price:** in steps of Rs 50, with a minimum of Rs 1,000.
-   - **Only "live" sectors take jobs:** F-11, E-11 and G-13.
+2. **Posting a job.** Three steps, one thing on each screen (A109):
+   - **The job** is chosen before, on home or search; the top of every step
+     shows it with **Change**.
+   - **1 · Show us the problem:** a big record button for a voice note (up to
+     1 minute), a video (up to 20 seconds), photos (up to 4), or a few
+     words. One of them is required (A113).
+   - **2 · Where:** the map fills the screen. The street and sector are read
+     from the pin; she types only the house number. **Anywhere in
+     Islamabad**, Bahria Town and DHA included; elsewhere she is told
+     "Islamabad only, for now" (A111).
+   - **3 · Her price:** it starts at the usual price, in steps of Rs 50, and
+     cannot go below the job's lowest: **60% of the usual price**, which the
+     office can change (A112). No day to pick: **every job is as soon as
+     possible** (A110).
    - **Price range:** once there are 10 finished jobs of that kind in 90
      days, she sees the middle half of what such jobs really cost.
 3. **Offers.**
    - **Who sees the job:** approved technicians in that trade and sector
-     who are online. Before he is chosen, a technician sees her first name
+     who are online. (Decided, building next: technicians near where they
+     are, widening to all of Islamabad, A114.) Before he is chosen, a technician sees her first name
      and the sector only, never the address or phone number.
    - **What an offer can be:** he accepts her price, or asks for more, up
      to 2× her price.
@@ -139,7 +143,6 @@ The following follow from the same principles:
      later day.
    - **She can:**
      - raise her price by Rs 200, 500 or 1,000, up to 3 times;
-     - move the job to another day;
      - keep waiting.
    - **A job nobody took closes at 8pm on its day.**
 5. **She chooses one offer.**
@@ -367,6 +370,13 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 - **A31–A35, accounts and contact:** number, email or Google sign-in; one
   account with two modes; English only; no email address; open 7am to
   10pm.
+- **A109–A116, a faster Post a job (25 November 2026):** three steps; every
+  job as soon as possible; anywhere in Islamabad (Bahria Town and DHA
+  count); lowest price 60% of the usual, office-changeable; showing the
+  problem stays required — all built. Decided and building next: location
+  on to go online and jobs near him (A114); offers with Google's minutes and
+  distance, rating, years and jobs, automatic choice off by default (A115);
+  late after Google's time + 15 minutes, jobs 7am to 10pm (A116).
 
 ## 7. Still open: what the owner has to decide
 

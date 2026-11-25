@@ -317,7 +317,7 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
                 label="Book again"
                 onPress={() => router.push({ pathname: '/post', params: { again: job.id, trade: job.trade } })}
               />
-              <Text style={s.small}>The same work at the same address, filled in for you. You choose the day and the price.</Text>
+              <Text style={s.small}>The same work at the same address, filled in for you. Change anything, then post.</Text>
             </View>
           ) : null}
           {canBlock && job.blocked ? (

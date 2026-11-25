@@ -146,7 +146,8 @@ heading('Sectors: opened only where somebody works');
   const SECTOR = `SELECT public.admin_set_sector($1, $2)`;
   ok('a technician cannot open a sector', (await me(BILAL, SECTOR, ['G-9', true])).value?.ok === false);
   ok('G-9 cannot open with nobody approved there', (await me(OWNER, SECTOR, ['G-9', true])).value?.field === 'sector');
-  ok('so a job there is still refused', (await post(AYESHA, { sector: 'G-9' }))?.field === 'sector');
+  // fast_posting: every part of Islamabad takes jobs; live no longer decides posting.
+  { const r = await post(AYESHA, { sector: 'G-9' }); ok('a job there is no longer refused for its sector: all of Islamabad takes jobs', r?.field !== 'sector', JSON.stringify(r)); }
   await setup(`UPDATE public.pros SET sectors = '{F-11,G-9}' WHERE id = $1`, [ASAD]);
   ok('with Asad working there, it opens', (await me(OWNER, SECTOR, ['G-9', true])).value?.ok === true);
   const g9 = await post(AYESHA, { sector: 'G-9' });
@@ -154,7 +155,7 @@ heading('Sectors: opened only where somebody works');
   ok('the app lists it as live', (await me(AYESHA, `SELECT public.app_lists()`)).value?.live_sectors.includes('G-9'));
   const kept = await post(AYESHA);
   ok('closing F-11', (await me(OWNER, SECTOR, ['F-11', false])).value?.ok === true);
-  ok('stops new jobs there', (await post(AYESHA))?.field === 'sector');
+  { const r = await post(AYESHA); ok('does not stop new jobs there: all of Islamabad takes jobs', r?.field !== 'sector', JSON.stringify(r)); }
   ok('but leaves the job already posted as it was', (await job(kept.id)).status === 'open');
   ok('both changes are written down', (await setup(`SELECT count(*)::int AS n FROM public.setting_changes WHERE key LIKE 'sector:%'`)).rows[0].n === 2);
   await me(OWNER, SECTOR, ['F-11', true]);

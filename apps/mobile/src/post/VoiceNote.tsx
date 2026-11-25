@@ -29,7 +29,7 @@ import { clock, detailOf, LIMITS, type Media } from './media';
  * is the easiest way for most customers to say what is wrong. Recording, it
  * says how much of the minute is left and fills from the left (transform).
  */
-export function VoiceTile({ onDone, onProblem, wide = false }: { onDone: (m: Media) => void; onProblem: (m: string | Message) => void; wide?: boolean }) {
+export function VoiceTile({ onDone, onProblem, wide = false, big = false }: { onDone: (m: Media) => void; onProblem: (m: string | Message) => void; wide?: boolean; big?: boolean }) {
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const state = useAudioRecorderState(recorder, 250);
   const [busy, setBusy] = useState(false);
@@ -96,6 +96,31 @@ export function VoiceTile({ onDone, onProblem, wide = false }: { onDone: (m: Med
   // What is left, counted down, and a bar that fills as the minute runs out.
   const left = Math.max(0, LIMITS.voiceSeconds - seconds);
   const used = Math.min(1, seconds / LIMITS.voiceSeconds);
+  if (big) {
+    // Post a job's step 1 (the owner's design, 25 November 2026): the one big
+    // thing on the screen. Ink at rest, brick while recording; the time is
+    // counted up, what is left is said, and a bar fills by transform.
+    return (
+      <Press
+        onPress={live ? stop : start}
+        accessibilityRole="button"
+        accessibilityLabel={live ? `Stop recording. ${left} seconds left.` : `Record a voice note, up to ${LIMITS.voiceSeconds / 60} minute`}
+        sink={0.97}
+        style={[bigS.box, live && bigS.boxLive]}
+      >
+        <View style={[bigS.dot, live && bigS.dotLive]}>{live ? <View style={bigS.stop} /> : <Icon name="mic" size={34} color={colour.ink} strokeWidth={2.2} />}</View>
+        <Text style={bigS.title} accessibilityLiveRegion="polite">
+          {live ? `Recording ${clock(seconds)}` : busy ? 'Starting…' : 'Tap to record'}
+        </Text>
+        <Text style={bigS.sub}>{live ? `Tap to stop · ${left} sec left` : `Up to ${LIMITS.voiceSeconds / 60} minute · Urdu or English`}</Text>
+        {live ? (
+          <View style={bigS.track} accessible={false}>
+            <View style={[bigS.fill, { transform: [{ scaleX: used }] }]} />
+          </View>
+        ) : null}
+      </Press>
+    );
+  }
   if (wide) {
     return (
       <Press
@@ -149,6 +174,18 @@ export function VoiceTile({ onDone, onProblem, wide = false }: { onDone: (m: Med
     </Press>
   );
 }
+
+const bigS = StyleSheet.create({
+  box: { minHeight: 176, alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 18, paddingHorizontal: 16, borderRadius: 28, backgroundColor: colour.ink, overflow: 'hidden', boxShadow: '0px 10px 26px rgba(20, 23, 26, 0.2)' },
+  boxLive: { backgroundColor: colour.brick },
+  dot: { width: 74, height: 74, borderRadius: 37, backgroundColor: colour.yellow, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  dotLive: { backgroundColor: colour.white },
+  stop: { width: 24, height: 24, borderRadius: 5, backgroundColor: colour.brick },
+  title: { fontFamily: font.display, fontSize: 21, color: colour.white },
+  sub: { fontFamily: font.bodyMedium, fontSize: 13.5, color: 'rgba(255,255,255,0.8)', textAlign: 'center' },
+  track: { width: '70%', height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.22)', overflow: 'hidden', marginTop: 6 },
+  fill: { width: '100%', height: '100%', backgroundColor: colour.yellow, transformOrigin: 'left' },
+});
 
 const wideS = StyleSheet.create({
   box: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 62, paddingHorizontal: 14, borderRadius: 18, backgroundColor: colour.ink, overflow: 'hidden' },

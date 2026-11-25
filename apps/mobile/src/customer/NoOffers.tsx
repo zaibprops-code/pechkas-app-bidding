@@ -12,16 +12,17 @@ import { colour, font, radius, shadow } from '../theme';
 /**
  * Nobody has offered yet (migration when_nobody_offers). Shown once the
  * database has told her — 20 minutes after a job for today, 3 hours for a
- * later day — and only while nobody has offered. Three choices, all hers:
- * raise the price by one of the steps technicians use, choose another day,
- * or keep waiting. The app never says what the "right" price is; it says
+ * later day — and only while nobody has offered. Two choices, all hers:
+ * raise the price by one of the steps technicians use, or keep waiting.
+ * ("Choose another day" went when every job became as soon as possible —
+ * the owner, 25 November 2026; change_day() stays for older copies.) The app never says what the "right" price is; it says
  * the usual Pechkas price only when hers is below it, because that is a
  * real figure. It names no sector or area: who can take the job is the
  * database's business, and naming a place only makes people anxious.
  *
  * On a guarantee repair Pechkas is paying for, the raise card is replaced
  * by one line: the office has been told and can raise what Pechkas pays
- * (guarantee_followups). She still chooses the day or keeps waiting.
+ * (guarantee_followups). She keeps waiting; the day of a guarantee repair is chosen on her claim.
  */
 
 const STEPS = [20000, 50000, 100000] as const;
@@ -153,9 +154,7 @@ export function NoOffers({ job, onChanged }: { job: NoOffersJob; onChanged: () =
       ) : null}
 
       <RowCard>
-        {job.can_move ? (
-          <DuoRow icon="clock" label="Choose another day" value={job.when_date ? `Now: ${dayLabel(job.when_date, now.date)}` : undefined} onPress={() => setDays(true)} />
-        ) : null}
+        {/* No "Choose another day" any more: every job is as soon as possible (the owner, 25 November 2026). */}
         <DuoRow icon="bell" label="Keep waiting" value="Your phone tells you when an offer comes." onPress={() => setWaiting(true)} last />
       </RowCard>
       <Text style={s.foot}>

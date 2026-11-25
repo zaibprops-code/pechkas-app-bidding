@@ -642,6 +642,18 @@ What the app and the website do today. Reopen any item by its number.
 | A105 | **The 7% repeat rate looks back 12 months (D18).** It applies when the same customer and technician finished a job together in the 12 months before she chose him for this one, measured from the moment she chooses him, because that is when the rate is fixed: the 7% he sees before she chooses can never become 10% half-way through. On a job nobody has been chosen for yet, it is measured from now. Stopped and cancelled jobs never count. The 12 months is locked like the 10% and 7%, and the technician agreement states it. Built. |
 | A106 | **"Online" stays the technician's own switch (D19).** Nothing switches it off automatically, as in inDrive. A technician who forgets to go offline may get job alerts at night; that is his to fix. If it annoys technicians after launch, it can be looked at again. |
 
+### A faster Post a job, and how jobs reach technicians (decided 25 November 2026)
+| | |
+|---|---|
+| A109 | **Post a job is three steps**: show us the problem, where, your price — one thing on each screen and one black button at the foot, replacing the one long page ("people don't like filling large forms"). The yellow top shows the job and Change, never its price; the price is on the price step only. Built. |
+| A110 | **Every job is as soon as possible.** No day to pick, and no "Choose another day" when nobody offers: Pechkas is a fast service. Late at night, after the last two-hour window has started at 8pm, the job is for tomorrow morning. Built. |
+| A111 | **Anywhere in Islamabad, nowhere else yet.** Bahria Town and DHA count as Islamabad wherever the pin is. A pin elsewhere is told "Pechkas works in Islamabad only, for now", with "Tell me when you come to Rawalpindi". Rawalpindi comes after Islamabad goes well. Built. |
+| A112 | **The lowest price is 60% of the usual price**, rounded up to Rs 50, and never below the Rs 1,000 lowest offer. The office can change the 60% in Settings, between 30% and 100%. When nobody offers, she is asked to raise her price, as before. Built. |
+| A113 | **Showing the problem stays required for every job**: a voice note, a photo, a video or a few words. Technicians price from what they see. Built. |
+| A114 | **A technician needs location on to be online** (while the app is open; never in the background). He sees jobs near where he is, widening to all of Islamabad when nobody near offers; with no recent position, his home area. Decided; building next (Part 2). |
+| A115 | **Offers show how far he is, worked out by Google Maps, not typed by him**, with his rating or New, years in the trade and jobs on Pechkas, on a map. After she chooses, his route and the minutes left, while his app is open. **Automatic choice** — "the first technician who accepts your price" — is offered, **off by default**. Decided; building next (Part 2). |
+| A116 | **He counts as late 15 minutes after Google's time** at the moment she chose him. **Jobs run 7am to 10pm.** Decided; building next (Part 2). |
+
 ### Trust and safety
 
 | # | Decision |

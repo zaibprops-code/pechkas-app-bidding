@@ -181,17 +181,22 @@ home.
   section headings in green and **Last updated** pinned at the foot. When
   more than one legal page is open, a round × beside the title closes them
   all at once.
-- **An address is a pin first**, the way ride apps take one: a map box
-  with one bubble ("Set the address on the map", or "Use my location"
-  without the map key) and the Pechkas pin, and no boxes until the pin is
-  down. Then what was read from the pin, said as such ("Sector F‑11 · read
-  from the map", with Change), and only what a pin cannot know: the house
-  or flat number. Saved places are one link that opens a sheet.
-- **The customer picks a day, the technician the time**: Post a job shows
-  only day chips — Today, Tomorrow, then "Sat 1 Nov"… — with one line
-  saying each technician will say when he can come. His offer sheet shows
-  the windows still open that day ("8–10am" … "8–10pm"), and the offer card
-  says "Arrives Sat 31 Oct, 2–4pm". Every screen writes a time with
+- **An address is a pin first**, the way ride apps take one: on Post a
+  job the map fills the screen, the pin stays in the middle and lifts while
+  the map moves, and what was read from it is said in big words in the
+  card at the foot ("Street 34, Sector F‑11"), then **Confirm this spot**.
+  Only what a pin cannot know is typed: the house or flat number. Saved
+  places are the first thing the search box shows. Outside the area
+  Pechkas serves, the card says so plainly and offers no way on.
+- **A long form is steps, one thing each** (Post a job, the owner's
+  design): a step bar ("1 of 3") on the yellow top, one big thing on each
+  screen, one black button at the foot that stays pale until it can act,
+  Back one step back. The last step lists what is being sent as rows that
+  open their step.
+- **No day to pick; the technician says when**: every job is as soon as
+  possible (the owner: "a fast service app, not a delayed one"). His offer
+  sheet shows the windows still open ("8–10am" … "8–10pm"), and the offer
+  card says "Arrives Sat 31 Oct, 2–4pm". Every screen writes a time with
   `whenLabel()`, never its own words.
 - **A person is a sheet before a choice**: a link under an offer ("See
   Bilal's profile") opens a sheet with figures in three grey tiles, ticked

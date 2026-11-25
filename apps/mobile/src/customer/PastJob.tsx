@@ -624,7 +624,7 @@ export function PastJob({ job, trade, onChanged }: { job: Job; trade: string; on
               <Press
                 onPress={() => router.push({ pathname: '/post', params: { again: job.id, trade: job.trade } })}
                 accessibilityRole="button"
-                accessibilityHint="The same work at the same address, filled in for you. You choose the day and the price."
+                accessibilityHint="The same work at the same address, filled in for you. Change anything, then post."
                 sink={0.97}
                 style={[s.big, canAskAgain ? s.bigOutline : s.bigInk]}
               >

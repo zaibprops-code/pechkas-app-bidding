@@ -7,8 +7,13 @@ export type Lists = {
   trades: { slug: string; name: string }[];
   sectors: string[];
   live_sectors: string[];
-  job_types: { id: number; trade: string; name: string; list_paisa: number | null }[];
+  /** Every place in Islamabad, Bahria Town and DHA among them (fast_posting). Absent from an older database. */
+  islamabad_sectors?: string[];
+  /** `floor_paisa`: the lowest a customer may set for that job (price_floor()). Absent from an older database. */
+  job_types: { id: number; trade: string; name: string; list_paisa: number | null; floor_paisa?: number }[];
   min_offer_paisa: number;
+  /** The share of the usual price that is the lowest (6000 = 60%), the office's setting. */
+  min_price_bps?: number;
   /** Absent until the phase 4 migration is run; the post screen then says nothing about it. */
   visit_fee_min_paisa?: number;
   visit_fee_max_paisa?: number;

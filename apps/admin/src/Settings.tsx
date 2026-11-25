@@ -35,6 +35,7 @@ const GROUPS: { title: string; keys: Record<string, string> }[] = [
       escalate_minutes: 'A job with no offer comes to you after',
       prefer_minutes: 'A job asked for by name is his alone for',
       min_offer_paisa: 'Lowest price a customer may offer',
+      min_price_bps: 'Lowest price for a job, as a share of its usual price (rounded up to Rs 50)',
       max_counter_bps: 'Highest counter-offer, as a share of her price',
       max_open_jobs: 'Open jobs one customer may have',
       max_posts_per_day: 'Jobs one customer may post in a day',

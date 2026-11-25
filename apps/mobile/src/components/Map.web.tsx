@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Modal, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from './Icon';
@@ -84,6 +84,26 @@ export function MapBox({ pin, style }: { center: Point; pin?: Point | null; zoom
     </View>
   );
 }
+
+
+export type StageApi = { goTo: (p: Point) => void };
+
+/** The browser's Where map: the drawing with the pin; it cannot be moved, so it reports the start once. */
+export const MapStage = forwardRef<StageApi, { start: Point; pinOffset?: number; onMove?: () => void; onIdle: (p: Point) => void }>(function MapStage({ pinOffset = 0, onIdle, start }, ref) {
+  useImperativeHandle(ref, () => ({ goTo: (p: Point) => onIdle(p) }), [onIdle]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    onIdle(start);
+  }, []);
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <MapDrawing />
+      <View style={[s.centre, { paddingBottom: 46 + pinOffset * 2 }]} pointerEvents="none">
+        <Pin />
+      </View>
+    </View>
+  );
+});
 
 export function PinPicker({ start, onConfirm, onCancel }: { start: Point; onConfirm: (p: Point) => void; onCancel: () => void }) {
   const insets = useSafeAreaInsets();

@@ -270,31 +270,64 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   from the website's inspection fee). The app's prices change only by a
   migration to `job_types` when the owner decides; the website follows the
   app, never the other way round.
-- **Only `live` sectors take jobs.** Nobody is promised a visit where Pechkas
-  has nobody.
-- **The address is map first** (the owner's choice, replacing typed-in
-  sector, street and house). The Address card is a map box with **Set the
-  address on the map** (the pin picker) — or **Use my location** in a build
-  without the Google key — and nothing else until there is a pin: **the pin
-  is required** (`early.location`). Then `readPlace()` (Map.tsx: the phone's
-  own geocoder through `expo-location`, which needs the location
-  permission on Android and never asks for it) and `sectorIn()` /
-  `streetIn()` in `packages/shared` (`place.test.ts`) read the sector and
-  the street: only a sector on the list can come back, never a guess, and
-  "F-1" is never read out of "F-11". A live sector shows as "Sector F‑11 ·
-  read from the map" with Change; one Pechkas does not serve is said
-  plainly with the same `ask_for_sector()` button; nothing read means the
-  live sectors as chips. Then **House or flat** (required) and **Street**
-  (filled from the pin, required by the database — `jobs.street` is NOT
-  NULL — and correctable), landmark and gate note behind a link, and
-  **Save this address as** Home / Office / Other. Saved addresses and the
-  last one used live **on the phone only** (`src/post/places.ts`, four at
-  most) and a new form starts at the last one, pin and all; **signing out
-  forgets them** and the draft (`account.tsx`), because the next person on
-  that phone must not see them. The privacy page and both stores' answers
-  say the pin is required and that the pin goes to the phone's map service
-  to read the sector.
-- **The customer chooses the day; the technician says when he will come**
+- **Anywhere in Islamabad, nowhere else yet** (the owner, 25 November
+  2026; migration `…_fast_posting`). `sectors.city` says which city a place
+  is in; `post_job()` refuses only a place outside Islamabad ("Pechkas works
+  in Islamabad only, for now", field `sector`). **Bahria Town and DHA count
+  as Islamabad** (the owner's decision). Rawalpindi's places stay on the list
+  so `ask_for_sector()` records who asked ("Tell me when you come to
+  Rawalpindi"). `live` is no longer a posting rule; older copies still offer
+  only the live sectors, a true subset. Which technicians see a job is still
+  their sectors until Part 2 (distance) is built.
+- **The lowest price is a share of the usual price** (the owner: 60%,
+  changeable by the office). `price_floor(job type)` is the one rule:
+  `min_price_bps` (6000, `setting_limits` 3000–10000) of the usual price,
+  rounded UP to a whole Rs 50, never below `min_offer_paisa`; "Something
+  else" keeps `min_offer_paisa`. `post_job()` refuses below it (field
+  `offer`); `app_lists()` gives every job type its `floor_paisa`, so the
+  phone's − stops at the same figure. Tests: `fastposting.test.mjs`.
+- **Post a job is three steps** (the owner's design, 25 November 2026,
+  replacing the one long page: "people don't like filling large forms"),
+  `app/post.tsx`, one thing per screen and one black button at the foot;
+  the step is kept in the draft (`step`), so a form left halfway opens
+  there; Back and the phone's Back go one step back; a refusal takes her to
+  its step (`STEP_OF`) with the red line beside its box.
+  1. **Show us the problem**: `VoiceTile big` (the big record button), Photo
+     and Video as big tiles, big thumbnails with ✕, typing behind **Rather
+     type it?** (with Good to know's chips). Next stays pale until there is
+     a voice note, photo, video or 10 letters — the database's own rule.
+  2. **Where** (`src/post/Where.tsx`): the map fills the screen
+     (`MapStage` in Map.tsx), the pin stays in the middle and lifts while
+     the map moves; when it stops, `readPlace()` and `sectorIn()` /
+     `streetIn()` read the street and sector, said big, then **Confirm this
+     spot** — or, outside Islamabad, "Pechkas works in Islamabad only, for
+     now" with no way on. Then the house card: **House or flat** (the only
+     typing), Street (filled, correctable), the sector as chips only when
+     the map could not read it, **Save as** Home / Office / Other, landmark
+     and gate note behind a link. Her last address opens under the pin with
+     **Edit** and **Next**. The search box shows her saved places first;
+     typed words go to the phone's own map service (`geocodeAsync`) — no
+     paid search. A build without the Google key cannot move a map: it
+     finds her with **Use my location**. Saved addresses and the last one
+     live **on the phone only** (`src/post/places.ts`, four at most);
+     **signing out forgets them** and the draft (`account.tsx`). The privacy
+     page says the pin, and any words typed in the search, go to the
+     phone's map service.
+  3. **Your price**: the stepper starts at the usual price, Rs 50 a tap;
+     − stops at the floor ("Rs 1,200 is the lowest for this job"); a bar
+     shows Lowest and Usual; `PriceRangeCard` under it once real jobs give a
+     range; one line "Pay him after the work · Visit fee Rs … only if you
+     say no" opens how paying works (`VisitFeeNote` there); then three
+     lines — **As soon as possible** (no day to pick; after the last window
+     has started at 8pm it says tomorrow morning), what she showed, where —
+     the last two open their step and come straight back. **Post job · Rs …**.
+- **Every job is as soon as possible; the technician says when he will come**
+  (the owner, 25 November 2026: "a fast service app, not a delayed one").
+  The app no longer asks for a day: it posts today while a window can
+  still start, tomorrow after that, and `NoOffers` no longer offers
+  **Choose another day**. The history of the rule below still holds for
+  the database, which accepts a day from older copies.
+- *(Earlier:)* **The customer chooses the day; the technician says when he will come**
   (migration `…_offer_says_when`, the owner's decision). No "as soon as
   possible" and no time for the customer to pick: a home repair is not a
   ride — nobody waits round the corner — and she does not know the
@@ -700,9 +733,10 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `NoOffers.tsx`: **raise my price** by +Rs 200 / 500 / 1,000 only
   (`raise_price()`, the technicians' steps — never a price we suggest; the
   usual price is shown only when hers is below it), at most `max_raises`
-  (3), upwards only and only while no offer is live; **choose another
-  day** (`change_day()`, day-only jobs, picked in a `Sheet`); or **keep
-  waiting**. **Nothing the customer reads names a sector or an area** —
+  (3), upwards only and only while no offer is live; or **keep
+  waiting**. (**Choose another day**, `change_day()`, went from the screen
+  when every job became as soon as possible; the function stays for older
+  copies.) **Nothing the customer reads names a sector or an area** —
   not the card, the search line under it, nor the `no_offers` and
   `unclaimed` messages (the owner's rule: who can take her job is the
   database's business, and a place on the card only makes her rush;
@@ -1919,31 +1953,16 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   both. The `/soon` screen was deleted before the first store build; a
   feature that is not built has no button.
 - Every tap target is at least 44 × 44.
-- **Post a job is one page in white cards** (`app/post.tsx`) — the owner
-  chose that over a page per step. Redesigned in the menu's and home's
-  style at his request: a one-line subtitle under the title; every card
-  headed by a two-tone icon on a soft yellow tile (`Card icon=…`); the
-  chosen trade's home-tile drawing inside "Kind of work"; Voice, Video and
-  Photo on warm cream with two-tone icons in white discs; "Your price" as
-  the one soft-yellow card, its stepper in a white pill; an arrow on
-  **Post job**. **One tap of − or + is Rs 50** (`PRICE_STEP_PAISA` in
-  `packages/shared`, the owner's choice — it was Rs 100), here and in the
-  technician's offer sheet alike; the database only asks for whole rupees. On a narrow phone the stepper and the tiles' limits shrink
-  a little and sector names never break at their hyphen. The job is two drop-downs (kind of work,
-  then which job with its price) opening a `Sheet` (`src/components/Sheet.tsx`,
-  shared with the technician's job sheet); "What is wrong?" is one row of
-  tiles (Voice, Video, Photo — a tile goes once it is used up, so none does
-  nothing) and one text box; the address is map first (see Jobs), with
-  House or flat and Street side by side under the pin, and the
-  landmark and gate note behind a link until wanted or filled; the
-  footer says **Post job · Rs …**. A refusal for a box the page does not
-  draw is shown in full, never as "fix what is marked above". **A refusal
-  scrolls the page up to the first card that needs fixing** (`CARD_OF`,
-  `CARDS`, `Jump` and `useScreenScroll()` in `ui.tsx`), and each red line
-  goes the moment its box is answered (`ANSWERS`): somebody pressing Post
-  at the foot of a long page must never be left there looking at a
-  sentence about boxes they cannot see. A new box on the form needs its
-  field in `CARD_OF` and `ANSWERS`.
+- **Post a job's look** (`app/post.tsx`, see "Post a job is three steps"
+  under Jobs): the yellow top carries back, the step bar ("1 of 3"), the
+  job's drawing, name and **Change** — never its price, which is on the
+  price step only (the owner: no duplicates). **One tap of − or + is Rs 50**
+  (`PRICE_STEP_PAISA` in `packages/shared`), here and in the technician's
+  offer sheet alike. The job is chosen in a `Sheet` (kind of work, then
+  which job). On a narrow phone the stepper and the thumbnails shrink and
+  sector names never break at their hyphen. A refusal for a box the page
+  does not draw is shown in full. A new box needs its field in `STEP_OF`
+  and `ANSWERS`.
 - **Trouble is said at the top of the screen, never only at the foot.**
   `Notice` (ui.tsx) shows its message as a card sliding down over the
   top of whatever screen is open (`src/components/Toast.tsx`, `ToastHost`

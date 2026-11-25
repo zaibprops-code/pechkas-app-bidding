@@ -100,7 +100,7 @@ for (const [what, change, field] of [
   ['an offer below Rs 1,000, the inspection fee', { offer: 99900 }, 'offer'],
   ['an offer with paisa in it', { offer: 250050 }, 'offer'],
   ['a job type from a different trade', { type: plumbing.id }, 'job_type'],
-  ['a sector Pechkas does not work in yet', { sector: 'G-7' }, 'sector'],
+  ['a place outside Islamabad (fast_posting: every part of Islamabad takes jobs)', { sector: 'Satellite Town' }, 'sector'],
   ['a sector that does not exist', { sector: 'Atlantis' }, 'sector'],
   ['no house number', { house: ' ' }, 'house'],
   ['"today" with no part of the day', { part: null }, 'when'],

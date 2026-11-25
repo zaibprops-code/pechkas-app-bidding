@@ -40,6 +40,8 @@ export type Draft = {
    * database does.
    */
   askFor: { name: string; trade: string; minutes: number; at: number } | null;
+  /** Which of the three steps she was on, so a form left halfway opens there again. */
+  step: 1 | 2 | 3;
 };
 
 export const EMPTY: Draft = {
@@ -63,6 +65,7 @@ export const EMPTY: Draft = {
   gateNote: '',
   offer: null,
   askFor: null,
+  step: 1,
 };
 
 const KEY = 'pechkas.draft.job';

@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "55bb720";
+export const LEGAL_FROM = "fa1d8b7";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -158,7 +158,14 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If Pechkas does not work in your sector yet and you tell us so in the app: which sector, and what kind of work you need. Nothing else is sent with it."
+              "t": "If you put the pin outside Islamabad and tap "
+            },
+            {
+              "t": "Tell me when you come to Rawalpindi",
+              "b": true
+            },
+            {
+              "t": ": which city, and what kind of work you need. Nothing else is sent with it."
             }
           ],
           [
@@ -802,7 +809,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " on iPhone draw the maps inside the app. To draw one they receive the area being shown: the place you pin, or where you are if you tap to show it. When you put the pin on the house, the phone's own map service (Google's on Android, Apple's on iPhone) is also asked which sector and street the pin is in, so that you do not have to type them; it receives the place you pinned. Pechkas itself keeps only the pin of a job you post, and, for technicians, the two location checks described above. Checking a location uses no outside map service: the distance is worked out by Pechkas itself."
+              "t": " on iPhone draw the maps inside the app. To draw one they receive the area being shown: the place you pin, or where you are if you tap to show it. When you put the pin on the house, the phone's own map service (Google's on Android, Apple's on iPhone) is also asked which sector and street the pin is in, so that you do not have to type them; it receives the place you pinned. If you type a street or a place into the map's search box, those words go to the same map service to find it, and Pechkas does not keep them. Pechkas itself keeps only the pin of a job you post, and, for technicians, the two location checks described above. Checking a location uses no outside map service: the distance is worked out by Pechkas itself."
             }
           ]
         ]
@@ -1188,12 +1195,12 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "items": [
           [
             {
-              "t": "You say what is wrong, where and when, and the price you will pay. The app shows Pechkas' usual price for common jobs as a guide. You may offer what you like above the lowest price the app shows."
+              "t": "You say what is wrong, where, and the price you will pay. Every job is for as soon as possible: each technician's offer says when he can come, and you choose. The app shows Pechkas' usual price for common jobs as a guide. You may offer what you like, from the lowest price the app shows for that job upward."
             }
           ],
           [
             {
-              "t": "Jobs can be posted only in the sectors the app lists, because nobody could honestly be promised anywhere else."
+              "t": "Jobs can be posted anywhere in Islamabad, Bahria Town and DHA included, and nowhere else for now, because nobody could honestly be promised anywhere else."
             }
           ],
           [

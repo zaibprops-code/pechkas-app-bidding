@@ -23,23 +23,23 @@ export const CUSTOMER_HELP: HelpTopic[] = [
     key: 'posting',
     icon: 'jobs',
     title: 'Posting a job',
-    about: 'Your price, the day, the pin, a voice note',
+    about: 'Three steps: the problem, where, your price',
     qa: [
       {
         q: 'How do I post a job?',
-        a: 'On home, tap the kind of work, or search for what you see, and choose the job. Say what is wrong with a voice note, a video, photos or a few words, pick the day, set the address on the map and say your price. Then tap **Post job**. Technicians who work in your sector see it and make offers.',
+        a: 'On home, tap the kind of work, or search for what you see, and choose the job. Then three steps: show us the problem with a voice note, a video, photos or a few words; put the pin on your house on the map; and say your price. Then tap **Post job**. Technicians see it and make offers.',
       },
       {
         q: 'How do I choose my price?',
-        a: 'Your price is what you offer for the job. Each job shows the usual Pechkas price and, once enough jobs like it have been finished, what most of them went for. One tap of − or + changes it by Rs 50. Technicians accept your price or ask for more, and you decide.',
+        a: 'Your price is what you offer for the job. It starts at the usual Pechkas price, and once enough jobs like it have been finished you also see what most of them went for. One tap of − or + changes it by Rs 50. Each job has a lowest price, shown on the bar under it; − stops there. Technicians accept your price or ask for more, and you decide.',
       },
       {
-        q: 'Which day can I choose?',
-        a: 'Today, while a two-hour slot is still open (the last one starts at 8pm), tomorrow, or a day in the coming week. You choose the day; each technician says in his offer the two hours he will arrive in.',
+        q: 'When will somebody come?',
+        a: 'As soon as possible: there is no day to pick. Each technician says in his offer the two hours he will arrive in, and you choose. Late in the evening, after the last two-hour slot has started at 8pm, the job is for tomorrow morning.',
       },
       {
         q: 'Why must I set a pin on the map?',
-        a: 'The pin tells Pechkas which sector the job is in, so only technicians who work there see it. Your street and house go only to the technician you choose, and only while the job is on. The pin is also how his arrival at your door is checked.',
+        a: 'The pin tells Pechkas where the job is, and the street and sector are read from it, so you only type the house number. Pechkas works anywhere in Islamabad for now, Bahria Town and DHA included. Your street and house go only to the technician you choose, and only while the job is on. The pin is also how his arrival at your door is checked.',
       },
       {
         q: 'Can I send a voice note in Urdu?',
@@ -47,7 +47,7 @@ export const CUSTOMER_HELP: HelpTopic[] = [
       },
       {
         q: 'Nobody has offered. What can I do?',
-        a: 'If nobody offers for a while, you are told, and your job offers three choices: raise your price by Rs 200, 500 or 1,000 (up to three times), **Choose another day**, or **Keep waiting**. A job nobody took closes at 8pm on its day; open it and tap **Book again** to post it again.',
+        a: 'If nobody offers for a while, you are told, and your job offers two choices: raise your price by Rs 200, 500 or 1,000 (up to three times), or **Keep waiting**. A job nobody took closes at 8pm on its day; open it and tap **Book again** to post it again.',
       },
     ],
   },

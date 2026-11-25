@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Modal, Platform, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, type Region } from 'react-native-maps';
 import Constants from 'expo-constants';
@@ -204,6 +204,58 @@ function RealMap({ center, pin, zoom, interactive, showsUser, style }: {
   );
 }
 
+
+/** What Where (Post a job, step 2) can ask of the map it shows. */
+export type StageApi = { goTo: (p: Point) => void };
+
+/**
+ * The map that fills Post a job's Where step, inDrive's way: the pin stays in
+ * the middle and lifts while the map moves under it, and settles when it
+ * stops. `onMove` is told the moment the map starts moving; `onIdle` where
+ * the pin is once it stops (Where then asks the phone's map service what is
+ * there). `pinOffset` lifts the middle above the card at the foot.
+ */
+export const MapStage = forwardRef<StageApi, { start: Point; pinOffset?: number; onMove?: () => void; onIdle: (p: Point) => void }>(function MapStage({ start, pinOffset = 0, onMove, onIdle }, ref) {
+  const map = useRef<MapView>(null);
+  const [moving, setMoving] = useState(false);
+  useImperativeHandle(ref, () => ({ goTo: (p: Point) => map.current?.animateToRegion(near(p, 0.004), 500) }), []);
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <MapView
+        ref={map}
+        style={StyleSheet.absoluteFill}
+        provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+        initialRegion={near(start, 0.005)}
+        customMapStyle={QUIET}
+        rotateEnabled={false}
+        pitchEnabled={false}
+        toolbarEnabled={false}
+        showsMyLocationButton={false}
+        mapPadding={{ top: 0, left: 0, right: 0, bottom: pinOffset * 2 }}
+        onRegionChange={() => {
+          if (!moving) {
+            setMoving(true);
+            onMove?.();
+          }
+        }}
+        onRegionChangeComplete={(r) => {
+          setMoving(false);
+          onIdle({ latitude: r.latitude, longitude: r.longitude });
+        }}
+      />
+      <View style={[s.centre, { paddingBottom: 46 + pinOffset * 2 }]} pointerEvents="none">
+        {/* Lifted while the map moves, by transform only; its shadow stays on the spot. */}
+        <View style={{ transform: [{ translateY: moving ? -12 : 0 }] }}>
+          <Pin />
+        </View>
+      </View>
+      <View style={[s.centre, { paddingBottom: pinOffset * 2 }]} pointerEvents="none">
+        <View style={s.spot} />
+      </View>
+    </View>
+  );
+});
+
 /**
  * "Move the map until the pin is on your house." The pin stays in the middle
  * and the map moves under it, the way every ride app does it. Confirming
@@ -276,5 +328,6 @@ const s = StyleSheet.create({
   bubble: { flex: 1, minHeight: 48, justifyContent: 'center', paddingHorizontal: 14, borderRadius: 16, backgroundColor: colour.white, boxShadow: '0px 3px 10px rgba(20, 23, 26, 0.18)' },
   bubbleText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink },
   pickerBottom: { position: 'absolute', left: 0, right: 0, bottom: 0, gap: 10, paddingHorizontal: 16, paddingTop: 16, backgroundColor: colour.white, borderTopLeftRadius: 28, borderTopRightRadius: 28 },
+  spot: { width: 14, height: 6, borderRadius: 3, backgroundColor: 'rgba(20, 23, 26, 0.3)' },
   note: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.brick },
 });

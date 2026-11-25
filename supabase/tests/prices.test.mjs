@@ -39,6 +39,8 @@ await setup(`INSERT INTO public.pros (id, full_name, trades, years, sectors, sta
 await setup(`UPDATE public.settings SET value = 1000 WHERE key IN ('max_open_jobs', 'max_posts_per_day')`);
 // Plenty of room for what the tests make him owe.
 await setup(`UPDATE public.settings SET value = 100000000 WHERE key = 'credit_limit_paisa'`);
+// The lowest price for a job (fast_posting) is fastposting.test.mjs's: here prices must range freely.
+await setup(`UPDATE public.settings SET value = 0 WHERE key = 'min_price_bps'`);
 
 async function call(who, sql, params = []) {
   const r = await as('authenticated', who, sql, params);
