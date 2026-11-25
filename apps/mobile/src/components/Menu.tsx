@@ -12,7 +12,6 @@ import { Press } from './Press';
 import { Glow } from './YellowTop';
 import { useAccount } from '../account';
 import { supabase } from '../supabase';
-import { OFFICE_WHATSAPP } from '../office';
 import { APP_VERSION } from '../version';
 import { colour, font } from '../theme';
 
@@ -44,13 +43,13 @@ import { colour, font } from '../theme';
  * words never fade).
  *
  * Every item goes somewhere real. The stores reject a menu item that does
- * nothing, and so should we. "Support" opens the office on WhatsApp, the
- * way Pechkas has always answered, and says so; Help has the phone number too.
+ * nothing, and so should we. "Support" opens Write to the office: the office
+ * answers only in the app, never by a call or WhatsApp (the owner's rule).
  */
 
 type Item = { icon: DuoName; label: string; to?: Href; open?: () => void; note?: string; count?: boolean; unread?: boolean };
 
-const support: Item = { icon: 'support', label: 'Support', note: 'WhatsApp', open: () => void Linking.openURL(OFFICE_WHATSAPP).catch(() => {}) };
+const support: Item = { icon: 'support', label: 'Support', note: 'In the app', to: '/office' };
 
 /** Only what is true about Pechkas, so a friend is promised nothing it does not do. */
 const SHARE_TEXT = 'Pechkas: checked technicians for home repairs in Islamabad, and you name the price. https://pechkas.net';

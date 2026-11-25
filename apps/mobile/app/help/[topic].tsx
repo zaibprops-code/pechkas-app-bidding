@@ -10,7 +10,7 @@ import { colour } from '../../src/theme';
 /**
  * One Help topic on its own page, not a pop-up: the topic on the side's
  * coloured top, every question in one card with the first answer open (one
- * at a time), then the two topics after it and the office on WhatsApp.
+ * at a time), then the two topics after it and Write to the office.
  */
 export default function HelpTopicPage() {
   const { account } = useAccount();

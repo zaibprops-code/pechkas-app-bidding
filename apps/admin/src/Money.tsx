@@ -3,6 +3,7 @@ import { Head } from './Duo.tsx';
 import { rupees } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
 import { shown } from './phones.ts';
+import { WriteTo } from './WriteTo.tsx';
 
 /**
  * What each technician owes Pechkas, and recording what he paid.
@@ -640,7 +641,7 @@ function PayPro({ p, onDone }: { p: OwedPro; onDone: () => void }) {
       </div>
       <div className="buttons">
         <button disabled={busy} onClick={save}>Record payment</button>
-        {p.phone ? <a className="call" href={`tel:+${p.phone.replace(/^\+/, '')}`}>Call</a> : null}
+        <WriteTo name={p.name} user={p.pro_id} />
       </div>
       {msg ? <p className={msg === 'Recorded.' ? 'muted' : 'error'} role="alert">{msg}</p> : null}
     </article>
@@ -712,7 +713,7 @@ function ProMoney({ p, extend, onChanged }: { p: ProRow; extend: MoneyData['exte
       <div className="buttons">
         {p.owed_paisa > 0 && !paying ? <button onClick={() => setPaying(true)}>Record a payment</button> : null}
         <button className="secondary" onClick={() => setShowLines(!showLines)}>{showLines ? 'Hide account' : 'Account, line by line'}</button>
-        {p.phone ? <a className="call" href={`tel:+${p.phone.replace(/^\+/, '')}`}>Call</a> : null}
+        <WriteTo name={p.full_name} user={p.id} />
       </div>
       {paying ? <PayForm p={p} onDone={() => { setPaying(false); onChanged(); }} onCancel={() => setPaying(false)} /> : null}
       {showLines ? <Lines pro={p.id} onChanged={onChanged} /> : null}

@@ -1952,6 +1952,29 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## Everything with the office happens in the app (25 November 2026)
+
+Your rule: no calls and no WhatsApp, either way. People write to the
+office inside the app, and the office answers them there.
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261130000000_in_the_app.sql`, after
+   `20261129000000_office_answers.sql`. It should say **Success**. No new
+   build: the screens come as an update.
+2. **Where people write**: menu → **Help** → **Write to the office** (also
+   **Support** in the menu, and **Write to the office** / **Get help with
+   this job** on a job). They choose the job, or "Not about a job".
+3. **Where you answer**: admin panel → **Problems**. Messages sit there with
+   the reports (kind **Message**). Type in **Answer … in the app** and press
+   **Send the answer**. Your phone is told when somebody writes: who, and
+   the job number, never the words.
+4. **Writing first**: everywhere the panel used to show **Call**, it now
+   shows **Write to … in the app**. What you type is what they read, under
+   Write to the office.
+5. **Still to decide**: the website's delete-account page still offers
+   WhatsApp and a call, because Google Play wants a way to ask for deletion
+   without the app. Tell Claude what you want there.
+
 ## The office answers reports in the app (25 November 2026)
 
 When a customer or technician taps **Report** on a job (or **Something is
@@ -1969,8 +1992,8 @@ You take no calls, so the office now answers in writing, inside the app.
    correct an answer later; they see the newest.
 3. **Closing** is unchanged: the note under **What was done about it** is
    your own record and is never shown to them.
-4. **Where they read it**: on the job itself, under the Report box, and at
-   the top of **Help**, under **Your reports to the office**.
+4. **Where they read it**: on the job itself, under the Report box, and in
+   **Help → Write to the office**, under **Your messages**.
 
 ## Settings, redesigned (25 November 2026)
 

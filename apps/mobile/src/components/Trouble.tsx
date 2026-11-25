@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Linking, Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -6,7 +7,7 @@ import Svg, { Circle, G, Path, Rect } from 'react-native-svg';
 import { Mark } from './Mark';
 import { Button, SystemBars } from './ui';
 import { useBackOnline, useOffline } from '../net';
-import { APP_STORE_APP, APP_STORE_ID, OFFICE_PHONE, OFFICE_PHONE_SHOWN, PLAY_STORE_APP, PLAY_STORE_WEB } from '../office';
+import { APP_STORE_APP, APP_STORE_ID, PLAY_STORE_APP, PLAY_STORE_WEB } from '../office';
 import { colour, font } from '../theme';
 
 /**
@@ -21,10 +22,10 @@ import { colour, font } from '../theme';
  *   database     this code needs a database change that has not been run yet
  *
  * Each one says what happened in plain words, what the person can do, and
- * gives them a button that does it. Nothing says "error 503". When the
- * phone is offline, "Call the office" is the way out: a phone call needs
- * no internet, which is the one thing a customer with a dead connection
- * and a leaking pipe can still do.
+ * gives them a button that does it. Nothing says "error 503". The office
+ * is reached only inside the app (the owner's rule), so there is no "Call
+ * the office" here: offline, the way out is Try again and the emergency
+ * numbers, whose page works with no internet.
  *
  * `full` fills the screen (at launch, the crash screen, a missing page);
  * without it the same words sit in a card inside a screen, under that
@@ -135,7 +136,6 @@ export function Trouble({ kind: asked, onRetry, onHome, detail, note, onSafety, 
 
   const w = WORDS[kind];
   const noInternet = kind === 'offline' || kind === 'unreachable';
-  const call = noInternet || kind === 'update' || kind === 'paused' || kind === 'database';
 
   const words = (
     <View style={s.words}>
@@ -163,15 +163,7 @@ export function Trouble({ kind: asked, onRetry, onHome, detail, note, onSafety, 
       {onHome && (kind === 'broken' || kind === 'missing') ? (
         <Button kind={kind === 'missing' ? 'yellow' : 'outline'} label="Go to home" icon="home" onPress={onHome} />
       ) : null}
-      {call ? (
-        <>
-          <Button kind="outline" label="Call the office" icon="phone" onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`).catch(() => {})} />
-          {noInternet ? (
-            <Text style={s.callNote}>A phone call works without the internet: {OFFICE_PHONE_SHOWN.replace(/ /g, '\u00a0')}</Text>
-          ) : null}
-        </>
-      ) : null}
-      {onSafety ? <Button kind="outline" label="Emergency numbers" icon="shield" onPress={onSafety} /> : null}
+      {onSafety || noInternet ? <Button kind="outline" label="Emergency numbers" icon="shield" onPress={onSafety ?? (() => router.push('/safety'))} /> : null}
     </View>
   );
 
@@ -331,5 +323,4 @@ const s = StyleSheet.create({
   note: { alignSelf: 'stretch', gap: 4, padding: 14, borderRadius: 16, backgroundColor: colour.white, borderWidth: 1, borderColor: colour.rule },
   noteLabel: { fontFamily: font.bodySemi, fontSize: 13, color: colour.green },
   noteText: { fontFamily: font.bodyMedium, fontSize: 16, lineHeight: 23, color: colour.ink },
-  callNote: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel, textAlign: 'center' },
 });

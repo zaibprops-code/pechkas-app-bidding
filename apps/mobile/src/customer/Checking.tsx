@@ -11,7 +11,7 @@ import { useToast } from '../components/Toast';
 import { done } from '../message';
 import { useAccount } from '../account';
 import { useSignedUrls } from '../post/RemoteMedia';
-import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
+import { toOffice } from '../office';
 import { ask } from '../supabase';
 import { answered, NO_ANSWERS, sendAnswers, TrialQuestions, type TrialAnswers } from './FirstJobs';
 import { colour, font, radius } from '../theme';
@@ -212,7 +212,7 @@ export function DisputeCard({ job }: { job: CheckFields }) {
   return (
     <Panel icon="shield" title="Pechkas is looking at this job" hint={`You and ${name} disagree about whether the work is finished.`}>
       <Text style={s.line}>Pechkas looks at both sides’ photos and words, decides, and shows you both its decision here. You do not need to do anything now.</Text>
-      <Button kind="outline" label={`Call Pechkas · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+      <Button kind="outline" label="Write to the office" onPress={() => toOffice(job.id)} />
     </Panel>
   );
 }

@@ -3,11 +3,12 @@ import { Head } from './Duo.tsx';
 
 import { ask, supabase } from './supabase.ts';
 import { shown } from './phones.ts';
+import { WriteTo } from './WriteTo.tsx';
 
 /**
  * Patterns worth a look, from public.admin_flags(). A flag is not a verdict:
  * every one of these also happens to honest people. Nothing here suspends,
- * blocks or charges anybody. You read, ring, write what you found, and — if
+ * blocks or charges anybody. You read, write to them in the app, note what you found, and — if
  * you decide to — suspend a technician by hand under Technicians.
  */
 
@@ -38,14 +39,14 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
     `${f.n} jobs where parts were ${Math.round((l.flag_parts_bps ?? 0) / 100)}% or more of the price.`,
     'Parts lower the Pechkas fee. Open the receipts in those jobs and check the shop and the amounts.',
   ],
-  codes: (f) => [`${f.n} wrong start codes were typed on his jobs.`, 'Somebody else at the gate, or a customer misreading the code. Ring the customers.'],
+  codes: (f) => [`${f.n} wrong start codes were typed on his jobs.`, 'Somebody else at the gate, or a customer misreading the code. Write to the customers in the app.'],
   late_arrivals: (f) => [
     `${f.n} late arrivals: more than 30 minutes after his time began.`,
     'Read them under Cancellations, with anything he wrote. Dismiss the ones that were not his fault; nothing happens to him on its own.',
   ],
   no_shows: (f) => [
     `${f.n} confirmed no-show${f.n === 1 ? '' : 's'}: he never arrived.`,
-    'Ring him and ask what happened. A customer left waiting is the thing that most damages trust in Pechkas.',
+    'Write to him in the app and ask what happened. A customer left waiting is the thing that most damages trust in Pechkas.',
   ],
   complaints: (f) => [`${f.n} problems or guarantee claims from customers.`, 'Read them under Problems.'],
   low_stars: (f) => [`${f.n} ratings of one or two stars.`, 'Read the words with them in the jobs.'],
@@ -55,15 +56,15 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
   ],
   blocked: (f) => [
     `${f.n} customers blocked him: they never want him sent again.`,
-    'Ring them and ask why. Open "Who blocked him" below for their names and words.',
+    'Write to them in the app and ask why. Open "Who blocked him" below for their names and words.',
   ],
   price_over: (f, l) => [
     `${f.n} jobs where his price for the work was more than ${Math.round((l.flag_price_over_bps ?? 0) / 100)}% above what jobs of that kind usually go for.`,
-    'Some jobs really are bigger than they look. Open them, read the photos and any new price he asked for, and ring the customers to ask whether it felt fair.',
+    'Some jobs really are bigger than they look. Open them, read the photos and any new price he asked for, and write to the customers in the app to ask whether it felt fair.',
   ],
   unchecked: (f) => [
     `${f.n} of his ${f.of} finished jobs closed by themselves after 24 hours, with the customer never checking.`,
-    'He may be finishing when nobody is watching. Ring a few of those customers and ask whether the work was done.',
+    'He may be finishing when nobody is watching. Write to a few of those customers in the app and ask whether the work was done.',
   ],
   guarantee: (f) => [
     `${f.n} guarantee claims on his work in the last 60 days.`,
@@ -79,33 +80,33 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
   ],
   not_home: (f) => [
     `The office confirmed ${f.n} times that nobody was home when the technician came.`,
-    'Each one was a wasted trip. Ring her before anything else; she may have a reason. Nothing happens on its own.',
+    'Each one was a wasted trip. Write to her in the app before anything else; she may have a reason. Nothing happens on its own.',
   ],
   unverified_arrivals: (f) => [
     `${f.n} times his "I have arrived" could not be verified by location, and was not approved.`,
-    'Open them under Cancellations → Arrivals to check. A poor signal or a wrong pin is not misconduct; a pattern far from the pin is worth a call.',
+    'Open them under Cancellations → Arrivals to check. A poor signal or a wrong pin is not misconduct; a pattern far from the pin is worth a question in the app.',
   ],
   not_home_reports: (f) => [
     `${f.n} "nobody home" reports made by him.`,
-    'Most customers are home. Open his reports under Cancellations, look at the photos and times, and ring a few of those customers.',
+    'Most customers are home. Open his reports under Cancellations, look at the photos and times, and write to a few of those customers in the app.',
   ],
   late_cancels: (f) => [
     `This customer cancelled ${f.n} jobs late, or sent them to another technician just as late with no fault of his: at the door, within 2 hours, or after he set off.`,
-    'Each one may have cost a technician a trip. Cancelling stays free; ring her, then mark it reviewed under Cancellations.',
+    'Each one may have cost a technician a trip. Cancelling stays free; write to her in the app, then mark it reviewed under Cancellations.',
   ],
   late_withdrawals: (f) => [
     `${f.n} times he tapped "I can't come" within 2 hours of his time, or after it began.`,
-    'Each one left a customer waiting for somebody new. See his reasons under Cancellations → Reliability, ring him, and pause his offers only if talking has not worked.',
+    'Each one left a customer waiting for somebody new. See his reasons under Cancellations → Reliability, write to him in the app, and pause his offers only if that has not worked.',
   ],
   overdue: () => [
     'A fee of his is past its 3 days of grace: his new offers have stopped until it is paid.',
-    'See Money for the fee and its dates. Ring him; if he is ill or has an emergency, you can give more time once.',
+    'See Money for the fee and its dates. Write to him in the app; if he is ill or has an emergency, you can give more time once.',
   ],
   reports: (f) => [`Technicians reported ${f.n} problems on this customer's jobs.`, 'Read them under Problems.'],
   // D35: flags only. Nothing here charges, blocks or pauses anybody.
   unpaid_reports: (f) => [
     `${f.n} times he reported that a customer did not pay him in full.`,
-    'Most customers pay. Open them under Payment disputes and ring a few of those customers; it may be bad luck, or a habit.',
+    'Most customers pay. Open them under Payment disputes and write to a few of those customers in the app; it may be bad luck, or a habit.',
   ],
   false_unpaid: () => [
     'The office found one of his "not paid in full" reports false.',
@@ -134,12 +135,11 @@ const SAYS: Record<string, (f: Flag, limits: Record<string, number>) => [string,
   ],
   unpaid_jobs: (f) => [
     `This customer agreed, or the office found, ${f.n} times that she had not paid a technician in full.`,
-    'See Payment disputes. Ring her before anything else; a report alone never counts here.',
+    'See Payment disputes. Write to her in the app before anything else; a report alone never counts here.',
   ],
 };
 
 const time = (t: string) => new Date(t).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
-const tel = (p: string) => `tel:+${p.replace(/^\+/, '')}`;
 
 export function Flags() {
   const [r, setR] = useState<Report | null>(null);
@@ -203,7 +203,7 @@ function PersonCard({ p, limits, onChanged }: { p: Person; limits: Record<string
           </p>
           <h2>{p.name}</h2>
         </div>
-        {p.phone ? <a className="call" href={tel(p.phone)}>Call · {shown(p.phone)}</a> : null}
+        <WriteTo name={p.name} user={p.id} />
       </div>
       <ul className="flags">
         {p.flags.map((f) => {

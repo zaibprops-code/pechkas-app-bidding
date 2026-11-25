@@ -6,7 +6,7 @@ import { MediaPick } from '../components/MediaPick';
 import { useToast } from '../components/Toast';
 import { useAccount } from '../account';
 import { done } from '../message';
-import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
+import { toOffice } from '../office';
 import { ask } from '../supabase';
 import { colour, font } from '../theme';
 import type { PaymentView } from '../pro/Unpaid';
@@ -88,7 +88,7 @@ export function PaymentCard({ p, name, jobId, onChanged }: { p: PaymentView; nam
             <Text style={s.line}>The Pechkas office is dealing with it. You can post new jobs meanwhile.</Text>
           )}
           <Text style={s.line}>Pay {name} in cash, or by JazzCash or Easypaisa. He tells Pechkas when he has received it.</Text>
-          <Button kind="outline" label={`Call Pechkas ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+          <Button kind="outline" label="Write to the office" onPress={() => toOffice(jobId)} />
         </>
       ) : (
         <>

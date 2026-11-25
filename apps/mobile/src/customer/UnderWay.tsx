@@ -6,7 +6,7 @@ import { Button, Notice } from '../components/ui';
 import { Press } from '../components/Press';
 import { DuoIcon } from '../components/DuoIcon';
 import { Action, Panel, SHADOW, SOFT_YELLOW, Steps } from './bits';
-import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
+import { toOffice } from '../office';
 import { useSignedUrls } from '../post/RemoteMedia';
 import { ask } from '../supabase';
 import { colour, font, radius } from '../theme';
@@ -207,8 +207,8 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
 
       {job.code_locked ? (
         <View style={s.warnBox}>
-          <Text style={s.warnText}>Too many wrong codes were tried at your door. Do not let anyone in yet. The Pechkas office has been told and will message you on WhatsApp.</Text>
-          <Button kind="green" label={narrow ? `Call ${OFFICE_PHONE_SHOWN}` : `Call Pechkas · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+          <Text style={s.warnText}>Too many wrong codes were tried at your door. Do not let anyone in yet. The Pechkas office has been told and will unlock it.</Text>
+          <Button kind="green" label="Write to the office" onPress={() => toOffice(job.id)} />
         </View>
       ) : null}
 

@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { Head } from './Duo.tsx';
 import { ask, supabase } from './supabase.ts';
 import { Decide, People, when } from './Guarantee.tsx';
-import { shown } from './phones.ts';
 import { NotHomeSections } from './NotHome.tsx';
 import { ArrivalSections } from './Arrivals.tsx';
 import { ReliabilitySections } from './Reliability.tsx';
+import { WriteTo } from './WriteTo.tsx';
 
 /**
  * Cancellations, late arrivals and no-shows, from public.admin_cancellations()
@@ -125,7 +125,6 @@ const STATUS: Record<Incident['status'], string> = {
 };
 const FOR: Record<string, string> = { customer: 'for the customer', pro: 'for the technician', other: '' };
 const first = (name: string | null) => (name ? name.split(' ')[0] : 'The technician');
-const tel = (p: string) => `tel:+${p.replace(/^\+/, '')}`;
 
 export function Cancellations() {
   const [r, setR] = useState<Report | null>(null);
@@ -293,7 +292,7 @@ function decide(i: Incident, confirm: boolean) {
   return (note: string) => ask('admin_incident', { p_incident: i.id, p_confirm: confirm, p_note: note }) as Promise<{ ok: boolean; why?: string }>;
 }
 
-/** A potential no-show or a disputed record: ring both, then confirm or dismiss. */
+/** A potential no-show or a disputed record: write to both in the app, then confirm or dismiss. */
 function IncidentCard({ i, onDone }: { i: Incident; onDone: () => void }) {
   return (
     <article className="card urgent">
@@ -309,7 +308,7 @@ function IncidentCard({ i, onDone }: { i: Incident; onDone: () => void }) {
           </p>
         </div>
       </div>
-      <People customer={i.customer} customerPhone={i.customer_phone} pro={i.pro} proPhone={i.pro_phone} />
+      <People customer={i.customer} pro={i.pro} job={i.job_id} />
       <IncidentFacts i={i} />
       <Decide
         label={`What you found (${first(i.pro)} reads this in the app)`}
@@ -355,7 +354,7 @@ function IncidentLine({ i, onDone }: { i: Incident; onDone: () => void }) {
   );
 }
 
-/** A customer who has reached the review line: ring her, then note what you found. */
+/** A customer who has reached the review line: write to her in the app, then note what you found. */
 function ReviewCard({ c, days, rows, onDone }: { c: ToReview; days: number; rows: Cancellation[]; onDone: () => void }) {
   return (
     <article className="card urgent">
@@ -369,7 +368,7 @@ function ReviewCard({ c, days, rows, onDone }: { c: ToReview; days: number; rows
         </div>
       </div>
       <div className="buttons">
-        {c.phone ? <a className="call" href={tel(c.phone)}>Call {c.customer} · {shown(c.phone)}</a> : <span className="muted">No number for {c.customer}.</span>}
+        <WriteTo name={c.customer} user={c.customer_id} />
       </div>
       <ul>
         {rows.map((x) => (

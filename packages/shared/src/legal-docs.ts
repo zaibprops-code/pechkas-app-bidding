@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "1cd8e1c";
+export const LEGAL_FROM = "030eb2f";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -507,7 +507,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
             "b": true
           },
           {
-            "t": ": a person looks, and may ring you before deciding anything."
+            "t": ": a person looks, and may write to you in the app before deciding anything."
           }
         ]
       },
@@ -1024,18 +1024,21 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "k": "p",
         "c": [
           {
-            "t": "WhatsApp us",
-            "href": "https://wa.me/923358855076?text=About%20my%20information%20in%20the%20Pechkas%20app"
+            "t": "Write to the office in the app: open the menu, tap "
           },
           {
-            "t": " or "
+            "t": "Help",
+            "b": true
           },
           {
-            "t": "call 0335 8855076",
-            "href": "tel:+923358855076"
+            "t": ", then"
           },
           {
-            "t": "."
+            "t": "Write to the office",
+            "b": true
+          },
+          {
+            "t": ". It answers you there, in writing, from 7am to 10pm. Everything between you and the Pechkas office happens inside the app: it does not call, and it does not use WhatsApp."
           }
         ]
       },
@@ -1646,7 +1649,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": "). After that, call the Pechkas office. A cancellation never creates a visit fee, whoever cancels."
+              "t": "). After that, write to the Pechkas office in the app. A cancellation never creates a visit fee, whoever cancels."
             }
           ],
           [
@@ -1965,7 +1968,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "items": [
           [
             {
-              "t": "Report a problem in the app while the job is on, or within a day after. It goes straight to the Pechkas office, which will ring you."
+              "t": "Report a problem in the app while the job is on, or within a day after. It goes straight to the Pechkas office, which answers you in writing, in the app."
             }
           ],
           [
@@ -2111,18 +2114,21 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "k": "p",
         "c": [
           {
-            "t": "WhatsApp us",
-            "href": "https://wa.me/923358855076?text=About%20the%20Pechkas%20app%20terms"
+            "t": "Write to the office in the app: open the menu, tap "
           },
           {
-            "t": " or "
+            "t": "Help",
+            "b": true
           },
           {
-            "t": "call 0335 8855076",
-            "href": "tel:+923358855076"
+            "t": ", then"
           },
           {
-            "t": "."
+            "t": "Write to the office",
+            "b": true
+          },
+          {
+            "t": ". It answers you there, in writing, from 7am to 10pm. Everything between you and the Pechkas office happens inside the app: it does not call, and it does not use WhatsApp."
           }
         ]
       },
@@ -3341,7 +3347,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": ". Once your arrival has been verified, or the customer has given you the start code, call the office instead. Pechkas decides which it is by its own clock, not your phone's."
+              "t": ". Once your arrival has been verified, or the customer has given you the start code, write to the office in the app instead. Pechkas decides which it is by its own clock, not your phone's."
             }
           ],
           [
@@ -3525,7 +3531,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Three late withdrawals in 60 days ask the office to review your account; so do repeated late arrivals and confirmed no-shows. The office may then ring you and, as a step short of suspension, "
+              "t": "Three late withdrawals in 60 days ask the office to review your account; so do repeated late arrivals and confirmed no-shows. The office may then write to you in the app and, as a step short of suspension, "
             },
             {
               "t": "pause your new offers",
@@ -3619,18 +3625,21 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "k": "p",
         "c": [
           {
-            "t": "WhatsApp us",
-            "href": "https://wa.me/923358855076?text=About%20the%20Pechkas%20technician%20agreement"
+            "t": "Write to the office in the app: open the menu, tap "
           },
           {
-            "t": " or "
+            "t": "Help",
+            "b": true
           },
           {
-            "t": "call 0335 8855076",
-            "href": "tel:+923358855076"
+            "t": ", then"
           },
           {
-            "t": "."
+            "t": "Write to the office",
+            "b": true
+          },
+          {
+            "t": ". It answers you there, in writing, from 7am to 10pm. Everything between you and the Pechkas office happens inside the app: it does not call, and it does not use WhatsApp."
           }
         ]
       },

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Linking, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DuoIcon } from './DuoIcon';
@@ -8,15 +8,15 @@ import { Icon } from './Icon';
 import { Press } from './Press';
 import { Glow } from './YellowTop';
 import { boldParts, wordMatches, type HelpQA, type HelpTopic } from '../help';
-import { OFFICE_WHATSAPP } from '../office';
+import { toOffice } from '../office';
 import { colour, font, glow, shadow, TAP } from '../theme';
 
 /**
  * The pieces Help's two pages share (the owner's design, 25 November 2026):
  * the side's own coloured top, a topic as a Settings-style row with how many
  * answers it holds, the questions as one card that opens one answer at a
- * time, and the office as the last row. WhatsApp only: the office answers in
- * writing, and the owner cannot take calls.
+ * time, and Write to the office as the last row: everything with the office
+ * happens in the app, never by a call or WhatsApp.
  */
 
 /** The side's colour (yellow customer, green technician), lit, rounded at the foot, under the clock. */
@@ -146,7 +146,7 @@ export function Questions({ items, words = [], openFirst = false }: { items: { q
   );
 }
 
-/** "Still need help?" — the office, on WhatsApp. */
+/** "Still need help?" — Write to the office, in the app. */
 export function OfficeRow() {
   return (
     <>
@@ -154,7 +154,7 @@ export function OfficeRow() {
         Still need help?
       </Text>
       <View style={s.rowCard}>
-        <DuoRow icon="support" label="Message the office" value="On WhatsApp, 7am to 10pm" onPress={() => void Linking.openURL(OFFICE_WHATSAPP)} last />
+        <DuoRow icon="support" label="Write to the office" value="It answers here, in the app, 7am to 10pm" onPress={() => toOffice()} last />
       </View>
     </>
   );

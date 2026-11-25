@@ -76,8 +76,15 @@ test('bold parts split cleanly', () => {
   ]);
 });
 
-test('no screen promises that Pechkas or the office will phone somebody (the owner takes no calls)', () => {
-  // The Emergency screen's line is the owner's open decision, so it is the one exception until he decides.
-  const lines = screens.split('\n').filter((l) => /(office|Pechkas|They)\b[^'`"]*\b(will call|calls? you)/i.test(l) && !l.includes('emSent'));
+test('everything with the office happens in the app: no call, no WhatsApp (the owner\'s rule)', () => {
+  // No office number or office WhatsApp link anywhere in the app.
+  assert.doesNotMatch(screens, /OFFICE_(PHONE|WHATSAPP)/);
+  const lines = screens.split('\n').filter(
+    (l) =>
+      /\b(call|ring|phone|whatsapp|message)\s+(the\s+)?(pechkas\s+)?office\b/i.test(l) ||
+      /\boffice\b[^'`"]{0,60}\b(on whatsapp|will (call|ring)|calls? you|rings? you)/i.test(l) ||
+      /(office|Pechkas|They)\b[^'`"]*\b(will call|calls? you)/i.test(l) ||
+      /\b(office|Pechkas)\b[^'`"]{0,40}\b(rings?|calls?) (her|him|them|you|both)\b/i.test(l),
+  );
   assert.deepEqual(lines, []);
 });

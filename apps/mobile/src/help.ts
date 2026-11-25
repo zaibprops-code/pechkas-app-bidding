@@ -243,7 +243,7 @@ export const CUSTOMER_HELP: HelpTopic[] = [
       },
       {
         q: 'I have given him the start code.',
-        a: 'Then the job cannot be cancelled in the app. Message the Pechkas office on WhatsApp: it can stop the job, and no fee is charged.',
+        a: 'Then you cannot cancel it yourself. Tap **Write to the office** on the job: the office can stop it, and no fee is charged.',
       },
     ],
   },
@@ -302,8 +302,8 @@ export const CUSTOMER_HELP: HelpTopic[] = [
         a: 'Open the menu and tap **Technician mode** at the foot. You fill in an application first; your customer account stays as it is.',
       },
       {
-        q: 'Where do I read the office’s answer to a report?',
-        a: 'The Pechkas office answers in writing, in the app, never by a call. You are told when it does, and the answer is on the job and at the top of Help, under Your reports to the office.',
+        q: 'How do I reach the office?',
+        a: 'Only in the app: the office never calls and is not on WhatsApp. In Help, tap **Write to the office**, choose the job it is about, and write. It answers there, 7am to 10pm, and you are told when it does; an answer about a job is on the job too.',
       },
       {
         q: 'How do I delete my account?',
@@ -334,7 +334,7 @@ export const TECHNICIAN_HELP: HelpTopic[] = [
       },
       {
         q: 'Can I change my trades or sectors?',
-        a: 'Only before you are approved. After that, message the Pechkas office.',
+        a: 'Only before you are approved. After that, write to the office in the app: Help, then **Write to the office**.',
       },
     ],
   },
@@ -474,7 +474,7 @@ export const TECHNICIAN_HELP: HelpTopic[] = [
       },
       {
         q: 'What do I collect?',
-        a: 'Your job shows the amount to collect. If no price has been agreed, it shows no figure: message the office before you take any money.',
+        a: 'Your job shows the amount to collect. If no price has been agreed, it shows no figure: tap **Write to the office** before you take any money.',
       },
       {
         q: 'The customer did not pay me in full.',
@@ -565,8 +565,8 @@ export const TECHNICIAN_HELP: HelpTopic[] = [
         a: 'Open the menu and tap **Customer mode** at the foot. You cannot switch in the middle of a job. Switching takes you off duty: you go offline and your waiting offers are withdrawn.',
       },
       {
-        q: 'Where do I read the office’s answer to a report?',
-        a: 'Tap **Report** on a job to tell the office something is wrong. It answers in writing, in the app, never by a call. You are told when it does, and the answer is on the job and at the top of Help, under Your reports to the office.',
+        q: 'How do I reach the office?',
+        a: 'Only in the app: the office never calls and is not on WhatsApp. In Help, tap **Write to the office**, or tap **Report** on a job. It answers in writing, 7am to 10pm, and you are told when it does; an answer about a job is on the job too.',
       },
       {
         q: 'How do I delete my account?',

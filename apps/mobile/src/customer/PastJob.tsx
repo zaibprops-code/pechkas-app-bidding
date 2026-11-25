@@ -12,7 +12,7 @@ import { TradeArt } from '../components/TradeArt';
 import { Button, Field, Notice } from '../components/ui';
 import { YellowTop } from '../components/YellowTop';
 import { done } from '../message';
-import { OFFICE_WHATSAPP } from '../office';
+import { toOffice } from '../office';
 import { useSignedUrls } from '../post/RemoteMedia';
 import { ask, supabase } from '../supabase';
 import { colour, font } from '../theme';
@@ -343,7 +343,7 @@ export function PastJob({ job, trade, onChanged }: { job: Job; trade: string; on
   }
 
   const help = () =>
-    Linking.openURL(`${OFFICE_WHATSAPP}?text=${encodeURIComponent(`About my Pechkas job ${job.ref} (${job.title}): `)}`);
+    toOffice(job.id);
 
   const shots = (['before', 'after', 'receipt', 'video', 'fix'] as const).flatMap((stage) => photos.filter((p) => p.stage === stage));
   const SHOT: Record<string, string> = { before: 'Before', after: 'After', receipt: 'Shop receipt', video: 'Video', fix: 'Guarantee repair' };
@@ -638,7 +638,7 @@ export function PastJob({ job, trade, onChanged }: { job: Job; trade: string; on
 
         {/* Help, safety and blocking: rows, out of the way of a stray tap. */}
         <View style={[s.card, s.links]}>
-          <Row icon="support" title="Get help with this job" sub="On WhatsApp, with the job number" onPress={help} />
+          <Row icon="support" title="Get help with this job" sub="Write to the office, with this job already chosen" onPress={help} />
           {job.can_report_safety && name ? (
             unsafe ? (
               <View style={s.inset}>

@@ -1,9 +1,11 @@
+import { router } from 'expo-router';
+import { useAccount } from '../src/account';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../src/components/ui';
 import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
 import { DuoRow, RowCard } from '../src/components/Rows';
 import { EmergencyTiles } from '../src/components/EmergencyTiles';
-import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../src/office';
+import { toOffice } from '../src/office';
 import { useProWords } from '../src/words';
 import { colour, font, shadow } from '../src/theme';
 
@@ -19,6 +21,7 @@ import { colour, font, shadow } from '../src/theme';
  */
 export default function Safety() {
   const { w } = useProWords();
+  const { session } = useAccount();
   const call = (n: string) => Linking.openURL(`tel:${n}`);
 
   return (
@@ -26,7 +29,8 @@ export default function Safety() {
       <EmergencyTiles label={(k) => w[k]} />
 
       <RowCard>
-        <DuoRow icon="support" label="Pechkas office" value={OFFICE_PHONE_SHOWN} onPress={() => call(OFFICE_PHONE)} last />
+        {/* Signed out, there is nobody for the office to answer: the row is for an account. */}
+        <DuoRow icon="support" label="Write to the office" value="It answers here, in the app, 7am to 10pm" onPress={() => (session ? toOffice() : router.push('/start'))} last />
       </RowCard>
 
       <Text style={s.h2} accessibilityRole="header">

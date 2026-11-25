@@ -91,7 +91,7 @@ export function LocationChecks({ checks, pin }: { checks: Check[]; pin: { lat: n
           <a href={maps(pin.lat, pin.lng)} target="_blank" rel="noreferrer">
             The customer's pin
           </a>
-          . A pin can be on the wrong house; ring her if the distance looks odd.
+          . A pin can be on the wrong house; write to her in the app if the distance looks odd.
         </p>
       ) : null}
     </div>
@@ -132,7 +132,7 @@ export function ArrivalSections() {
         <h2 id="ar-need">Arrivals to check{needs.length ? ` (${needs.length})` : ''}</h2>
         <p className="muted small">
           "I have arrived" is verified when he is within {d.radius_m} m of her pin with accuracy of {d.accuracy_m} m or better. These were not.
-          A poor signal, a wrong pin or a refused permission is not misconduct: ring, then approve or reject. {d.review_at} not approved in 60 days
+          A poor signal, a wrong pin or a refused permission is not misconduct: write to them in the app, then approve or reject. {d.review_at} not approved in 60 days
           asks you to review him (Flags). Exact points are erased after {d.keep_days} days.
         </p>
         {needs.length === 0 ? <p className="card">No arrivals waiting.</p> : null}
@@ -203,7 +203,7 @@ function ArrivalCard({ a, onDone }: { a: Arrival; onDone: () => void }) {
           </p>
         </div>
       </div>
-      <People customer={a.customer} customerPhone={a.customer_phone} pro={a.pro} proPhone={a.pro_phone} />
+      <People customer={a.customer} pro={a.pro} job={a.job_id} />
       <LocationChecks checks={a.checks} pin={a.pin} />
       <Decide
         label="What you found (he reads this in the app; kept for good)"

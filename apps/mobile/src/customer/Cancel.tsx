@@ -64,8 +64,8 @@ function meaning(job: CancelFields): string {
       return `It is free, and it does not count against you: ${name} has not arrived.`;
     case 'late':
       return job.stage === 'arrived'
-        ? `It is free, but ${name} is at your door, so it is recorded as a late cancellation. If that happens often, the Pechkas office may message you on WhatsApp.`
-        : `It is free, but it is close to ${name}'s time${job.stage === 'on_way' ? ' and he is on his way' : ''}, so it is recorded as a late cancellation. If that happens often, the Pechkas office may message you on WhatsApp.`;
+        ? `It is free, but ${name} is at your door, so it is recorded as a late cancellation. If that happens often, the Pechkas office looks at your account.`
+        : `It is free, but it is close to ${name}'s time${job.stage === 'on_way' ? ' and he is on his way' : ''}, so it is recorded as a late cancellation. If that happens often, the Pechkas office looks at your account.`;
     default:
       return `It is free. Please call ${name} to tell him too.`;
   }

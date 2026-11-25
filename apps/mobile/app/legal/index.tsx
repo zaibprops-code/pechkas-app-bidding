@@ -36,8 +36,8 @@ export default function LegalList() {
           <Card key={slug} icon={icon} danger={danger} title={d.title} text={d.lede} onPress={() => openLegal(slug)} />
         );
       })}
-      {/* Not a document, but where a question about one goes: Help has the office's hours, WhatsApp and phone. */}
-      <Card icon="support" title="Contact Pechkas" text="The answers to common questions, and the office on WhatsApp." onPress={() => router.push('/help')} />
+      {/* Not a document, but where a question about one goes: Help, and Write to the office in the app. */}
+      <Card icon="support" title="Contact Pechkas" text="The answers to common questions, and Write to the office." onPress={() => router.push('/help')} />
     </Screen>
   );
 }

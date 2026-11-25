@@ -500,8 +500,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   many answers — each opening its own page (the topic on the top, its
   questions in one card, the first open, one at a time, the chevron turned
   by transform and snapped; then two other topics and the office); and
-  **Message the office** on WhatsApp as the last row. **WhatsApp only, no
-  Call** (the owner cannot take calls). Nothing about one job (the job's
+  **Write to the office** (in the app) as the last row. Nothing about one job (the job's
   own screen says what to do next) and no legal or Safety rows (they are
   in the menu). Typing searches every answer of that side, each result
   naming its topic. The words are `src/help.ts` (`CUSTOMER_HELP`,
@@ -613,8 +612,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   record to the minute, what she wrote, her messages while `chat_until`)
   and the photos as 96-tall tiles (Before, After, Shop receipt, Video);
   then **Ask … again** and **Book again** side by side (Book again alone
-  is black), and rows: **Get help with this job** (the office on WhatsApp
-  with the job number typed), **Report something unsafe**, **Never send me
+  is black), and rows: **Get help with this job** (Write to the office,
+  with this job chosen), **Report something unsafe**, **Never send me
   …**. A cancelled job's card says what happened in a sentence the top has
   not said, her or the office's words, "Nothing was charged", Posted,
   Offers, Your price, Address. Everything is `my_jobs()` plus
@@ -967,8 +966,11 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   status and step, the functions add codes, prices and problems, each with
   who did it. Nobody can write or read it directly.
 - `push_words.who` says who reads each message.
-- The office number in the app is `src/office.ts`, copied from the
-  website's `site.js` — never invent one.
+- **There is no office number or office WhatsApp link in the app.**
+  `src/office.ts` has `toOffice(job)`, which opens Write to the office
+  (`app/office.tsx`); `help.test.ts` fails if `OFFICE_PHONE` or
+  `OFFICE_WHATSAPP` comes back, or any screen tells somebody to call,
+  ring or WhatsApp the office.
 
 ### Cancellations, late arrivals and no-shows (migration `…_cancellations`)
 - **The owner's decision D10 (10 November 2026): cancelling is always free
@@ -1382,12 +1384,29 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   job number only, never the answer. They read it through `my_reports(job)`
   (their own rows only, never `office_note`, which stays the office's
   record): `JobReports` under the Report box on the job (`UnderWay`,
-  `PastJob`, the technician's `OnTheJob`) and "Your reports to the office"
-  at the top of Help (`ReportItem`, `src/components/Reports.tsx`). A tapped
-  `office_answer` notification opens `/help`. No screen may promise that
-  Pechkas or the office will phone somebody: `help.test.ts` fails on one
-  (the Emergency screen's line is the owner's open decision until he
-  decides).
+  `PastJob`, the technician's `OnTheJob`) and under "Your messages" on
+  Write to the office (`ReportItem`, `src/components/Reports.tsx`). A
+  tapped `office_answer` or `office_wrote` notification opens `/office`.
+- **Write to the office (`app/office.tsx`) is the one way to reach the
+  office** (the owner's rule: everything with the office happens inside the
+  app; migration `…_in_the_app`, tests `inapp.test.mjs`). Help's last row,
+  Support in the menu, Safety, Emergency and every "Write to the office"
+  button on a job open it, the job already chosen (`toOffice(job)`). The
+  person picks the job (`office_jobs()`, their last 60 days) or "Not about
+  a job", writes, and sends (`write_to_office(job, text)`: their own job
+  only, 5–500 letters, no CNIC, 10 a day): a `problems` row of kind
+  `message`, `job_id` empty when it is about no job. The office's phones
+  are told who wrote and the job number, never the words
+  (`office_message`). The office answers on Problems
+  (`admin_answer_problem`), and can write first wherever the panel used
+  to offer "Call" (`WriteTo` in `apps/admin/src/WriteTo.tsx`,
+  `admin_write_to(job, side, user, text)`: a row of kind `office`, closed,
+  told with `office_wrote`, no words). `admin_problems()` carries no phone
+  number. No function, refusal, notification or office alert may tell
+  anybody to call, ring or WhatsApp the office: `inapp.test.mjs` reads
+  every function and every `push_words` line, and `help.test.ts` every
+  screen. Customers and technicians may still call each other, and the
+  emergency numbers are calls; neither is the office.
 - **The emergency button** alerts the office FIRST (`emergency()`), then the
   phone sends where it is (`emergency_where()`), never the other way round.
   A second press within a minute is the same emergency. The numbers are in
@@ -1648,7 +1667,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   straight on white — no cards, no lines, no groups, no headings** (he:
   "professional apps don't categorise them, just keep a proper sequence")
   in one order: Home or Jobs, My jobs or My account and Guarantee claims,
-  Notifications, Settings, Help, Support (saying "WhatsApp"), Safety,
+  Notifications, Settings, Help, Support (saying "In the app"), Safety,
   Legal, Tell a friend (the phone's share sheet, words that claim only what
   is true). Rows are 44 tall, the tightest a finger can safely tap: a
   **two-tone icon** (`DuoIcon.tsx`) on a 36 soft-yellow tile, the words, a
@@ -1680,7 +1699,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the status bar and the button bar, so the dimming did not reach the
   edges. The phone's Back button closes it. Every item goes to a real screen:
   `/notifications` is what Pechkas told you (below), and
-  Support opens the office on WhatsApp. Customer screens are a light grey
+  Support opens Write to the office. Customer screens are a light grey
   `colour.canvas` with white rounded cards, bold black headings, yellow as
   the one highlight. **Home shows only what matters, each thing once** (the owner's
   choice, 24 November 2026, replacing the map home): the yellow top as the
@@ -1930,7 +1949,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   wrong* (the crash screen, `ErrorBoundary` in `app/_layout.tsx`) and *This
   page is not in the app* (`app/+not-found.tsx`). Each says what happened,
   what to do, and has a button that does it; offline and not answering
-  also offer **Call the office**, because a call needs no internet.
+  offer **Emergency numbers** (the Safety page works with no internet) and
+  never a call to the office, which is reached only in the app.
   `src/net.ts` asks the phone through `expo-network` (its Wi-Fi permission
   is blocked in app.json; only the network-state one is used), and only a
   phone that is SURE it is offline counts as offline. The two "no answer"

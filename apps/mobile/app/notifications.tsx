@@ -60,7 +60,7 @@ const CUSTOMER = [
   'A question about payment for a job, and what Pechkas decided',
   'Your job is open to others again because the check it needed could not be arranged',
   'A kind of job you asked about is now available in your sector',
-  'The Pechkas office answers something you reported',
+  'The Pechkas office answers what you wrote, or writes to you first',
 ];
 
 const TECHNICIAN = [
@@ -89,7 +89,7 @@ const TECHNICIAN = [
   'Your work is paused or open again, and the answers to your appeal, report or photo request',
   'Your identity check is verified or not',
   'You are asked to check a job, your checker is coming, your checked job passed or not, and your checker\u2019s fee',
-  'The Pechkas office answers something you reported',
+  'The Pechkas office answers what you wrote, or writes to you first',
 ];
 
 /** The lists above in five groups each, for the sheet. Every line appears once. */
@@ -130,7 +130,7 @@ function badgeOf(kind: string): DuoName {
   if (/^(on_way|arrived|running_late|no_show|late_arrival|not_home|arrival)/.test(kind)) return 'pin';
   if (/^(change|stopped|fee_|pay|settled|over_limit|charge|refund|payment|guarantee_paid|referral|check_paid)/.test(kind)) return 'wallet';
   if (kind === 'message') return 'chat';
-  if (kind === 'office_answer') return 'support';
+  if (kind === 'office_answer' || kind === 'office_wrote') return 'support';
   if (kind === 'chosen') return 'star';
   if (/^(claim|replacement)/.test(kind)) return 'shield';
   if (/^(cancelled|office_cancelled|offer_closed|not_chosen|declined|pro_withdrew|replaced_pro)/.test(kind)) return 'flag';
@@ -252,8 +252,8 @@ export default function Notifications() {
 
   function open(row: Row) {
     if (!row.read) void markRead(row.ids);
-    // The office's answer is read in Help (and on the job), never in the notification.
-    if (row.kind === 'office_answer') return router.push('/help');
+    // What the office wrote is read on Write to the office (and on the job), never in the notification.
+    if (row.kind === 'office_answer' || row.kind === 'office_wrote') return router.push('/office');
     if (row.job_id && row.side === 'customer') return router.push(`/job/${row.job_id}` as Href);
     if (pro && money.test(row.kind)) return router.push('/pro/money');
     if (pro && (row.job_id || /^(new_job|job_again|asked_again)/.test(row.kind))) return router.push('/pro');

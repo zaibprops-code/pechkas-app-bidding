@@ -6,7 +6,6 @@ import { Icon } from '../../src/components/Icon';
 import { Press } from '../../src/components/Press';
 import { SystemBars, useScrollEnd } from '../../src/components/ui';
 import { useAccount } from '../../src/account';
-import { ReportItem, useReports } from '../../src/components/Reports';
 import { CUSTOMER_HELP, searchHelp, TECHNICIAN_HELP } from '../../src/help';
 import { colour, font, shadow } from '../../src/theme';
 
@@ -14,14 +13,12 @@ import { colour, font, shadow } from '../../src/theme';
  * Help (the owner's design, 25 November 2026): the side's own coloured top
  * with "How can we help?" and a search box; then every topic as a row —
  * icon, name, what is inside and how many answers — each opening its own
- * page (`[topic].tsx`); and the office on WhatsApp as the last row. Typing
+ * page (`[topic].tsx`); and Write to the office as the last row. Typing
  * searches every answer of this side at once, each result saying which
  * topic it is from.
  *
- * Above the topics, only when there are any: what this person reported to
- * the office and its written answers (`my_reports()`), which a notification
- * points to. Nothing else about one job: the job's own screen says what to
- * do next. The
+ * Nothing about one job: the job's own screen says what to do next, and
+ * what somebody wrote to the office is on Write to the office. The
  * legal pages and Safety are in the menu, so they are not repeated here.
  * The answers are `src/help.ts`, each a rule the app already keeps.
  */
@@ -36,8 +33,6 @@ export default function Help() {
   const words = q.toLowerCase().split(/\s+/).filter((w) => w.length >= 2);
   const total = topics.reduce((n, t) => n + t.qa.length, 0);
   const ink = topInk(pro);
-  // What this person told the office, and its answers: the office answers in writing, here.
-  const reports = useReports();
 
   return (
     <View style={{ flex: 1, backgroundColor: colour.canvas }}>
@@ -91,14 +86,6 @@ export default function Help() {
             )
           ) : (
             <>
-              {reports.length ? (
-                <>
-                  <Section>Your reports to the office</Section>
-                  {reports.map((r) => (
-                    <ReportItem key={r.id} r={r} withJob white />
-                  ))}
-                </>
-              ) : null}
               <Section>Topics · {total} answers</Section>
               <View style={helpStyles.rowCard}>
                 {topics.map((t, i) => (

@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { Head } from './Duo.tsx';
 import { rupees } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
-import { shown } from './phones.ts';
+import { WriteTo } from './WriteTo.tsx';
 
 /**
  * Everything somebody has told Pechkas is wrong: emergencies first, then
- * guarantee claims and problems. Each has the address, both numbers to ring
+ * guarantee claims and problems. Each has the address and a way to write to each side in the app
  * and, for an emergency, where the phone was. Nothing is closed without a
  * note of what was done.
  *
@@ -18,7 +18,7 @@ import { shown } from './phones.ts';
 
 type Problem = {
   id: string;
-  kind: 'problem' | 'guarantee' | 'emergency';
+  kind: 'problem' | 'guarantee' | 'emergency' | 'message' | 'office';
   side: 'customer' | 'pro';
   body: string | null;
   lat: number | null;
@@ -34,14 +34,16 @@ type Problem = {
   answered_by: string | null;
   can_answer: boolean;
   urgent: boolean;
-  job: { id: string; ref: string; title: string; status: string; stage: string | null; address: string; job_lat: number | null; job_lng: number | null; finished_at: string | null; collect_paisa: number | null };
-  customer: { name: string; phone: string | null };
-  pro: { name: string; phone: string | null } | null;
+  /** Who wrote (or, for `office`, who the office wrote to). */
+  person: { name: string | null };
+  /** None when they wrote about nothing in particular. */
+  job: { id: string; ref: string; title: string; status: string; stage: string | null; address: string; job_lat: number | null; job_lng: number | null; finished_at: string | null; collect_paisa: number | null } | null;
+  customer: { name: string } | null;
+  pro: { name: string } | null;
 };
 
-const KIND = { emergency: 'EMERGENCY', guarantee: 'Guarantee claim', problem: 'Problem' } as const;
+const KIND = { emergency: 'EMERGENCY', guarantee: 'Guarantee claim', problem: 'Problem', message: 'Message', office: 'The office wrote' } as const;
 const time = (t: string) => new Date(t).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
-const tel = (p: string) => `tel:+${p.replace(/^\+/, '')}`;
 const map = (lat: number, lng: number) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 
 export function Problems() {
@@ -89,7 +91,7 @@ function ProblemCard({ p, onChanged }: { p: Problem; onChanged: () => void }) {
   const [msg, setMsg] = useState<string | null>(null);
   const [answerMsg, setAnswerMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const who = p.side === 'customer' ? `The customer, ${p.customer.name}` : `The technician, ${p.pro?.name ?? ''}`;
+  const who = `${p.kind === 'office' ? 'To ' : ''}${p.side === 'customer' ? 'the customer' : 'the technician'}, ${p.person.name ?? 'who has left Pechkas'}`;
 
   async function send() {
     setBusy(true);
@@ -116,21 +118,21 @@ function ProblemCard({ p, onChanged }: { p: Problem; onChanged: () => void }) {
             {KIND[p.kind]}
             {p.mistake ? ' — pressed by mistake, they say' : ''}
           </p>
-          <h2>
-            {p.job.ref} · {p.job.title}
-          </h2>
+          <h2>{p.job ? `${p.job.ref} · ${p.job.title}` : 'Not about a job'}</h2>
           <p className="muted">
             {who} · {time(p.created_at)}
           </p>
         </div>
       </div>
       {p.body && p.kind !== 'emergency' ? <p className="about">“{p.body}”</p> : null}
+      {p.job ? (
+        <>
       <p>
-        <strong>Where:</strong> {p.job.address}
-        {p.job.job_lat !== null && p.job.job_lng !== null ? (
+        <strong>Where:</strong> {p.job!.address}
+        {p.job!.job_lat !== null && p.job!.job_lng !== null ? (
           <>
             {' · '}
-            <a href={map(p.job.job_lat, p.job.job_lng)} target="_blank" rel="noreferrer">the job's pin</a>
+            <a href={map(p.job!.job_lat, p.job!.job_lng)} target="_blank" rel="noreferrer">the job's pin</a>
           </>
         ) : null}
       </p>
@@ -143,24 +145,29 @@ function ProblemCard({ p, onChanged }: { p: Problem; onChanged: () => void }) {
         <p className="muted">The phone did not say where it was.</p>
       ) : null}
       <p className="muted">
-        Job: {p.job.status}
-        {p.job.stage ? ` · ${p.job.stage.replace('_', ' ')}` : ''}
-        {p.job.collect_paisa ? ` · collected ${rupees(p.job.collect_paisa)}` : ''}
-        {p.job.finished_at ? ` · finished ${time(p.job.finished_at)}` : ''}
+        Job: {p.job!.status}
+        {p.job!.stage ? ` · ${p.job!.stage.replace('_', ' ')}` : ''}
+        {p.job!.collect_paisa ? ` · collected ${rupees(p.job!.collect_paisa)}` : ''}
+        {p.job!.finished_at ? ` · finished ${time(p.job!.finished_at)}` : ''}
       </p>
-      <div className="buttons">
-        {p.customer.phone ? <a className="call" href={tel(p.customer.phone)}>Call {p.customer.name} · {shown(p.customer.phone)}</a> : null}
-        {p.pro?.phone ? <a className="call" href={tel(p.pro.phone)}>Call {p.pro.name.split(' ')[0]} · {shown(p.pro.phone)}</a> : null}
-      </div>
+        </>
+      ) : null}
+      {/* The other side of the job, in the app: the office never calls. */}
+      {p.job && p.kind !== 'office' ? (
+        <div className="buttons">
+          {p.side === 'pro' && p.customer ? <WriteTo name={p.customer.name} job={p.job.id} side="customer" /> : null}
+          {p.side === 'customer' && p.pro ? <WriteTo name={p.pro.name} job={p.job.id} side="pro" /> : null}
+        </div>
+      ) : null}
       {p.answer ? (
         <p>
-          <strong>Your answer in the app{p.answered_at ? `, ${time(p.answered_at)}` : ''}{p.answered_by ? ` by ${p.answered_by}` : ''}:</strong> {p.answer}
+          <strong>{p.kind === 'office' ? 'What the office wrote' : 'Your answer in the app'}{p.answered_at ? `, ${time(p.answered_at)}` : ''}{p.answered_by ? ` by ${p.answered_by}` : ''}:</strong> {p.answer}
         </p>
       ) : null}
-      {p.can_answer ? (
+      {p.kind === 'office' ? null : p.can_answer ? (
         <section className="decide">
           <label>
-            {p.answer ? 'Correct your answer' : `Answer ${p.side === 'customer' ? p.customer.name : (p.pro?.name.split(' ')[0] ?? 'them')} in the app (they read exactly this)`}
+            {p.answer ? 'Correct your answer' : `Answer ${(p.person.name ?? 'them').split(' ')[0]} in the app (they read exactly this)`}
             <textarea value={answer} maxLength={500} rows={3} onChange={(e) => setAnswer(e.target.value)} />
           </label>
           <p className="muted">They are told the office answered, with the job number only; the words stay in the app. No CNIC numbers.</p>

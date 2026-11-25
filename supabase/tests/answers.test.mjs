@@ -99,7 +99,7 @@ const ayeshas = (await setup(`SELECT id FROM public.problems WHERE job_id = $1 A
 
   const log = (await setup(`SELECT title, body, kind FROM public.push_log WHERE user_id = $1 AND kind = 'office_answer'`, [AYESHA])).rows;
   ok('she is told the office answered', log.length === 1 && /answered/.test(log[0].title), JSON.stringify(log));
-  ok('the notification has the job number', log[0].body.includes('PK-'), log[0].body);
+  ok('the notification sends her to the app', /Pechkas app/.test(log[0].body), log[0].body);
   ok('but never the answer itself', !/reseal|Bilal|10am/.test(log[0].title + log[0].body));
   ok('a push went out', Number((await setup(`SELECT count(*) AS n FROM net.sent`)).rows[0].n) > sent);
   ok('it is in the job\'s record', (await setup(`SELECT count(*)::int AS n FROM public.job_events WHERE job_id = $1 AND what = 'problem_answered'`, [j1])).rows[0].n === 1);

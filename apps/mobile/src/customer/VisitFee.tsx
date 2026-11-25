@@ -5,7 +5,7 @@ import { Icon } from '../components/Icon';
 import { Button, Field, Notice } from '../components/ui';
 import { useToast } from '../components/Toast';
 import { done } from '../message';
-import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
+import { toOffice } from '../office';
 import { ask } from '../supabase';
 import { colour, font } from '../theme';
 
@@ -136,7 +136,7 @@ export function FeeCard({ fee, name, jobId, onChanged }: { fee: CustomerFee; nam
         <View style={{ gap: 8 }}>
           <Text style={s.warn}>Pechkas paid {name} the {amount} you owed.</Text>
           <Text style={s.line}>To post a new job, settle it with the Pechkas office.</Text>
-          <Button kind="outline" label={`Call ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+          <Button kind="outline" label="Write to the office" onPress={() => toOffice(jobId)} />
         </View>
       ) : null}
 

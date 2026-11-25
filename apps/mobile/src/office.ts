@@ -1,14 +1,15 @@
+import { router } from 'expo-router';
 /**
- * The Pechkas office: the number customers and technicians are told to ring
- * when the app says "call the office". The same number as the website's
- * `contact.phoneDial` in zaibprops-code/Pechkas, src/data/site.js — change
- * both together.
+ * The Pechkas office is reached only inside the app (the owner's rule, 25
+ * November 2026): no call and no WhatsApp, either way. Every "Get help" or
+ * "Write to the office" button opens Write to the office (`app/office.tsx`),
+ * with the job it is about already chosen. There is deliberately no office
+ * phone number or WhatsApp link in this app; `help.test.ts` fails if one
+ * comes back.
  */
-export const OFFICE_PHONE = '+923358855076';
-export const OFFICE_PHONE_SHOWN = '0335 8855076';
-
-/** The office on WhatsApp: the website's `contact.whatsapp`, the same number. Change both together. */
-export const OFFICE_WHATSAPP = 'https://wa.me/923358855076';
+export function toOffice(job?: string | null) {
+  router.push(job ? { pathname: '/office', params: { job } } : '/office');
+}
 
 /**
  * The app's privacy policy and how to delete an account, on the website

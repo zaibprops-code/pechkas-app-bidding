@@ -7,7 +7,7 @@ import { commission, pkClock, rupees, showMobile, technicianKeeps } from '@pechk
 import { Button } from '../components/ui';
 import { Press } from '../components/Press';
 import { Stars } from '../components/Stars';
-import { OFFICE_PHONE } from '../office';
+import { toOffice } from '../office';
 import { RemoteMedia, useSignedUrls, type StoredMedia } from '../post/RemoteMedia';
 import { takePhoto, takeVideo, upload } from '../post/media';
 import { ask } from '../supabase';
@@ -359,7 +359,7 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
       {j.stage === 'arrived' && j.code_locked ? (
         <View style={s.step}>
           <Text style={s.warn}>{w.codeLocked}</Text>
-          <Button kind="green" label={w.callOffice} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+          <Button kind="green" label={w.callOffice} onPress={() => toOffice(j.id)} />
         </View>
       ) : null}
 
@@ -475,7 +475,7 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
         <View style={s.saidBox}>
           <Text style={s.saidTitle}>{w.disputedTitle}</Text>
           <Text style={s.note}>{fill(w.disputedNote, { name: j.customer_first_name })}</Text>
-          <Button kind="outline" label={w.callOffice} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+          <Button kind="outline" label={w.callOffice} onPress={() => toOffice(j.id)} />
         </View>
       ) : null}
 

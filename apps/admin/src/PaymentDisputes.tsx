@@ -227,7 +227,7 @@ function CaseCard({ c, onDone }: { c: Case; onDone: () => void }) {
           <span className="muted">unpaid of {money(c.agreed_paisa)}</span>
         </div>
       </div>
-      <People customer={c.customer} customerPhone={c.customer_phone} pro={c.pro} proPhone={c.pro_phone} />
+      <People customer={c.customer} pro={c.pro} job={c.job_id} />
 
       <div className="evidence">
         <h3>The money</h3>
@@ -303,7 +303,7 @@ function CaseCard({ c, onDone }: { c: Case; onDone: () => void }) {
       </section>
       {open ? (
         <p className="muted small">
-          Ring both first. “Close unpaid” charges commission only on what he received and stops nothing for her. A payment recorded here
+          Write to both in the app first. “Close unpaid” charges commission only on what he received and stops nothing for her. A payment recorded here
           releases commission on that labour only, due 14 days from today.
         </p>
       ) : null}

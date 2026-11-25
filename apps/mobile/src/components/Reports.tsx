@@ -16,10 +16,11 @@ import { colour, font, shadow } from '../theme';
 
 export type Report = {
   id: string;
-  job_id: string;
-  ref: string;
+  job_id: string | null;
+  ref: string | null;
   trade: string | null;
-  kind: 'problem' | 'guarantee' | 'emergency';
+  /** problem / guarantee / emergency: a report; message: they wrote; office: the office wrote first. */
+  kind: 'problem' | 'guarantee' | 'emergency' | 'message' | 'office';
   body: string | null;
   at: string;
   open: boolean;
@@ -53,11 +54,27 @@ export function useReports(job?: string | null, again: unknown = 0): Report[] {
 
 /** One report and what became of it. `withJob` names the job, for a list of several jobs; `white` is a card of its own on the grey canvas (Help), not a block inside a white card (the job). */
 export function ReportItem({ r, withJob = false, white = false }: { r: Report; withJob?: boolean; white?: boolean }) {
+  const about = withJob ? (r.ref ? `${[r.trade, r.ref].filter(Boolean).join(' · ')} · ` : 'Not about a job · ') : '';
+  if (r.kind === 'office') {
+    // The office wrote first: no question of theirs, only its words.
+    return (
+      <View style={[s.item, white && s.white]}>
+        <Text style={s.meta}>{about}{r.answered_at ? when(r.answered_at) : when(r.at)}</Text>
+        <View style={s.answer}>
+          <View style={s.answerHead}>
+            <DuoIcon name="support" size={18} />
+            <Text style={s.answerTitle}>The Pechkas office wrote to you</Text>
+          </View>
+          <Text style={s.answerText}>{r.answer}</Text>
+        </View>
+      </View>
+    );
+  }
   const said = r.kind === 'emergency' ? 'You pressed Emergency.' : r.kind === 'guarantee' ? `Guarantee: “${r.body ?? ''}”` : `“${r.body ?? ''}”`;
   return (
     <View style={[s.item, white && s.white]}>
       <Text style={s.meta}>
-        {withJob ? `${[r.trade, r.ref].filter(Boolean).join(' · ')} · ` : ''}You told the office, {when(r.at)}
+        {about}You {r.kind === 'message' ? 'wrote to' : 'told'} the office, {when(r.at)}
       </Text>
       <Text style={s.said}>{said}</Text>
       {r.answer ? (

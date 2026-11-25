@@ -294,7 +294,8 @@ heading('Problems, claims and the emergency button');
 
   const q = (await me(OWNER, `SELECT public.admin_problems('open')`)).value ?? [];
   ok('the queue puts the emergency first, with where she was and the address', q[0]?.kind === 'emergency' && q[0]?.urgent && q[0]?.lat === 33.684 && /House 12/.test(q[0]?.job?.address));
-  ok('with both numbers to ring', q[0]?.customer?.phone === '923002222222' && q[0]?.pro?.phone === '923004444444');
+  // The office writes to both in the app (the owner's rule: no calls), so the queue names them and carries no number.
+  ok('with both names, and no number to ring', q[0]?.customer?.name && q[0]?.pro?.name && !/92300[24]/.test(JSON.stringify(q[0])));
   ok('the job says why it needs you', (await me(OWNER, `SELECT * FROM public.admin_jobs('assigned')`)).rows.find((x) => x.id === j.id)?.why === 'EMERGENCY');
   ok('a technician cannot see the queue', (await me(ASAD, `SELECT public.admin_problems('open')`)).value == null);
 

@@ -19,6 +19,7 @@ import { Problems } from './Problems.tsx';
 import { Guarantee } from './Guarantee.tsx';
 import { Duo, Head } from './Duo.tsx';
 import type { DuoName } from '@pechkas/shared/src/duo-icons.ts';
+import { WriteTo } from './WriteTo.tsx';
 
 /**
  * The owner's admin panel. Phase 1: sign in, and decide on technicians.
@@ -379,9 +380,7 @@ function Card({ a, trades, onChange }: { a: Application; trades: Record<string, 
             {a.years} years · applied {new Date(a.applied_at).toLocaleDateString('en-GB')}
           </p>
         </div>
-        {a.phone ? (
-          <a className="call" href={`tel:+${a.phone.replace(/^\+/, '')}`}>Call {shown(a.phone)}</a>
-        ) : null}
+        <WriteTo name={a.full_name} user={a.id} />
       </div>
       <p><strong>Work:</strong> {a.trades.map((t) => trades[t] ?? t).join(', ')}</p>
       <p><strong>Areas:</strong> {a.sectors.join(', ')}</p>

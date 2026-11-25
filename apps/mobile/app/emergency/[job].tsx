@@ -10,7 +10,7 @@ import { ScrewSpinner } from '../../src/components/ScrewSpinner';
 import { EmergencyTiles } from '../../src/components/EmergencyTiles';
 import { DuoRow, RowCard } from '../../src/components/Rows';
 import { useAccount } from '../../src/account';
-import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../../src/office';
+import { toOffice } from '../../src/office';
 import { ask } from '../../src/supabase';
 import { useProWords } from '../../src/words';
 import { colour, font, shadow } from '../../src/theme';
@@ -26,7 +26,7 @@ import { colour, font, shadow } from '../../src/theme';
 const CUSTOMER = {
   emTitle: 'Emergency',
   emSending: 'Telling Pechkas…',
-  emSent: 'Pechkas has been told. The office will call you.',
+  emSent: 'Pechkas has been told. The office answers you here, in the app.',
   emNotSent: 'Pechkas could not be told. Call the numbers below yourself.',
   emCallFirst: 'If anyone is in danger, call these first:',
   emPolice: 'Police',
@@ -122,7 +122,7 @@ export default function Emergency() {
         </Text>
         <EmergencyTiles label={(k) => w[k]} />
         <RowCard>
-          <DuoRow icon="support" label={w.emOffice} value={OFFICE_PHONE_SHOWN} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} last />
+          <DuoRow icon="support" label="Write to the office" value="It answers here, in the app" onPress={() => toOffice(job)} last />
         </RowCard>
 
         {state === 'sent' && !mistake ? <Button kind="outline" label={w.emMistake} onPress={takeBack} /> : null}

@@ -18,7 +18,7 @@ import { VisitFeeNote } from './VisitFee';
 import { CancelPanel, LateCard, cancelledNote, type CancelFields } from './Cancel';
 import { FindAnother, ReopenedNote, RunningLateCard } from './Replace';
 import { AtDoorCard, NotHomeEnded, type CustomerNotHome } from './NotHome';
-import { OFFICE_PHONE, OFFICE_PHONE_SHOWN } from '../office';
+import { toOffice } from '../office';
 import { ask, supabase } from '../supabase';
 import { Face, identityWords, type IdentityLine } from './Face';
 import { SafetyReport } from './FirstJobs';
@@ -365,8 +365,8 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
           ) : null}
           {officeOnly ? (
             <View style={{ gap: 6 }}>
-              <Text style={s.small}>He has started the work. To stop the job now, call the Pechkas office.</Text>
-              <Button kind="outline" label={narrow ? `Call ${OFFICE_PHONE_SHOWN}` : `Call Pechkas · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
+              <Text style={s.small}>He has started the work. To stop the job now, write to the Pechkas office in the app.</Text>
+              <Button kind="outline" label="Write to the office" onPress={() => toOffice(job.id)} />
             </View>
           ) : null}
           {canCancel && confirming ? (

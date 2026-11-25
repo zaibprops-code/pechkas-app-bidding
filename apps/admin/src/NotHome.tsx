@@ -279,7 +279,7 @@ function ReportCard({ r, onDone }: { r: Report; onDone: () => void }) {
           </p>
         </div>
       </div>
-      <People customer={r.customer} customerPhone={r.customer_phone} pro={r.pro} proPhone={r.pro_phone} />
+      <People customer={r.customer} pro={r.pro} job={r.job_id} />
       <Facts r={r} />
       <Decide
         label="What you found (both of them read this in the app)"
@@ -290,7 +290,7 @@ function ReportCard({ r, onDone }: { r: Report; onDone: () => void }) {
         onDone={onDone}
       />
       <p className="muted small">
-        Ring both first. Confirming only records it.
+        Write to both in the app first. Confirming only records it.
         {r.reason === 'guard' || r.pro_was_late ? ' This one counts against neither of them.' : ' Three confirmed in 60 days asks you to review her account.'}
       </p>
     </article>

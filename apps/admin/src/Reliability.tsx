@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ask, supabase } from './supabase.ts';
 import { Decide, when } from './Guarantee.tsx';
-import { shown } from './phones.ts';
+import { WriteTo } from './WriteTo.tsx';
 
 /**
  * Who keeps failing customers, from public.admin_reliability() (the owner's
@@ -44,7 +44,7 @@ type Replaced = { job_id: string; ref: string; trade: string; pro: string | null
 type Data = { days: number; late_withdrawals_at: number; pros: Pro[]; withdrawals: Withdrawal[]; replaced: Replaced[] };
 
 const SUGGEST = {
-  contact: 'Suggested: ring him. One confirmed no-show.',
+  contact: 'Suggested: write to him in the app. One confirmed no-show.',
   pause: 'Suggested: consider pausing his offers for 1 to 3 days. Two confirmed no-shows.',
   review: 'Suggested: review his approval. Three or more confirmed no-shows.',
 } as const;
@@ -153,11 +153,7 @@ function ProCard({ p, onDone }: { p: Pro; onDone: () => void }) {
           <p className="kind">{p.paused_until ? `Offers paused until ${when(p.paused_until)}` : p.suggestion ? SUGGEST[p.suggestion] : 'No step suggested'}</p>
           <h2>{p.pro}</h2>
           <p className="muted">
-            {p.phone ? (
-              <a href={`tel:+${p.phone.replace(/^\+/, '')}`}>{shown(p.phone)}</a>
-            ) : (
-              'No number'
-            )}
+            <WriteTo name={p.pro} user={p.pro_id} />
           </p>
         </div>
       </div>
@@ -200,7 +196,7 @@ function ProCard({ p, onDone }: { p: Pro; onDone: () => void }) {
           {p.paused_until ? 'Lift the pause…' : 'Pause his new offers…'}
         </button>
       )}
-      <p className="muted small">Ring him first. A pause withdraws his waiting offers and stops new ones; it never touches a job he has.</p>
+      <p className="muted small">Write to him in the app first. A pause withdraws his waiting offers and stops new ones; it never touches a job he has.</p>
     </article>
   );
 }

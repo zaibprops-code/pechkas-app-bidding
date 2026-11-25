@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { rupees, whenLabel } from '@pechkas/shared';
 import { ask, supabase } from './supabase.ts';
-import { shown } from './phones.ts';
+import { WriteTo } from './WriteTo.tsx';
 
 /**
  * Every job customers have posted, with what the office needs to act on it
@@ -217,7 +217,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
       {extras.length ? <ul className="extras">{extras.map((e) => <li key={e}>{e}</li>)}</ul> : null}
       <div className="card-head">
         <p><strong>Customer:</strong> {j.customer_name}</p>
-        {j.customer_phone ? <a className="call" href={`tel:+${j.customer_phone.replace(/^\+/, '')}`}>Call {shown(j.customer_phone)}</a> : null}
+        <WriteTo name={j.customer_name} job={j.id} side="customer" />
       </div>
       {j.media.length ? <MediaList items={j.media} /> : null}
       {j.why ? <p className="why"><strong>Needs you:</strong> {j.why}</p> : null}
@@ -226,7 +226,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
           {j.live_offers > 0
             ? `${j.live_offers} live ${j.live_offers === 1 ? 'offer' : 'offers'} — the customer is choosing.`
             : j.needs_you
-              ? 'Nobody has offered on this. Ring a technician and place it below.'
+              ? 'Nobody has offered on this. Write to a technician in the app, and place it below.'
               : 'No offers yet.'}
         </p>
       ) : null}
@@ -236,7 +236,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
             <strong>Technician:</strong> {j.pro_name} · agreed {j.agreed_paisa ? rupees(j.agreed_paisa) : 'no price yet'} ·{' '}
             {j.assigned_by === 'office' ? 'placed by the office' : 'chosen by the customer'}
           </p>
-          {j.pro_phone ? <a className="call" href={`tel:+${j.pro_phone.replace(/^\+/, '')}`}>Call {shown(j.pro_phone)}</a> : null}
+          <WriteTo name={j.pro_name} job={j.id} side="pro" />
         </div>
       ) : null}
       {j.status === 'assigned' && j.stage ? (
@@ -247,7 +247,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
       ) : null}
       {j.status === 'assigned' && j.code_locked ? (
         <div className="buttons">
-          <button disabled={busy} onClick={unlock}>Unlock the start code (after ringing both)</button>
+          <button disabled={busy} onClick={unlock}>Unlock the start code</button>
         </div>
       ) : null}
       {j.status === 'done' ? <p><strong>Done.</strong> He collects {rupees(j.collect_paisa)} in cash.</p> : null}
@@ -267,7 +267,7 @@ function JobCard({ j, trade, pros, onChange }: { j: Job; trade: string; pros: Pr
                     {p.full_name}
                     {fits(p) ? ' — does this, works here' : ''}
                     {p.online ? ' — online' : ''}
-                    {p.notifications ? '' : ' — no notifications, ring him'}
+                    {p.notifications ? '' : ' — no notifications: he sees new jobs only when he opens the app'}
                   </option>
                 ))}
               </select>

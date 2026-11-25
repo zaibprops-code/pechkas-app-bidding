@@ -308,7 +308,7 @@ function ChangeCard({ c, onDone }: { c: PendingChange; onDone: () => void }) {
           <span className="muted">instead of {money(c.from_paisa)}</span>
         </div>
       </div>
-      <People customer={c.customer} customerPhone={c.customer_phone} pro={c.pro} proPhone={c.pro_phone} />
+      <People customer={c.customer} pro={c.pro} job={c.job_id} />
       <div className="evidence">
         <h3>His reason</h3>
         <p className="about">“{c.reason}”</p>
@@ -329,7 +329,7 @@ function ChangeCard({ c, onDone }: { c: PendingChange; onDone: () => void }) {
       <p className="muted small">
         {c.paid_by_pechkas
           ? 'Approving means Pechkas pays the higher price for this repair. Declining stops the job; she pays nothing.'
-          : 'Ring her first. Record only what she told you. Declining stops the job with the visit fee owed by her.'}
+          : 'Write to her in the app first. Record only what she told you. Declining stops the job with the visit fee owed by her.'}
       </p>
     </article>
   );
@@ -385,7 +385,7 @@ function FeeCard({ f, onDone }: { f: Fee; onDone: () => void }) {
           <span className="muted">{STATUS[f.status]}</span>
         </div>
       </div>
-      <People customer={f.customer} customerPhone={f.customer_phone} pro={f.pro} proPhone={f.pro_phone} />
+      <People customer={f.customer} pro={f.pro} job={f.job_id} />
       <FeeFacts f={f} />
       <Decide label="Why (both of them can read this in the app)" choices={choices} onDone={onDone} />
       {help ? <p className="muted small">{help}</p> : null}

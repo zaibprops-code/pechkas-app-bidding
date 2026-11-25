@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { dayLabel, rupees, windowLabel } from '@pechkas/shared';
 import { Head } from './Duo.tsx';
 import { ask, supabase } from './supabase.ts';
-import { shown } from './phones.ts';
+import { WriteTo } from './WriteTo.tsx';
 
 /**
  * Guarantee claims and disputed jobs, from public.admin_guarantee().
@@ -145,7 +145,6 @@ export function when(t: string): string {
 const visit = (c: Pick<Claim, 'visit_date' | 'visit_from'>) =>
   c.visit_date ? `${dayLabel(c.visit_date)}${c.visit_from !== null ? `, ${windowLabel(c.visit_from)}` : ''}` : 'a day not yet set';
 const first = (name: string | null) => (name ? name.split(' ')[0] : 'The technician');
-const tel = (p: string) => `tel:+${p.replace(/^\+/, '')}`;
 const money = (p: number | null | undefined) => rupees(p === null || p === undefined ? p : Number(p));
 
 export function Guarantee() {
@@ -186,7 +185,7 @@ export function Guarantee() {
     <>
       <Head icon="shield" title="Guarantee and disputes" />
       <p className="lead">
-        When a job has gone wrong and the two sides disagree, it comes here. Read both sides, ring them if you need to, and decide.
+        When a job has gone wrong and the two sides disagree, it comes here. Read both sides, write to them in the app if you need to, and decide.
         Every decision needs a note: both of them read it in the app.
       </p>
       <nav className="tabs" aria-label="Guarantee and disputes">
@@ -274,16 +273,16 @@ function Reserve({ paisa, waiting }: { paisa: number; waiting: number }) {
   );
 }
 
-/** The two names and a button to ring each. */
-export function People({ customer, customerPhone, pro, proPhone }: { customer: string; customerPhone: string | null; pro: string | null; proPhone: string | null }) {
+/** The two names, and a way to write to each in the app (the office never calls). */
+export function People({ customer, pro, job }: { customer: string; pro: string | null; job: string }) {
   return (
     <>
       <p>
         <strong>Customer:</strong> {customer} · <strong>Technician:</strong> {pro ?? 'no longer on Pechkas'}
       </p>
       <div className="buttons">
-        {customerPhone ? <a className="call" href={tel(customerPhone)}>Call {customer} · {shown(customerPhone)}</a> : <span className="muted">No number for {customer}.</span>}
-        {proPhone ? <a className="call" href={tel(proPhone)}>Call {first(pro)} · {shown(proPhone)}</a> : pro ? <span className="muted">No number for {first(pro)}.</span> : null}
+        <WriteTo name={customer} job={job} side="customer" />
+        {pro ? <WriteTo name={pro} job={job} side="pro" /> : null}
       </div>
     </>
   );
@@ -406,7 +405,7 @@ function DisputeCard({ d, onChanged }: { d: Dispute; onChanged: () => void }) {
           <span className="muted">agreed</span>
         </div>
       </div>
-      <People customer={d.customer} customerPhone={d.customer_phone} pro={d.pro} proPhone={d.pro_phone} />
+      <People customer={d.customer} pro={d.pro} job={d.job_id} />
 
       {(d.checks ?? []).map((k) => (
         <div key={k.round} className="evidence">
@@ -492,7 +491,7 @@ function ClaimCard({ c, onChanged }: { c: Claim; onChanged: () => void }) {
           <span className="muted">{appeal ? (c.charge_final ? 'he was charged' : 'not yet charged') : 'his labour on the job'}</span>
         </div>
       </div>
-      <People customer={c.customer} customerPhone={c.customer_phone} pro={c.pro} proPhone={c.pro_phone} />
+      <People customer={c.customer} pro={c.pro} job={c.job_id} />
 
       <div className="evidence">
         <h3>What {c.customer} says is wrong</h3>
@@ -751,10 +750,10 @@ function WaitingRepair({ c, onChanged }: { c: Claim; onChanged: () => void }) {
         </div>
       </div>
       <p>
-        No technician has offered at {money(c.cap_paisa)}. You can raise what Pechkas pays so more of them can take it, or ring{' '}
-        {c.customer} to agree another day.
+        No technician has offered at {money(c.cap_paisa)}. You can raise what Pechkas pays so more of them can take it, or write to{' '}
+        {c.customer} in the app to agree another day.
       </p>
-      <People customer={c.customer} customerPhone={c.customer_phone} pro={c.pro} proPhone={c.pro_phone} />
+      <People customer={c.customer} pro={c.pro} job={c.job_id} />
       <RaiseCap c={c} onChanged={onChanged} open />
     </article>
   );
