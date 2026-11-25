@@ -30,7 +30,7 @@ function meaning(job: CancelFields): string {
     case 'late':
       return job.eta_at
         ? `${name} has said he is running late, so this does not count against you.`
-        : `It is close to ${name}'s time${job.stage === 'on_way' ? ' and he is on his way' : ''}, so it is recorded like a late cancellation. If that happens often, the Pechkas office may call you.`;
+        : `It is close to ${name}'s time${job.stage === 'on_way' ? ' and he is on his way' : ''}, so it is recorded like a late cancellation. If that happens often, the Pechkas office may message you on WhatsApp.`;
     default:
       return `It does not count against you. We tell ${name} he is not needed.`;
   }

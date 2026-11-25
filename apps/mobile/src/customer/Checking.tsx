@@ -149,7 +149,7 @@ export function CheckCard({ job, onChanged }: { job: CheckFields; onChanged: () 
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
     setSheet(false);
-    toast.show(done(r.disputed ? 'Pechkas will look at both sides and call you.' : `${name} has been told why.`, 'Sent'));
+    toast.show(done(r.disputed ? 'Pechkas will look at both sides, decide, and show it here.' : `${name} has been told why.`, 'Sent'));
     onChanged();
   }
 
@@ -177,7 +177,7 @@ export function CheckCard({ job, onChanged }: { job: CheckFields; onChanged: () 
             {session ? <MediaPick paths={photo} setPaths={setPhoto} userId={session.user.id} max={1} onProblem={setMsg} /> : null}
             <Text style={s.small}>
               {second
-                ? 'This is the second time. Pechkas will look at both sides’ photos and words, decide, and call you both.'
+                ? 'This is the second time. Pechkas will look at both sides’ photos and words, decide, and show you both its decision here.'
                 : `${name} is told your reason and puts it right. Then you check again.`}
             </Text>
             <Notice text={msg} inline />
@@ -211,7 +211,7 @@ export function DisputeCard({ job }: { job: CheckFields }) {
   const name = job.pro?.first_name ?? 'the technician';
   return (
     <Panel icon="shield" title="Pechkas is looking at this job" hint={`You and ${name} disagree about whether the work is finished.`}>
-      <Text style={s.line}>Pechkas looks at both sides’ photos and words, decides, and calls you both. You do not need to do anything now.</Text>
+      <Text style={s.line}>Pechkas looks at both sides’ photos and words, decides, and shows you both its decision here. You do not need to do anything now.</Text>
       <Button kind="outline" label={`Call Pechkas · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
     </Panel>
   );
@@ -254,7 +254,7 @@ export function ClaimCard({ job, onChanged }: { job: CheckFields; onChanged: () 
     const r = await ask('check_claim', { p_claim: claim.id, p_fixed: fixed, p_text: fixed ? null : text });
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
-    toast.show(done(fixed ? 'Your claim is closed.' : 'Pechkas will look at it and call you.'));
+    toast.show(done(fixed ? 'Your claim is closed.' : 'Pechkas will look at it, decide, and show it here.'));
     onChanged();
   }
 
@@ -272,10 +272,10 @@ export function ClaimCard({ job, onChanged }: { job: CheckFields; onChanged: () 
     waiting: ['Waiting for his answer', `${name} must answer by ${when(claim.answer_due)}. If he does not, Pechkas sends another technician and pays for the repair.`],
     coming: ['He is coming back', `${name} will come back ${claim.visit_date ? `on ${dayLabel(claim.visit_date, now.date)}, ${windowLabel(claim.visit_from ?? 8)}` : 'soon'}. It costs you nothing.`],
     checking: ['Check his repair', `${name} says it is fixed. Check it works.`],
-    refused: ['Pechkas is deciding', `${name} says this is not his work. Pechkas looks at your photos, decides, and calls you.`],
-    disputed: ['Pechkas is deciding', 'You said it is still broken. Pechkas looks at both sides’ photos, decides, and calls you.'],
+    refused: ['Pechkas is deciding', `${name} says this is not his work. Pechkas looks at your photos and decides; you see it here.`],
+    disputed: ['Pechkas is deciding', 'You said it is still broken. Pechkas looks at both sides’ photos and decides; you see it here.'],
     // D35: a payment question is open on this job, so the office handles the claim. The guarantee is unchanged.
-    office_review: ['The Pechkas office has your claim', 'Pechkas looks at your photos, decides what happens next, and calls you. Your guarantee is not affected.'],
+    office_review: ['The Pechkas office has your claim', 'Pechkas looks at your photos and decides what happens next; you see it here. Your guarantee is not affected.'],
     replacing: claim.replacement_job_id
       ? ['Another technician is booked', 'Pechkas pays for this repair. Open it to choose the technician, as with any job.']
       : ['Pechkas will send another technician', 'Pechkas pays for the repair. Choose the day:'],

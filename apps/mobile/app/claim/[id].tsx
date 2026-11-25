@@ -55,7 +55,7 @@ export default function ClaimScreen() {
       if (r.field === 'text' || r.field === 'media') return setErrors({ [r.field]: r.why });
       return setMsg(r.why);
     }
-    toast.show(done(office ? 'The Pechkas office will look at it and call you. Your job shows where it has got to.' : `${name} has 24 hours to answer. Your job shows where it has got to.`, 'Claim sent'));
+    toast.show(done(office ? 'The Pechkas office will look at it and decide. Your job shows where it has got to.' : `${name} has 24 hours to answer. Your job shows where it has got to.`, 'Claim sent'));
     router.back();
   }
 
@@ -75,7 +75,7 @@ export default function ClaimScreen() {
           <Panel icon="shield" title={until ? `Guaranteed until ${until}` : 'Guaranteed'} hint={`${job.guarantee_days ?? ''} days on this job. The same fault, or anything his work caused, is covered.`}>
             <Text style={s.line}>
               {office
-                ? 'A payment question is open on this job, so the Pechkas office handles your claim. It decides what happens next and calls you; your guarantee is not affected.'
+                ? 'A payment question is open on this job, so the Pechkas office handles your claim. It decides what happens next, and your job shows it; your guarantee is not affected.'
                 : `${name} has 24 hours to answer and must come back within 48 hours of that. If he does not, Pechkas sends another technician and pays for the repair.`}
             </Text>
           </Panel>

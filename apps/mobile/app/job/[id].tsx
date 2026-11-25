@@ -193,7 +193,7 @@ function headline(job: Job): { title: string; sub?: string } {
     return { title: 'Finding a technician', sub: 'Offers appear here the moment one is sent.' };
   }
   if (job.status === 'assigned' && job.stage === 'checking') return { title: 'Check the work', sub: 'Pay only once you are happy with it.' };
-  if (job.status === 'assigned' && job.stage === 'disputed') return { title: 'Pechkas is looking at it', sub: 'You and the technician disagree. Pechkas decides and calls you.' };
+  if (job.status === 'assigned' && job.stage === 'disputed') return { title: 'Pechkas is looking at it', sub: 'You and the technician disagree. Pechkas decides and tells you here.' };
   if (job.status === 'assigned') return { title: job.pro ? `${job.pro.first_name} is your technician` : 'Technician chosen' };
   if (job.status === 'done' && job.claim && !['fixed', 'not_covered'].includes(job.claim.status)) return { title: 'Guarantee claim', sub: 'Where it has got to is below.' };
   if (job.status === 'done') return { title: job.paid_by_pechkas ? 'Repair done' : 'Job done' };

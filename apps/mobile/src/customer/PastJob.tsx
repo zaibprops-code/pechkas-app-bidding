@@ -458,18 +458,18 @@ export function PastJob({ job, trade, onChanged }: { job: Job; trade: string; on
                   </View>
                 </View>
                 {claim && !claimOpen ? <ClaimEnd job={job} story={story} who={who} /> : null}
-                {job.claim_open && !claim ? <Text style={s.sub}>Your guarantee claim is with the Pechkas office. They will call you.</Text> : null}
+                {job.claim_open && !claim ? <Text style={s.sub}>Your guarantee claim is with the Pechkas office. It decides, and this page shows what it decided.</Text> : null}
                 {/* In the first day "Something is wrong" covers it; after that, the guarantee. The terms (/app/terms) quote this label; legal.test.ts checks. */}
                 {covered && job.can_claim && !job.can_report ? (
                   <Button kind="outline" label="It has failed again" onPress={() => router.push({ pathname: '/claim/[id]', params: { id: job.id } })} />
                 ) : null}
               </View>
             ) : null}
-            {job.problem_at ? <Text style={s.sub}>You told us something is wrong. The Pechkas office will call you.</Text> : null}
+            {job.problem_at ? <Text style={s.sub}>You told us something is wrong. The Pechkas office will reply to you on WhatsApp.</Text> : null}
             {job.can_report && !writing ? <Button kind="outline" label="Something is wrong" onPress={() => setWriting(true)} /> : null}
             {job.can_report && writing ? (
               <View style={{ gap: 8 }}>
-                <Text style={s.sub}>Tell us what is wrong. The Pechkas office reads it and calls you.</Text>
+                <Text style={s.sub}>Tell us what is wrong. The Pechkas office reads it and replies to you on WhatsApp.</Text>
                 <TextInput value={problem} onChangeText={setProblem} maxLength={500} multiline accessibilityLabel="What is wrong" style={s.input} />
                 <Button kind="green" label="Send to Pechkas" busy={busy} onPress={report} />
                 <Button kind="outline" label="Go back" onPress={() => setWriting(false)} />

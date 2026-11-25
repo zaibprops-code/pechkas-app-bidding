@@ -75,3 +75,9 @@ test('bold parts split cleanly', () => {
     { text: ' now', bold: false },
   ]);
 });
+
+test('no screen promises that Pechkas or the office will phone somebody (the owner takes no calls)', () => {
+  // The Emergency screen's line is the owner's open decision, so it is the one exception until he decides.
+  const lines = screens.split('\n').filter((l) => /(office|Pechkas|They)\b[^'`"]*\b(will call|calls? you)/i.test(l) && !l.includes('emSent'));
+  assert.deepEqual(lines, []);
+});

@@ -175,12 +175,12 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
         </View>
         {reporting ? (
           <View style={{ gap: 8 }}>
-            <Text style={s.line}>Tell us what is wrong. The Pechkas office reads it and calls you.</Text>
+            <Text style={s.line}>Tell us what is wrong. The Pechkas office reads it and replies to you on WhatsApp.</Text>
             <TextInput value={reportText} onChangeText={setReportText} maxLength={500} multiline accessibilityLabel="What is wrong" style={s.input} />
             <Button kind="green" label="Send to Pechkas" busy={busy} onPress={sendReport} />
           </View>
         ) : null}
-        {reported ? <Text style={s.line}>The Pechkas office has been told. They will call you.</Text> : null}
+        {reported ? <Text style={s.line}>The Pechkas office has been told. It will reply to you on WhatsApp.</Text> : null}
         <Button kind="danger" label="Emergency" onPress={() => router.push({ pathname: '/emergency/[job]', params: { job: job.id } })} />
       </View>
 
@@ -205,7 +205,7 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
 
       {job.code_locked ? (
         <View style={s.warnBox}>
-          <Text style={s.warnText}>Too many wrong codes were tried at your door. Do not let anyone in yet. Pechkas will call you.</Text>
+          <Text style={s.warnText}>Too many wrong codes were tried at your door. Do not let anyone in yet. The Pechkas office has been told and will message you on WhatsApp.</Text>
           <Button kind="green" label={narrow ? `Call ${OFFICE_PHONE_SHOWN}` : `Call Pechkas · ${OFFICE_PHONE_SHOWN}`} onPress={() => Linking.openURL(`tel:${OFFICE_PHONE}`)} />
         </View>
       ) : null}
