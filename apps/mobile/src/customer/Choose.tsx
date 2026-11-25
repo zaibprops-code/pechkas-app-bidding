@@ -11,6 +11,7 @@ import { useToast } from '../components/Toast';
 import { done } from '../message';
 import { ask } from '../supabase';
 import { colour, font, glow, shadow } from '../theme';
+import { DuoIcon } from '../components/DuoIcon';
 import { Face } from './Face';
 import { ProProfile } from './ProProfile';
 import { CancelSheet, useOffers } from './Waiting';
@@ -79,7 +80,7 @@ export function ChooseView({ job, trade, tick, onChanged }: { job: Job; trade: s
             Choose a technician
           </Text>
           <View style={s.subRow}>
-            <Icon name="pin" size={14} color={colour.steel} strokeWidth={2.2} />
+            <DuoIcon name="pin" size={16} />
             <Text style={s.sub}>Nearest first · each offer waits a few minutes</Text>
           </View>
         </View>
@@ -137,7 +138,6 @@ export function ChooseView({ job, trade, tick, onChanged }: { job: Job; trade: s
               {o.parts_paisa ? <Text style={s.extra}>Includes {rupees(o.parts_paisa)} of parts, with a shop receipt.</Text> : null}
               {o.photo ? <Text style={s.extra}>You check it is him, from his photo, at your door.</Text> : null}
               {o.checked_visit ? <Text style={s.extra}>His first job of this kind: another Pechkas technician comes too and checks the work, at no cost to you.</Text> : null}
-              {o.note ? <Text style={s.quote}>“{o.note}”</Text> : null}
               <View style={[s.buttons, narrow && { flexDirection: 'column' }]}>
                 <Press onPress={busy ? undefined : () => decline(o)} accessibilityRole="button" accessibilityLabel={`No thanks to ${o.pro_first_name}`} sink={0.96} style={[s.btn, s.no]}>
                   <Text style={s.noText}>No thanks</Text>
@@ -189,7 +189,7 @@ const s = StyleSheet.create({
   price: { fontFamily: font.display, fontSize: 24, letterSpacing: -0.4, color: colour.ink },
   away: { fontFamily: font.display, fontSize: 20, color: colour.steel },
   disc: { width: 40, height: 40, borderRadius: 20, backgroundColor: colour.ink, alignItems: 'center', justifyContent: 'center' },
-  discText: { fontFamily: font.display, fontSize: 16, color: colour.white },
+  discText: { fontFamily: font.display, fontSize: 16, color: colour.yellow },
   who: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   name: { fontFamily: font.display, fontSize: 16, color: colour.ink },
@@ -204,8 +204,9 @@ const s = StyleSheet.create({
   btn: { minHeight: 50, borderRadius: 14, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, overflow: 'hidden' },
   no: { flex: 0.85, backgroundColor: colour.canvas },
   noText: { fontFamily: font.display, fontSize: 15, color: colour.ink },
-  yes: { flex: 1.25, backgroundColor: glow.yellow[1] },
-  yesRun: { position: 'absolute', left: 0, top: 0, bottom: 0, width: '100%', backgroundColor: colour.yellow, transformOrigin: 'left' },
+  yes: { flex: 1.25, backgroundColor: colour.yellow },
+  // The time left on the offer: a darker yellow on the right, shrinking towards the edge (the approved mock).
+  yesRun: { position: 'absolute', right: 0, top: 0, bottom: 0, width: '32%', backgroundColor: glow.yellow[3], transformOrigin: 'right' },
   yesText: { fontFamily: font.display, fontSize: 15, color: colour.ink },
   empty: { fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.inkSoft },
   back: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },

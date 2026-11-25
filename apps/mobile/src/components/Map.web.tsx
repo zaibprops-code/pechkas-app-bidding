@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from './Icon';
 import { MapDrawing } from './MapDrawing';
 import { DrawnMarks } from './MapMarks';
+import { realMapWanted, TileMap } from './TileMap.web';
 import { Press } from './Press';
 import { Button } from './ui';
 import { colour, font } from '../theme';
@@ -76,7 +77,7 @@ export function Pin() {
 export function MapBox({ center, zoom = 0.012, pin, style, other, path, dots, home }: { center: Point; pin?: Point | null; zoom?: number; interactive?: boolean; showsUser?: boolean; style?: StyleProp<ViewStyle>; other?: { point: Point; letter: string } | null; path?: Point[] | null; dots?: Point[] | null; home?: Point | null }) {
   return (
     <View style={[s.box, style]}>
-      <MapDrawing />
+      {realMapWanted() ? <TileMap center={center} zoom={zoom} /> : <MapDrawing />}
       <DrawnMarks center={center} zoom={zoom} dots={dots} other={other} path={path} home={home} />
       {pin ? (
         <View style={s.centre} pointerEvents="none">
@@ -99,7 +100,7 @@ export const MapStage = forwardRef<StageApi, { start: Point; pinOffset?: number;
   }, []);
   return (
     <View style={StyleSheet.absoluteFill}>
-      <MapDrawing />
+      {realMapWanted() ? <TileMap center={start} zoom={0.012} /> : <MapDrawing />}
       <View style={[s.centre, { paddingBottom: 46 + pinOffset * 2 }]} pointerEvents="none">
         <Pin />
       </View>

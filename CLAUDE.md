@@ -1765,6 +1765,21 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the app. Change it in both, and the terms, in the same week.
 
 ### Which copy is which
+- **Every screen shown to the owner looks as it will on his phone** (his
+  standing rule, 25 November 2026: "I always want to see how the real
+  screens will appear on the app"). Screenshots, galleries, the map's App
+  screens and any picture sent to him show the app alone: the phone's
+  status bar (9:41, signal, battery) and the space Android leaves for it
+  (safe-area insets, set through Chromium's
+  `Emulation.setSafeAreaInsetsOverride`), a **real street map**
+  (`TileMap.web.tsx`, OpenStreetMap's own tiles, switched on only by
+  `window.__pechkasRealMap` in the screenshot script — the published demo
+  cannot load outside pictures and keeps the drawing), and real-looking
+  minutes (the demo answers Google's asks itself, `answerRoutes()` in
+  `scripts/demo/server.mjs`, and its help panel says so). **Never** the demo
+  page's green bar, its sign-in help, the drawn street plan or a frame of
+  anything that is not the app. The approved mocks are the standard: put
+  the screenshot beside the mock before calling a screen done.
 - **The clickable demo** (https://claude.ai/artifact/C5cHrZkaysrbB16jkGiqNG,
   the owner's request) is this app's web version with a real Postgres
   (PGlite, every migration) running inside the page: made-up people, pretend

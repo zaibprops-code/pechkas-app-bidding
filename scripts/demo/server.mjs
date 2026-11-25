@@ -79,6 +79,52 @@ async function runClocks() {
   } catch {}
 }
 
+// ------------------------------------------------- Google's minutes, as the demo's own
+// The real app asks Google's Routes service (google_minutes); the page cannot. So the
+// demo answers each ask the way Google would: the road a third longer than the straight
+// line, about 27 km/h in town plus a minute and a half, and a road with one corner. The
+// demo's help panel says these minutes are the demo's own. Never in the app itself.
+function encodeLine(points) {
+  let out = '';
+  let pLat = 0;
+  let pLng = 0;
+  const one = (v) => {
+    let n = v < 0 ? ~(v << 1) : v << 1;
+    let s = '';
+    while (n >= 0x20) {
+      s += String.fromCharCode((0x20 | (n & 0x1f)) + 63);
+      n >>= 5;
+    }
+    return s + String.fromCharCode(n + 63);
+  };
+  for (const [lat, lng] of points) {
+    const a = Math.round(lat * 1e5);
+    const b = Math.round(lng * 1e5);
+    out += one(a - pLat) + one(b - pLng);
+    pLat = a;
+    pLng = b;
+  }
+  return out;
+}
+async function answerRoutes() {
+  try {
+    const { rows } = await asOwner(`SELECT s.id, s.body FROM net.sent s WHERE s.url LIKE '%routes.googleapis.com%'
+      AND NOT EXISTS (SELECT 1 FROM net._http_response r WHERE r.id = s.id)`);
+    for (const r of rows) {
+      const o = r.body?.origin?.location?.latLng;
+      const d = r.body?.destination?.location?.latLng;
+      if (!o || !d) continue;
+      const k = Math.PI / 180;
+      const m = 6371000 * 2 * Math.asin(Math.sqrt(Math.sin(((d.latitude - o.latitude) * k) / 2) ** 2 + Math.cos(o.latitude * k) * Math.cos(d.latitude * k) * Math.sin(((d.longitude - o.longitude) * k) / 2) ** 2));
+      const road = Math.round(m * 1.3);
+      const secs = Math.round(road / 7.5 + 90);
+      const line = encodeLine([[o.latitude, o.longitude], [o.latitude, d.longitude], [d.latitude, d.longitude]]);
+      await asOwner(`INSERT INTO net._http_response (id, status_code, content) VALUES ($1, 200, $2)`,
+        [r.id, JSON.stringify({ routes: [{ duration: `${secs}s`, distanceMeters: road, polyline: { encodedPolyline: line } }] })]);
+    }
+  } catch {}
+}
+
 // ---------------------------------------------------------------- example jobs
 const id = (n) => `de${String(n).repeat(6)}-${String(n).repeat(4)}-4${String(n).repeat(3)}-8${String(n).repeat(3)}-${String(n).repeat(12)}`;
 const AYESHA = id(1), SARA = id(2), HINA = id(3), BILAL = id(4), ASAD = id(5);
@@ -94,6 +140,8 @@ const POST = `SELECT public.post_job(p_trade => $1, p_job_type => $2, p_descript
   p_when_kind => 'later', p_when_part => NULL, p_sector => $5, p_street => $6, p_house => $7,
   p_lat => $8, p_lng => $9, p_media => '[]'::jsonb, p_when_date => $10::date, p_when_from => NULL)`;
 async function seed() {
+  // A stand-in key, so the database asks for minutes; answerRoutes() answers (see above).
+  await asOwner(`INSERT INTO vault.decrypted_secrets (name, decrypted_secret) VALUES ('google_routes_key', 'demo-not-a-key') ON CONFLICT (name) DO NOTHING`);
   const day = async (n) => (await asOwner(`SELECT ((now() AT TIME ZONE 'Asia/Karachi')::date + $1::int)::text AS d`, [n])).rows[0].d;
   const type = async (t, like) => (await asOwner(`SELECT id FROM public.job_types WHERE trade = $1 AND name ILIKE $2 ORDER BY id LIMIT 1`, [t, like])).rows[0]?.id ?? null;
   const tomorrow = await day(1);
@@ -161,7 +209,7 @@ async function seed() {
   // Ayesha's open job: a leaking AC, with an offer from Asad waiting for her.
   const leak = await type('ac', '%leak%');
   const open = must(await one(AYESHA, POST, ['ac', leak, 'Water is dripping from the indoor unit in the bedroom.', 250000, 'F-11', 'Street 34', 'House 12', 33.6837, 72.9876, asap]), 'post open');
-  must(await one(ASAD, `SELECT public.make_offer($1, $2, NULL, 'I can bring a new drain pipe if needed.', NULL::smallint)`, [open.id, 280000]), 'offer open');
+  must(await one(ASAD, `SELECT public.make_offer($1, $2, NULL, NULL, NULL::smallint)`, [open.id, 280000]), 'offer open');
 
   // Two jobs for Bilal (the demo technician) to offer on.
   const fan = await type('electrician', '%fan%');
@@ -256,6 +304,7 @@ async function route(req) {
   }
   if (p === '/auth/v1/logout') return reply(204);
   if (p.startsWith('/rest/v1/rpc/')) {
+    await answerRoutes();
     const fn = p.slice('/rest/v1/rpc/'.length);
     if (!/^[a-z_0-9]+$/.test(fn)) return reply(404, { message: 'No such function' });
     const args = req.method === 'GET' ? Object.fromEntries(url.searchParams) : await body();
