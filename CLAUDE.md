@@ -2037,7 +2037,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (24 November 2026, "2B"): three pages to swipe, each full screen in one
   brand colour — yellow, green, ink — with a soft light behind its drawing
   (`glow` and `GLOW_STOPS` in `packages/shared/src/tokens.ts`, drawn with
-  react-native-svg, no new native library); a big two-line headline ("Your
+  react-native-svg, no new native library); a big headline ("Your
   price.", "Checked technicians.", "Pay when it's done."), one short line
   and one `WelcomeArt` drawing (a price tag and screwdriver, a badge on a
   lanyard, a ticked job slip on banknotes — objects, never people, never a

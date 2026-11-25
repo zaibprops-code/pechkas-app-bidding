@@ -150,8 +150,8 @@ export function WaitingView({ job, search, tick, onChanged, notify, askNotify }:
 
   const at: Point | null = typeof job.lat === 'number' && typeof job.lng === 'number' ? { latitude: job.lat, longitude: job.lng } : null;
   const km = Math.max(1, Math.round(search.reach_m / 1000));
-  // The map shows a little more than the reach, so the dots inside it are on it.
-  const zoom = Math.min(0.6, Math.max(0.03, (search.reach_m * 2.6) / 111000));
+  // Street level, as the mock: the box shows about the search's reach from top to bottom.
+  const zoom = Math.min(0.4, Math.max(0.02, (search.reach_m * 1.1) / 111000));
   const mapH = Math.round(Math.min(520, Math.max(300, height * 0.44)));
   const nearCount = search.near_count ?? 0;
   const letters = wide ? search.letters : search.near_letters ?? [];

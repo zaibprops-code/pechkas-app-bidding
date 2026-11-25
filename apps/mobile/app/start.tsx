@@ -21,7 +21,7 @@ import { colour, font, glow, GLOW_STOPS, TAP } from '../src/theme';
  * the owner's request (24 November 2026, design "2B"): three pages to
  * swipe, each in one of the brand's own colours — yellow, green, ink — with
  * a soft light behind its drawing (`glow` in the shared tokens). A big
- * two-line headline, one short line, one drawing; the ways in at the foot.
+ * headline ("Your price." on one line, the others on two), one short line, one drawing; the ways in at the foot.
  * Less on each page on purpose: people swipe past welcome pages, so each
  * says one thing and the button is always there.
  *
@@ -49,8 +49,8 @@ const HIT = { top: 13, bottom: 13, left: 6, right: 6 };
 
 type Tone = keyof typeof glow;
 
-const PAGES: { art: WelcomeArtName; head: [string, string]; accent?: boolean; line: string; tone: Tone }[] = [
-  { art: 'price', head: ['Your', 'price.'], line: 'Technicians make offers. You choose.', tone: 'yellow' },
+const PAGES: { art: WelcomeArtName; head: [string] | [string, string]; accent?: boolean; line: string; tone: Tone }[] = [
+  { art: 'price', head: ['Your price.'], line: 'Technicians make offers. You choose.', tone: 'yellow' },
   { art: 'checked', head: ['Checked', 'technicians.'], line: 'His photo is confirmed at your door.', tone: 'green' },
   { art: 'cash', head: ['Pay when', 'it’s done.'], accent: true, line: 'Cash, JazzCash or Easypaisa. Nothing in advance.', tone: 'ink' },
 ];
@@ -204,8 +204,9 @@ export default function Start() {
               <View style={[s.page, { paddingTop: headTop, paddingBottom: footH + 4 }]}>
                 <Text style={[s.head, { color: t.fg, fontSize: headSize, lineHeight: Math.round(headSize * 1.04), letterSpacing: -headSize * 0.04 }]}>
                   {p.head[0]}
-                  {'\n'}
-                  <Text style={p.accent ? { color: colour.yellow } : null}>{p.head[1]}</Text>
+                  {/* "Your price." fits on one line (shorter than "technicians.", which always does). */}
+                  {p.head[1] ? '\n' : null}
+                  {p.head[1] ? <Text style={p.accent ? { color: colour.yellow } : null}>{p.head[1]}</Text> : null}
                 </Text>
                 <Text style={[s.line, { color: t.muted }]}>{p.line}</Text>
                 <View style={s.art} onLayout={(e) => {
