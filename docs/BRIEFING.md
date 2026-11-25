@@ -389,6 +389,12 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   his way (A115; needs the Google key in Supabase); late 15 minutes after
   the time Google's minutes say he is due, jobs 7am to 10pm (A116). All
   built.
+- **A117, the screens exactly as the approved mocks (25 November 2026):**
+  waiting on a full map with the technicians near her as unnamed dots
+  (rounded to about 100 m; the owner's choice), raising her price there,
+  "Still looking?" and "No offer yet", offers dropping in, short choose
+  cards, him coming on the map; his list shows Google's minutes for each
+  job (paid requests, kept down by a setting). Built.
 
 ## 7. Still open: what the owner has to decide
 

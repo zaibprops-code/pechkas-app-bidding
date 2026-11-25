@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "98067fa";
+export const LEGAL_FROM = "2d2a21f";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -264,14 +264,14 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " Going online needs your location: the app sends it when you go online and every few minutes while Pechkas is open on Jobs, never in the background. Only the latest position is kept, and it is deleted a few hours after you were last seen. It is used to show you jobs near you and to tell you how far each one is; customers never see it. If you set a "
+              "t": " Going online needs your location: the app sends it when you go online and every few minutes while Pechkas is open on Jobs, never in the background. Only the latest position is kept, and it is deleted a few hours after you were last seen. It is used to show you jobs near you and to tell you how far each one is, in minutes from Google Maps where it can. While a customer near you is waiting for a technician for work you do, her map shows a dot roughly where you are, rounded to about 100 metres, with no name, photo or number; the first letter of your name may be shown among the technicians looking. If you set a "
             },
             {
               "t": "home area",
               "b": true
             },
             {
-              "t": ", that place is kept until you change it, and is used when your last position is a few hours old. Only the office sees either."
+              "t": ", that place is kept until you change it, and is used when your last position is a few hours old. Only the office sees your home area."
             }
           ],
           [
@@ -857,7 +857,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": ": when he makes an offer, and every two minutes at most while he is on his way. Google receives only the two points, never a name, a number or an address. Pechkas itself keeps only the pin of a job you post, and, for technicians, the position while online, the home area and the location checks described above. Checking a location uses no outside map service: the distance is worked out by Pechkas itself."
+              "t": ": for the jobs in his list while he is online (again when he has moved, or every few minutes), when he makes an offer, and every two minutes at most while he is on his way. Google receives only the two points, never a name, a number or an address. Pechkas itself keeps only the pin of a job you post, and, for technicians, the position while online, the home area and the location checks described above. Checking a location uses no outside map service: the distance is worked out by Pechkas itself."
             }
           ]
         ]
@@ -2495,7 +2495,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " you must allow Pechkas your location while the app is open; it is never read in the background. While you are online, you see jobs near you in the trades open to you, and further away the longer a job waits: the sector, about how far it is, the customer's first name, what is wrong and the price offered. Not the address or number. If your phone stops giving your location, you are taken offline; jobs you already have go on. When you make an offer, the customer sees about how far you are; Pechkas works out the minutes with Google Maps from where your phone is. After you tap "
+              "t": " you must allow Pechkas your location while the app is open; it is never read in the background. While you are online, you see jobs near you in the trades open to you, and further away the longer a job waits: the sector, about how far it is, the customer's first name, what is wrong and the price offered. Not the address or number. If your phone stops giving your location, you are taken offline; jobs you already have go on. While a customer near you is waiting for work you do, her map shows a dot roughly where you are (rounded to about 100 metres), never your name, photo or number. Your list shows how many minutes away each job is, from Google Maps. When you make an offer, the customer sees about how far you are; Pechkas works out the minutes with Google Maps from where your phone is. After you tap "
             },
             {
               "t": "On my way",

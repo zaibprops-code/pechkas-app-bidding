@@ -1952,6 +1952,28 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## The screens as your approved mocks (25 November 2026)
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261206000000_as_the_mocks.sql`, after
+   `20261205000000_late_from_minutes.sql`. It should say **Success**.
+2. **Try it** (two phones, or the demo):
+   - Post a job. The map fills the screen with soft waves, the technicians
+     near you as small briefcase dots, **× Cancel job** at the top, and the
+     sheet with the countdown, **Raise my price** and the automatic choice.
+   - When the countdown ends, **Still looking?** asks once; later, **No
+     offer yet. You don't have to wait here.**
+   - When a technician offers, his offer drops in from the top; **See**
+     opens **Choose a technician** with **No thanks** / **Choose …**.
+   - After choosing: the map with him on it and the sheet saying where he
+     is; at your door, **He has arrived** and the start code.
+   - As a technician: **Around F‑11 · within 5 km** under Jobs near you,
+     minutes on each job once the Google key is in, and the short offer
+     sheet with **Offer sent to …** in green.
+3. **Costs to watch**: minutes in his list are paid Google requests after
+   the free 10,000 a month. If the bill grows, Admin → Settings →
+   "feed_route_minutes" asks less often (5 to 60 minutes).
+
 ## When a technician is due, and late (25 November 2026)
 
 1. **Supabase → SQL Editor**: run

@@ -3,7 +3,8 @@ import { Linking, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View 
 import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { dayLabel, PRICE_STEP_PAISA, rupees, showMobile, technicianKeeps, whenLabel, windowLabel, type WhenFields } from '@pechkas/shared';
+import { dayLabel, rupees, sectorIn, showMobile, technicianKeeps, whenLabel, windowLabel, type WhenFields } from '@pechkas/shared';
+import { TradeTile } from '../customer/bits';
 import { MenuButton } from '../components/Menu';
 import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
@@ -25,7 +26,7 @@ import { PayPauseBanner, type PayPause } from './PayPause';
 import { fill, useProWords, type ProWords } from '../words';
 import { colour, font, radius, shadow } from '../theme';
 import * as Location from 'expo-location';
-import { fixNow } from '../components/Map';
+import { fixNow, readPlace } from '../components/Map';
 import { done, type Message } from '../message';
 
 /**
@@ -125,7 +126,11 @@ export function Work({ firstName }: { firstName: string }) {
   const [checks, setChecks] = useState<{ status: string; ref: string }[]>([]);
   // Jobs near him (jobs_near_him): how far each job is, in a straight line, and
   // why he cannot go online when location is the reason.
-  const [far, setFar] = useState<Record<string, number>>({});
+  // How far each job is (pro_nearby(), as_the_mocks): the straight line, and Google's minutes when it has answered.
+  const [far, setFar] = useState<Record<string, Near>>({});
+  const [startM, setStartM] = useState<number | null>(null);
+  // "Around F-11": the sector his phone's own map service reads from where he is.
+  const [area, setArea] = useState<string | null>(null);
   const [where, setWhere] = useState<null | 'explain' | 'denied' | 'off' | 'unavailable'>(null);
   const [homing, setHoming] = useState(false);
   const [said, setSaid] = useState<string | Message | null>(null);
@@ -148,7 +153,16 @@ export function Work({ firstName }: { firstName: string }) {
     setProblem(null);
     setFeed(f.data as Feed);
     setMine((m.data as ActiveJob[]) ?? []);
-    supabase.rpc('pro_distances').then(({ data, error }) => setFar(error ? {} : ((data as Record<string, number>) ?? {})));
+    supabase.rpc('pro_nearby').then(({ data, error }) => {
+      if (!error && data) {
+        const d = data as { jobs: Record<string, Near>; start_m: number };
+        setFar(d.jobs ?? {});
+        setStartM(d.start_m ?? null);
+        return;
+      }
+      // An older database: the straight line only.
+      supabase?.rpc('pro_distances').then((r) => setFar(r.error ? {} : Object.fromEntries(Object.entries((r.data as Record<string, number>) ?? {}).map(([k, m]) => [k, { distance_m: m, eta_seconds: null, route_m: null }]))));
+    });
     setFinished((d.data as FinishedJob[]) ?? []);
   }, []);
 
@@ -178,6 +192,9 @@ export function Work({ firstName }: { firstName: string }) {
       return false;
     }
     setWhere(null);
+    readPlace({ latitude: fix.lat, longitude: fix.lng })
+      .then((p) => setArea(p ? sectorIn(p.texts, lists?.sectors ?? []) : null))
+      .catch(() => {});
     return true;
   }
 
@@ -312,6 +329,15 @@ export function Work({ firstName }: { firstName: string }) {
                 </View>
               ) : null}
             </View>
+            {!mine.length && online ? (
+              <View style={s.areaRow}>
+                <Icon name="pin" size={15} color={colour.green} strokeWidth={2.4} />
+                <Text style={s.areaText}>
+                  {area ? `Around ${area.replace('-', '\u2011')}` : 'Around you'}
+                  {startM ? ` · within ${Math.round(startM / 1000)} km` : ''}
+                </Text>
+              </View>
+            ) : null}
           </View>
         ) : null}
 
@@ -422,18 +448,13 @@ export function Work({ firstName }: { firstName: string }) {
               </View>
             ) : null}
             {feed && feed.jobs.length === 0 ? (
-              <View style={s.emptyCard}>
-                <View style={s.soft}>
-                  <DuoIcon name="briefcase" size={26} />
-                </View>
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Text style={s.emptyTitle}>{w.noJobsTitle}</Text>
-                  <Text style={s.empty}>{w.noJobs}</Text>
-                </View>
+              <View style={s.emptyQuiet}>
+                <DuoIcon name="bell" size={26} />
+                <Text style={[s.empty, { textAlign: 'center' }]}>No new jobs yet. You are told the moment one comes.</Text>
               </View>
             ) : null}
             {feed?.jobs.map((j) => (
-              <RequestRow key={j.id} j={j} w={w} trade={tradeName(j.trade)} metres={far[j.id]} onOpen={() => {
+              <RequestRow key={j.id} j={j} w={w} trade={tradeName(j.trade)} near={far[j.id]} onOpen={() => {
                 setOpen(j.id);
                 // Counted once: the customer sees how many technicians have looked, never who.
                 ask('pro_saw_job', { p_job: j.id }).catch(() => {});
@@ -457,6 +478,7 @@ export function Work({ firstName }: { firstName: string }) {
         <Sheet onClose={() => setOpen(null)} closeLabel={w.closeJob}>
           <JobCard
             j={opened}
+            away={awayText(far[opened.id])}
             feed={feed}
             w={w}
             trade={tradeName(opened.trade)}
@@ -519,7 +541,7 @@ function WhereCard({ kind, onAllow, onClose }: { kind: 'explain' | 'denied' | 'o
       <Text style={s.whereText}>{text}</Text>
       {kind === 'explain' ? (
         <View style={{ gap: 6 }}>
-          {['Customers never see where you are', 'They see only “about 3 km away”', 'Without it you cannot go online'].map((x) => (
+          {['Customers waiting near you see a dot roughly where you are, never your name', 'You see how many minutes away each job is', 'Without it you cannot go online'].map((x) => (
             <View key={x} style={s.whereTick}>
               <Icon name="check" size={16} color={colour.green} strokeWidth={2.6} />
               <Text style={s.whereTickText}>{x}</Text>
@@ -539,19 +561,25 @@ function WhereCard({ kind, onAllow, onClose }: { kind: 'explain' | 'denied' | 'o
   );
 }
 
-/** "About 3 km away": a straight line, rounded, never a route or a time. */
-function farText(m: number | undefined): string | null {
-  if (m === undefined || m === null) return null;
-  if (m < 1000) return 'Less than 1 km away';
-  return `About ${Math.round(m / 1000)} km away`;
+type Near = { distance_m: number | null; eta_seconds: number | null; route_m: number | null };
+
+/** "9 min away · 2.1 km" from Google; without its answer the straight line, "About 3 km away". Never made up. */
+function awayText(n: Near | undefined): string | null {
+  if (!n) return null;
+  if (n.eta_seconds !== null && n.eta_seconds !== undefined) {
+    const km = n.route_m ?? n.distance_m;
+    return `${Math.max(1, Math.round(n.eta_seconds / 60))} min away${km !== null && km !== undefined ? ` · ${(km / 1000).toFixed(1)} km` : ''}`;
+  }
+  if (n.distance_m === null || n.distance_m === undefined) return null;
+  return n.distance_m < 1000 ? 'Less than 1 km away' : `About ${Math.round(n.distance_m / 1000)} km away`;
 }
 
-function RequestRow({ j, w, trade, metres, onOpen }: { j: FeedJob; w: ProWords; trade: string; metres?: number; onOpen: () => void }) {
+function RequestRow({ j, w, trade, near, onOpen }: { j: FeedJob; w: ProWords; trade: string; near?: Near; onOpen: () => void }) {
   const live = j.my_offer?.live ? j.my_offer : null;
   const media = mediaLine(j.media, w);
   const when = ago(j.created_at, w);
   return (
-    <Press onPress={onOpen} accessibilityRole="button" accessibilityLabel={`${j.title}, ${j.sector}, ${rupees(j.offered_paisa)}`} sink={0.98} style={[s.req, (j.asked_you || live) && s.reqMarked]}>
+    <Press onPress={onOpen} accessibilityRole="button" accessibilityLabel={`${j.title}, ${j.sector}, ${rupees(j.offered_paisa)}`} sink={0.98} style={[s.req, s.reqMarked]}>
       <View style={s.reqTop}>
         <View style={s.avatar}>
           <Text style={s.avatarText}>{j.customer_first_name.charAt(0)}</Text>
@@ -566,22 +594,15 @@ function RequestRow({ j, w, trade, metres, onOpen }: { j: FeedJob; w: ProWords; 
         </View>
         <Text style={s.reqPrice}>{rupees(j.offered_paisa)}</Text>
       </View>
-      <View style={s.reqBody}>
-        <Icon name="pin" size={18} color={colour.green} strokeWidth={2.2} />
-        <View style={{ flex: 1 }}>
-          <Text style={s.reqTitle} numberOfLines={2}>
-            {j.title}
-          </Text>
-          <Text style={s.reqSub} numberOfLines={1}>
-            {trade} · {j.sector}
-          </Text>
-        </View>
-      </View>
+      <Text style={s.reqTitle} numberOfLines={2} accessibilityLabel={`${j.title}, ${trade}`}>
+        {j.title}
+      </Text>
       <View style={s.reqFoot}>
         <View style={[s.reqTags, { flex: 1 }]}>
-          {farText(metres) ? (
-            <View style={[s.tag, s.tagNear]}>
-              <Text style={[s.tagText, { color: colour.green }]}>{farText(metres)}</Text>
+          {awayText(near) ? (
+            <View style={[s.tag, s.tagNear, s.tagRow]}>
+              <Icon name="pin" size={13} color={colour.green} strokeWidth={2.4} />
+              <Text style={[s.tagText, { color: colour.green }]}>{awayText(near)}</Text>
             </View>
           ) : null}
           {j.asked_you ? (
@@ -656,6 +677,7 @@ function Facts({ j, w }: { j: { power: FeedJob['power']; parts: FeedJob['parts']
 
 function JobCard({
   j,
+  away,
   feed,
   w,
   trade,
@@ -663,6 +685,7 @@ function JobCard({
   onChanged,
 }: {
   j: FeedJob;
+  away?: string | null;
   feed: Feed;
   w: ProWords;
   trade: string;
@@ -752,9 +775,9 @@ function JobCard({
     onChanged();
   }
 
+  const ask4 = STEPS.filter((d) => j.offered_paisa + d <= max);
   return (
     <View style={[s.card, j.asked_you && s.cardAsked]}>
-      {/* The price she named, large, first: the thing a driver reads first on inDrive. */}
       {j.asked_you && j.asked_until ? (
         <View style={{ gap: 8 }}>
           <Text style={s.asked}>
@@ -763,28 +786,24 @@ function JobCard({
           {!live ? <Button kind="outline" label={w.passAsked} onPress={pass} busy={busy} /> : null}
         </View>
       ) : null}
-      <View style={s.cardTop}>
-        <View style={s.badge}>
-          <Text style={s.badgeText}>
-            {trade} · {j.sector}
-          </Text>
+      {/* As the approved mock: the job, her name and how far; her offer and what he keeps; ask for more; Accept. */}
+      <View style={s.sheetHead}>
+        <TradeTile trade={j.trade} size={48} />
+        <View style={{ flex: 1 }}>
+          <Text style={s.sheetTitle}>{j.title}</Text>
+          <Text style={s.sheetSub}>{[j.customer_first_name, away].filter(Boolean).join(' · ')}</Text>
         </View>
-        <Text style={s.when}>{whenText(j, w)}</Text>
       </View>
-      <Text style={s.title}>{j.title}</Text>
       {j.description ? <Text style={s.desc}>“{j.description}”</Text> : null}
-      <Text style={s.cust}>{j.customer_first_name}</Text>
       <RemoteMedia items={j.media} voiceLabel={w.playVoice} videoLabel={w.watchVideo} />
-      <Facts j={j} w={w} />
 
-      <View style={s.money}>
+      <View style={s.moneyBox}>
         <View>
-          {/* While he sets his offer, her price stays here to compare with; the stepper below is his. */}
-          <Text style={s.moneyLabel}>{editing ? w.customerOffers : w.yourOffer}</Text>
-          <Text style={s.moneyBig}>{rupees(editing ? j.offered_paisa : live?.price_paisa ?? price)}</Text>
+          <Text style={s.moneyLabel}>{w.customerOffers}</Text>
+          <Text style={s.moneyBig}>{rupees(j.offered_paisa)}</Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <Text style={s.moneyLabel}>{editing ? fill(w.youKeepAt, { price: rupees(price) }) : w.youKeep}</Text>
+          <Text style={s.moneyLabel}>{w.youKeep}</Text>
           {/* The fee is on the work only: parts he says are in the price are kept whole. */}
           <Text style={s.keep}>
             {rupees(
@@ -795,47 +814,31 @@ function JobCard({
           </Text>
         </View>
       </View>
-      <Text style={s.fee}>
-        {j.launch && j.launch_until
-          ? fill(w.feeLaunch, { pct, date: launchDay(j.launch_until) })
-          : j.repeat
-            ? fill(w.feeRepeat, { name: j.customer_first_name, pct })
-            : fill(w.feeLine, { pct })}
-      </Text>
-      {j.visit_fee_paisa ? <Text style={s.fee}>{fill(w.feeFeedLine, { fee: rupees(j.visit_fee_paisa) })}</Text> : null}
 
       {!editing && live ? (
         <View style={{ gap: 8 }}>
-          {live.arrive_from !== null && live.arrive_from !== undefined && j.when_date ? (
-            <Text style={s.label}>{fill(w.arrives, { time: `${dayLabel(j.when_date)}, ${windowLabel(live.arrive_from)}` })}</Text>
-          ) : null}
+          <View style={s.sent} accessibilityRole="text">
+            <Icon name="check" size={18} color={colour.white} strokeWidth={2.8} />
+            <Text style={s.sentText}>Offer sent to {j.customer_first_name}</Text>
+          </View>
           <Text style={s.waiting}>
-            {w.waiting} · {fill(w.minutesLeft, { n: minutesLeft })}
+            {rupees(live.price_paisa)} · {w.waiting} · {fill(w.minutesLeft, { n: minutesLeft })}
           </Text>
           <View style={s.row}>
-            <View style={{ flex: 1 }}>
-              <Button kind="outline" label={w.change} onPress={() => setEditing(true)} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Button kind="outline" label={w.withdraw} onPress={withdraw} busy={busy} />
-            </View>
+            <Press onPress={() => setEditing(true)} accessibilityRole="button" style={s.smallLink}>
+              <Text style={s.smallLinkText}>{w.change}</Text>
+            </Press>
+            <Press onPress={withdraw} accessibilityRole="button" style={s.smallLink}>
+              <Text style={s.smallLinkText}>{w.withdraw}</Text>
+            </Press>
           </View>
         </View>
       ) : (
         <View style={{ gap: 10 }}>
           {j.my_offer && !j.my_offer.live && j.my_offer.status === 'pending' ? <Text style={s.expired}>{w.expired}</Text> : null}
-          <View style={s.stepper}>
-            <Press onPress={() => setPrice(Math.max(min, price - PRICE_STEP_PAISA))} sink={0.9} accessibilityRole="button" accessibilityLabel={`Lower by ${rupees(PRICE_STEP_PAISA)}`} style={s.step}>
-              <Text style={[s.stepText, { color: colour.ink }]}>−</Text>
-            </Press>
-            <Text style={s.stepPrice}>{rupees(price)}</Text>
-            <Press onPress={() => setPrice(Math.min(max, price + PRICE_STEP_PAISA))} sink={0.9} accessibilityRole="button" accessibilityLabel={`Raise by ${rupees(PRICE_STEP_PAISA)}`} style={[s.step, s.stepPlus]}>
-              <Text style={s.stepText}>+</Text>
-            </Press>
-          </View>
-          {/* Ask for more in plain steps above her price, as inDrive's drivers do. */}
+          {ask4.length ? <Text style={s.label}>Or ask for more:</Text> : null}
           <View style={s.steps}>
-            {STEPS.filter((d) => j.offered_paisa + d <= max).map((d) => {
+            {ask4.map((d) => {
               const on = price === j.offered_paisa + d;
               return (
                 <Press key={d} onPress={() => setPrice(on ? j.offered_paisa : j.offered_paisa + d)} sink={0.94} accessibilityRole="radio" accessibilityState={{ selected: on }} style={[s.chip, s.stepChip, on && s.chipOn]}>
@@ -866,23 +869,6 @@ function JobCard({
               {errors.parts ? <Text style={s.error}>{errors.parts}</Text> : null}
             </View>
           ) : null}
-          {help?.range ? (
-            <PriceRangeCard
-              range={help.range}
-              price={price}
-              say={{ below: [w.rangeBelow, w.rangeBelowSub], within: [w.rangeWithin, w.rangeWithinSub], above: [w.rangeAbove, w.rangeAboveSub] }}
-              foot={fill(w.rangeFoot, { n: help.range.n, days: help.range.days })}
-              onWhite
-            />
-          ) : null}
-          {help?.last ? (
-            <Text style={s.fee}>
-              {fill(w.lastPrice, {
-                price: rupees(help.last.labour_paisa),
-                date: new Date(`${help.last.done_on}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
-              })}
-            </Text>
-          ) : null}
 
           {j.when_kind === 'now' ? (
             <View style={{ gap: 6 }}>
@@ -899,30 +885,10 @@ function JobCard({
               {errors.eta ? <Text style={s.error}>{errors.eta}</Text> : null}
             </View>
           ) : null}
-
-          {asap ? (
-            <View style={s.dueBox}>
-              <Icon name="clock" size={18} color={colour.green} />
-              <Text style={[s.fact, { flex: 1 }]}>{fill(w.dueNote, { grace: '15' })}</Text>
-            </View>
-          ) : null}
-
-          <View style={{ gap: 6 }}>
-            <Text style={s.label}>{w.noteLabel}</Text>
-            <TextInput
-              value={note}
-              onChangeText={setNote}
-              placeholder={w.notePlaceholder}
-              placeholderTextColor="#8f9aa3"
-              maxLength={200}
-              accessibilityLabel={w.noteLabel}
-              style={[s.input, errors.note && { borderColor: colour.brick, borderWidth: 2 }]}
-            />
-            {errors.note ? <Text style={s.error}>{errors.note}</Text> : null}
-          </View>
+          {errors.note ? <Text style={s.error}>{errors.note}</Text> : null}
 
           <Button
-            kind={price === j.offered_paisa ? 'yellow' : 'green'}
+            kind="yellow"
             label={price === j.offered_paisa ? fill(w.acceptFor, { price: rupees(price) }) : fill(w.offerFor, { price: rupees(price) })}
             onPress={() => send(price)}
             busy={busy}
@@ -1008,6 +974,14 @@ const s = StyleSheet.create({
   fact: { fontFamily: font.bodyMedium, fontSize: 13, color: colour.inkSoft },
   dueBox: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, padding: 12, borderRadius: 14, backgroundColor: colour.canvas },
   money: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
+  moneyBox: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', padding: 14, borderRadius: 18, backgroundColor: colour.canvas },
+  sheetHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  sheetTitle: { fontFamily: font.display, fontSize: 17, lineHeight: 22, color: colour.ink },
+  sheetSub: { fontFamily: font.body, fontSize: 13.5, color: colour.steel },
+  sent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 56, borderRadius: 18, backgroundColor: colour.green },
+  sentText: { fontFamily: font.display, fontSize: 16, color: colour.white },
+  smallLink: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  smallLinkText: { fontFamily: font.bodySemi, fontSize: 14.5, color: colour.inkSoft, textDecorationLine: 'underline' },
   moneyLabel: { fontFamily: font.body, fontSize: 12, color: colour.steel },
   moneyBig: { fontFamily: font.display, fontSize: 26, color: colour.ink },
   keep: { fontFamily: font.display, fontSize: 20, color: colour.green },
@@ -1032,6 +1006,10 @@ const s = StyleSheet.create({
   homeLink: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 44 },
   homeLinkText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.white, textDecorationLine: 'underline' },
   tagNear: { backgroundColor: colour.greenSoft },
+  tagRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  emptyQuiet: { alignItems: 'center', gap: 10, paddingVertical: 26, paddingHorizontal: 18, borderRadius: 22, backgroundColor: colour.white, boxShadow: shadow.card },
+  areaRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 },
+  areaText: { fontFamily: font.bodySemi, fontSize: 13.5, color: colour.green },
   whereTile: { width: 72, height: 72, borderRadius: 36, backgroundColor: colour.greenSoft, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
   whereTitle: { fontFamily: font.display, fontSize: 22, lineHeight: 27, color: colour.ink, textAlign: 'center' },
   whereText: { fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.steel, textAlign: 'center' },

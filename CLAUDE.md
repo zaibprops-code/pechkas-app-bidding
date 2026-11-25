@@ -420,7 +420,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (`pro_positions`), deleted by `forget_positions()` after twice
   `position_fresh_minutes`. His **home area** (`set_home_area()`, "Make where
   I am now my home area" under Go online) stands in when his position is
-  older than `position_fresh_minutes`. Customers never see either.
+  older than `position_fresh_minutes`. Customers never see his home area;
+  since A117 a waiting customer nearby sees an unnamed dot, rounded to
+  about 100 m (`job_search().near`, below).
 - **`pro_may_see_as()` is still the one rule**, with "in one of his sectors"
   replaced by `within_reach(job, pro)`: the job's pin within `reach_at(job,
   now)` of `pro_point(pro)` — `search_start_m` (5 km) at announcement,
@@ -435,7 +437,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   line, rounded, never a route or a time). Opening a job is
   `pro_saw_job()`; she sees **how many technicians have looked and their
   first letters**, never a name, face or place (`job_search()`).
-- **Her waiting screen** (`src/customer/Search.tsx`, on the job's screen
+- **Her waiting screen** (since A117 `src/customer/Waiting.tsx`; before it `Search.tsx`, on the job's screen
   while open): her map with soft waves of colour and a soft area drawn to
   the share of the search done (not to scale; the chip says the real km),
   the countdown to all of Islamabad with the bar emptying, who has looked,
@@ -517,6 +519,52 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `LateCard` names his due time; his job says `dueBy` / `dueByRule`. The
   terms, technician agreement, privacy page and Help say the same; change
   them together. Tests: `latefrom.test.mjs`.
+
+### The screens exactly as the approved mocks (A117, migration `…_as_the_mocks`)
+- **The owner's words: "build exactly as those approved mocks pages".**
+  The mocks are sheets 1–3 of 25 November 2026 (Post a job; waiting,
+  choosing and him arriving; the technician). Compare a change to them.
+- **Waiting** (`src/customer/Waiting.tsx`, `WaitingView`): the map fills
+  the top (`MapBox dots`), waves from her home, "× Cancel job", the chip;
+  "N technicians near you are looking" with first-letter discs
+  (`near_count`, `near_letters`; once all of Islamabad, the ones who looked);
+  a sheet: "Finding a technician" and the countdown to all of Islamabad,
+  then "Reaching more technicians" and a second countdown to
+  `nudge_at`; her price with − and + through the database's steps
+  (+200, +500, +1,000), "Usual price", "N raises left", **Raise my
+  price** (`raise_price()`); the automatic choice. "Still looking?" at the
+  first countdown's end and "No offer yet. You don't have to wait here."
+  at the second, each once (`Ask`); `CancelSheet` with one-tap reasons
+  (fixed_myself, someone_else, other + "It took too long" / "Price too
+  high"). An offer drops in from the top (`OfferBanner`, See).
+- **Choose a technician** (`Choose.tsx`, `/job/<id>?view=choose`): short
+  cards, nearest first, the price and minutes big, his initial, name,
+  rating or New, jobs, trade and years, **No thanks** / **Choose Bilal**
+  side by side (no confirm step), the darker part shrinking as the offer
+  runs out; his name opens `ProProfile`; parts, the door photo, a checked
+  first job and his note only when they apply.
+- **Him coming** (`Coming.tsx`, chosen / on_way / arrived): the map with
+  his disc and Google's road while `job_live()` has him, a round back
+  button; a sheet with his initial, "Bilal is on his way", "5 min away"
+  (or "Due by 3:40pm" without live minutes), "1.3 km · arrives about
+  3:40pm", Call / Chat / Family; then `JobCard coming` (UnderWay without
+  its own header: steps, Report, Emergency, the start code, everything
+  else). At the door: "He has arrived", his disc at her home.
+- **Technicians on her map** (`job_search().near`): online, approved, a
+  position from the last 10 minutes, `pro_may_see_as()` for her open job;
+  rounded to 3 decimals (about 100 m), 30 at most, never a name or id
+  (`mocks.test.mjs`). The owner's choice, knowing the privacy cost; the
+  privacy page, agreement and store answers say it.
+- **Minutes in his list** (`pro_nearby()`, `feed_routes`): the straight
+  line for every job he may see, Google's minutes once answered; asked
+  again only when he moves 300 m or `feed_route_minutes` (10, office
+  5–60) pass, five asks at most per read, never without the key, never
+  from his home area. `forget_feed_routes()` hourly. "Around F‑11 ·
+  within 5 km" under Jobs near you is his phone's own reading of the
+  sector (`readPlace`, `sectorIn`).
+- `DrawnMarks` (`components/MapMarks.tsx`) puts dots, his disc and the road
+  on the drawn plan where a real map would, for builds without the key
+  and the browser.
 
 ### Bidding (phase 3)
 - **One rule for what a technician may see: `pro_may_see(job)`.** The feed,
@@ -893,11 +941,10 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - **Technicians**: `pro_price_help(job)` — only for a job `pro_may_see()` —
   gives the range while `price_range_to_pros` is 1 (the office can switch
   it off from Settings if quotes start bunching at the middle), and his
-  own last price for that kind of job, from his own jobs. Same card in the
-  offer sheet, grey on the white sheet (`onWhite`), with his own verdict
-  words in `words.ts`. While he sets an offer, the sheet's top figure is
-  **her** price ("Customer's offer") and "You keep at Rs …" — never his
-  price twice, once at the top and again in the stepper.
+  own last price for that kind of job, from his own jobs. **Not shown in
+  the offer sheet since A117** (the approved mock has no such card); the
+  function stays for when the owner wants it back. The sheet's top figure
+  is **her** price ("Customer's offer") and "You keep".
 - **The office**: `admin_prices()` and the admin **Prices** page — per kind
   of job, jobs, usual price, middle price, cheapest–dearest, what
   customers first asked, and the range shown or "Not yet: n of 10".
@@ -1932,7 +1979,12 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   **sheet from the bottom** with
   **"Accept for Rs …"**, steps to ask for more (+Rs 200 / 500 / 1,000 above
   her price, within `max_counter_bps`: plain steps, never a price we
-  suggest), the − / + stepper, how soon, and the note. The switch's colours
+  suggest) — since A117 exactly the approved mock: the job's drawing,
+  name and "Sara · 9 min away · 2.1 km", her words and media, Customer's
+  offer / You keep, "Or ask for more:" and Accept; once sent, a green
+  "✓ Offer sent to Sara" with Change and Withdraw under it. No − / +
+  stepper, no note, no price-range card (the mock has none); parts only
+  on a first job (A104). The switch's colours
   snap; only the sheet moves, by transform. Every rule in the offer is the
   database's, unchanged.
 - **Maps are `src/components/Map.tsx`, and only there.** Android draws
@@ -2066,8 +2118,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   under Jobs): the yellow top carries back, the step bar ("1 of 3"), the
   job's drawing, name and **Change** — never its price, which is on the
   price step only (the owner: no duplicates). **One tap of − or + is Rs 50**
-  (`PRICE_STEP_PAISA` in `packages/shared`), here and in the technician's
-  offer sheet alike. The job is chosen in a `Sheet` (kind of work, then
+  (`PRICE_STEP_PAISA` in `packages/shared`). The job is chosen in a `Sheet` (kind of work, then
   which job). On a narrow phone the stepper and the thumbnails shrink and
   sector names never break at their hyphen. A refusal for a box the page
   does not draw is shown in full. A new box needs its field in `STEP_OF`

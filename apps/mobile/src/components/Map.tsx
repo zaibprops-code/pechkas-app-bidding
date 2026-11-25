@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from './Icon';
+import { DrawnMarks, TechDot } from './MapMarks';
 import { MapDrawing } from './MapDrawing';
 import { Press } from './Press';
 import { Button } from './ui';
@@ -141,7 +142,7 @@ export async function fixNow(): Promise<Fix> {
  * A map to look at: a place with the Pechkas pin on it, or just an area.
  * Not draggable unless `interactive`, so it never steals a scroll.
  */
-export function MapBox({ center, pin, zoom = 0.012, interactive = false, showsUser = false, style, other, path }: {
+export function MapBox({ center, pin, zoom = 0.012, interactive = false, showsUser = false, style, other, path, dots }: {
   center: Point;
   pin?: Point | null;
   zoom?: number;
@@ -152,12 +153,15 @@ export function MapBox({ center, pin, zoom = 0.012, interactive = false, showsUs
   other?: { point: Point; letter: string } | null;
   /** The road he is taking, from Google (google_minutes). */
   path?: Point[] | null;
+  /** The technicians near her while she waits (job_search().near): rounded points, no names. */
+  dots?: Point[] | null;
 }) {
   // No key in this build: the drawing, with the pin in the middle, in the same box.
   if (!mapsReady()) {
     return (
       <View style={[s.box, style]}>
         <MapDrawing />
+        <DrawnMarks center={center} zoom={zoom} dots={dots} other={other} path={path} />
         {pin ? (
           <View style={s.centre} pointerEvents="none">
             <Pin />
@@ -166,10 +170,10 @@ export function MapBox({ center, pin, zoom = 0.012, interactive = false, showsUs
       </View>
     );
   }
-  return <RealMap center={center} pin={pin} zoom={zoom} interactive={interactive} showsUser={showsUser} style={style} other={other} path={path} />;
+  return <RealMap center={center} pin={pin} zoom={zoom} interactive={interactive} showsUser={showsUser} style={style} other={other} path={path} dots={dots} />;
 }
 
-function RealMap({ center, pin, zoom, interactive, showsUser, style, other, path }: {
+function RealMap({ center, pin, zoom, interactive, showsUser, style, other, path, dots }: {
   center: Point;
   pin?: Point | null;
   zoom: number;
@@ -178,6 +182,7 @@ function RealMap({ center, pin, zoom, interactive, showsUser, style, other, path
   style?: StyleProp<ViewStyle>;
   other?: { point: Point; letter: string } | null;
   path?: Point[] | null;
+  dots?: Point[] | null;
 }) {
   const ref = useRef<MapView>(null);
   useEffect(() => {
@@ -201,6 +206,11 @@ function RealMap({ center, pin, zoom, interactive, showsUser, style, other, path
         showsPointsOfInterests={false}
       >
         {path && path.length > 1 ? <Polyline coordinates={path} strokeColor={colour.ink} strokeWidth={5} /> : null}
+        {(dots ?? []).map((d, i) => (
+          <Marker key={`d${i}`} coordinate={d} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={false}>
+            <TechDot />
+          </Marker>
+        ))}
         {other ? (
           <Marker coordinate={other.point} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={false}>
             <View style={s.other}>

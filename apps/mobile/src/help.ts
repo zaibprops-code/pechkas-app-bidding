@@ -370,7 +370,7 @@ export const TECHNICIAN_HELP: HelpTopic[] = [
     qa: [
       {
         q: 'How do I go online?',
-        a: 'Tap the switch at the top of Jobs. Pechkas needs your location to go online: it is read only while the app is open on Jobs, never in the background, and customers never see it. While you are online you see jobs near you in your trades, and further away as each job waits, and you are told about new ones. It stays on until you switch it off, or until your phone stops giving your location.',
+        a: 'Tap the switch at the top of Jobs. Pechkas needs your location to go online: it is read only while the app is open on Jobs, never in the background. A customer near you who is waiting for your kind of work sees a dot roughly where you are, never your name or number. While you are online you see jobs near you in your trades, and further away as each job waits, and you are told about new ones. It stays on until you switch it off, or until your phone stops giving your location.',
       },
       {
         q: 'What is my home area?',

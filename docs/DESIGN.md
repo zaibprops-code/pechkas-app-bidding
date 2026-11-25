@@ -188,14 +188,26 @@ home.
   screen, one black button at the foot that stays pale until it can act,
   Back one step back. The last step lists what is being sent as rows that
   open their step.
-- **No day to pick; the technician says when**: every job is as soon as
-  possible (the owner: "a fast service app, not a delayed one"). His offer
-  sheet shows the windows still open ("8–10am" … "8–10pm"), and the offer
-  card says "Arrives Sat 31 Oct, 2–4pm". Every screen writes a time with
-  `whenLabel()`, never its own words.
-- **A person is a sheet before a choice**: a link under an offer ("See
-  Bilal's profile") opens a sheet with figures in three grey tiles, ticked
-  checks, quoted words, and the same Choose button as the offer.
+- **No day to pick and no time to type** (A110, A116): every job is as
+  soon as possible (the owner: "a fast service app, not a delayed one").
+  Google Maps says how far a technician is; once she chooses him the job
+  says "Due by 3:40pm". Older jobs with a window still use `whenLabel()`.
+- **Waiting and him coming are a map with a sheet** (the owner's approved
+  mocks, `Waiting.tsx`, `Choose.tsx`, `Coming.tsx`): the map fills the top
+  with soft waves from her home, the technicians near her as briefcase
+  dots, a white pill ("× Cancel job", or a round back button) on the map
+  and a chip at its foot ("Searching within 4 km"); a line of who is
+  looking with first-letter discs; then a white sheet with a handle — one
+  big line of where things are (a countdown, "5 min away", "He has
+  arrived"), the one money control, the one main button. Questions the
+  person must answer ("Still looking?", "No offer yet", "Cancel this
+  job?") are sheets with the main answer first and "Cancel this job" in
+  brick at the foot. An offer drops in from the top as a white card with
+  See. Choosing is a page of short cards: the price and minutes big, then
+  who, then No thanks / Choose side by side.
+- **A person is a sheet before a choice**: his name on an offer opens a
+  sheet with figures in three grey tiles, ticked checks, quoted words,
+  and the same Choose button as the offer.
 - **One answer first, then the detail.** A card that helps somebody
   decide leads with a single plain verdict ("In line with most jobs like
   this"), then the picture, then where it comes from. Never the same

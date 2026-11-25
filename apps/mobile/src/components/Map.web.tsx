@@ -3,6 +3,7 @@ import { Modal, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'r
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from './Icon';
 import { MapDrawing } from './MapDrawing';
+import { DrawnMarks } from './MapMarks';
 import { Press } from './Press';
 import { Button } from './ui';
 import { colour, font } from '../theme';
@@ -72,15 +73,11 @@ export function Pin() {
   );
 }
 
-export function MapBox({ pin, style, other }: { center: Point; pin?: Point | null; zoom?: number; interactive?: boolean; showsUser?: boolean; style?: StyleProp<ViewStyle>; other?: { point: Point; letter: string } | null; path?: Point[] | null }) {
+export function MapBox({ center, zoom = 0.012, pin, style, other, path, dots }: { center: Point; pin?: Point | null; zoom?: number; interactive?: boolean; showsUser?: boolean; style?: StyleProp<ViewStyle>; other?: { point: Point; letter: string } | null; path?: Point[] | null; dots?: Point[] | null }) {
   return (
     <View style={[s.box, style]}>
       <MapDrawing />
-      {other ? (
-        <View style={s.other} pointerEvents="none">
-          <Text style={s.otherText}>{other.letter}</Text>
-        </View>
-      ) : null}
+      <DrawnMarks center={center} zoom={zoom} dots={dots} other={other} path={path} />
       {pin ? (
         <View style={s.centre} pointerEvents="none">
           <Pin />

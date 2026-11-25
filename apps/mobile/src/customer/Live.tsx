@@ -27,7 +27,7 @@ type Live = {
 };
 
 /** Google's encoded polyline, as points. */
-function decode(line: string): Point[] {
+export function decode(line: string): Point[] {
   const out: Point[] = [];
   let i = 0;
   let lat = 0;

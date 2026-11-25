@@ -118,7 +118,7 @@ function dueText(job: Job): string | null {
   return `Due by ${prefix}${pkClock(job.due_at)}${job.due_by_google ? ', from Google Maps' : ''}`;
 }
 
-export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; trade: string; tick: number; onChanged: () => void; onOpen?: () => void }) {
+export function JobCard({ job, trade, tick, onChanged, onOpen, coming = false }: { job: Job; trade: string; tick: number; onChanged: () => void; onOpen?: () => void; coming?: boolean }) {
   const [confirming, setConfirming] = useState(false);
   const [finding, setFinding] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -219,17 +219,8 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
   const offersFirst = open && job.live_offers > 0;
   const shown = job.paid_by_pechkas ? 'Free' : rupees(job.collect_paisa ?? job.agreed_paisa ?? job.offered_paisa);
 
-  return (
+  const jobPanel = (
     <>
-      {/* With offers waiting, they come first: choosing is what she is here to do. */}
-      {offersFirst ? <Offers job={job} tick={tick} onChosen={onChanged} /> : null}
-      {offersFirst ? (
-        <Text style={s.sectionTitle} accessibilityRole="header">
-          Your job
-        </Text>
-      ) : null}
-      {/* Nobody has offered yet: her three choices, before anything else. */}
-      {open && job.live_offers === 0 && job.nudged ? <NoOffers job={job} onChanged={onChanged} /> : null}
       {/* The job itself: what, where, when — the part that never changes. */}
       <Press
         onPress={onOpen}
@@ -272,6 +263,21 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
         {!active && job.cancelled_by === 'office' && job.cancel_reason ? <Text style={s.line}>{job.cancel_reason}</Text> : null}
         {job.status === 'cancelled' && cancelledNote(job) ? <Text style={s.small}>{cancelledNote(job)}</Text> : null}
       </Press>
+    </>
+  );
+
+  return (
+    <>
+      {/* With offers waiting, they come first: choosing is what she is here to do. */}
+      {offersFirst ? <Offers job={job} tick={tick} onChosen={onChanged} /> : null}
+      {offersFirst ? (
+        <Text style={s.sectionTitle} accessibilityRole="header">
+          Your job
+        </Text>
+      ) : null}
+      {/* Nobody has offered yet: her three choices, before anything else. */}
+      {open && job.live_offers === 0 && job.nudged ? <NoOffers job={job} onChanged={onChanged} /> : null}
+      {coming ? null : jobPanel}
 
       {/* The job came back because a technician could not come, or she asked for another (D11). */}
       <ReopenedNote job={job} />
@@ -294,7 +300,9 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
       {assigned && job.pro && job.eta_at && !job.no_show && !job.pro_late ? <RunningLateCard job={job} onDone={onChanged} /> : null}
       {/* He is at her door and cannot get in (nobody_home): I'm coming, or cancel. */}
       {assigned && job.pro && (job.not_home?.status === 'asking' || job.not_home?.status === 'coming') ? <AtDoorCard job={job} onChanged={onChanged} /> : null}
-      {assigned && job.pro ? <UnderWay job={job} onChanged={onChanged} /> : null}
+      {assigned && job.pro ? <UnderWay job={job} onChanged={onChanged} head={!coming} /> : null}
+      {/* In the map-and-sheet view (Coming.tsx) the job itself comes after the code. */}
+      {coming ? jobPanel : null}
       {job.status === 'cancelled' && job.not_home && ['submitted', 'disputed', 'confirmed', 'rejected'].includes(job.not_home.status) ? (
         <NotHomeEnded job={job} onChanged={onChanged} />
       ) : null}

@@ -98,6 +98,8 @@ async function seed() {
   const type = async (t, like) => (await asOwner(`SELECT id FROM public.job_types WHERE trade = $1 AND name ILIKE $2 ORDER BY id LIMIT 1`, [t, like])).rows[0]?.id ?? null;
   const tomorrow = await day(1);
   const inTwo = await day(2);
+  // As soon as possible, as the app posts: today until 9pm, then tomorrow (A116).
+  const asap = (await asOwner(`SELECT CASE WHEN extract(hour FROM now() AT TIME ZONE 'Asia/Karachi') < public.last_post_hour() THEN (now() AT TIME ZONE 'Asia/Karachi')::date ELSE (now() AT TIME ZONE 'Asia/Karachi')::date + 1 END::text AS d`)).rows[0].d;
   const must = (r, what) => {
     if (!r?.ok) throw new Error(`${what}: ${JSON.stringify(r)}`);
     return r;
@@ -105,7 +107,7 @@ async function seed() {
   // Ayesha's AC, finished last time with Asad (so she has a history and can rate).
   const service = await type('ac', '%service%');
   const done = must(await one(AYESHA, POST, ['ac', service, 'The AC needs a service before summer.', 300000, 'F-11', 'Street 34', 'House 12', 33.6837, 72.9876, tomorrow]), 'post done');
-  must(await one(ASAD, `SELECT public.make_offer($1, $2, NULL, NULL, 14::smallint)`, [done.id, 300000]), 'offer done');
+  must(await one(ASAD, `SELECT public.make_offer($1, $2, NULL, NULL, NULL::smallint)`, [done.id, 300000]), 'offer done');
   const o1 = (await asOwner(`SELECT id FROM public.offers WHERE job_id = $1`, [done.id])).rows[0].id;
   must(await one(AYESHA, `SELECT public.choose_offer($1)`, [o1]), 'choose done');
   await one(ASAD, `SELECT public.tech_step($1, 'chosen')`, [done.id]);
@@ -131,7 +133,7 @@ async function seed() {
   // A job that stopped at the door: she said no to a new price, so a visit fee only, which he says she paid.
   const gas = await type('ac', '%gas%');
   const stop = must(await one(AYESHA, POST, ['ac', gas, 'The lounge AC blows warm air.', 450000, 'F-11', 'Street 34', 'House 12', 33.6837, 72.9876, tomorrow]), 'post stopped');
-  must(await one(ASAD, `SELECT public.make_offer($1, $2, NULL, NULL, 10::smallint)`, [stop.id, 450000]), 'offer stopped');
+  must(await one(ASAD, `SELECT public.make_offer($1, $2, NULL, NULL, NULL::smallint)`, [stop.id, 450000]), 'offer stopped');
   const o2 = (await asOwner(`SELECT id FROM public.offers WHERE job_id = $1`, [stop.id])).rows[0].id;
   must(await one(AYESHA, `SELECT public.choose_offer($1)`, [o2]), 'choose stopped');
   await one(ASAD, `SELECT public.tech_step($1, 'chosen')`, [stop.id]);
@@ -153,15 +155,18 @@ async function seed() {
   await asOwner(`UPDATE public.job_events SET at = at - interval '35 days' WHERE job_id = $1`, [gone.id]);
   await asOwner(`UPDATE public.job_events SET at = at - interval '19 days' WHERE job_id = $1`, [stop.id]);
 
+  // Where the two example technicians are (as their phones would send it): her map shows them near her.
+  await one(BILAL, `SELECT public.pro_here(33.6902, 72.9821, 12)`);
+  await one(ASAD, `SELECT public.pro_here(33.6791, 72.9953, 12)`);
   // Ayesha's open job: a leaking AC, with an offer from Asad waiting for her.
   const leak = await type('ac', '%leak%');
-  const open = must(await one(AYESHA, POST, ['ac', leak, 'Water is dripping from the indoor unit in the bedroom.', 250000, 'F-11', 'Street 34', 'House 12', 33.6837, 72.9876, tomorrow]), 'post open');
-  must(await one(ASAD, `SELECT public.make_offer($1, $2, NULL, 'I can bring a new drain pipe if needed.', 16::smallint)`, [open.id, 280000]), 'offer open');
+  const open = must(await one(AYESHA, POST, ['ac', leak, 'Water is dripping from the indoor unit in the bedroom.', 250000, 'F-11', 'Street 34', 'House 12', 33.6837, 72.9876, asap]), 'post open');
+  must(await one(ASAD, `SELECT public.make_offer($1, $2, NULL, 'I can bring a new drain pipe if needed.', NULL::smallint)`, [open.id, 280000]), 'offer open');
 
   // Two jobs for Bilal (the demo technician) to offer on.
   const fan = await type('electrician', '%fan%');
-  must(await one(SARA, POST, ['electrician', fan, 'The ceiling fan in the lounge hums and turns slowly.', 150000, 'E-11', 'Street 7', 'House 40', 33.6990, 72.9720, tomorrow]), 'post sara');
-  must(await one(HINA, POST, ['ac', null, 'The AC is not cooling at all since yesterday.', 300000, 'G-13', 'Street 12', 'House 3', 33.6510, 72.9620, inTwo]), 'post hina');
+  must(await one(SARA, POST, ['electrician', fan, 'The ceiling fan in the lounge hums and turns slowly.', 150000, 'E-11', 'Street 7', 'House 40', 33.6990, 72.9720, asap]), 'post sara');
+  must(await one(HINA, POST, ['ac', null, 'The AC is not cooling at all since yesterday.', 300000, 'G-13', 'Street 12', 'House 3', 33.6510, 72.9620, asap]), 'post hina');
 }
 
 // ---------------------------------------------------------------- pretend sign-in

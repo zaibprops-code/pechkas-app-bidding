@@ -92,7 +92,7 @@ const HEAD: Record<Stage, (name: string) => string> = {
   disputed: (n) => `Pechkas is looking at ${n}’s work`,
 };
 
-export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => void }) {
+export function UnderWay({ job, onChanged, head = true }: { job: JobNow; onChanged: () => void; head?: boolean }) {
   const pro = job.pro!;
   const urls = useSignedUrls(job.change ? [{ kind: 'photo', path: job.change.photo, seconds: null }] : []);
   const [declining, setDeclining] = useState(false);
@@ -134,6 +134,7 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
     <>
       {/* Who is coming and where he has got to, with every way to reach him in one row. */}
       <View style={s.panel}>
+        {head ? (
         <View style={s.top}>
           <Face path={job.pro_photo} name={pro.first_name} size={56} />
           <View style={{ flex: 1, gap: 2 }}>
@@ -147,6 +148,7 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
             </View>
           </View>
         </View>
+        ) : null}
         {job.check ? (
           <Text style={s.line}>
             {job.check.status === 'asked'
@@ -157,7 +159,7 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
           </Text>
         ) : null}
         <Steps stage={job.stage === 'checking' || job.stage === 'disputed' ? 'working' : job.stage} narrow={narrow} />
-        {job.stage === 'chosen' || !job.stage ? <Text style={s.line}>Your phone tells you when he sets off.</Text> : null}
+        {head && (job.stage === 'chosen' || !job.stage) ? <Text style={s.line}>Your phone tells you when he sets off.</Text> : null}
         {/* Said only when the database verified it; never where he is. */}
         {job.arrival_verified && (job.stage === 'arrived' || job.stage === 'working') ? (
           <View style={s.verified}>
@@ -169,9 +171,9 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
           </View>
         ) : null}
         <View style={s.actions}>
-          {pro.phone ? <Action icon="phone" label="Call" full={`Call ${pro.first_name}`} onPress={() => Linking.openURL(`tel:+${pro.phone!.replace(/^\+/, '')}`)} /> : null}
-          <Action icon="chat" label="Chat" full={`Message ${pro.first_name}`} onPress={() => router.push({ pathname: '/chat/[job]', params: { job: job.id } })} />
-          {early ? <Action icon="share" label="Family" full="Send his name to family on WhatsApp" onPress={() => Linking.openURL(`https://wa.me/?text=${family}`)} /> : null}
+          {head && pro.phone ? <Action icon="phone" label="Call" full={`Call ${pro.first_name}`} onPress={() => Linking.openURL(`tel:+${pro.phone!.replace(/^\+/, '')}`)} /> : null}
+          {head ? <Action icon="chat" label="Chat" full={`Message ${pro.first_name}`} onPress={() => router.push({ pathname: '/chat/[job]', params: { job: job.id } })} /> : null}
+          {head && early ? <Action icon="share" label="Family" full="Send his name to family on WhatsApp" onPress={() => Linking.openURL(`https://wa.me/?text=${family}`)} /> : null}
           <Action icon="flag" label="Report" full="Report a problem" on={reporting} onPress={() => setReporting(!reporting)} />
         </View>
         {reporting ? (

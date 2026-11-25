@@ -11,6 +11,9 @@ import { JobCard, type Job } from '../../src/customer/JobCard';
 import { PastJob } from '../../src/customer/PastJob';
 import { SearchCard, SearchMap, type JobSearch } from '../../src/customer/Search';
 import { OnHisWay } from '../../src/customer/Live';
+import { WaitingView, type Search } from '../../src/customer/Waiting';
+import { ChooseView } from '../../src/customer/Choose';
+import { ComingView } from '../../src/customer/Coming';
 import { supabase } from '../../src/supabase';
 import { Trouble } from '../../src/components/Trouble';
 import { noAnswer, type NoAnswer } from '../../src/net';
@@ -38,7 +41,7 @@ const LATER_EVERY = 10000;
 
 export default function LiveJob() {
   const end = useScrollEnd(32);
-  const { id, asked } = useLocalSearchParams<{ id: string; asked?: string }>();
+  const { id, asked, view } = useLocalSearchParams<{ id: string; asked?: string; view?: string }>();
   const { ready, session, account } = useAccount();
   const lists = useLists();
   const [job, setJob] = useState<Job | null | undefined>(undefined);
@@ -130,6 +133,13 @@ export default function LiveJob() {
         <SystemBars bg={colour.canvas} />
       </View>
     );
+  }
+
+  // The approved mocks (sheet 2): waiting on the map, choosing, then him coming on the map.
+  if (open && search && view === 'choose') return <ChooseView job={job} trade={trade} tick={tick} onChanged={load} />;
+  if (open && search) return <WaitingView job={job} search={search as Search} tick={tick} onChanged={load} notify={notify} askNotify={askNotify} />;
+  if (job.status === 'assigned' && job.pro && (job.stage === 'chosen' || job.stage === 'on_way' || job.stage === 'arrived')) {
+    return <ComingView job={job} trade={trade} tick={tick} onChanged={load} problem={problem} />;
   }
 
   const offers = job.live_offers;
