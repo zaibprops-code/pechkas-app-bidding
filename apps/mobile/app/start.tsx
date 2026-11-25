@@ -14,7 +14,8 @@ import { WelcomeArt, type WelcomeArtName } from '../src/components/WelcomeArt';
 import { useAccount } from '../src/account';
 import { openLegal } from '../src/legal';
 import { googleReady, signInWithGoogle } from '../src/supabase';
-import { colour, font, glow, GLOW_STOPS, TAP } from '../src/theme';
+import { DuoIcon } from '../src/components/DuoIcon';
+import { colour, font, glow, GLOW_STOPS, shadow, TAP } from '../src/theme';
 
 /**
  * The first screen after installing, and after signing out. Redesigned at
@@ -36,11 +37,19 @@ import { colour, font, glow, GLOW_STOPS, TAP } from '../src/theme';
  * Sign up and sign in are one step (a new number becomes a new account),
  * which is why the buttons say "Continue". The gate is in app/_layout.tsx.
  *
- * "Continue with Google" is drawn only when Supabase says Google is switched
- * on (googleReady), and never on an iPhone: Apple requires "Sign in with
- * Apple" beside it there, which is not built. With it, Google is the main
- * button and the phone the second; without it, the phone is the main one.
- * Email is always the plain link under them.
+ * The ways in (the owner's choice, 25 November 2026): **Continue with
+ * phone** is the one big button; under it a thin line says "or continue
+ * with", so nobody reads the buttons as steps to do one after another; then
+ * **Google** and **Email** as two white cards side by side. Google is drawn
+ * only when Supabase says it is switched on (googleReady), and never on an
+ * iPhone: Apple requires "Sign in with Apple" beside it there, which is not
+ * built. Without it, Email is one full-width card under the line.
+ *
+ * Every page keeps its drawing in the same place: the headline and the line
+ * under it take the height of the tallest page's (measured, so a phone where
+ * one line wraps keeps them level too), and the drawing fills what is left.
+ * "Your price." is one line and the others two; without this, its drawing
+ * sat higher than the other two.
  */
 const GOOGLE_HERE = Platform.OS !== 'ios';
 
@@ -56,7 +65,7 @@ const PAGES: { art: WelcomeArtName; head: [string] | [string, string]; accent?: 
 ];
 
 /** What sits on each colour. Every pair was checked at 4.5:1 or more on the darker half of its glow. */
-const ON: Record<Tone, { base: string; fg: string; muted: string; dotOff: string; dotOn: string; main: [string, string]; second: { bg: string; fg: string; border: string }; bar: 'dark' | 'light' }> = {
+const ON: Record<Tone, { base: string; fg: string; muted: string; dotOff: string; dotOn: string; main: [string, string]; bar: 'dark' | 'light' }> = {
   yellow: {
     base: colour.yellow,
     fg: colour.ink,
@@ -64,7 +73,6 @@ const ON: Record<Tone, { base: string; fg: string; muted: string; dotOff: string
     dotOff: 'rgba(20,23,26,0.22)',
     dotOn: colour.ink,
     main: [colour.ink, colour.white],
-    second: { bg: 'rgba(255,255,255,0.55)', fg: colour.ink, border: 'transparent' },
     bar: 'dark',
   },
   green: {
@@ -74,7 +82,6 @@ const ON: Record<Tone, { base: string; fg: string; muted: string; dotOff: string
     dotOff: 'rgba(255,255,255,0.25)',
     dotOn: colour.yellow,
     main: [colour.yellow, colour.ink],
-    second: { bg: 'transparent', fg: colour.white, border: 'rgba(255,255,255,0.45)' },
     bar: 'light',
   },
   ink: {
@@ -84,7 +91,6 @@ const ON: Record<Tone, { base: string; fg: string; muted: string; dotOff: string
     dotOff: 'rgba(255,255,255,0.25)',
     dotOn: colour.yellow,
     main: [colour.yellow, colour.ink],
-    second: { bg: 'transparent', fg: colour.white, border: 'rgba(255,255,255,0.4)' },
     bar: 'light',
   },
 };
@@ -113,18 +119,29 @@ function Glow({ tone, id, width, height }: { tone: Tone; id: string; width: numb
 }
 
 /** The welcome page's own button: its colours come from the page it is on. */
-function WelcomeButton({ label, onPress, bg, fg, border = 'transparent', icon, leading, busy = false }: { label: string; onPress: () => void; bg: string; fg: string; border?: string; icon?: 'phone'; leading?: ReactNode; busy?: boolean }) {
+function WelcomeButton({ label, onPress, bg, fg, border = 'transparent', icon, busy = false }: { label: string; onPress: () => void; bg: string; fg: string; border?: string; icon?: 'phone'; busy?: boolean }) {
   return (
     <Press onPress={busy ? undefined : onPress} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ busy }} style={[s.btn, { backgroundColor: bg, borderColor: border }]}>
       {busy ? (
         <ScrewSpinner size={22} colour={fg} label={`${label}, sending`} />
       ) : (
         <View style={s.btnRow}>
-          {leading ?? null}
           {icon ? <Icon name={icon} size={19} color={fg} strokeWidth={2.2} /> : null}
           <Text style={[s.btnText, { color: fg }]}>{label}</Text>
         </View>
       )}
+    </Press>
+  );
+}
+
+/** Google or Email: a white card under "or continue with", the same on every page. */
+function SideCard({ label, full, tile, tileBg, onPress, busy = false }: { label: string; full: string; tile: ReactNode; tileBg: string; onPress: () => void; busy?: boolean }) {
+  return (
+    <Press onPress={busy ? undefined : onPress} accessibilityRole="button" accessibilityLabel={full} accessibilityState={{ busy }} sink={0.97} style={s.card}>
+      <View style={[s.tile, { backgroundColor: tileBg }]}>{busy ? <ScrewSpinner size={20} colour={colour.ink} label={`${full}, opening`} /> : tile}</View>
+      <Text style={s.cardText} numberOfLines={1}>
+        {label}
+      </Text>
     </Press>
   );
 }
@@ -161,6 +178,10 @@ export default function Start() {
   const [box, setBox] = useState({ w: width, h: height });
   const [footH, setFootH] = useState(0);
   const [artBox, setArtBox] = useState<Record<number, { w: number; h: number }>>({});
+  // The words' height on each page; every page takes the tallest, so the drawings sit level.
+  const [wordsH, setWordsH] = useState<Record<number, number>>({});
+  useEffect(() => setWordsH({}), [box.w]);
+  const wordsMin = Math.max(0, ...Object.values(wordsH));
   const compact = box.h < 700;
   // The headline is as big as the narrowest phone lets "technicians." stay on one line.
   const headSize = Math.min(compact ? 50 : 60, Math.floor((box.w - 48) / 5.9));
@@ -202,6 +223,14 @@ export default function Start() {
             <View key={p.art} style={{ width: box.w, height: box.h }} accessible accessibilityLabel={`${p.head.join(' ')} ${p.line} Page ${i + 1} of ${PAGES.length}.`}>
               <Glow tone={p.tone} id={`welcome-glow-${i}`} width={box.w} height={box.h} />
               <View style={[s.page, { paddingTop: headTop, paddingBottom: footH + 4 }]}>
+                <View
+                  style={{ minHeight: wordsMin }}
+                  onLayout={(e) => {
+                    // Measured without the others' height, so it can never only grow.
+                    const h = Math.ceil(e.nativeEvent.layout.height);
+                    setWordsH((was) => (was[i] === h || (was[i] !== undefined && h <= wordsMin) ? was : { ...was, [i]: h }));
+                  }}
+                >
                 <Text style={[s.head, { color: t.fg, fontSize: headSize, lineHeight: Math.round(headSize * 1.04), letterSpacing: -headSize * 0.04 }]}>
                   {p.head[0]}
                   {/* "Your price." fits on one line (shorter than "technicians.", which always does). */}
@@ -209,6 +238,7 @@ export default function Start() {
                   {p.head[1] ? <Text style={p.accent ? { color: colour.yellow } : null}>{p.head[1]}</Text> : null}
                 </Text>
                 <Text style={[s.line, { color: t.muted }]}>{p.line}</Text>
+                </View>
                 <View style={s.art} onLayout={(e) => {
                   const { width: w, height: h } = e.nativeEvent.layout;
                   setArtBox((was) => (was[i]?.w === w && was[i]?.h === h ? was : { ...was, [i]: { w, h } }));
@@ -244,15 +274,17 @@ export default function Start() {
             <View key={p.art} style={[s.dot, { backgroundColor: i === page ? on.dotOn : on.dotOff }, i === page && s.dotOn]} />
           ))}
         </View>
-        {google ? <WelcomeButton label="Continue with Google" leading={<GoogleG size={20} />} onPress={withGoogle} busy={googleBusy} bg={on.main[0]} fg={on.main[1]} /> : null}
-        {google ? (
-          <WelcomeButton label="Continue with phone" icon="phone" onPress={() => go('phone')} bg={on.second.bg} fg={on.second.fg} border={on.second.border} />
-        ) : (
-          <WelcomeButton label="Continue with phone" icon="phone" onPress={() => go('phone')} bg={on.main[0]} fg={on.main[1]} />
-        )}
-        <Press onPress={() => go('email')} accessibilityRole="button" style={s.email} sink={0.96}>
-          <Text style={[s.emailText, { color: on.fg }]}>Continue with email</Text>
-        </Press>
+        <WelcomeButton label="Continue with phone" icon="phone" onPress={() => go('phone')} bg={on.main[0]} fg={on.main[1]} />
+        {/* One choice, not three steps: the line says the cards are the other ways in. */}
+        <View style={s.or} accessible={false}>
+          <View style={[s.orRule, { backgroundColor: on.dotOff }]} />
+          <Text style={[s.orText, { color: on.muted }]}>or continue with</Text>
+          <View style={[s.orRule, { backgroundColor: on.dotOff }]} />
+        </View>
+        <View style={s.cards}>
+          {google ? <SideCard label="Google" full="Continue with Google" tile={<GoogleG size={18} />} tileBg={colour.canvas} onPress={withGoogle} busy={googleBusy} /> : null}
+          <SideCard label="Email" full="Continue with email" tile={<DuoIcon name="mail" size={20} />} tileBg={colour.softYellow} onPress={() => go('email')} />
+        </View>
         <View style={s.legal}>
           <Text style={[s.small, { color: on.muted }]}>By continuing you agree to the</Text>
           <Press onPress={() => openLegal('terms')} accessibilityRole="link" hitSlop={HIT} style={s.link}>
@@ -283,8 +315,13 @@ const s = StyleSheet.create({
   btn: { minHeight: 56, borderRadius: 18, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
   btnRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   btnText: { fontFamily: font.display, fontSize: 17 },
-  email: { minHeight: TAP, alignItems: 'center', justifyContent: 'center' },
-  emailText: { fontFamily: font.display, fontSize: 15.5, textDecorationLine: 'underline' },
+  or: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 4 },
+  orRule: { flex: 1, height: StyleSheet.hairlineWidth * 2 },
+  orText: { fontFamily: font.bodySemi, fontSize: 13 },
+  cards: { flexDirection: 'row', gap: 10, marginBottom: 2 },
+  card: { flex: 1, minHeight: 54, minWidth: TAP, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 12, borderRadius: 18, backgroundColor: colour.white, boxShadow: shadow.card },
+  tile: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+  cardText: { flexShrink: 1, fontFamily: font.display, fontSize: 16, color: colour.ink },
   problem: { padding: 12, borderRadius: 14, backgroundColor: colour.softBrick },
   problemText: { fontFamily: font.bodySemi, fontSize: 14, lineHeight: 20, color: colour.brick },
   offline: { gap: 10, padding: 14, borderRadius: 18, backgroundColor: colour.ink, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },

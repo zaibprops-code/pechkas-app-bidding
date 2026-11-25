@@ -1272,6 +1272,13 @@ Privacy Policy. **Continue with phone** opens *Join with your mobile
 number*: one big box with the Pakistan flag and **+92** already in it, and
 **Next** at the bottom.
 
+**The welcome screen's buttons (25 November 2026, no database step).**
+**Continue with phone** is the one big button. Under it a thin line says
+*or continue with*, then **Google** and **Email** as two white cards side
+by side, so it is clear they are other ways in, not more steps. Until
+Google is switched on, Email is one white card on its own. The drawings
+on the three pages now sit at the same height and size.
+
 **Continue with Google (new — needs your Google set-up, below).** On
 Android, the welcome screen shows a black **Continue with Google** above the
 other two, as on inDrive. It appears **by itself** the moment Google is

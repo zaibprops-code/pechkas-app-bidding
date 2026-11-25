@@ -2041,10 +2041,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   price.", "Checked technicians.", "Pay when it's done."), one short line
   and one `WelcomeArt` drawing (a price tag and screwdriver, a badge on a
   lanyard, a ticked job slip on banknotes — objects, never people, never a
-  face); the name over the top; at the foot small dots, **Continue with
-  phone** in the page's main colour (Google takes that place when it is on,
-  phone then second), **Continue with email** as a plain link and the terms
-  line. Less on each page on purpose: people swipe past welcome pages. The
+  face); the name over the top; **every page's words take the tallest
+  page's height** (measured), so the drawings sit level and the same size
+  on all three — "Your price." is one line and once sat higher; at the foot
+  small dots, **Continue with phone** in the page's main colour (always the
+  big button), a thin **"or continue with"** line so nobody reads the
+  buttons as steps (the owner's question), then **Google** and **Email** as
+  two white cards side by side (Google only when it is on; Email alone full
+  width otherwise; their screen-reader names stay "Continue with …"), and
+  the terms line. Less on each page on purpose: people swipe past welcome pages. The
   words and buttons take the current page's colours when it settles —
   colours snap. The headline shrinks with the width so "technicians." never
   breaks at 320. Every page says only what is true today: no numbers, no
