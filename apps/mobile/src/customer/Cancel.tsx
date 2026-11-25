@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { windowLabel } from '@pechkas/shared';
+import { LATE_GRACE_MINUTES, pkClock, windowLabel } from '@pechkas/shared';
 import { Button, Chip, Field, Notice } from '../components/ui';
 import { DuoIcon } from '../components/DuoIcon';
 import { useToast } from '../components/Toast';
@@ -31,6 +31,8 @@ export type CancelFields = {
   pro_late?: boolean;
   no_show?: boolean;
   window_start?: string | null;
+  /** When he was due: Google's minutes when she chose him, or the office's fallback (A116). */
+  due_at?: string | null;
   /** His two-hour window, said the way every screen says it. */
   when_from?: number | null;
   cancel_code?: CancelCode | null;
@@ -113,7 +115,8 @@ export function CancelPanel({ job, preset, onDone, onBack }: { job: CancelFields
 }
 
 /**
- * He is more than 30 minutes into his window and has not arrived, or the
+ * He is 15 minutes past the time he was due (30 minutes into a window, on
+ * older jobs) and has not arrived, or the
  * database has recorded a potential no-show. She may send the same job to
  * another technician (D11), cancel free — neither counts against her — or
  * keep waiting.
@@ -137,7 +140,11 @@ export function LateCard({ job, onDone }: { job: CancelFields; onDone: () => voi
           <Text style={s.line}>
             {job.no_show
               ? `His time has passed. The Pechkas office has been told and is looking into it.`
-              : `${window ? `His time was ${window}, and it` : 'His time'} began more than 30 minutes ago. Call him, or wait a little longer.`}
+              : window
+                ? `His time was ${window}, and it began more than 30 minutes ago. Call him, or wait a little longer.`
+                : job.due_at
+                  ? `He was due by ${pkClock(job.due_at)}, more than ${LATE_GRACE_MINUTES} minutes ago. Call him, or wait a little longer.`
+                  : 'He is late. Call him, or wait a little longer.'}
           </Text>
         </View>
       </View>

@@ -271,7 +271,7 @@ function IncidentFacts({ i }: { i: Incident }) {
           : i.how === 'cancelled_waiting'
             ? `The customer cancelled after waiting ${i.minutes_late ?? '?'} minutes from the start of his time.`
             : `Arrived ${i.minutes_late ?? '?'} minutes after his time began${i.arrived_at ? `, at ${when(i.arrived_at)}` : ''}.`}
-        {i.window_start ? ` His time began ${when(i.window_start)}.` : ''}
+        {i.window_start ? ` He was due ${when(i.window_start)}.` : ''}
       </p>
       {i.pro_text ? (
         <p>
@@ -417,7 +417,7 @@ function CancelLine({ c }: { c: Cancellation }) {
             </p>
           ) : null}
           <p className="muted">
-            {c.window_start ? `His time began ${when(c.window_start)}. ` : 'No window on this job. '}
+            {c.window_start ? `He was due ${when(c.window_start)}. ` : 'No time was set on this job. '}
             {c.on_way_at ? `On my way ${when(c.on_way_at)}. ` : ''}
             {c.arrived_at ? `Arrived ${when(c.arrived_at)}.` : ''}
           </p>

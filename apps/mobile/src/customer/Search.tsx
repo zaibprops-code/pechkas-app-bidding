@@ -204,7 +204,7 @@ export function SearchCard({ job, search, offers, onChanged }: { job: string; se
       {full && !offers ? (
         <View style={s.quiet}>
           <DuoIcon name="bell" size={22} />
-          <Text style={s.quietText}>You don’t have to wait here. Your phone tells you the moment a technician offers. Your job stays open until 8pm.</Text>
+          <Text style={s.quietText}>You don’t have to wait here. Your phone tells you the moment a technician offers. Your job stays open until 10pm.</Text>
         </View>
       ) : null}
 

@@ -35,7 +35,7 @@ export const CUSTOMER_HELP: HelpTopic[] = [
       },
       {
         q: 'When will somebody come?',
-        a: 'As soon as possible: there is no day to pick. Each technician says in his offer the two hours he will arrive in, and you choose. Late in the evening, after the last two-hour slot has started at 8pm, the job is for tomorrow morning.',
+        a: 'As soon as possible: there is no day or time to pick. Each offer shows how far away the technician is, in minutes from Google Maps where it can, and you choose. Pechkas visits run from 7am to 10pm: a job posted after 9pm is for tomorrow morning.',
       },
       {
         q: 'Why must I set a pin on the map?',
@@ -47,7 +47,7 @@ export const CUSTOMER_HELP: HelpTopic[] = [
       },
       {
         q: 'Nobody has offered. What can I do?',
-        a: 'If nobody offers for a while, you are told, and your job offers two choices: raise your price by Rs 200, 500 or 1,000 (up to three times), or **Keep waiting**. A job nobody took closes at 8pm on its day; open it and tap **Book again** to post it again.',
+        a: 'If nobody offers for a while, you are told, and your job offers two choices: raise your price by Rs 200, 500 or 1,000 (up to three times), or **Keep waiting**. A job nobody took closes at 10pm on its day; open it and tap **Book again** to post it again.',
       },
     ],
   },
@@ -59,7 +59,7 @@ export const CUSTOMER_HELP: HelpTopic[] = [
     qa: [
       {
         q: 'How do offers work?',
-        a: 'Technicians who can do the job either accept your price or ask for more. Each offer says the price and the two hours he will arrive in, and it lasts a limited time. Choose one with a tap; the others are told.',
+        a: 'Technicians who can do the job either accept your price or ask for more. Each offer says the price and how far away he is, and it lasts a limited time. Choose one with a tap; the others are told.',
       },
       {
         q: 'What can I see before I choose?',
@@ -91,7 +91,7 @@ export const CUSTOMER_HELP: HelpTopic[] = [
       },
       {
         q: 'When will he arrive?',
-        a: 'In the two hours his offer named, shown on your job (for example 2–4pm). The job follows him: chosen, on his way, at your door. If he is held up, he can tell you when he will be there.',
+        a: 'When you choose him, your job shows the time he is due by: his minutes from Google Maps at that moment, or the usual time Pechkas allows when Google Maps has none. Once he is on his way you see him on the map. If he is held up, he can tell you when he will be there.',
       },
       {
         q: 'My technician is late or cannot come.',
@@ -235,7 +235,7 @@ export const CUSTOMER_HELP: HelpTopic[] = [
       },
       {
         q: 'Does cancelling cost anything?',
-        a: 'No, never: cancelling never creates a visit fee. If he is more than 30 minutes late, cancelling never counts against you.',
+        a: 'No, never: cancelling never creates a visit fee. If he is more than 15 minutes past the time he was due, cancelling never counts against you.',
       },
       {
         q: 'Can I cancel with him at the door?',
@@ -378,11 +378,11 @@ export const TECHNICIAN_HELP: HelpTopic[] = [
       },
       {
         q: 'How do I make an offer?',
-        a: 'Tap a job, then accept her price, or ask for more in steps of Rs 200, 500 or 1,000, or with − and +. Choose the two hours you will arrive in, add a note if you like (no phone numbers) and send. The offer lasts a limited time, and you can change it while it waits.',
+        a: 'Tap a job, then accept her price, or ask for more in steps of Rs 200, 500 or 1,000, or with − and +. Add a note if you like (no phone numbers) and send. The offer lasts a limited time, and you can change it while it waits.',
       },
       {
         q: 'How do I say when I will come?',
-        a: 'Every offer names two hours on the customer’s day, from 8–10am to 8–10pm. When she chooses you, those two hours are your time, and lateness is counted from their start.',
+        a: 'You don’t: there is no time to choose. When she chooses you, Google Maps works out how long you take from where your phone is, and you are due by then. If Google Maps has no minutes, Pechkas allows its usual time. Your job shows the time.',
       },
       {
         q: 'What does “Asked for you” mean?',
@@ -542,11 +542,11 @@ export const TECHNICIAN_HELP: HelpTopic[] = [
     qa: [
       {
         q: 'What if I am late?',
-        a: 'Arriving more than 30 minutes after your time begins is recorded as late, and not arriving at all is checked by the office. If you are held up, tap I’m running late on the job and say when you will be there. Nothing happens on its own.',
+        a: 'Arriving more than 15 minutes after you were due is recorded as late, and not arriving at all is checked by the office. If you are held up, tap I’m running late on the job and say when you will be there. Nothing happens on its own.',
       },
       {
         q: 'I can’t come. What happens?',
-        a: 'Tap I can’t come on the job before you arrive, with the reason. The same job goes back to other technicians and the customer is told. More than 2 hours before your time it is a normal withdrawal; within 2 hours, or after your time began, it is recorded as a late withdrawal.',
+        a: 'Tap I can’t come on the job before you arrive, with the reason. The same job goes back to other technicians and the customer is told. Before you set off it is a normal withdrawal; once you are on your way, it is recorded as a late withdrawal.',
       },
       {
         q: 'Where do I see my record?',

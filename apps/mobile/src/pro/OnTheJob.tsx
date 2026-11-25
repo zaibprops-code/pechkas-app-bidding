@@ -88,8 +88,12 @@ export type ActiveJob = {
   dispute_outcome?: 'done' | 'stopped' | 'return' | null;
   dispute_note?: string | null;
   paid_by_pechkas?: boolean;
-  /** More than 30 minutes into his window and not arrived (cancellations). */
+  /** Past late_from and not arrived: 15 minutes after he was due, or 30 into a window (older jobs). */
   late?: boolean;
+  /** When he is due (A116): Google's minutes when she chose him, or the office's fallback; and from when he is late. */
+  due_at?: string | null;
+  late_from?: string | null;
+  due_by_google?: boolean;
   /** He cannot get in (nobody_home): from when he may ask, and where it stands. */
   not_home_from?: string | null;
   guard_from?: string | null;
@@ -242,6 +246,9 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
         <Text style={s.when}>{j.stage === 'working' || j.stage === 'checking' || j.stage === 'disputed' ? w.working : when}</Text>
       </View>
       <Text style={s.title}>{j.title}</Text>
+      {j.due_at && j.late_from && (j.stage === 'chosen' || j.stage === 'on_way') ? (
+        <Text style={s.dueLine}>{fill(j.due_by_google ? w.dueBy : w.dueByRule, { due: pkClock(j.due_at), late: pkClock(j.late_from) })}</Text>
+      ) : null}
       {j.paid_by_pechkas ? (
         <View style={s.paidBox}>
           <Text style={s.paidTitle}>{w.guaranteeRepair}</Text>
@@ -944,6 +951,7 @@ function RateCustomer({ f, w, onDone }: { f: FinishedJob; w: ProWords; onDone: (
 }
 
 const s = StyleSheet.create({
+  dueLine: { fontFamily: font.bodySemi, fontSize: 14, color: colour.green },
   unpaidLink: { width: '100%', minHeight: 44, justifyContent: 'center' },
   unpaidLinkText: { fontFamily: font.bodySemi, fontSize: 13.5, color: colour.green, textDecorationLine: 'underline' },
   feeBox: { width: '100%', gap: 8, padding: 12, borderRadius: 16, backgroundColor: colour.softYellow },

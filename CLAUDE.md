@@ -319,9 +319,9 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
      range; one line "Pay him after the work · Visit fee Rs … only if you
      say no" opens how paying works (`VisitFeeNote` there); then three
      lines — **As soon as possible** (no day to pick; after the last window
-     has started at 8pm it says tomorrow morning), what she showed, where —
+     is 9pm it says tomorrow morning), what she showed, where —
      the last two open their step and come straight back. **Post job · Rs …**.
-- **Every job is as soon as possible; the technician says when he will come**
+- **Every job is as soon as possible; Google's minutes say when he is due** (Part 2c, below)
   (the owner, 25 November 2026: "a fast service app, not a delayed one").
   The app no longer asks for a day: it posts today while a window can
   still start, tomorrow after that, and `NoOffers` no longer offers
@@ -481,6 +481,42 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `vault.decrypted_secrets`; tests write Google's answers. Tests:
   `googleminutes.test.mjs`. The privacy page, technician agreement and
   data-safety answers say all of this; change them together.
+
+### When he is due, and late (Part 2c, migration `…_late_from_minutes`)
+- **He names no time** (A116). An offer on an as-soon-as-possible job sends
+  no window; `make_offer()` still accepts one from an older copy, and that
+  job then keeps every old window rule (30 minutes into it is late, 30
+  minutes after it ends a possible no-show). The offer sheet shows one line
+  (`dueNote`) instead of the window chips.
+- **`due_at` is fixed when she chooses him** (`fix_due()`, BEFORE trigger
+  `jobs_due`, named to run after `job_steps`): her choice (`assigned_at`, or
+  7am of the job's day if that is later) plus `chosen_eta_seconds`, or
+  `due_fallback_minutes` (60, office 30–180) when Google gave none — never
+  called Google's on a screen (`due_by_google`). A Google answer within five
+  minutes of the choice replaces the fallback (`offers_chosen_eta` now also
+  fires on `eta_seconds`). Going back to everyone clears `due_at` and the
+  minutes of the man who left.
+- **`due_of()`, `late_from()`, `no_show_from()`, `eta_latest()` are the one
+  rule**, window or due time alike; `cancel_kind_of(at, job, arrived,
+  stage, chosen)` is `cancel_kind()` for any job (a due-time job: no-show,
+  his lateness, then hers only at the door or after an On my way tapped
+  within 3 hours of his time — before he sets off it is normal). Late is
+  `late_grace_minutes` (15, locked: the terms say it) after he was due; a
+  possible no-show `no_show_minutes` (60, office 30–180; D40) after. Every
+  function that read `window_start()` for lateness now asks these —
+  `my_jobs`, `pro_my_jobs` (both give `due_at`, `late_from`,
+  `due_by_google`), `record_cancellation`, `customer_find_another`,
+  `no_show_clock`, `record_late_arrival`, `pro_running_late`,
+  `pro_cannot_get_in`. `withdraw_kind()` and `not_home_from()` needed no
+  change: with no window they already go by the step.
+- **Jobs run 7am to 10pm** (`day_opens_hour`, `day_closes_hour`, locked;
+  `DAY_OPENS_HOUR`, `LAST_POST_HOUR`, `asapDay()` in `packages/shared`). A
+  job is for today until 9pm (`last_post_hour()`), then tomorrow; a job
+  nobody took closes at 10pm; `reopen_job()` moves to tomorrow from 9pm.
+- Screens: her job card says "Due by 3:40pm, from Google Maps" (`dueText`),
+  `LateCard` names his due time; his job says `dueBy` / `dueByRule`. The
+  terms, technician agreement, privacy page and Help say the same; change
+  them together. Tests: `latefrom.test.mjs`.
 
 ### Bidding (phase 3)
 - **One rule for what a technician may see: `pro_may_see(job)`.** The feed,
@@ -819,7 +855,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   that says the new figure. Either
   change announces the job again (`announce_again()`, the feed's rule,
   kind `job_again`) and restarts the clock (`announced_at`). **A job nobody
-  took closes at 8pm on its day** (`close_unclaimed()`, every minute),
+  took closes at 10pm on its day** (`close_unclaimed()`, every minute),
   `cancelled_by = 'nobody'`, and she is told; Book again reposts it. The
   `pechkas-needs-you` office alert is taken off the clock; the admin
   Demand page shows where it keeps happening. `my_jobs()` is two
@@ -942,7 +978,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `can_raise` false). Upwards only, whole rupees, at most 3× the first
   limit (a typing guard), with a note on record; the job is announced again.
   The extra is Pechkas' cost: the charge stays at the original labour and
-  she pays nothing. A replacement nobody took by 8pm closes and she
+  she pays nothing. A replacement nobody took by 10pm closes and she
   chooses another day on her claim (`replacement_unclaimed`), never Book
   again (hidden on paid jobs); rebooking keeps the raised limit and moves
   her media to the new job. Tests: `followups.test.mjs`.
@@ -1123,7 +1159,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   so the sentence above **Yes, cancel it** is what will be recorded.
 - **`cancellations` is the record, one row per cancelled job**, written by
   the `job_cancellation` trigger whoever cancels (office → `office`, the
-  8pm clock → `unclaimed`). Rows that existed before the migration were
+  10pm clock → `unclaimed`). Rows that existed before the migration were
   copied in as `before_rules` and are counted nowhere; never reinterpret
   them. **`pro_incidents` is his record**, one per job: a `late_arrival`
   (the `job_late_arrival` trigger on Arrived more than 30 minutes in, or her
@@ -1243,7 +1279,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   then clears what was his — `agreed_paisa`, the window if it came from his
   offer (or has already begun), `visit_fee_paisa`, the code tries, arrival
   fields, `eta_at` — and opens it, moving the day to tomorrow when less than
-  an hour is left before `close_unclaimed()` shuts it at 8pm, with
+  an hour is left before `close_unclaimed()` shuts it at 10pm, with
   `announce_again()`. Her words,
   media, address, pin and price are never touched; no job is ever copied.
   `pro_may_see_as()` shuts the man who left out of that job for good (any

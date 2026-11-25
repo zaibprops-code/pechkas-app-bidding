@@ -139,7 +139,8 @@ The following follow from the same principles:
      and the sector only, never the address or phone number.
    - **What an offer can be:** he accepts her price, or asks for more, up
      to 2× her price.
-   - **What an offer must say:** the two-hour window he will arrive in.
+   - **What an offer must say:** no time at all. Google Maps works out how
+     far he is (A115, A116).
    - **How long it lasts:** 10 minutes, after which he can renew it.
    - **What she sees:** his first name, his years of experience, his
      checks, his rating ("New" until he has 3 ratings), and reviews
@@ -150,10 +151,12 @@ The following follow from the same principles:
    - **She can:**
      - raise her price by Rs 200, 500 or 1,000, up to 3 times;
      - keep waiting.
-   - **A job nobody took closes at 8pm on its day.**
+   - **A job nobody took closes at 10pm on its day.** Jobs run 7am to
+     10pm; a job posted after 9pm is for the next morning (A116).
 5. **She chooses one offer.**
    - The job is locked to that technician.
-   - His window becomes the job's time.
+   - **He is due** at her choice plus his Google minutes (or 60 minutes
+     when Google has none), and **late 15 minutes after that** (A116).
    - He now sees her address and number.
    - She gets a **start code**.
 6. **The visit.**
@@ -288,7 +291,8 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 - **A1–A8, money:** see section 4.
 - **A9–A15, jobs and prices:**
   - she names the price, and he can ask for up to 2×;
-  - she picks the day and he picks the two-hour window;
+  - every job is as soon as possible, and he is due by Google's minutes
+    when she chooses him (A110, A116);
   - live sectors only, and the map pin is required;
   - the rules for when nobody offers;
   - price records are kept;
@@ -314,7 +318,7 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   - always free for the customer until the start code;
   - the database puts each cancellation in one category;
   - reviews, never penalties;
-  - a potential no-show is announced 30 minutes after his window ends.
+  - a potential no-show is announced 60 minutes after he was due (D40).
 - **A47–A52, nobody home:**
   - his report protects him without blaming her;
   - she gets 10 minutes, plus 10 more if she says she is coming;
@@ -382,8 +386,9 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   problem stays required — all built. Also built: location on to go online
   and jobs near him (A114), the waiting screen and the automatic choice
   (A115), offers with Google's minutes and distance and his route while on
-  his way (A115; needs the Google key in Supabase). Building next:
-  late after Google's time + 15 minutes, jobs 7am to 10pm (A116).
+  his way (A115; needs the Google key in Supabase); late 15 minutes after
+  the time Google's minutes say he is due, jobs 7am to 10pm (A116). All
+  built.
 
 ## 7. Still open: what the owner has to decide
 
@@ -486,6 +491,8 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   - she may raise her price 3 times;
   - ratings may be given for 14 days.
 - **D33:** is a 20% reserve enough?
+- **D40:** a possible no-show 60 minutes after he was due, and 60 minutes
+  allowed when Google has no minutes: confirm or change (both in Settings).
 - **D34.7:** "come back later" rescheduling, not built.
 - **D34.8:** a street test of the GPS radius in real Islamabad houses,
   flats and shops.

@@ -266,7 +266,7 @@ heading('A window that came from his offer goes with him; one she chose stays');
   await me(BILAL, WITHDRAW, [posted.id, 'unwell', null]);
   const j = await job(posted.id);
   ok('withdrawn: the time is cleared, the day kept', j.when_from === null && j.when_kind === 'tomorrow');
-  ok('so the next man names his own time', (await me(ASAD, `SELECT public.make_offer($1, 300000, NULL, NULL)`, [posted.id])).value?.field === 'arrive'
+  ok('so the next man brings his own time (none named: A116; or an older copy\'s two hours)', (await me(ASAD, `SELECT public.make_offer($1, 300000, NULL, NULL)`, [posted.id])).value?.ok === true
     && (await me(ASAD, `SELECT public.make_offer($1, 300000, NULL, NULL, 16::smallint)`, [posted.id])).value?.ok === true);
 
   const hers = (await me(SARA, `SELECT public.post_job(p_trade => 'ac', p_job_type => NULL, p_description => 'AC makes a noise',

@@ -3,7 +3,7 @@ import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { BackHandler, Image, Platform, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import { addDays, openWindows, pkNow, PRICE_STEP_PAISA, rupees } from '@pechkas/shared';
+import { asapDay, DAY_OPENS_HOUR, pkNow, PRICE_STEP_PAISA, rupees } from '@pechkas/shared';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { Button, Chip, Loading, Notice, Screen } from '../src/components/ui';
@@ -337,9 +337,8 @@ export default function Post() {
     }
     if (Object.keys(early).length) return refuse(early, 'Something is missing. It is marked in red.');
 
-    // As soon as possible: today while a two-hour window can still start, tomorrow morning after that.
-    const now = pkNow();
-    const day = openWindows(now.date, now).length ? now.date : addDays(now.date, 1);
+    // As soon as possible: today until 9pm, tomorrow after that (jobs run 7am to 10pm, A116).
+    const day = asapDay(pkNow());
 
     setBusy(true);
     let media = d.media;
@@ -555,7 +554,8 @@ export default function Post() {
     const range = chosen ? ranges[String(chosen.id)] : undefined;
     const atFloor = offer <= floor;
     const now = pkNow();
-    const today = openWindows(now.date, now).length > 0;
+    const today = asapDay(now) === now.date;
+    const early = today && now.hour < DAY_OPENS_HOUR;
     const parts = [voice ? 'voice note' : null, photos.length ? `${photos.length} photo${photos.length > 1 ? 's' : ''}` : null, video ? '1 video' : null, d.description.trim() ? 'your words' : null].filter(Boolean).join(', ');
     const what = parts ? parts[0].toUpperCase() + parts.slice(1) : '';
     return (
@@ -620,7 +620,7 @@ export default function Post() {
             <Icon name="chevronRight" size={18} color="#9aa1a6" strokeWidth={2.2} />
           </Press>
           <View style={s.summary}>
-            <SummaryRow icon="clock" tone="green" title={today ? 'As soon as possible' : 'Tomorrow morning, as soon as possible'} sub={today ? 'Each offer shows when he can come' : 'It is late. The first visits start at 8am'} />
+            <SummaryRow icon="clock" tone="green" title={today && !early ? 'As soon as possible' : `${today ? 'This' : 'Tomorrow'} morning, as soon as possible`} sub={today && !early ? 'Each offer shows how many minutes away he is' : 'Pechkas visits run from 7am to 10pm'} />
             <SummaryRow
               icon="mic"
               title={what || 'Show us the problem'}

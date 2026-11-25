@@ -159,8 +159,8 @@ export function NoOffers({ job, onChanged }: { job: NoOffersJob; onChanged: () =
       </RowCard>
       <Text style={s.foot}>
         {job.paid_by_pechkas
-          ? 'If nobody takes it, it closes by itself at 8pm on its day, and you choose another day on your guarantee claim.'
-          : 'If nobody takes it, it closes by itself at 8pm on its day. You can post it again in one tap.'}
+          ? 'If nobody takes it, it closes by itself at 10pm on its day, and you choose another day on your guarantee claim.'
+          : 'If nobody takes it, it closes by itself at 10pm on its day. You can post it again in one tap.'}
       </Text>
       <Notice text={msg} />
 

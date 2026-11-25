@@ -78,7 +78,8 @@ ok('a day too far ahead is still refused', (await post('today', null, await plus
 // =============================================================================
 heading('He says when he will come');
 const noTime = await offer(BILAL, sat.id, null, null);
-ok('an offer with no time is refused, beside the time', noTime?.ok === false && noTime?.field === 'arrive', JSON.stringify(noTime));
+// A116 (migration late_from_minutes): he names no time; Google's minutes when she chooses him are his time.
+ok('an offer with no time is accepted: his time is set when she chooses him', noTime?.ok === true, JSON.stringify(noTime));
 const minutes = await offer(BILAL, sat.id, 30, null);
 ok('minutes are refused for a job on a day', minutes?.ok === false && minutes?.field === 'arrive', JSON.stringify(minutes));
 ok('a window that is not one of the seven is refused', (await offer(BILAL, sat.id, null, 9))?.field === 'arrive');

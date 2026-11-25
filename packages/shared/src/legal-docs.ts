@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "58f0cd3";
+export const LEGAL_FROM = "98067fa";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -518,7 +518,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "For technicians: each late arrival and each time he had not arrived 30 minutes after his time ended, how many minutes it was, anything he wrote about it, and what the office decided, its note and who decided."
+              "t": "For technicians: the time he was due on each job, each late arrival and each time he had still not arrived well after it, how many minutes it was, anything he wrote about it, and what the office decided, its note and who decided."
             }
           ],
           [
@@ -1317,7 +1317,12 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If nobody offers, the app tells you and lets you raise your price or choose another day. A job nobody takes closes by itself at 8pm on its day; nothing is owed, and you can post it again."
+              "t": "If nobody offers, the app tells you and lets you raise your price. A job nobody takes closes by itself at 10pm on its day; nothing is owed, and you can post it again."
+            }
+          ],
+          [
+            {
+              "t": "Pechkas visits run from 7am to 10pm. A job posted after 9pm is for the next morning."
             }
           ]
         ]
@@ -1714,7 +1719,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Pechkas records every cancellation and when it happened. Cancelling within 2 hours of the technician's time, after he has told you he is on his way, or at your door, is recorded as a "
+              "t": "Pechkas records every cancellation and when it happened. Cancelling after the technician has told you he is on his way, or at your door, is recorded as a "
             },
             {
               "t": "late cancellation",
@@ -1726,7 +1731,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If the technician is more than 30 minutes late, the app tells you that you can cancel free, and that cancellation never counts against you. If he has not arrived 30 minutes after his time ends, you and the Pechkas office are told, and you can cancel free, find another technician, or keep waiting."
+              "t": "When you choose a technician, your job shows the time he is due by: his driving time from Google Maps at that moment, from where his phone was, or, when Google Maps has none, the usual time Pechkas allows. If he is more than 15 minutes past it, the app tells you that you can cancel free, and that cancellation never counts against you. If he has still not arrived well after it, you and the Pechkas office are told, and you can cancel free, find another technician, or keep waiting."
             }
           ],
           [
@@ -1776,7 +1781,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " is there until he has arrived. It is not a cancellation and nothing is charged. If he is more than 30 minutes late, or has said he is running late, it never counts against you. Used within 2 hours of his time, after he has set off, while he has not been late and has not said he would be, it is recorded like a late cancellation, exactly as cancelling would be."
+              "t": " is there until he has arrived. It is not a cancellation and nothing is charged. If he is more than 15 minutes past the time he was due, or has said he is running late, it never counts against you. Used after he has set off, while he has not been late and has not said he would be, it is recorded like a late cancellation, exactly as cancelling would be."
             }
           ],
           [
@@ -1860,7 +1865,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " on the job within 24 hours, and the Pechkas office looks at both sides. Only a report the office confirms can count towards a review of your account, never one where he arrived more than 30 minutes after his time began, and never one about a guard. Nothing is decided automatically."
+              "t": " on the job within 24 hours, and the Pechkas office looks at both sides. Only a report the office confirms can count towards a review of your account, never one where he arrived more than 15 minutes after the time he was due, and never one about a guard. Nothing is decided automatically."
             }
           ],
           [
@@ -3313,7 +3318,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
         "items": [
           [
             {
-              "t": "Arrive within the two hours you gave in your offer. Tap "
+              "t": "Be there by the time your job shows. You do not choose it: when the customer chooses you, Pechkas works out your driving time with Google Maps from where your phone was when you offered, and you are due by then; when Google Maps has no minutes, Pechkas allows its usual time. Jobs run from 7am to 10pm. Tap "
             },
             {
               "t": "I am on my way",
@@ -3332,7 +3337,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Arriving more than 30 minutes after your time begins is recorded as a "
+              "t": "Arriving more than 15 minutes after you were due is recorded as a "
             },
             {
               "t": "late arrival",
@@ -3344,7 +3349,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If you have not tapped I have arrived 30 minutes after your time ends, a "
+              "t": "If you have still not tapped I have arrived once the time the Pechkas office sets for this has passed after you were due, a "
             },
             {
               "t": "possible no-show",
@@ -3386,7 +3391,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " on the job and choose when you will be there: at least 5 minutes away and no later than 2 hours after your time ends, and at most twice for a job. The customer is told at once and may wait or choose another technician. Your time and every estimate stay on record, and arriving more than 30 minutes into your time is still a late arrival."
+              "t": " on the job and choose when you will be there: at least 5 minutes away and no later than 2 hours after your time, and at most twice for a job. The customer is told at once and may wait or choose another technician. Your time and every estimate stay on record, and arriving more than 15 minutes after you were due is still a late arrival."
             }
           ],
           [
@@ -3402,7 +3407,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " before you arrive and choose the reason. The job goes straight back to other technicians and you will not see it again. More than 2 hours before your time, it is a normal withdrawal; within 2 hours, or once your time has begun, it is a "
+              "t": " before you arrive and choose the reason. The job goes straight back to other technicians and you will not see it again. Before you set off, it is a normal withdrawal; once you are on your way, it is a "
             },
             {
               "t": "late withdrawal",
@@ -3414,7 +3419,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "If the customer chooses another technician because you are more than 30 minutes late, it is recorded as your late arrival. If she does so for her own reasons, it never counts against you; you are told and should not go."
+              "t": "If the customer chooses another technician because you are more than 15 minutes late, it is recorded as your late arrival. If she does so for her own reasons, it never counts against you; you are told and should not go."
             }
           ],
           [

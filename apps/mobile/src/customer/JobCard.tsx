@@ -3,7 +3,7 @@ import { done } from '../message';
 import { useEffect, useState } from 'react';
 import { Linking, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
-import { dayLabel, rupees, whenLabel, windowLabel } from '@pechkas/shared';
+import { dayLabel, pkClock, pkNow, rupees, whenLabel, windowLabel } from '@pechkas/shared';
 import { ScrewSpinner } from '../components/ScrewSpinner';
 import { Button, Field, Notice } from '../components/ui';
 import { DuoIcon, type DuoName } from '../components/DuoIcon';
@@ -45,6 +45,8 @@ export type Job = JobNow & Omit<CancelFields, 'id' | 'ref' | 'status' | 'stage' 
   /** The day and the window it was booked for; older jobs have no window. */
   when_date?: string | null;
   when_from?: number | null;
+  /** Whether due_at is Google's minutes (true) or the office's fallback. */
+  due_by_google?: boolean;
   /** For "Book again": the job type and the pin. */
   job_type_id?: number | null;
   lat?: number | null;
@@ -103,6 +105,18 @@ export type Offer = {
   checked_visit?: boolean;
 };
 
+
+/**
+ * Once she has chosen him, on a job with no window: when he is due (A116) —
+ * Google's minutes when she chose him, or the office's fallback, which is
+ * never called Google's. Null while there is no due time.
+ */
+function dueText(job: Job): string | null {
+  if (job.status !== 'assigned' || !job.due_at || (job.when_from !== null && job.when_from !== undefined)) return null;
+  const day = pkNow(new Date(job.due_at)).date;
+  const prefix = day === pkNow().date ? '' : `${dayLabel(day)}, `;
+  return `Due by ${prefix}${pkClock(job.due_at)}${job.due_by_google ? ', from Google Maps' : ''}`;
+}
 
 export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; trade: string; tick: number; onChanged: () => void; onOpen?: () => void }) {
   const [confirming, setConfirming] = useState(false);
@@ -247,7 +261,7 @@ export function JobCard({ job, trade, tick, onChanged, onOpen }: { job: Job; tra
           )}
         </View>
         <View style={s.facts}>
-          <Fact icon="clock" text={whenLabel(job)} />
+          <Fact icon="clock" text={dueText(job) ?? whenLabel(job)} />
           <Fact icon="pin" text={`${job.house}, ${job.street}, ${job.sector}`} />
           {files ? <Fact icon="camera" text={files} /> : null}
         </View>
@@ -527,7 +541,9 @@ export function Offers({ job, tick, onChosen }: { job: Job; tick: number; onChos
                     ? `Arrives ${dayLabel(job.when_date)}, ${windowLabel(o.arrive_from)}`
                     : o.eta_minutes
                       ? `Can be there in ${o.eta_minutes} minutes`
-                      : 'Can come at the time you asked'
+                      : job.when_from === null || job.when_from === undefined
+                        ? 'Comes as soon as possible: his time is set when you choose him'
+                        : 'Can come at the time you asked'
                 }
               />
               {o.note ? <Text style={s.quote}>“{o.note}”</Text> : null}

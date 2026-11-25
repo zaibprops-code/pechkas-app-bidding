@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { addDays, openWindows, pkNow } from '@pechkas/shared';
+import { addDays, asapDay, openWindows, pkNow } from '@pechkas/shared';
 import type { Media } from './media';
 
 /**
@@ -88,7 +88,7 @@ export function freshWhen(d: Draft): Draft {
   const now = pkNow();
   if (d.whenKind === 'day' && d.whenDate && openWindows(d.whenDate, now).length > 0 && d.whenDate <= addDays(now.date, 6)) return { ...d, whenFrom: null };
   // Today while a technician could still come; tomorrow after that.
-  return { ...d, whenKind: 'day', whenDate: openWindows(now.date, now).length ? now.date : addDays(now.date, 1), whenFrom: null };
+  return { ...d, whenKind: 'day', whenDate: asapDay(now), whenFrom: null };
 }
 
 export function saveDraft(d: Draft) {

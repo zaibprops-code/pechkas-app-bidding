@@ -198,7 +198,7 @@ function ArrivalCard({ a, onDone }: { a: Arrival; onDone: () => void }) {
           </h2>
           <p className="muted">
             {a.trade} · {a.sector} · tapped {when(a.arrived_at)}
-            {a.window_start ? ` · his time began ${when(a.window_start)}` : ''}
+            {a.window_start ? ` · he was due ${when(a.window_start)}` : ''}
             {a.status === 'assigned' ? ' · the job is still on' : ` · the job is ${a.status}`}
           </p>
         </div>

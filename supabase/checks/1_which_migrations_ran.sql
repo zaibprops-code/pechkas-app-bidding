@@ -52,7 +52,8 @@ WITH expected(name) AS (VALUES
   ('20261201000000_delete_account'),
   ('20261202000000_fast_posting'),
   ('20261203000000_jobs_near_him'),
-  ('20261204000000_google_minutes')
+  ('20261204000000_google_minutes'),
+  ('20261205000000_late_from_minutes')
 )
 SELECT e.name || '.sql' AS file,
        CASE WHEN a.name IS NULL THEN 'NOT RUN — run this file'

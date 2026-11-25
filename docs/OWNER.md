@@ -595,7 +595,7 @@ What changes:
   (to catch a typing slip). The extra is Pechkas' own cost: the first
   technician is still charged no more than his labour, and the customer
   pays nothing. Open replacements have the same button.
-- If nobody takes a replacement by 8pm on its day, it closes and she is
+- If nobody takes a replacement by 10pm on its day, it closes and she is
   asked to **choose another day on her claim** — the app no longer offers
   "Book again" on a guarantee repair, because that would post a job she
   pays for. The new booking keeps the limit you raised it to.
@@ -730,7 +730,7 @@ What happens now:
   If you already ran the `when_nobody_offers` file before 1 November,
   **run it once more** — that only changes the wording of the "no offers
   yet" notification, which used to name her sector.
-- **At 8pm on its day**, a job nobody took closes by itself as **No
+- **At 10pm on its day**, a job nobody took closes by itself as **No
   technician was free**, she is told, and **Book again** posts it for
   another day.
 - **Admin → Demand** still shows which trades and sectors get no offers:
@@ -1951,6 +1951,28 @@ app with made-up people and jobs, running in the page.
 It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
+
+## When a technician is due, and late (25 November 2026)
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261205000000_late_from_minutes.sql`, after
+   `20261204000000_google_minutes.sql`. It should say **Success**.
+2. **Try it** (two phones, or the demo):
+   - As a technician, open a job and tap **Make an offer**. There are no
+     two-hour times to pick any more, only one line saying Google Maps
+     works out how long you take.
+   - As the customer, choose him. Your job now says **Due by 3:40pm** —
+     with ", from Google Maps" when Google gave the minutes. His job says
+     **Due by 3:40pm … After 3:55pm you count as late.**
+   - 15 minutes after that time, she is shown **has not arrived** with
+     **Find another technician**, and cancelling never counts against her.
+   - After 9pm, Post a job says **Tomorrow morning, as soon as possible**.
+     A job nobody took now closes at 10pm, not 8pm.
+3. **Two numbers to check (D40)**, in **Admin → Settings**: a possible
+   no-show is 60 minutes after he was due, and with no Google minutes he
+   is due 60 minutes after she chose him. Both are my guesses; change them
+   there if you want something else (30 to 180 minutes). The 15 minutes
+   is yours and is fixed, because the terms say it.
 
 ## Minutes from Google Maps, and seeing him come (25 November 2026)
 

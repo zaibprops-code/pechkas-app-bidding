@@ -3,7 +3,7 @@ import { Linking, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View 
 import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { dayLabel, openWindows, PRICE_STEP_PAISA, rupees, showMobile, technicianKeeps, whenLabel, windowLabel, type WhenFields } from '@pechkas/shared';
+import { dayLabel, PRICE_STEP_PAISA, rupees, showMobile, technicianKeeps, whenLabel, windowLabel, type WhenFields } from '@pechkas/shared';
 import { MenuButton } from '../components/Menu';
 import { Mark } from '../components/Mark';
 import { Press } from '../components/Press';
@@ -627,7 +627,11 @@ function RequestRow({ j, w, trade, metres, onOpen }: { j: FeedJob; w: ProWords; 
  * arrival time in the offer. Jobs from older copies (wanted now, or with a
  * time or part of the day the customer chose) do not.
  */
-function needsArrival(j: Pick<FeedJob, 'when_kind' | 'when_part' | 'when_date' | 'when_from'>) {
+/**
+ * A job with only a day — every job the app posts now. He names no time (A116):
+ * Google's minutes from where he is, when she chooses him, are his time.
+ */
+function asSoonAsPossible(j: Pick<FeedJob, 'when_kind' | 'when_part' | 'when_date' | 'when_from'>) {
   return j.when_kind !== 'now' && !j.when_part && (j.when_from === null || j.when_from === undefined) && Boolean(j.when_date);
 }
 
@@ -669,9 +673,7 @@ function JobCard({
   const [editing, setEditing] = useState(!live);
   const [price, setPrice] = useState(live?.price_paisa ?? j.offered_paisa);
   const [eta, setEta] = useState<number | null>(live?.eta_minutes ?? (j.when_kind === 'now' ? 30 : null));
-  // A job with only a day: he says the two hours he will arrive in (make_offer() insists).
-  const needsTime = needsArrival(j);
-  const [arrive, setArrive] = useState<number | null>(live?.arrive_from ?? null);
+  const asap = asSoonAsPossible(j);
   const [note, setNote] = useState(live?.note ?? '');
   // A104: on a first job, the parts in his price (with a shop receipt) are taken off before the limit.
   const onFirst = firstCap !== undefined;
@@ -711,14 +713,13 @@ function JobCard({
   async function send(p: number) {
     setErrors({});
     setMsg(null);
-    if (needsTime && arrive === null) return setErrors({ arrive: w.errArrive });
     setBusy(true);
     const r = await ask('make_offer', {
       p_job: j.id,
       p_price_paisa: p,
       p_eta_minutes: j.when_kind === 'now' ? eta : null,
       p_note: note,
-      p_arrive_from: needsTime ? arrive : null,
+      p_arrive_from: null,
       ...(onFirst ? { p_parts_paisa: partsPaisa || null } : {}),
     });
     setBusy(false);
@@ -727,7 +728,6 @@ function JobCard({
       else if (r.field === 'price') setErrors({ price: fill(w.errPrice, { min: rupees(min), max: rupees(max) }) });
       else if (r.field === 'parts') setErrors({ parts: w.errPartsInPrice });
       else if (r.field === 'eta') setErrors({ eta: w.errEta });
-      else if (r.field === 'arrive') setErrors({ arrive: w.errArrive });
       else if (r.field === 'note') setErrors({ note: w.errNote });
       else setMsg(w.gone);
       return;
@@ -900,18 +900,10 @@ function JobCard({
             </View>
           ) : null}
 
-          {needsTime && j.when_date ? (
-            <View style={{ gap: 6 }}>
-              <Text style={s.label}>{fill(w.arriveWhen, { day: /^(Today|Tomorrow)$/.test(dayLabel(j.when_date)) ? dayLabel(j.when_date).toLowerCase() : `on ${dayLabel(j.when_date)}` })}</Text>
-              <View style={s.chips}>
-                {openWindows(j.when_date).map((h) => (
-                  <Press key={h} onPress={() => setArrive(h)} sink={0.94} accessibilityRole="radio" accessibilityState={{ selected: arrive === h }} style={[s.chip, arrive === h && s.chipOn]}>
-                    <Text style={[s.chipText, arrive === h && { color: colour.ink }]}>{windowLabel(h)}</Text>
-                  </Press>
-                ))}
-              </View>
-              <Text style={s.fact}>{w.arriveNote}</Text>
-              {errors.arrive ? <Text style={s.error}>{errors.arrive}</Text> : null}
+          {asap ? (
+            <View style={s.dueBox}>
+              <Icon name="clock" size={18} color={colour.green} />
+              <Text style={[s.fact, { flex: 1 }]}>{fill(w.dueNote, { grace: '15' })}</Text>
             </View>
           ) : null}
 
@@ -1014,6 +1006,7 @@ const s = StyleSheet.create({
   desc: { fontFamily: font.body, fontSize: 14, lineHeight: 20, color: colour.ink },
   cust: { fontFamily: font.body, fontSize: 13, color: colour.steel },
   fact: { fontFamily: font.bodyMedium, fontSize: 13, color: colour.inkSoft },
+  dueBox: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, padding: 12, borderRadius: 14, backgroundColor: colour.canvas },
   money: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   moneyLabel: { fontFamily: font.body, fontSize: 12, color: colour.steel },
   moneyBig: { fontFamily: font.display, fontSize: 26, color: colour.ink },

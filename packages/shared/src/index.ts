@@ -283,6 +283,22 @@ export const WINDOWS = [8, 10, 12, 14, 16, 18, 20] as const;
 export const DAYS_AHEAD = 6;
 
 /**
+ * Jobs run 7am to 10pm, Pakistan time (A116; the database's day_opens_hour and
+ * day_closes_hour, both locked). A job is for today until 9pm — an hour before
+ * the day closes — and after that for tomorrow; before 7am it is for today,
+ * from 7am. A chosen technician counts as late LATE_GRACE_MINUTES after he was
+ * due (Google's minutes when she chose him), also locked: the terms say it.
+ */
+export const DAY_OPENS_HOUR = 7;
+export const LAST_POST_HOUR = 21;
+export const LATE_GRACE_MINUTES = 15;
+
+/** The day an as-soon-as-possible job is for, posted at `now`. */
+export function asapDay(now: { date: string; hour: number } = pkNow()): string {
+  return now.hour < LAST_POST_HOUR ? now.date : addDays(now.date, 1);
+}
+
+/**
  * What one tap of − or + changes a price by, on Post a job and in the
  * technician's offer sheet: Rs 50 (the owner's choice; it was Rs 100). The
  * database only asks for whole rupees, so any step that is whole rupees works.

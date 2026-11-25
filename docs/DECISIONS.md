@@ -308,7 +308,7 @@ show whether they are right.
 
   | Flag | Limit |
   | --- | --- |
-  | His late arrivals (more than 30 minutes) | 3 |
+  | His late arrivals (more than 15 minutes after he was due) | 3 |
   | His confirmed no-shows | 1 |
   | His own "nobody home" reports | 3 |
   | Wrong start codes on his jobs | 5 |
@@ -358,6 +358,19 @@ show whether they are right.
 - **Today:** 20%. When the reserve is empty, Pechkas pays from its own
   money. The office page shows the balance.
 - **Who decides:** You, once there are a few months of claims.
+
+#### D40. When a late technician becomes a possible no-show
+- **The question:** Two new numbers came with A116 (built 25 November
+  2026). Confirm or change them:
+  - a chosen technician who has **not arrived 60 minutes after the time he
+    was due** is a possible no-show: she, he and the office are told, and
+    she may cancel free or find another;
+  - when Google Maps gave **no minutes** for him (no key yet, or no
+    answer), he is **due 60 minutes** after she chose him.
+- **Today:** 60 and 60, chosen by Claude, not by you. Both are in Admin →
+  Settings (30 to 180 minutes). The 15 minutes for "late" is yours (A116)
+  and locked, because the terms say it.
+- **Who decides:** You.
 
 ### Growing: a second city (you, after launch)
 
@@ -652,7 +665,7 @@ What the app and the website do today. Reopen any item by its number.
 | A113 | **Showing the problem stays required for every job**: a voice note, a photo, a video or a few words. Technicians price from what they see. Built. |
 | A114 | **A technician needs location on to be online** (while the app is open; never in the background). He sees jobs near where he is, widening to all of Islamabad when nobody near offers; with no recent position, his home area. The search starts at 5 km and grows evenly to all of Islamabad in 8 minutes (the office can change both). Built (Part 2a). |
 | A115 | **Offers show how far he is, worked out by Google Maps, not typed by him**, with his rating or New, years in the trade and jobs on Pechkas, on a map. After she chooses, his route and the minutes left, while his app is open. **Automatic choice** — "the first technician who accepts your price" — is offered, **off by default** — built (Part 2a), with her waiting screen (who has looked, the countdown). The Google minutes on offers and his route while on his way: built (Part 2b), working once the Google key is in Supabase. |
-| A116 | **He counts as late 15 minutes after Google's time** at the moment she chose him. **Jobs run 7am to 10pm.** Decided; building next (Part 2). |
+| A116 | **He counts as late 15 minutes after Google's time** at the moment she chose him. **Jobs run 7am to 10pm.** Built (Part 2c, 25 November 2026): a technician names no time in his offer; when she chooses him, the job shows the time he is due by — her choice plus his Google minutes, or 60 minutes when Google has none (D40) — and he is late 15 minutes after it. A job is for today until 9pm, then for the next morning from 7am; a job nobody took closes at 10pm. Jobs from older copies with a two-hour window keep the old rules. |
 
 ### Trust and safety
 
