@@ -498,7 +498,6 @@ const PRO = {
   reportProblem: 'Report a problem',
   reportPlaceholder: 'What is wrong?',
   reportSend: 'Send to the office',
-  reportSent: 'The office has been told and will reply to you on WhatsApp.',
   errOwed: 'Your balance with Pechkas is over the limit. Please pay it first.',
   errProblem: 'Please describe the problem in a few words.',
   errStars: 'Please choose a rating.',

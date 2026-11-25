@@ -475,7 +475,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   done (→ My account), his rating ("New" below `rating_min_count`; → the
   "Your rating" sheet, `my_ratings()`: revealed words only, never who wrote
   them), kept this month after Pechkas' share (→ My account). All from
-  `my_settings()` (migration `…_settings_page`, tests `settings.test.mjs`).
+  `my_settings()` (migration `…_settings_page`, tests `settingspage.test.mjs`).
   Then "Your account": Mobile number with ✓ Checked (or Change when typed),
   Email if any, **Saved addresses** (the phone's own list from
   `post/places.ts`, a sheet with × to forget one) or **Your checks**, and
@@ -1365,7 +1365,20 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
 - **Problems** (`problems` table): `report()` for a problem (either side,
   during the job or a day after) or a guarantee claim (customer, done,
   within `guarantee_days`); one open per person, job and kind. Closing needs
-  a note.
+  a note. **The office answers in writing, in the app, never by a call**
+  (the owner's rule; migration `…_office_answers`, tests
+  `answers.test.mjs`): `admin_answer_problem(id, answer)` writes
+  `problems.answer` for the person who sent it (500 letters, no CNIC,
+  correctable, the latest shown) and tells them with `office_answer` — the
+  job number only, never the answer. They read it through `my_reports(job)`
+  (their own rows only, never `office_note`, which stays the office's
+  record): `JobReports` under the Report box on the job (`UnderWay`,
+  `PastJob`, the technician's `OnTheJob`) and "Your reports to the office"
+  at the top of Help (`ReportItem`, `src/components/Reports.tsx`). A tapped
+  `office_answer` notification opens `/help`. No screen may promise that
+  Pechkas or the office will phone somebody: `help.test.ts` fails on one
+  (the Emergency screen's line is the owner's open decision until he
+  decides).
 - **The emergency button** alerts the office FIRST (`emergency()`), then the
   phone sends where it is (`emergency_where()`), never the other way round.
   A second press within a minute is the same emergency. The numbers are in

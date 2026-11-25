@@ -121,6 +121,11 @@ async function seed() {
   must(await one(ASAD, `SELECT public.pro_set_note($1, $2)`, [done.id, 'Clean the filters every 3 months. The outdoor stand will need replacing within a year.']), 'note done');
   must(await one(ASAD, `SELECT public.finish_work($1, $2::jsonb, 0, NULL)`, [done.id, JSON.stringify([await upload(ASAD)])]), 'finish done');
   must(await one(AYESHA, `SELECT public.confirm_work($1)`, [done.id]), 'confirm done');
+  // She told the office something, and the office answered in the app (never by a call).
+  must(await one(AYESHA, `SELECT public.report_problem($1, $2)`, [done.id, 'A little water dripped from the indoor unit this evening.']), 'report done');
+  await asOwner(`UPDATE public.problems SET answer = $2, answered_at = now(), answered_by_name = 'Pechkas office'
+    WHERE job_id = $1`, [done.id, 'Thank you for telling us. A few drops on the first evening are normal while the new drain settles. If it is still dripping tomorrow, tap It has failed again and Asad comes back free.']);
+  await asOwner(`SELECT public.tell($1, 'office_answer', $2, '/help', public.job_vars(j)) FROM public.jobs j WHERE j.id = $2`, [AYESHA, done.id]);
   await asOwner(`UPDATE public.jobs SET created_at = now() - interval '6 days' WHERE id = $1`, [done.id]);
 
   // A job that stopped at the door: she said no to a new price, so a visit fee only, which he says she paid.

@@ -15,6 +15,7 @@ import type { CustomerFee } from './VisitFee';
 import { Face } from './Face';
 import { DoorCard } from './FirstJobs';
 import type { PaymentView } from '../pro/Unpaid';
+import { JobReports } from '../components/Reports';
 
 /**
  * The customer's side of a job once a technician is chosen: where he is, the
@@ -99,7 +100,7 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
   const [msg, setMsg] = useState<string | null>(null);
   const [reporting, setReporting] = useState(false);
   const [reportText, setReportText] = useState('');
-  const [reported, setReported] = useState(false);
+  const [reported, setReported] = useState(0);
 
   async function sendReport() {
     setBusy(true);
@@ -107,7 +108,7 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
     const r = await ask('report', { p_job: job.id, p_kind: 'problem', p_text: reportText });
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
-    setReported(true);
+    setReported((n) => n + 1);
     setReporting(false);
     setReportText('');
   }
@@ -175,12 +176,13 @@ export function UnderWay({ job, onChanged }: { job: JobNow; onChanged: () => voi
         </View>
         {reporting ? (
           <View style={{ gap: 8 }}>
-            <Text style={s.line}>Tell us what is wrong. The Pechkas office reads it and replies to you on WhatsApp.</Text>
+            <Text style={s.line}>Tell us what is wrong. The Pechkas office reads it and answers you here, in the app.</Text>
             <TextInput value={reportText} onChangeText={setReportText} maxLength={500} multiline accessibilityLabel="What is wrong" style={s.input} />
             <Button kind="green" label="Send to Pechkas" busy={busy} onPress={sendReport} />
           </View>
         ) : null}
-        {reported ? <Text style={s.line}>The Pechkas office has been told. It will reply to you on WhatsApp.</Text> : null}
+        {/* What she told the office, and its answer: the office answers in writing, never by a call. */}
+        <JobReports job={job.id} again={reported} />
         <Button kind="danger" label="Emergency" onPress={() => router.push({ pathname: '/emergency/[job]', params: { job: job.id } })} />
       </View>
 

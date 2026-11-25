@@ -1952,6 +1952,26 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## The office answers reports in the app (25 November 2026)
+
+When a customer or technician taps **Report** on a job (or **Something is
+wrong** on a finished one), the app used to say the office would call them.
+You take no calls, so the office now answers in writing, inside the app.
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261129000000_office_answers.sql`, after the files
+   before it. It should say **Success**. No new build: the screens come as
+   an update.
+2. **To answer**: admin panel → **Problems**. Each report now has a box,
+   **Answer … in the app**. What you type there is exactly what they read.
+   Press **Send the answer**. They get a notification saying only that the
+   office answered and the job number; the words stay in the app. You can
+   correct an answer later; they see the newest.
+3. **Closing** is unchanged: the note under **What was done about it** is
+   your own record and is never shown to them.
+4. **Where they read it**: on the job itself, under the Report box, and at
+   the top of **Help**, under **Your reports to the office**.
+
 ## Settings, redesigned (25 November 2026)
 
 1. **Supabase → SQL Editor**: run

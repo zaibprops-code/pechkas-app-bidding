@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "95cc3b4";
+export const LEGAL_FROM = "1cd8e1c";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -358,7 +358,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Problems reported, and safety reports, with the words and any photo, the technician's side and the office's decision."
+              "t": "Problems reported, and safety reports, with the words and any photo, the technician's side, the office's written answer to you and its decision."
             }
           ],
           [

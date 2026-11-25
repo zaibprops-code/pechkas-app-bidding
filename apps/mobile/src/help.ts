@@ -263,7 +263,7 @@ export const CUSTOMER_HELP: HelpTopic[] = [
       },
       {
         q: 'How do I report something unsafe?',
-        a: 'During a job, tap **Report** on his card. Afterwards, open the job from My jobs, Past and tap **Report something unsafe**. The Pechkas office reads every report.',
+        a: 'During a job, tap **Report** on his card. Afterwards, open the job from My jobs, Past and tap **Report something unsafe**. The Pechkas office reads every report and answers you in writing, in the app.',
       },
       {
         q: 'Can I stop a technician being sent again?',
@@ -300,6 +300,10 @@ export const CUSTOMER_HELP: HelpTopic[] = [
       {
         q: 'How do I become a technician too?',
         a: 'Open the menu and tap **Technician mode** at the foot. You fill in an application first; your customer account stays as it is.',
+      },
+      {
+        q: 'Where do I read the office’s answer to a report?',
+        a: 'The Pechkas office answers in writing, in the app, never by a call. You are told when it does, and the answer is on the job and at the top of Help, under Your reports to the office.',
       },
       {
         q: 'How do I delete my account?',
@@ -559,6 +563,10 @@ export const TECHNICIAN_HELP: HelpTopic[] = [
       {
         q: 'How do I switch to customer mode?',
         a: 'Open the menu and tap **Customer mode** at the foot. You cannot switch in the middle of a job. Switching takes you off duty: you go offline and your waiting offers are withdrawn.',
+      },
+      {
+        q: 'Where do I read the office’s answer to a report?',
+        a: 'Tap **Report** on a job to tell the office something is wrong. It answers in writing, in the app, never by a call. You are told when it does, and the answer is on the job and at the top of Help, under Your reports to the office.',
       },
       {
         q: 'How do I delete my account?',

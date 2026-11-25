@@ -1,4 +1,5 @@
 import { DuoIcon, type DuoName } from '../components/DuoIcon';
+import { JobReports } from '../components/Reports';
 import { useEffect, useState } from 'react';
 import { Image, Linking, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
@@ -160,7 +161,7 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
   const [receipt, setReceipt] = useState<string[]>([]);
   const [reporting, setReporting] = useState(false);
   const [reportText, setReportText] = useState('');
-  const [reported, setReported] = useState(false);
+  const [reported, setReported] = useState(0);
   const partsPaisa = Number(parts || '0') * 100;
   const labour = Math.max(j.agreed_paisa - partsPaisa, 0);
   const [changing, setChanging] = useState(false);
@@ -225,7 +226,7 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
       setMsgField('report');
       return;
     }
-    setReported(true);
+    setReported((n) => n + 1);
     setReporting(false);
     setReportText('');
   }
@@ -311,7 +312,8 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
           <Button kind="green" label={w.reportSend} busy={busy} onPress={sendReport} />
         </View>
       ) : null}
-      {reported ? <Text style={s.note}>{w.reportSent}</Text> : null}
+      {/* What he told the office, and its answer: the office answers in writing, never by a call. */}
+      <JobReports job={j.id} again={reported} />
 
       <View style={s.rule} />
 

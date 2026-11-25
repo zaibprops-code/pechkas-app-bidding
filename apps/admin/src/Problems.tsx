@@ -9,6 +9,11 @@ import { shown } from './phones.ts';
  * guarantee claims and problems. Each has the address, both numbers to ring
  * and, for an emergency, where the phone was. Nothing is closed without a
  * note of what was done.
+ *
+ * The office answers in writing, never by a call (the owner's rule): the
+ * answer box is what the person reads in the app, on the job and in Help;
+ * their notification says only that the office answered. The closing note
+ * is the office's own record and is never shown to them.
  */
 
 type Problem = {
@@ -24,6 +29,10 @@ type Problem = {
   created_at: string;
   closed_at: string | null;
   closed_by: string | null;
+  answer: string | null;
+  answered_at: string | null;
+  answered_by: string | null;
+  can_answer: boolean;
   urgent: boolean;
   job: { id: string; ref: string; title: string; status: string; stage: string | null; address: string; job_lat: number | null; job_lng: number | null; finished_at: string | null; collect_paisa: number | null };
   customer: { name: string; phone: string | null };
@@ -76,9 +85,20 @@ export function Problems() {
 
 function ProblemCard({ p, onChanged }: { p: Problem; onChanged: () => void }) {
   const [note, setNote] = useState('');
+  const [answer, setAnswer] = useState(p.answer ?? '');
   const [msg, setMsg] = useState<string | null>(null);
+  const [answerMsg, setAnswerMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const who = p.side === 'customer' ? `The customer, ${p.customer.name}` : `The technician, ${p.pro?.name ?? ''}`;
+
+  async function send() {
+    setBusy(true);
+    const r = await ask('admin_answer_problem', { p_id: p.id, p_answer: answer });
+    setBusy(false);
+    if (!r.ok) return setAnswerMsg(r.why);
+    setAnswerMsg(null);
+    onChanged();
+  }
 
   async function close() {
     setBusy(true);
@@ -132,10 +152,30 @@ function ProblemCard({ p, onChanged }: { p: Problem; onChanged: () => void }) {
         {p.customer.phone ? <a className="call" href={tel(p.customer.phone)}>Call {p.customer.name} · {shown(p.customer.phone)}</a> : null}
         {p.pro?.phone ? <a className="call" href={tel(p.pro.phone)}>Call {p.pro.name.split(' ')[0]} · {shown(p.pro.phone)}</a> : null}
       </div>
+      {p.answer ? (
+        <p>
+          <strong>Your answer in the app{p.answered_at ? `, ${time(p.answered_at)}` : ''}{p.answered_by ? ` by ${p.answered_by}` : ''}:</strong> {p.answer}
+        </p>
+      ) : null}
+      {p.can_answer ? (
+        <section className="decide">
+          <label>
+            {p.answer ? 'Correct your answer' : `Answer ${p.side === 'customer' ? p.customer.name : (p.pro?.name.split(' ')[0] ?? 'them')} in the app (they read exactly this)`}
+            <textarea value={answer} maxLength={500} rows={3} onChange={(e) => setAnswer(e.target.value)} />
+          </label>
+          <p className="muted">They are told the office answered, with the job number only; the words stay in the app. No CNIC numbers.</p>
+          <div className="buttons">
+            <button disabled={busy || answer.trim().length < 3} onClick={send}>{p.answer ? 'Send the correction' : 'Send the answer'}</button>
+          </div>
+          {answerMsg ? <p className="error" role="alert">{answerMsg}</p> : null}
+        </section>
+      ) : (
+        <p className="muted">The person who sent this has deleted their account, so nobody can read an answer.</p>
+      )}
       {p.status === 'open' ? (
         <section className="decide">
           <label>
-            What was done about it (kept in the record)
+            What was done about it (the office's own record, never shown to them)
             <input value={note} maxLength={500} onChange={(e) => setNote(e.target.value)} />
           </label>
           <div className="buttons">

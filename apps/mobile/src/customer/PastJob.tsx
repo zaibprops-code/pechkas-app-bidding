@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { JobReports } from '../components/Reports';
 import { Image, Linking, Share, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
 import { dayLabel, pkClock, rupees } from '@pechkas/shared';
@@ -240,6 +241,7 @@ export function PastJob({ job, trade, onChanged }: { job: Job; trade: string; on
   const [words, setWords] = useState('');
   const [writing, setWriting] = useState(false);
   const [problem, setProblem] = useState('');
+  const [sent, setSent] = useState(0);
   const [unsafe, setUnsafe] = useState(false);
   const [blocking, setBlocking] = useState(false);
   const [blockWhy, setBlockWhy] = useState('');
@@ -298,7 +300,8 @@ export function PastJob({ job, trade, onChanged }: { job: Job; trade: string; on
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
     setWriting(false);
-    toast.show(done('Your message has gone to the Pechkas office.'));
+    setSent((n) => n + 1);
+    toast.show(done('Your message has gone to the Pechkas office. Its answer will be on this page.'));
     onChanged();
   }
 
@@ -465,11 +468,12 @@ export function PastJob({ job, trade, onChanged }: { job: Job; trade: string; on
                 ) : null}
               </View>
             ) : null}
-            {job.problem_at ? <Text style={s.sub}>You told us something is wrong. The Pechkas office will reply to you on WhatsApp.</Text> : null}
+            {/* What she told the office, and its answer, read here: the office answers in writing, never by a call. */}
+            <JobReports job={job.id} again={sent} />
             {job.can_report && !writing ? <Button kind="outline" label="Something is wrong" onPress={() => setWriting(true)} /> : null}
             {job.can_report && writing ? (
               <View style={{ gap: 8 }}>
-                <Text style={s.sub}>Tell us what is wrong. The Pechkas office reads it and replies to you on WhatsApp.</Text>
+                <Text style={s.sub}>Tell us what is wrong. The Pechkas office reads it and answers you here, in the app.</Text>
                 <TextInput value={problem} onChangeText={setProblem} maxLength={500} multiline accessibilityLabel="What is wrong" style={s.input} />
                 <Button kind="green" label="Send to Pechkas" busy={busy} onPress={report} />
                 <Button kind="outline" label="Go back" onPress={() => setWriting(false)} />

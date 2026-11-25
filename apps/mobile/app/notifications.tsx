@@ -60,6 +60,7 @@ const CUSTOMER = [
   'A question about payment for a job, and what Pechkas decided',
   'Your job is open to others again because the check it needed could not be arranged',
   'A kind of job you asked about is now available in your sector',
+  'The Pechkas office answers something you reported',
 ];
 
 const TECHNICIAN = [
@@ -88,6 +89,7 @@ const TECHNICIAN = [
   'Your work is paused or open again, and the answers to your appeal, report or photo request',
   'Your identity check is verified or not',
   'You are asked to check a job, your checker is coming, your checked job passed or not, and your checker\u2019s fee',
+  'The Pechkas office answers something you reported',
 ];
 
 /** The lists above in five groups each, for the sheet. Every line appears once. */
@@ -96,11 +98,11 @@ const CUSTOMER_GROUPS: [DuoName, string, number[]][] = [
   ['pin', 'The visit', [1, 18, 14, 15, 17, 20]],
   ['wallet', 'The price and paying', [2, 12, 13, 19]],
   ['shield', 'After the job', [3, 4, 7, 5, 11, 6, 16]],
-  ['chat', 'Messages', [8]],
+  ['chat', 'Messages', [8, 22]],
 ];
 const TECHNICIAN_GROUPS: [DuoName, string, number[]][] = [
   ['tag', 'New jobs and offers', [0, 1, 2, 3, 15, 4]],
-  ['jobs', 'The job', [5, 8, 13, 14, 6]],
+  ['jobs', 'The job', [5, 8, 13, 14, 6, 25]],
   ['wallet', 'Money', [7, 17, 18, 12, 19, 20, 11]],
   ['shield', 'Guarantee', [9, 10]],
   ['person', 'Your work on Pechkas', [21, 16, 22, 23, 24]],
@@ -128,6 +130,7 @@ function badgeOf(kind: string): DuoName {
   if (/^(on_way|arrived|running_late|no_show|late_arrival|not_home|arrival)/.test(kind)) return 'pin';
   if (/^(change|stopped|fee_|pay|settled|over_limit|charge|refund|payment|guarantee_paid|referral|check_paid)/.test(kind)) return 'wallet';
   if (kind === 'message') return 'chat';
+  if (kind === 'office_answer') return 'support';
   if (kind === 'chosen') return 'star';
   if (/^(claim|replacement)/.test(kind)) return 'shield';
   if (/^(cancelled|office_cancelled|offer_closed|not_chosen|declined|pro_withdrew|replaced_pro)/.test(kind)) return 'flag';
@@ -249,6 +252,8 @@ export default function Notifications() {
 
   function open(row: Row) {
     if (!row.read) void markRead(row.ids);
+    // The office's answer is read in Help (and on the job), never in the notification.
+    if (row.kind === 'office_answer') return router.push('/help');
     if (row.job_id && row.side === 'customer') return router.push(`/job/${row.job_id}` as Href);
     if (pro && money.test(row.kind)) return router.push('/pro/money');
     if (pro && (row.job_id || /^(new_job|job_again|asked_again)/.test(row.kind))) return router.push('/pro');
