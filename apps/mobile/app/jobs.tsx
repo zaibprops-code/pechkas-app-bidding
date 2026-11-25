@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Linking, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
-import { Redirect, router, useFocusEffect } from 'expo-router';
+import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { rupees, whenLabel } from '@pechkas/shared';
 import { MenuButton } from '../src/components/Menu';
@@ -54,7 +54,9 @@ export default function Jobs() {
   const [problem, setProblem] = useState<string | null>(null);
   // Why nothing came back, for the full card shown when there is no list to show yet.
   const [trouble, setTrouble] = useState<NoAnswer | null>(null);
-  const [tab, setTab] = useState<'now' | 'past'>('now');
+  // Settings' strip opens Past straight away, and "under guarantee" opens it filtered to those.
+  const params = useLocalSearchParams<{ tab?: string; what?: string }>();
+  const [tab, setTab] = useState<'now' | 'past'>(params.tab === 'past' ? 'past' : 'now');
   const [nearEnd, setNearEnd] = useState(false);
   const [history, setHistory] = useState<{ total: number; since: string | null } | null>(null);
   const onFacets = useCallback((f: { total: number; since: string | null }) => setHistory({ total: f.total, since: f.since }), []);
@@ -158,7 +160,7 @@ export default function Jobs() {
 
         <View style={s.body}>
           {tab === 'past' ? (
-            <Past tradeName={tradeName} nearEnd={nearEnd} onFacets={onFacets} />
+            <Past initialWhat={params.what === 'covered' ? 'covered' : undefined} tradeName={tradeName} nearEnd={nearEnd} onFacets={onFacets} />
           ) : (
             <>
               {/* With a list on screen, a failed refresh is a line at the top; with none, the full card below says it. */}

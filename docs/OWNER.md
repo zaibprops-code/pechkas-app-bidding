@@ -1952,6 +1952,21 @@ It forgets everything when the page reloads. It cannot use the camera, a
 real map, your location or notifications, so try those on your phone. Ask
 Claude to refresh it whenever the app changes.
 
+## Settings, redesigned (25 November 2026)
+
+1. **Supabase → SQL Editor**: run
+   `supabase/migrations/20261128000000_settings_page.sql`, after the files
+   before it. It should say **Success**. No new build: the screen comes as
+   an update.
+2. **Try it**: menu → **Settings**. Your name on the yellow top (green for
+   a technician), then one white strip of three numbers — tap any of them
+   to open where it is counted. A customer can tap the pencil on her
+   initial to correct her first name, and **Saved addresses** to see or
+   forget the addresses her phone remembers. A technician can tap his
+   rating to read what customers wrote.
+3. **Technician mode** and **Legal documents** are no longer on Settings:
+   both are in the menu.
+
 ## Notifications: what Pechkas told you (25 November 2026)
 
 1. **Supabase → SQL Editor**: run

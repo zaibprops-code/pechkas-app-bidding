@@ -46,7 +46,9 @@ export function ThisCopy({ dark = false }: { dark?: boolean }) {
   const fg = dark ? colour.paper : colour.ink;
   const muted = dark ? '#b9c2c9' : colour.steel;
   const update = updateLine();
-  const built = BUILT_AT ? new Date(BUILT_AT).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
+  // A copy built without a date (or with one the phone cannot read) says nothing, never "Invalid Date".
+  const builtAt = BUILT_AT ? new Date(BUILT_AT) : null;
+  const built = builtAt && !Number.isNaN(builtAt.getTime()) ? builtAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
 
   return (
     <View style={[s.box, dark ? { borderWidth: 1, borderColor: 'rgba(250,246,239,0.18)' } : s.light]}>

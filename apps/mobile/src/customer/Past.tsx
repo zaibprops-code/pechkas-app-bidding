@@ -109,10 +109,10 @@ function proLabel(facets: Facets, key: string): string {
 }
 const daysLeft = (until: string) => Math.max(0, Math.ceil((new Date(until).getTime() - Date.now()) / 86400000));
 
-export function Past({ tradeName, nearEnd, onFacets }: { tradeName: (slug: string) => string; nearEnd: boolean; onFacets?: (f: Facets) => void }) {
+export function Past({ tradeName, nearEnd, onFacets, initialWhat }: { tradeName: (slug: string) => string; nearEnd: boolean; onFacets?: (f: Facets) => void; initialWhat?: What }) {
   const [q, setQ] = useState('');
   const [typed, setTyped] = useState('');
-  const [f, setF] = useState<Filters>(NONE);
+  const [f, setF] = useState<Filters>(initialWhat ? { ...NONE, what: initialWhat } : NONE);
   const [facets, setFacets] = useState<Facets | null>(null);
   const [rows, setRows] = useState<Hist[] | null>(null);
   const [more, setMore] = useState(false);

@@ -182,8 +182,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   picked with a tick and confirmed by a button naming the choice, on the
   sign-in screen with no back button), then `welcome.tsx` takes
   the name with the choice as `as`. Changing it later is only
-  `switch_mode()` (`src/mode.ts`, `ModeSwitch` at the foot of the menu and
-  on Me), never `start_as()`, which refuses a different mode. Technician
+  `switch_mode()` (`src/mode.ts`, `ModeSwitch` at the foot of the menu), never `start_as()`, which refuses a different mode. Technician
   mode needs an application on record (`field: 'apply'` opens one).
   **Nobody switches out of the middle of a job**: open or assigned as the
   customer, assigned as the technician. Leaving technician mode is going
@@ -463,16 +462,28 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the real signature that records each request in `net.sent`, and fails on
   demand through `net.fail`; and for `pg_cron` with a `cron.schedule()` that
   writes `cron.job`. Tests call `alert_needs_you()` themselves.
-- **Settings (`app/me.tsx`, "Me" in older notes) is laid out as the menu
-  is**, redesigned at the owner's request: the person on a green card
-  (initial on a yellow disc, name, the bare number — "(not checked)" is said
-  on the number's row, where it has room — Customer or Technician), then
-  white cards of rows — two-tone icon on a
-  soft yellow tile, words, chevron — with no group headings: number and
-  email; the `ModeSwitch pill`; Notifications (an On / Off chip, the
-  sentence saying what this phone does), the legal page for that side;
-  Sign out and Delete my account (brick tile and words). `ThisCopy` is a
-  white card at the foot.
+- **Settings (`app/me.tsx`) is the person's own page** (the owner's design,
+  25 November 2026, after many rounds): the side's own coloured top
+  (yellow customer, green technician, `Glow`), the back button and
+  "Settings", a big initial in a solid white ring (a pencil on it lets a
+  customer correct her first name: `set_my_name()`, letters only, never a
+  number; a technician's approved full name is never changed), "With
+  Pechkas since …" and a chip (Customer, or his trades); then **one white
+  strip of three real numbers with their two-tone icons**, each a door —
+  customer: jobs done (→ Past), under guarantee (→ Past filtered,
+  `jobs?tab=past&what=covered`), spent this year (→ Past); technician: jobs
+  done (→ My account), his rating ("New" below `rating_min_count`; → the
+  "Your rating" sheet, `my_ratings()`: revealed words only, never who wrote
+  them), kept this month after Pechkas' share (→ My account). All from
+  `my_settings()` (migration `…_settings_page`, tests `settings.test.mjs`).
+  Then "Your account": Mobile number with ✓ Checked (or Change when typed),
+  Email if any, **Saved addresses** (the phone's own list from
+  `post/places.ts`, a sheet with × to forget one) or **Your checks**, and
+  Notifications (On / Off, opens the inbox); Sign out and **Delete my
+  account** side by side (the delete-account page names that button —
+  keep the label); one quiet "Version … · details" line that opens
+  `ThisCopy` in a sheet. The mode switch and the legal pages are not here:
+  they are in the menu (no duplicates).
 - **Help (`app/help.tsx`) is in the same style**: the office on a green
   card (hours, number, **WhatsApp** and **Call** side by side, stacked
   under 360 wide), **Common questions** that open one at a time (the
