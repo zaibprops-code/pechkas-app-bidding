@@ -1284,7 +1284,9 @@ Wi-Fi and internet, Painting and Computers the same. Carpentry is laid
 out like Plumber, with a picture on its three groups and all eleven jobs.
 Plumber's toilet, geyser, water motor and drains lists now have a
 picture on every job too, so all 76 jobs have one. Home now shows the
-pictures too, on every kind of work and on the job card at the top. The other trades
+pictures too, on every kind of work and on the job card at the top. Its
+yellow top has no picture any more: "What needs fixing?" is one big line
+above the search box (your choice, A122). The other trades
 keep their line drawings until their pictures are made, one trade at a
 time; home keeps the drawings until every trade is done. The pictures are
 in your Figma file "Pechkas welcome illustrations".

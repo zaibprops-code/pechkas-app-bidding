@@ -413,7 +413,9 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   yellow screw-head circle; never a photo or a real person. Built.
 - **A121, pictures of the work (26 November 2026):** jobs shown as a
   picture of the problem, with the name beside it. Every trade, all 76
-  jobs and home built; the picture at the top of home is still to choose.
+  jobs and home built.
+- **A122, home's top (26 November 2026):** no picture beside "What needs
+  fixing?", which is one big line, as professional apps do. Built.
 
 ## 7. Still open: what the owner has to decide
 

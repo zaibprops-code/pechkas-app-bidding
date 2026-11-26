@@ -1949,8 +1949,10 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `colour.canvas` with white rounded cards, bold black headings, yellow as
   the one highlight. **Home shows only what matters, each thing once** (the owner's
   choice, 24 November 2026, replacing the map home): the yellow top as the
-  sign-in pictures — the ☰ menu, the greeting, "What needs fixing?", a house
-  whose wrench taps once (`SignInArt` kind `house`) and the search box,
+  sign-in pictures — the ☰ menu, the greeting, "What needs fixing?" on one
+  big line with **no picture beside it** (A122, the owner's choice: the way
+  professional apps do it; the work tiles' pictures carry the look) and
+  the search box,
   which opens **Search** (`app/find.tsx`); any job still happening, on top
   until it is over, its yellow bar saying what she has to do; then **every
   kind of work** with the things it covers under its name ("Plumber — Taps,
@@ -2000,9 +2002,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   that looks like yours" — a page without groups, whose job cards then
   carry the picture too, search results and the top of Post a job);
   home (the tiles and the job card on top) and the search's list of
-  kinds of work use them too, since every trade and job has one; the
-  house at the top of home is still the line drawing until the owner
-  picks its picture. `jobs.test.mjs` fails if a pictured job is
+  kinds of work use them too, since every trade and job has one; home's
+  yellow top has no picture at all (A122). `jobs.test.mjs` fails if a pictured job is
   not a real job. The tiles rise in once as home opens; nothing moves
   after. The drawings are `src/components/Art.tsx` — objects, never people,
   over a yellow sweep; every trade in `public.trades` has one.

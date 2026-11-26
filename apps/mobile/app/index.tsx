@@ -11,7 +11,6 @@ import { MenuButton } from '../src/components/Menu';
 import { Press } from '../src/components/Press';
 import { ScrewSpinner } from '../src/components/ScrewSpinner';
 import { Rise, useRises } from '../src/components/Rise';
-import { SignInArt } from '../src/components/SignInArt';
 import { pictureOf, WorkArt } from '../src/components/WorkArt';
 import { SystemBars, useArrive } from '../src/components/ui';
 import { useAccount } from '../src/account';
@@ -24,8 +23,10 @@ import { colour, font, glow, GLOW_STOPS, shadow } from '../src/theme';
  * matters, and each thing once.
  *
  *  - The yellow top, as the sign-in pictures: the greeting, "What needs
- *    fixing?", a house with a wrench that taps once as home opens, and the
- *    search box — a tap opens Search (app/find.tsx).
+ *    fixing?" on one big line with no picture beside it (the owner's
+ *    choice, A122: professional apps put nothing there, and the pictures
+ *    in the work tiles carry the look), and the search box — a tap opens
+ *    Search (app/find.tsx).
  *  - Any job still happening, on top until it is over: a tap opens it.
  *  - Every kind of work, with the things it covers under its name, so
  *    somebody who does not know the trade still finds the geyser under
@@ -119,9 +120,6 @@ export default function Home() {
               <Text style={[s.ask, narrow && s.askNarrow]} accessibilityRole="header">
                 What needs fixing?
               </Text>
-            </View>
-            <View style={{ marginBottom: -6 }}>
-              <SignInArt kind="house" height={narrow ? 80 : 112} />
             </View>
           </View>
           <Press onPress={() => router.push('/find')} accessibilityRole="search" accessibilityLabel="Search for the job" sink={0.98} style={s.search}>
@@ -348,8 +346,8 @@ const s = StyleSheet.create({
   top: { paddingHorizontal: 16, paddingBottom: 18, borderBottomLeftRadius: 32, borderBottomRightRadius: 32, overflow: 'hidden', backgroundColor: colour.yellow },
   hero: { flexDirection: 'row', alignItems: 'flex-end', paddingLeft: 8, marginTop: 4 },
   hello: { fontFamily: font.bodySemi, fontSize: 15, color: colour.onYellow },
-  ask: { fontFamily: font.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.9, color: colour.ink, marginTop: 2 },
-  askNarrow: { fontSize: 26, lineHeight: 30 },
+  ask: { fontFamily: font.display, fontSize: 36, lineHeight: 40, letterSpacing: -0.9, color: colour.ink, marginTop: 2 },
+  askNarrow: { fontSize: 30, lineHeight: 34 },
   search: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 56, marginTop: 14, paddingHorizontal: 14, borderRadius: 18, backgroundColor: colour.white, boxShadow: '0px 8px 22px rgba(60, 40, 0, 0.16)' },
   searchText: { flex: 1, fontFamily: font.bodyMedium, fontSize: 16, color: colour.steel },
 
