@@ -6,7 +6,7 @@
  * technician, and as staff who have been switched off.
  */
 import { as, denied, heading, migrate, nothing, ok, report, setup } from './harness.mjs';
-import { findJobs, WORK_ALSO, WORK_GROUPS, WORK_SUGGESTIONS, WORK_THINGS } from '../../packages/shared/src/work.ts';
+import { findJobs, JOB_PICTURES, WORK_ALSO, WORK_GROUPS, WORK_SUGGESTIONS, WORK_THINGS } from '../../packages/shared/src/work.ts';
 
 await migrate();
 
@@ -238,6 +238,9 @@ heading('How the app shows the work matches the work there is');
   ok('every job of a grouped trade is in one of its groups', loose.length === 0, loose);
   const twice = named.filter((x, i) => named.findIndex((y) => y.trade === x.trade && y.job === x.job) !== i);
   ok('no job is in two groups', twice.length === 0, twice);
+  const pictured = Object.entries(JOB_PICTURES).flatMap(([trade, jobs]) => Object.keys(jobs).map((job) => ({ trade, job })));
+  const lost = pictured.filter((x) => !real.has(`${x.trade}|${x.job}`));
+  ok('every job with a picture is a real job of its trade', pictured.length > 0 && lost.length === 0, lost);
   const noLine = trades.filter((t) => !WORK_THINGS[t.slug]);
   ok('every kind of work says what it covers on home', noLine.length === 0, noLine);
   const { rows: names } = await setup(`SELECT slug, name FROM public.trades`);

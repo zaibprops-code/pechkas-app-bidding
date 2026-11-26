@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { AccessibilityInfo, Animated, Easing, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from './Icon';
 import { Press } from './Press';
@@ -12,6 +12,9 @@ import { colour, font } from '../theme';
  */
 export function Sheet({ children, onClose, closeLabel = 'Close', title, bare = false }: { children: ReactNode; onClose: () => void; closeLabel?: string; title?: string; /** Only the handle on top, no × (the approved mocks' question sheets); the backdrop and Back still close it. */ bare?: boolean }) {
   const insets = useSafeAreaInsets();
+  // Never under the clock: a tall list on a short phone once put the × on the battery.
+  const { height } = useWindowDimensions();
+  const tallest = height - insets.top - 16;
   const y = useRef(new Animated.Value(600)).current;
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled()
@@ -25,7 +28,7 @@ export function Sheet({ children, onClose, closeLabel = 'Close', title, bare = f
     <Modal transparent visible onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent animationType="none">
       <View style={s.root}>
         <Pressable style={s.backdrop} onPress={onClose} accessibilityRole="button" accessibilityLabel={closeLabel} />
-        <Animated.View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 12), transform: [{ translateY: y }] }]}>
+        <Animated.View style={[s.sheet, { maxHeight: Math.min(tallest, height * 0.92), paddingBottom: Math.max(insets.bottom, 12), transform: [{ translateY: y }] }]}>
           <View style={s.head}>
             <View style={s.grab} />
             {title ? (

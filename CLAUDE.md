@@ -1992,7 +1992,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   Roman Urdu words until the owner says so). `jobs.test.mjs` fails if a
   group names a job that does not exist, misses one, or a trade has no
   line. The drawings on these screens are `TradeArt.tsx` (the sign-in
-  screens' style). The tiles rise in once as home opens; nothing moves
+  screens' style), **or a picture where one exists (A121)**: `WorkArt.tsx`
+  draws the picture named in `JOB_PICTURES` / `ART_PICTURES` (shared
+  `work.ts`, files in `assets/work/`, made with Figma's image tool and cut
+  out) and otherwise the drawing. Plumbing has pictures (its page, its
+  group tiles, a list whose jobs all have their own — then "Tap the one
+  that looks like yours" — search results and the top of Post a job);
+  home and the search's list of kinds of work keep the drawings until
+  every trade has pictures. `jobs.test.mjs` fails if a pictured job is
+  not a real job. The tiles rise in once as home opens; nothing moves
   after. The drawings are `src/components/Art.tsx` — objects, never people,
   over a yellow sweep; every trade in `public.trades` has one.
 - **The technician side is inDrive's driver side** (`src/pro/Work.tsx`):

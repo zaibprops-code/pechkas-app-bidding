@@ -213,6 +213,9 @@ function Squares() {
   );
 }
 
+// The taps group shares the plumber's tap (its picture is its own: WorkArt).
+DRAWINGS.taps = DRAWINGS.plumber;
+
 export function TradeArt({ trade, size }: { trade: string; size: number }) {
   const Drawing = DRAWINGS[trade] ?? Squares;
   return (

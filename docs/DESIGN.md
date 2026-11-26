@@ -102,6 +102,21 @@ a screen; use the token.
   welcome pages are the first (`assets/welcome/`); they were made with
   Figma's image tool, so each new one is checked closely (hands, faces,
   the drawn phone screens) before it goes in.
+- **Pictures of the work (the owner's decision, 26 November 2026, A121)**:
+  where a name alone may not be understood, the work is shown as a
+  picture of the thing or the problem as the customer sees it at home (a
+  tap dripping into a puddle, a blocked drain) — objects only, in the same
+  system as the people pictures: black outline, white, Pechkas yellow,
+  light blue for water, the yellow screw-head circle behind, cut out. The
+  name is always written under or beside it; the picture helps, it never
+  replaces the words. `WorkArt` (`components/WorkArt.tsx`) draws the
+  picture where `JOB_PICTURES` / `ART_PICTURES` (packages/shared work.ts)
+  name one, else the line drawing. A job list shows pictures only when
+  every job in it has its own — the same picture four times says nothing.
+  Plumbing is first; the other trades follow one by one, and home and the
+  list of kinds of work keep the line drawings until every trade has a
+  picture, so the two styles never sit side by side there. A picture is
+  drawn larger than a line drawing, and every new one is checked by eye.
 - No emoji. No stock photographs of strangers.
 - The logo is `Mark` (`src/components/Mark.tsx`); its shapes come from the
   website and nobody draws it by hand.

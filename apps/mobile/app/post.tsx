@@ -10,7 +10,7 @@ import { Button, Chip, Loading, Notice, Screen } from '../src/components/ui';
 import { Sheet, SheetOption } from '../src/components/Sheet';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
-import { TradeArt } from '../src/components/TradeArt';
+import { pictureOf, WorkArt } from '../src/components/WorkArt';
 import { YellowTop } from '../src/components/YellowTop';
 import { workArt } from '@pechkas/shared/src/work';
 import { usePriceRanges } from '../src/prices';
@@ -534,7 +534,7 @@ export default function Post() {
       {d.trade ? (
         <View style={s.topJob}>
           <View style={s.topArt}>
-            <TradeArt trade={chosen ? workArt(d.trade, chosen.name) : d.trade} size={width < 360 ? 46 : 54} />
+            <WorkArt art={chosen ? workArt(d.trade, chosen.name) : d.trade} source={pictureOf(d.trade, chosen?.name)} size={width < 360 ? 46 : 54} picture={width < 360 ? 58 : 64} />
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={s.topTrade}>{tradeName(d.trade)}</Text>

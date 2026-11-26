@@ -3,13 +3,14 @@ import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-n
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { WORK_ALSO, WORK_GROUPS } from '@pechkas/shared/src/work';
+import { JOB_PICTURES, WORK_ALSO, WORK_GROUPS } from '@pechkas/shared/src/work';
 import { Icon } from '../../src/components/Icon';
 import { Press } from '../../src/components/Press';
 import { Rise, useRises } from '../../src/components/Rise';
 import { ScrewSpinner } from '../../src/components/ScrewSpinner';
 import { Sheet } from '../../src/components/Sheet';
 import { TradeArt } from '../../src/components/TradeArt';
+import { pictureOf, pictureOfArt, WorkArt } from '../../src/components/WorkArt';
 import { SystemBars } from '../../src/components/ui';
 import { PricePill, YellowTop } from '../../src/components/YellowTop';
 import { useLists, type Lists } from '../../src/lists';
@@ -39,6 +40,8 @@ export default function Work() {
   const { width } = useWindowDimensions();
   const narrow = width < 360;
   const [open, setOpen] = useState<Group | null>(null);
+  // Pictures in the list only when every job in it has one of its own: the same picture four times says nothing.
+  const pictured = !!open && open.jobs.every((j) => (JOB_PICTURES[j.trade] ?? {})[j.name]);
   const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
   const jobs = (lists?.job_types ?? []).filter((j) => j.trade === trade);
   const also = (WORK_ALSO[trade] ?? [])
@@ -65,7 +68,7 @@ export default function Work() {
               </Text>
               <Text style={s.ask}>What is the problem?</Text>
             </View>
-            <TradeArt trade={trade} size={narrow ? 84 : 108} />
+            <WorkArt art={trade} size={narrow ? 84 : 108} picture={narrow ? 118 : 148} />
           </View>
         </YellowTop>
 
@@ -78,9 +81,15 @@ export default function Work() {
             {groups.map((g, i) => (
               <Rise key={g.title} v={rises[i]} style={{ width: cell }}>
                 <Press onPress={() => setOpen(g)} accessibilityRole="button" accessibilityLabel={`${g.title}. ${g.jobs.length} jobs`} sink={0.97} style={s.tile}>
-                  <View style={s.tileArt}>
-                    <TradeArt trade={g.art} size={48} />
-                  </View>
+                  {pictureOfArt(g.art) ? (
+                    <View style={s.tilePicture}>
+                      <WorkArt art={g.art} size={48} picture={Math.min(104, cell - 40)} />
+                    </View>
+                  ) : (
+                    <View style={s.tileArt}>
+                      <TradeArt trade={g.art} size={48} />
+                    </View>
+                  )}
                   <View>
                     <Text style={[s.tileTitle, narrow && { fontSize: 15 }]}>{g.title}</Text>
                     <Text style={s.tileSub}>
@@ -118,19 +127,34 @@ export default function Work() {
         <Sheet onClose={() => setOpen(null)}>
           <View style={s.sheetHead}>
             <View style={s.sheetArt}>
-              <TradeArt trade={open.art} size={44} />
+              <WorkArt art={open.art} size={44} picture={52} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.sheetTitle}>{open.title}</Text>
-              <Text style={s.tileSub}>{tradeName(trade)} · choose the job</Text>
+              <Text style={s.tileSub}>{pictured ? 'Tap the one that looks like yours' : `${tradeName(trade)} · choose the job`}</Text>
             </View>
           </View>
-          {open.jobs.map((j) => (
-            <Press key={j.id} onPress={() => post(j.trade, j.id)} accessibilityRole="button" accessibilityLabel={j.name} sink={0.98} style={s.sheetRow}>
-              <Text style={s.sheetRowText}>{j.name}</Text>
-              <PricePill paisa={j.list_paisa} />
-            </Press>
-          ))}
+          {open.jobs.map((j) =>
+            pictured ? (
+              <Press key={j.id} onPress={() => post(j.trade, j.id)} accessibilityRole="button" accessibilityLabel={j.name} sink={0.98} style={s.picRow}>
+                <View style={[s.picRowArt, narrow && { width: 64, height: 64 }]}>
+                  <WorkArt art={open.art} source={pictureOf(j.trade, j.name)} size={44} picture={narrow ? 58 : 72} />
+                </View>
+                <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
+                  <Text style={s.picRowText}>{j.name}</Text>
+                  <View style={{ flexDirection: 'row' }}>
+                    <PricePill paisa={j.list_paisa} />
+                  </View>
+                </View>
+                <Icon name="chevronRight" size={18} color={colour.steel} strokeWidth={2.2} />
+              </Press>
+            ) : (
+              <Press key={j.id} onPress={() => post(j.trade, j.id)} accessibilityRole="button" accessibilityLabel={j.name} sink={0.98} style={s.sheetRow}>
+                <Text style={s.sheetRowText}>{j.name}</Text>
+                <PricePill paisa={j.list_paisa} />
+              </Press>
+            ),
+          )}
           <Press onPress={() => post(trade)} accessibilityRole="button" sink={0.97} style={s.sheetElse}>
             <Icon name="mic" size={20} color={colour.ink} strokeWidth={2} />
             <Text style={s.sheetElseText}>Something else — say it in your own words</Text>
@@ -198,6 +222,7 @@ const s = StyleSheet.create({
   ask: { fontFamily: font.bodySemi, fontSize: 16, color: colour.onYellow, marginTop: 2 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, padding: 16 },
   tile: { minHeight: 150, borderRadius: 22, backgroundColor: colour.white, padding: 14, justifyContent: 'space-between', gap: 10, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.07)' },
+  tilePicture: { alignItems: 'center' },
   tileArt: { width: 62, height: 62, borderRadius: 18, backgroundColor: colour.cream, alignItems: 'center', justifyContent: 'center' },
   tileTitle: { fontFamily: font.display, fontSize: 16, lineHeight: 20, color: colour.ink },
   tileSub: { fontFamily: font.bodySemi, fontSize: 13, color: colour.steel, marginTop: 2 },
@@ -214,6 +239,9 @@ const s = StyleSheet.create({
   sheetArt: { width: 56, height: 56, borderRadius: 16, backgroundColor: colour.cream, alignItems: 'center', justifyContent: 'center' },
   sheetTitle: { fontFamily: font.display, fontSize: 22, color: colour.ink },
   sheetRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 62, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colour.rule },
+  picRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 92, padding: 8, paddingRight: 12, marginTop: 10, borderRadius: 18, borderWidth: 1.5, borderColor: colour.rule },
+  picRowArt: { width: 76, height: 76, borderRadius: 16, backgroundColor: colour.cream, alignItems: 'center', justifyContent: 'center' },
+  picRowText: { fontFamily: font.display, fontSize: 15.5, lineHeight: 20, color: colour.ink },
   sheetRowText: { flex: 1, fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
   sheetElse: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, marginTop: 8 },
   sheetElseText: { flex: 1, fontFamily: font.display, fontSize: 15, color: colour.ink, textDecorationLine: 'underline' },

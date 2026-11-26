@@ -48,7 +48,7 @@ export const WORK_GROUPS: Record<string, WorkGroup[]> = {
     { title: 'Power and wiring', art: 'breaker', jobs: ['DB or breaker fault', 'Wiring fault tracing', 'Rewiring a room or a house', 'UPS or inverter connection', 'Generator or solar changeover switch', 'Water motor automatic switch'] },
   ],
   plumber: [
-    { title: 'Taps, sinks and showers', art: 'plumber', jobs: ['Leaking tap repair or replacement', 'Wash basin or kitchen sink fitting', 'Shower, mixer or bathroom fittings', 'Water filter fitting'] },
+    { title: 'Taps, sinks and showers', art: 'taps', jobs: ['Leaking tap repair or replacement', 'Wash basin or kitchen sink fitting', 'Shower, mixer or bathroom fittings', 'Water filter fitting'] },
     { title: 'Toilet', art: 'toilet', jobs: ['Flush tank repair', 'Flush tank float valve replacement', 'Commode or toilet fitting'] },
     { title: 'Geyser', art: 'geyser', jobs: ['Geyser installation', 'Geyser service and descaling', 'Geyser repair'] },
     { title: 'Water motor', art: 'motor', jobs: ['Water motor or pump fitting', 'Water motor repair'] },
@@ -77,6 +77,39 @@ export const WORK_SUGGESTIONS = ['Geyser', 'Ceiling fan', 'AC service', 'Leaking
 export const WORK_ALSO: Record<string, { trade: string; job: string }[]> = {
   ups: [{ trade: 'electrician', job: 'UPS or inverter connection' }],
 };
+
+/**
+ * Pictures (the owner's decision A121): the jobs that have a picture of their
+ * own, by name, and the drawings (`art` keys, above) that have a picture in
+ * place of the line drawing. The pictures themselves are in
+ * apps/mobile/assets/work and are named there (`WorkArt.tsx`). A job with no
+ * picture of its own shows its group's, and a group with none its drawing.
+ * `jobs.test.mjs` fails if a name here is not a real job, so renaming a job
+ * cannot quietly lose its picture. Plumbing first; the other trades follow
+ * one by one, and until every trade has one, home and the list of kinds of
+ * work keep the drawings so the two styles never sit side by side there.
+ */
+export const JOB_PICTURES: Record<string, Record<string, string>> = {
+  plumber: {
+    'Leaking tap repair or replacement': 'plumber-leak',
+    'Wash basin or kitchen sink fitting': 'plumber-sink',
+    'Shower, mixer or bathroom fittings': 'plumber-shower',
+    'Water filter fitting': 'plumber-filter',
+  },
+};
+export const ART_PICTURES: Record<string, string> = {
+  plumber: 'plumber-leak',
+  taps: 'plumber-taps',
+  toilet: 'plumber-toilet',
+  geyser: 'plumber-geyser',
+  motor: 'plumber-motor',
+  drain: 'plumber-drain',
+};
+
+/** The picture for a job (its own, else its group's), or for a drawing's key; undefined when there is none yet. */
+export function workPicture(trade: string, job?: string): string | undefined {
+  return (job ? JOB_PICTURES[trade]?.[job] : undefined) ?? ART_PICTURES[job ? workArt(trade, job) : trade];
+}
 
 /** A job's drawing: its group's when the group has one, else its trade's. */
 export function workArt(trade: string, job: string): string {

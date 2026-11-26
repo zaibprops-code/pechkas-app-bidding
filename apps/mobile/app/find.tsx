@@ -8,6 +8,7 @@ import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { Rise, useRises } from '../src/components/Rise';
 import { TradeArt } from '../src/components/TradeArt';
+import { pictureOf, WorkArt } from '../src/components/WorkArt';
 import { SystemBars } from '../src/components/ui';
 import { PricePill, YellowTop } from '../src/components/YellowTop';
 import { useLists } from '../src/lists';
@@ -95,7 +96,7 @@ export default function Find() {
               <Rise key={j.id} v={rises[i]}>
                 <Press onPress={() => post(j.trade, j.id)} accessibilityRole="button" accessibilityLabel={`${j.name}. ${tradeName(j.trade)}`} sink={0.98} style={s.card}>
                   <View style={s.art}>
-                    <TradeArt trade={workArt(j.trade, j.name)} size={36} />
+                    <WorkArt art={workArt(j.trade, j.name)} source={pictureOf(j.trade, j.name)} size={36} picture={44} />
                   </View>
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={s.title}>{j.name}</Text>

@@ -1272,6 +1272,14 @@ Privacy Policy. **Continue with phone** opens *Join with your mobile
 number*: one big box with the Pakistan flag and **+92** already in it, and
 **Next** at the bottom.
 
+**Pictures of the jobs (26 November 2026, no database step).** The Plumber
+page now shows a picture for each group (taps and sinks, toilet, geyser,
+water motor, drains) and for the four tap and sink jobs, and the same
+pictures appear in search and at the top of Post a job. The other trades
+keep their line drawings until their pictures are made, one trade at a
+time; home keeps the drawings until every trade is done. The pictures are
+in your Figma file "Pechkas welcome illustrations".
+
 **The welcome pictures (26 November 2026, no database step).** The three
 welcome pages now show drawn people acting out each headline: a customer
 holding her phone with her price, a technician in a Pechkas cap with a
