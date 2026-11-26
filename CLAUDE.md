@@ -1995,9 +1995,10 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   screens' style), **or a picture where one exists (A121)**: `WorkArt.tsx`
   draws the picture named in `JOB_PICTURES` / `ART_PICTURES` (shared
   `work.ts`, files in `assets/work/`, made with Figma's image tool and cut
-  out) and otherwise the drawing. Plumbing, AC and electrician have pictures (each page, its
+  out) and otherwise the drawing. Plumbing, AC, electrician, UPS and solar have pictures (each page, its
   group tiles, a list whose jobs all have their own — then "Tap the one
-  that looks like yours" — search results and the top of Post a job);
+  that looks like yours" — a page without groups, whose job cards then
+  carry the picture too, search results and the top of Post a job);
   home and the search's list of kinds of work keep the drawings until
   every trade has pictures. `jobs.test.mjs` fails if a pictured job is
   not a real job. The tiles rise in once as home opens; nothing moves

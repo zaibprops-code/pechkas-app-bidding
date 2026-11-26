@@ -49,6 +49,13 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'el-ups': require('../../assets/work/el-ups.png'),
   'el-changeover': require('../../assets/work/el-changeover.png'),
   'el-motorswitch': require('../../assets/work/el-motorswitch.png'),
+  'ups-ups': require('../../assets/work/ups-ups.png'),
+  'solar-solar': require('../../assets/work/solar-solar.png'),
+  'solar-clean5': require('../../assets/work/solar-clean5.png'),
+  'solar-clean10': require('../../assets/work/solar-clean10.png'),
+  'solar-check': require('../../assets/work/solar-check.png'),
+  'solar-service': require('../../assets/work/solar-service.png'),
+  'solar-fault': require('../../assets/work/solar-fault.png'),
 };
 
 /** The picture for a trade (its own page) or a job (its own, else its group's), if there is one. */

@@ -85,7 +85,7 @@ export const WORK_ALSO: Record<string, { trade: string; job: string }[]> = {
  * apps/mobile/assets/work and are named there (`WorkArt.tsx`). A job with no
  * picture of its own shows its group's, and a group with none its drawing.
  * `jobs.test.mjs` fails if a name here is not a real job, so renaming a job
- * cannot quietly lose its picture. Plumbing, AC and electrician first; the other trades follow
+ * cannot quietly lose its picture. Plumbing, AC, electrician, UPS and solar first; the other trades follow
  * one by one, and until every trade has one, home and the list of kinds of
  * work keep the drawings so the two styles never sit side by side there.
  */
@@ -121,6 +121,13 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Generator or solar changeover switch': 'el-changeover',
     'Water motor automatic switch': 'el-motorswitch',
   },
+  solar: {
+    'Panel cleaning (up to 5kW)': 'solar-clean5',
+    'Panel cleaning (5kW to 10kW)': 'solar-clean10',
+    'System check and written report': 'solar-check',
+    'Full maintenance service': 'solar-service',
+    'Inverter or wiring fault': 'solar-fault',
+  },
 };
 export const ART_PICTURES: Record<string, string> = {
   plumber: 'plumber-leak',
@@ -136,6 +143,8 @@ export const ART_PICTURES: Record<string, string> = {
   fan: 'el-fans',
   socket: 'el-switches',
   breaker: 'el-power',
+  ups: 'ups-ups',
+  solar: 'solar-solar',
 };
 
 /** The picture for a job (its own, else its group's), or for a drawing's key; undefined when there is none yet. */

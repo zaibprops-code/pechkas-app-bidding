@@ -48,6 +48,8 @@ export default function Work() {
     .map((a) => lists?.job_types.find((j) => j.trade === a.trade && j.name === a.job))
     .filter((j): j is Job => Boolean(j));
   const groups = WORK_GROUPS[trade] ? sections(jobs, trade) : null;
+  // A short list (no groups) by the same rule as a group's: pictures only when every job on it has one.
+  const listPictured = jobs.length + also.length > 0 && [...jobs, ...also].every((j) => (JOB_PICTURES[j.trade] ?? {})[j.name]);
   const count = (groups ? groups.length : jobs.length + also.length) + 1;
   const rises = useRises(lists ? count : 0, lists ? trade : null, 55);
   const post = (t: string, type?: number) => {
@@ -107,12 +109,12 @@ export default function Work() {
           <View style={s.list}>
             {jobs.map((j, i) => (
               <Rise key={j.id} v={rises[i]}>
-                <JobCard job={j} onPress={() => post(j.trade, j.id)} />
+                <JobCard job={j} pictured={listPictured} narrow={narrow} onPress={() => post(j.trade, j.id)} />
               </Rise>
             ))}
             {also.map((j, i) => (
               <Rise key={j.id} v={rises[jobs.length + i]}>
-                <JobCard job={j} by={tradeName(j.trade)} onPress={() => post(j.trade, j.id)} />
+                <JobCard job={j} by={tradeName(j.trade)} pictured={listPictured} narrow={narrow} onPress={() => post(j.trade, j.id)} />
               </Rise>
             ))}
             <Rise v={rises[jobs.length + also.length]}>
@@ -187,7 +189,26 @@ function sections(jobs: Job[], trade: string): Group[] {
   return out;
 }
 
-function JobCard({ job, by, onPress }: { job: Job; by?: string; onPress: () => void }) {
+function JobCard({ job, by, pictured, narrow, onPress }: { job: Job; by?: string; pictured?: boolean; narrow?: boolean; onPress: () => void }) {
+  if (pictured) {
+    return (
+      <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={by ? `${job.name}. ${by}` : job.name} sink={0.98} style={s.picCard}>
+        <View style={[s.picRowArt, narrow && { width: 64, height: 64 }]}>
+          <WorkArt art={job.trade} source={pictureOf(job.trade, job.name)} size={44} picture={narrow ? 58 : 72} />
+        </View>
+        <View style={{ flex: 1, minWidth: 0, gap: 6 }}>
+          <View>
+            <Text style={s.picRowText}>{job.name}</Text>
+            {by ? <Text style={s.tileSub}>{by}</Text> : null}
+          </View>
+          <View style={{ flexDirection: 'row' }}>
+            <PricePill paisa={job.list_paisa} />
+          </View>
+        </View>
+        <Icon name="chevronRight" size={18} color={colour.steel} strokeWidth={2.2} />
+      </Press>
+    );
+  }
   return (
     <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={job.name} sink={0.98} style={s.card}>
       <View style={{ flex: 1, minWidth: 0 }}>
@@ -228,6 +249,7 @@ const s = StyleSheet.create({
   tileSub: { fontFamily: font.bodySemi, fontSize: 13, color: colour.steel, marginTop: 2 },
   list: { padding: 16, gap: 10 },
   card: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, padding: 14, borderRadius: 18, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.07)' },
+  picCard: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 92, padding: 8, paddingRight: 12, borderRadius: 18, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.07)' },
   cardTitle: { fontFamily: font.display, fontSize: 15.5, lineHeight: 20, color: colour.ink },
   else: { backgroundColor: colour.ink, borderRadius: 22, padding: 14 },
   elseTile: { minHeight: 150, justifyContent: 'space-between', gap: 10 },

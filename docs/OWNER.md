@@ -1277,7 +1277,9 @@ page now shows a picture for each group (taps and sinks, toilet, geyser,
 water motor, drains) and for the four tap and sink jobs, and the same
 pictures appear in search and at the top of Post a job. The AC page has
 the same: a picture at the top, on both groups and on all nine AC jobs,
-and so has the Electrician page (three groups, all twelve jobs). The other trades
+and so has the Electrician page (three groups, all twelve jobs). UPS and
+inverter has its picture at the top, and Solar has one at the top and on
+each of its five jobs, listed on the page itself. The other trades
 keep their line drawings until their pictures are made, one trade at a
 time; home keeps the drawings until every trade is done. The pictures are
 in your Figma file "Pechkas welcome illustrations".
