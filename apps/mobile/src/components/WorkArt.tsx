@@ -21,6 +21,18 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'plumber-sink': require('../../assets/work/plumber-sink.png'),
   'plumber-shower': require('../../assets/work/plumber-shower.png'),
   'plumber-filter': require('../../assets/work/plumber-filter.png'),
+  'ac-ac': require('../../assets/work/ac-ac.png'),
+  'ac-service': require('../../assets/work/ac-service.png'),
+  'ac-fitting': require('../../assets/work/ac-fitting.png'),
+  'ac-general': require('../../assets/work/ac-general.png'),
+  'ac-gas': require('../../assets/work/ac-gas.png'),
+  'ac-leak': require('../../assets/work/ac-leak.png'),
+  'ac-pcb': require('../../assets/work/ac-pcb.png'),
+  'ac-install': require('../../assets/work/ac-install.png'),
+  'ac-uninstall': require('../../assets/work/ac-uninstall.png'),
+  'ac-shifting': require('../../assets/work/ac-shifting.png'),
+  'ac-stand': require('../../assets/work/ac-stand.png'),
+  'ac-stabiliser': require('../../assets/work/ac-stabiliser.png'),
 };
 
 /** The picture for a trade (its own page) or a job (its own, else its group's), if there is one. */

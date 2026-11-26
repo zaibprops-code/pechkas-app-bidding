@@ -85,7 +85,7 @@ export const WORK_ALSO: Record<string, { trade: string; job: string }[]> = {
  * apps/mobile/assets/work and are named there (`WorkArt.tsx`). A job with no
  * picture of its own shows its group's, and a group with none its drawing.
  * `jobs.test.mjs` fails if a name here is not a real job, so renaming a job
- * cannot quietly lose its picture. Plumbing first; the other trades follow
+ * cannot quietly lose its picture. Plumbing and AC first; the other trades follow
  * one by one, and until every trade has one, home and the list of kinds of
  * work keep the drawings so the two styles never sit side by side there.
  */
@@ -96,6 +96,17 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Shower, mixer or bathroom fittings': 'plumber-shower',
     'Water filter fitting': 'plumber-filter',
   },
+  ac: {
+    'General service (indoor and outdoor unit)': 'ac-general',
+    'Gas top-up': 'ac-gas',
+    'Water leaking from indoor unit': 'ac-leak',
+    'PCB or electrical fault diagnosis': 'ac-pcb',
+    'Split AC installation': 'ac-install',
+    'Split AC uninstallation': 'ac-uninstall',
+    'Dismantle and refit (shifting house)': 'ac-shifting',
+    'Outdoor unit stand or bracket': 'ac-stand',
+    'Stabiliser fitting': 'ac-stabiliser',
+  },
 };
 export const ART_PICTURES: Record<string, string> = {
   plumber: 'plumber-leak',
@@ -104,6 +115,9 @@ export const ART_PICTURES: Record<string, string> = {
   geyser: 'plumber-geyser',
   motor: 'plumber-motor',
   drain: 'plumber-drain',
+  ac: 'ac-ac',
+  'ac-service': 'ac-service',
+  'ac-fitting': 'ac-fitting',
 };
 
 /** The picture for a job (its own, else its group's), or for a drawing's key; undefined when there is none yet. */

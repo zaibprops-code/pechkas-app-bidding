@@ -1275,7 +1275,8 @@ number*: one big box with the Pakistan flag and **+92** already in it, and
 **Pictures of the jobs (26 November 2026, no database step).** The Plumber
 page now shows a picture for each group (taps and sinks, toilet, geyser,
 water motor, drains) and for the four tap and sink jobs, and the same
-pictures appear in search and at the top of Post a job. The other trades
+pictures appear in search and at the top of Post a job. The AC page has
+the same: a picture at the top, on both groups and on all nine AC jobs. The other trades
 keep their line drawings until their pictures are made, one trade at a
 time; home keeps the drawings until every trade is done. The pictures are
 in your Figma file "Pechkas welcome illustrations".
