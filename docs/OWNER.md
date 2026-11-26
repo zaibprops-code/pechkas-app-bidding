@@ -1280,7 +1280,8 @@ the same: a picture at the top, on both groups and on all nine AC jobs,
 and so has the Electrician page (three groups, all twelve jobs). UPS and
 inverter has its picture at the top, and Solar has one at the top and on
 each of its five jobs, listed on the page itself; Home appliances, CCTV,
-Wi-Fi and internet, Painting and Computers the same. The other trades
+Wi-Fi and internet, Painting and Computers the same. Carpentry is laid
+out like Plumber, with a picture on its three groups and all eleven jobs. The other trades
 keep their line drawings until their pictures are made, one trade at a
 time; home keeps the drawings until every trade is done. The pictures are
 in your Figma file "Pechkas welcome illustrations".

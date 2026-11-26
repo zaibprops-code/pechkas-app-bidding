@@ -113,9 +113,9 @@ a screen; use the token.
   picture where `JOB_PICTURES` / `ART_PICTURES` (packages/shared work.ts)
   name one, else the line drawing. A job list shows pictures only when
   every job in it has its own — the same picture four times says nothing.
-  Every trade but carpentry has them (plumbing's toilet, geyser, motor
-  and drain jobs still show their group's); carpentry follows, and home
-  and the list of kinds of work keep the line drawings until every trade has a
+  Every trade has them (plumbing's toilet, geyser, motor and drain jobs
+  still show their group's, and are next), and home and the list of
+  kinds of work keep the line drawings until every trade has a
   picture, so the two styles never sit side by side there. A picture is
   drawn larger than a line drawing, and every new one is checked by eye.
 - No emoji. No stock photographs of strangers.

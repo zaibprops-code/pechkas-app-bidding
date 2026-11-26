@@ -85,9 +85,9 @@ export const WORK_ALSO: Record<string, { trade: string; job: string }[]> = {
  * apps/mobile/assets/work and are named there (`WorkArt.tsx`). A job with no
  * picture of its own shows its group's, and a group with none its drawing.
  * `jobs.test.mjs` fails if a name here is not a real job, so renaming a job
- * cannot quietly lose its picture. Every trade but carpentry has them;
- * carpentry and plumbing's toilet, geyser, motor and drain jobs follow,
- * and until every trade has one, home and the list of kinds of
+ * cannot quietly lose its picture. Every trade has them; plumbing's
+ * toilet, geyser, motor and drain jobs still show their group's, and until
+ * those are done too, home and the list of kinds of
  * work keep the drawings so the two styles never sit side by side there.
  */
 export const JOB_PICTURES: Record<string, Record<string, string>> = {
@@ -163,6 +163,19 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Will not start, or a hardware fault': 'pc-nostart',
     'Screen, keyboard or battery replacement': 'pc-parts',
   },
+  carpentry: {
+    'Door lock or handle fitting': 'carp-lock',
+    'Door hinge repair or replacement': 'carp-hinge',
+    'Door adjustment (sticking or not closing)': 'carp-adjust',
+    'Hanging a new door': 'carp-newdoor',
+    'Window repair (handle, hinge or sliding)': 'carp-window',
+    'Cupboard or wardrobe repair': 'carp-wardrobe',
+    'Drawer or channel repair': 'carp-drawer',
+    'Flat-pack furniture assembly': 'carp-flatpack',
+    'Furniture repair': 'carp-furniture',
+    'Shelf or wall bracket fitting': 'carp-shelffit',
+    'Curtain rod or blind fitting': 'carp-curtain',
+  },
 };
 export const ART_PICTURES: Record<string, string> = {
   plumber: 'plumber-leak',
@@ -185,6 +198,10 @@ export const ART_PICTURES: Record<string, string> = {
   wifi: 'wifi-wifi',
   painting: 'paint-painting',
   computers: 'pc-computers',
+  carpentry: 'carp-carpentry',
+  door: 'carp-door',
+  cupboard: 'carp-cupboard',
+  shelf: 'carp-shelf',
 };
 
 /** The picture for a job (its own, else its group's), or for a drawing's key; undefined when there is none yet. */

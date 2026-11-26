@@ -85,6 +85,21 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'pc-virus': require('../../assets/work/pc-virus.png'),
   'pc-nostart': require('../../assets/work/pc-nostart.png'),
   'pc-parts': require('../../assets/work/pc-parts.png'),
+  'carp-carpentry': require('../../assets/work/carp-carpentry.png'),
+  'carp-door': require('../../assets/work/carp-door.png'),
+  'carp-cupboard': require('../../assets/work/carp-cupboard.png'),
+  'carp-shelf': require('../../assets/work/carp-shelf.png'),
+  'carp-lock': require('../../assets/work/carp-lock.png'),
+  'carp-hinge': require('../../assets/work/carp-hinge.png'),
+  'carp-adjust': require('../../assets/work/carp-adjust.png'),
+  'carp-newdoor': require('../../assets/work/carp-newdoor.png'),
+  'carp-window': require('../../assets/work/carp-window.png'),
+  'carp-wardrobe': require('../../assets/work/carp-wardrobe.png'),
+  'carp-drawer': require('../../assets/work/carp-drawer.png'),
+  'carp-flatpack': require('../../assets/work/carp-flatpack.png'),
+  'carp-furniture': require('../../assets/work/carp-furniture.png'),
+  'carp-shelffit': require('../../assets/work/carp-shelffit.png'),
+  'carp-curtain': require('../../assets/work/carp-curtain.png'),
 };
 
 /** The picture for a trade (its own page) or a job (its own, else its group's), if there is one. */
