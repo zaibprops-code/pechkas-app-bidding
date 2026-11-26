@@ -30,7 +30,7 @@ echo "4. The page"
 rm -rf "$OUT/site" && mkdir -p "$OUT/site/app/_expo/static/js/web"
 cp -r "$OUT/app/assets" "$OUT/site/app/assets"
 ENTRY=$(cd "$OUT/app" && ls _expo/static/js/web/entry-*.js)
-sed -e 's#m.exports={uri:"/assets/#m.exports={uri:__PB+"app/assets/#g' -e 's#m.exports="/assets/#m.exports=__PB+"app/assets/#g' "$OUT/app/$ENTRY" > "$OUT/site/app/$ENTRY"
+sed -e 's#\([A-Za-z_$]\)\.exports={uri:"/assets/#\1.exports={uri:__PB+"app/assets/#g' -e 's#\([A-Za-z_$]\)\.exports="/assets/#\1.exports=__PB+"app/assets/#g' "$OUT/app/$ENTRY" > "$OUT/site/app/$ENTRY"
 if grep -q '"/assets/' "$OUT/site/app/$ENTRY"; then echo "an asset path was not rewritten"; exit 1; fi
 sed "s#__ENTRY__#app/$ENTRY#" "$HERE/page.html" > "$OUT/site/index.html"
 cp "$OUT/demo.js" "$PG/pglite.wasm" "$PG/initdb.wasm" "$OUT/site/"
