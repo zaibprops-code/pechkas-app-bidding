@@ -324,7 +324,7 @@ function LiveJob({ job, trade, narrow }: { job: Job; trade: string; narrow: bool
   return (
     <Press onPress={() => open(job)} accessibilityRole="button" accessibilityLabel={`${job.title}. ${headline}${todo ? `. ${todo}` : ''}`} sink={0.98} style={s.live}>
       <View style={s.liveTop}>
-        <TradeTile trade={job.trade} size={narrow ? 52 : 60} />
+        <TradeTile trade={job.trade} job={job.title} size={narrow ? 52 : 60} />
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={s.kicker} numberOfLines={2}>
             {trade} · {job.ref}
@@ -375,7 +375,7 @@ function PastNeed({ job, trade, narrow }: { job: Job; trade: string; narrow: boo
   return (
     <Press onPress={() => open(job)} accessibilityRole="button" accessibilityLabel={`${job.title}. ${todo}`} sink={0.98} style={s.live}>
       <View style={s.liveTop}>
-        <TradeTile trade={job.trade} size={narrow ? 52 : 60} />
+        <TradeTile trade={job.trade} job={job.title} size={narrow ? 52 : 60} />
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={s.kicker} numberOfLines={2}>
             {trade} · {job.ref}

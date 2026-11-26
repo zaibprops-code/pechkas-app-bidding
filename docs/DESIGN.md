@@ -120,6 +120,10 @@ a screen; use the token.
   Every picture is cut out of its Figma background with
   `scripts/cutout.py`, never at a fixed colour level: that left a green or
   olive rim round all of them once. Look at each on yellow, white and dark.
+  Everywhere a job or a kind of work is shown — My jobs, the job's screen,
+  a finished or cancelled job, Past, notifications, the technician's list —
+  it is `TradeTile job={title}` or `WorkArt` with `pictureOf(trade, title)`;
+  `npm run design:check` fails if a screen draws `<TradeArt>` itself.
 - No emoji. No stock photographs of strangers.
 - The logo is `Mark` (`src/components/Mark.tsx`); its shapes come from the
   website and nobody draws it by hand.

@@ -788,7 +788,7 @@ function JobCard({
       ) : null}
       {/* As the approved mock: the job, her name and how far; her offer and what he keeps; ask for more; Accept. */}
       <View style={s.sheetHead}>
-        <TradeTile trade={j.trade} size={48} />
+        <TradeTile trade={j.trade} job={j.title} size={48} />
         <View style={{ flex: 1 }}>
           <Text style={s.sheetTitle}>{j.title}</Text>
           <Text style={s.sheetSub}>{[j.customer_first_name, away].filter(Boolean).join(' · ')}</Text>

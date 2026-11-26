@@ -35,3 +35,29 @@ if (hex) {
   process.exit(1);
 }
 console.log('✓ The office panel types no colour of its own.');
+
+// Pictures of the work (A121): a screen shows a job or a kind of work through
+// WorkArt or TradeTile, which draw its picture. The old line drawing
+// (TradeArt) is only the fallback inside those two and on a kind of work's
+// page for a group with no picture. A screen drawing <TradeArt> itself once
+// left a cancelled job, My jobs and the technician's list on the old drawings.
+{
+  const { readdirSync, statSync } = await import('node:fs');
+  const root = new URL('../apps/mobile/', import.meta.url).pathname;
+  const allowed = new Set(['src/components/TradeArt.tsx', 'src/components/WorkArt.tsx', 'app/work/[trade].tsx']);
+  const found = [];
+  const walk = (dir) => {
+    for (const f of readdirSync(root + dir)) {
+      const rel = dir ? `${dir}/${f}` : f;
+      if (f === 'node_modules' || f.startsWith('.') || f === 'dist') continue;
+      if (statSync(root + rel).isDirectory()) walk(rel);
+      else if (/\.tsx$/.test(f) && !allowed.has(rel) && /<TradeArt\b/.test(readFileSync(root + rel, 'utf8'))) found.push(rel);
+    }
+  };
+  walk('app'); walk('src');
+  if (found.length) {
+    console.error(`✗ These screens draw the old line drawing instead of the picture: ${found.join(', ')}. Use WorkArt (pictureOf(trade, job title)) or TradeTile with job=.`);
+    process.exit(1);
+  }
+  console.log('✓ Every screen shows the pictures of the work, not the old drawings.');
+}

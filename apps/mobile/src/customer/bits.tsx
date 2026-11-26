@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { Art, artFor } from '../components/Art';
 import { DuoIcon } from '../components/DuoIcon';
+import { pictureOf } from '../components/WorkArt';
 // The card and the square button moved to components/Panel.tsx, shared by every screen.
 export { Action, Panel } from '../components/Panel';
 import { colour, font, shadow } from '../theme';
@@ -17,11 +18,12 @@ export const SOFT_YELLOW = colour.softYellow;
 export const SHADOW = shadow.card;
 
 /** The trade's drawing on a cream tile, or the jobs icon for a trade without one. */
-export function TradeTile({ trade, size }: { trade: string; size: number }) {
+export function TradeTile({ trade, job, size }: { trade: string; /** The job's name (its title): its own picture, else its trade's. */ job?: string; size: number }) {
+  const pic = pictureOf(trade, job);
   const art = artFor(trade);
   return (
     <View style={[s.tradeTile, { width: size, height: size, borderRadius: size * 0.32 }]}>
-      {art ? <Art name={art} width={Math.round(size * 0.86)} height={Math.round(size * 0.65)} /> : <DuoIcon name="jobs" size={Math.round(size * 0.45)} />}
+      {pic ? <Image source={pic} style={{ width: size * 0.94, height: size * 0.94 }} resizeMode="contain" accessible={false} /> : art ? <Art name={art} width={Math.round(size * 0.86)} height={Math.round(size * 0.65)} /> : <DuoIcon name="jobs" size={Math.round(size * 0.45)} />}
     </View>
   );
 }

@@ -269,7 +269,7 @@ export function Past({ tradeName, nearEnd, onFacets, initialWhat }: { tradeName:
           </View>
           {facets.covered.map((c) => (
             <Press key={c.id} onPress={() => open(c.id)} accessibilityRole="button" accessibilityLabel={`${c.title}, guaranteed until ${dayText(c.until.slice(0, 10))}`} sink={0.98} style={s.coveredRow}>
-              <TradeTile trade={c.trade} size={40} />
+              <TradeTile trade={c.trade} job={c.title} size={40} />
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text style={s.coveredJob}>{c.title}</Text>
                 <Text style={s.coveredSub}>
@@ -371,7 +371,7 @@ function Row({ job, last, where }: { job: Hist; last: boolean; where: boolean })
   const meta = [shortDay(job.day), job.pro, where ? job.sector : null, job.ref].filter(Boolean).join(' · ');
   return (
     <Press onPress={() => open(job.id)} accessibilityRole="button" accessibilityLabel={`${job.title}. ${meta}. ${price === '—' ? '' : `${price}. `}${st.text}`} sink={0.98} style={[s.row, !last && s.rule]}>
-      <TradeTile trade={job.trade} size={44} />
+      <TradeTile trade={job.trade} job={job.title} size={44} />
       <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
         {/* The title is never cut short, even at 320 wide: it is what she is looking for. */}
         <Text style={s.title}>

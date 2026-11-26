@@ -230,7 +230,7 @@ export function JobCard({ job, trade, tick, onChanged, onOpen, coming = false }:
         style={[s.panel, !active && !ended && s.panelClosed]}
       >
         <View style={s.top}>
-          <TradeTile trade={job.trade} size={narrow ? 52 : 60} />
+          <TradeTile trade={job.trade} job={job.title} size={narrow ? 52 : 60} />
           <View style={{ flex: 1, gap: 2 }}>
             <Text style={s.kicker} numberOfLines={2}>
               {trade} · {job.ref.replace('-', '\u2011')}

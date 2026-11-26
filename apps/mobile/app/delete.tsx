@@ -7,7 +7,7 @@ import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { Sheet } from '../src/components/Sheet';
-import { TradeArt } from '../src/components/TradeArt';
+import { pictureOf, WorkArt } from '../src/components/WorkArt';
 import { Loading, Notice, SystemBars, useScrollEnd } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { openLegal } from '../src/legal';
@@ -240,7 +240,7 @@ function Blocker({ b }: { b: NonNullable<Summary['blocker']> }) {
     <View style={s.blocker}>
       <View style={s.blockerIn}>
         <View style={s.art}>
-          <TradeArt trade={b.trade} size={44} />
+          <WorkArt art={b.trade} source={pictureOf(b.trade, b.title)} size={44} picture={52} />
         </View>
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={s.small}>

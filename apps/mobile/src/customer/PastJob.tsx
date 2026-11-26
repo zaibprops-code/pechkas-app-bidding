@@ -8,7 +8,7 @@ import { Icon } from '../components/Icon';
 import { Press } from '../components/Press';
 import { Sheet } from '../components/Sheet';
 import { useToast } from '../components/Toast';
-import { TradeArt } from '../components/TradeArt';
+import { pictureOf, WorkArt } from '../components/WorkArt';
 import { Button, Field, Notice } from '../components/ui';
 import { YellowTop } from '../components/YellowTop';
 import { done } from '../message';
@@ -367,7 +367,7 @@ export function PastJob({ job, trade, onChanged }: { job: Job; trade: string; on
               </Text>
             </View>
           </View>
-          <TradeArt trade={job.trade} size={narrow ? 72 : 92} />
+          <WorkArt art={job.trade} source={pictureOf(job.trade, job.title)} size={narrow ? 72 : 92} picture={narrow ? 86 : 108} />
         </View>
       </YellowTop>
 

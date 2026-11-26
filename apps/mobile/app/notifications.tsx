@@ -7,7 +7,7 @@ import { DuoIcon, type DuoName } from '../src/components/DuoIcon';
 import { Press } from '../src/components/Press';
 import { Sheet } from '../src/components/Sheet';
 import { ScrewSpinner } from '../src/components/ScrewSpinner';
-import { TradeArt } from '../src/components/TradeArt';
+import { WorkArt } from '../src/components/WorkArt';
 import { useAccount } from '../src/account';
 import { useNotify } from '../src/notifications';
 import { ask, supabase } from '../src/supabase';
@@ -387,7 +387,7 @@ export default function Notifications() {
                   <View>
                     {n.trade ? (
                       <View style={s.artTile}>
-                        <TradeArt trade={n.trade} size={34} />
+                        <WorkArt art={n.trade} size={34} picture={44} />
                       </View>
                     ) : (
                       <View style={s.plainTile}>

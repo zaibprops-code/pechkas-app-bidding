@@ -2003,7 +2003,12 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   carry the picture too, search results and the top of Post a job);
   home (the tiles and the job card on top) and the search's list of
   kinds of work use them too, since every trade and job has one; home's
-  yellow top has no picture at all (A122). `jobs.test.mjs` fails if a pictured job is
+  yellow top has no picture at all (A122). Every other place a job shows — My jobs,
+  the job's screen, a finished or cancelled job, Past, notifications, the
+  delete-account blocker and the technician's offer sheet — uses
+  `TradeTile job={title}` or `WorkArt` + `pictureOf(trade, title)` (a job's
+  `title` is its job's name); `design:check` fails on a screen drawing
+  `<TradeArt>` itself. `jobs.test.mjs` fails if a pictured job is
   not a real job. The tiles rise in once as home opens; nothing moves
   after. The drawings are `src/components/Art.tsx` — objects, never people,
   over a yellow sweep; every trade in `public.trades` has one.
