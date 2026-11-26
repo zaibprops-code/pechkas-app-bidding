@@ -117,6 +117,9 @@ a screen; use the token.
   job card on top) and search use them too; on home a "More work" tile
   puts the picture above the name at every width. A picture is
   drawn larger than a line drawing, and every new one is checked by eye.
+  Every picture is cut out of its Figma background with
+  `scripts/cutout.py`, never at a fixed colour level: that left a green or
+  olive rim round all of them once. Look at each on yellow, white and dark.
 - No emoji. No stock photographs of strangers.
 - The logo is `Mark` (`src/components/Mark.tsx`); its shapes come from the
   website and nobody draws it by hand.
