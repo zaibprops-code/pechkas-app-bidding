@@ -1999,8 +1999,10 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   group tiles, a list whose jobs all have their own — then "Tap the one
   that looks like yours" — a page without groups, whose job cards then
   carry the picture too, search results and the top of Post a job);
-  home and the search's list of kinds of work keep the drawings until
-  every trade has pictures. `jobs.test.mjs` fails if a pictured job is
+  home (the tiles and the job card on top) and the search's list of
+  kinds of work use them too, since every trade and job has one; the
+  house at the top of home is still the line drawing until the owner
+  picks its picture. `jobs.test.mjs` fails if a pictured job is
   not a real job. The tiles rise in once as home opens; nothing moves
   after. The drawings are `src/components/Art.tsx` — objects, never people,
   over a yellow sweep; every trade in `public.trades` has one.

@@ -12,7 +12,7 @@ import { Press } from '../src/components/Press';
 import { ScrewSpinner } from '../src/components/ScrewSpinner';
 import { Rise, useRises } from '../src/components/Rise';
 import { SignInArt } from '../src/components/SignInArt';
-import { TradeArt } from '../src/components/TradeArt';
+import { pictureOf, WorkArt } from '../src/components/WorkArt';
 import { SystemBars, useArrive } from '../src/components/ui';
 import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
@@ -50,6 +50,7 @@ type Live = {
   live_offers: number;
   offered_paisa: number;
   paid_by_pechkas?: boolean;
+  job_type_id?: number | null;
   stage: 'chosen' | 'on_way' | 'arrived' | 'working' | 'checking' | 'disputed' | null;
   pro: { first_name: string } | null;
 };
@@ -135,7 +136,7 @@ export default function Home() {
           {live.length ? (
             <View style={{ gap: 10, marginBottom: 6 }}>
               {live.map((j) => (
-                <LiveCard key={j.id} job={j} tradeName={trades.find((t) => t.slug === j.trade)?.name ?? j.trade} narrow={narrow} />
+                <LiveCard key={j.id} job={j} jobName={lists?.job_types.find((t) => t.id === j.job_type_id)?.name} tradeName={trades.find((t) => t.slug === j.trade)?.name ?? j.trade} narrow={narrow} />
               ))}
             </View>
           ) : null}
@@ -220,9 +221,9 @@ function Big({ trade, tall = false, onPress, narrow }: { trade: Trade; tall?: bo
       <Text style={[s.bigName, tall && s.bigNameTall, narrow && s.bigNameNarrow]} numberOfLines={1}>
         {trade.name}
       </Text>
-      {things ? <Text style={[s.things, tall && s.thingsTall, { maxWidth: tall ? '92%' : '64%' }]}>{things}</Text> : null}
+      {things ? <Text style={[s.things, tall && s.thingsTall, { maxWidth: tall ? '92%' : '56%' }]}>{things}</Text> : null}
       <View style={[s.bigArt, tall && s.bigArtTall]}>
-        <TradeArt trade={trade.slug} size={tall ? (narrow ? 96 : 118) : narrow ? 42 : 52} />
+        <WorkArt art={trade.slug} size={tall ? (narrow ? 96 : 118) : narrow ? 42 : 52} picture={tall ? (narrow ? 118 : 146) : narrow ? 58 : 68} />
       </View>
     </Press>
   );
@@ -248,11 +249,9 @@ function TileGlow() {
 function Tile({ trade, onPress, narrow }: { trade: Trade; onPress: () => void; narrow: boolean }) {
   const things = WORK_THINGS[trade.slug];
   return (
-    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={`${trade.name}. ${things ?? ''}`} sink={0.97} style={[s.tile, narrow && s.tileNarrow]}>
-      <View style={[s.tileArt, narrow && s.tileArtNarrow]}>
-        <TradeArt trade={trade.slug} size={narrow ? 30 : 36} />
-      </View>
-      <View style={narrow ? null : { flex: 1, minWidth: 0 }}>
+    <Press onPress={onPress} accessibilityRole="button" accessibilityLabel={`${trade.name}. ${things ?? ''}`} sink={0.97} style={[s.tile, s.tileNarrow]}>
+      <WorkArt art={trade.slug} size={narrow ? 30 : 36} picture={narrow ? 56 : 62} />
+      <View>
         <Text style={[s.tileName, narrow && { fontSize: 14 }]}>{trade.name}</Text>
         {things ? <Text style={s.tileThings}>{things}</Text> : null}
       </View>
@@ -292,7 +291,7 @@ function HowItWorks() {
  * do, or where he has got to — read from the job's own status and step,
  * nothing estimated. The whole card opens the job.
  */
-function LiveCard({ job, tradeName, narrow }: { job: Live; tradeName: string; narrow: boolean }) {
+function LiveCard({ job, jobName, tradeName, narrow }: { job: Live; jobName?: string; tradeName: string; narrow: boolean }) {
   const name = job.pro?.first_name;
   const offers = job.live_offers;
   const line =
@@ -320,7 +319,7 @@ function LiveCard({ job, tradeName, narrow }: { job: Live; tradeName: string; na
     <Press onPress={() => router.push(`/job/${job.id}`)} accessibilityRole="button" accessibilityLabel={`${line}. ${job.title}`} sink={0.98} style={s.live}>
       <View style={s.liveHead}>
         <View style={s.liveArt}>
-          <TradeArt trade={job.trade} size={36} />
+          <WorkArt art={job.trade} source={pictureOf(job.trade, jobName)} size={36} picture={50} />
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={s.liveSmall} numberOfLines={1}>
@@ -364,7 +363,7 @@ const s = StyleSheet.create({
   bigNameTall: { fontSize: 22 },
   bigNameNarrow: { fontSize: 16 },
   bigArt: { position: 'absolute', right: 8, bottom: 8 },
-  bigArtTall: { right: -6, bottom: -4 },
+  bigArtTall: { right: 2, bottom: 4 },
   things: { fontFamily: font.body, fontSize: 12.5, lineHeight: 17, color: colour.steel, marginTop: 2 },
   thingsTall: { color: colour.onYellow },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },

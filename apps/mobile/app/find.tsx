@@ -7,7 +7,6 @@ import { findJobs, workArt, WORK_SUGGESTIONS, WORK_THINGS } from '@pechkas/share
 import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { Rise, useRises } from '../src/components/Rise';
-import { TradeArt } from '../src/components/TradeArt';
 import { pictureOf, WorkArt } from '../src/components/WorkArt';
 import { SystemBars } from '../src/components/ui';
 import { PricePill, YellowTop } from '../src/components/YellowTop';
@@ -128,7 +127,7 @@ export default function Find() {
               <Rise key={t.slug} v={rises[i]}>
                 <Press onPress={() => router.push({ pathname: '/work/[trade]', params: { trade: t.slug } })} accessibilityRole="button" sink={0.98} style={s.card}>
                   <View style={s.art}>
-                    <TradeArt trade={t.slug} size={36} />
+                    <WorkArt art={t.slug} size={36} picture={44} />
                   </View>
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={s.title}>{t.name}</Text>

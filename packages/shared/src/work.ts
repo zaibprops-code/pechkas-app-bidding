@@ -85,9 +85,9 @@ export const WORK_ALSO: Record<string, { trade: string; job: string }[]> = {
  * apps/mobile/assets/work and are named there (`WorkArt.tsx`). A job with no
  * picture of its own shows its group's, and a group with none its drawing.
  * `jobs.test.mjs` fails if a name here is not a real job, so renaming a job
- * cannot quietly lose its picture. Every job has one now; until home
- * moves to pictures too, home and the list of kinds of
- * work keep the drawings so the two styles never sit side by side there.
+ * cannot quietly lose its picture. Every job has one now, and home and
+ * search use them too (the line drawings in TradeArt stay only as the
+ * fallback for a trade or job added before its picture is made).
  */
 export const JOB_PICTURES: Record<string, Record<string, string>> = {
   plumber: {

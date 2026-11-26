@@ -118,9 +118,9 @@ a screen; use the token.
   picture where `JOB_PICTURES` / `ART_PICTURES` (packages/shared work.ts)
   name one, else the line drawing. A job list shows pictures only when
   every job in it has its own — the same picture four times says nothing.
-  Every trade and every job has one now; home and the list of kinds of
-  work still keep the line drawings until every trade has a
-  picture, so the two styles never sit side by side there. A picture is
+  Every trade and every job has one now, and home (its tiles, and the
+  job card on top) and search use them too; on home a "More work" tile
+  puts the picture above the name at every width. A picture is
   drawn larger than a line drawing, and every new one is checked by eye.
 - No emoji. No stock photographs of strangers.
 - The logo is `Mark` (`src/components/Mark.tsx`); its shapes come from the
