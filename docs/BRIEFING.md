@@ -1,6 +1,6 @@
 # Pechkas: a complete briefing for an adviser
 
-_Written 16 November 2026, updated 25 November 2026, from the two repositories as they stand today
+_Written 16 November 2026, updated 26 November 2026, from the two repositories as they stand today
 (app `zaibprops-code/pechkas-app-bidding`, website `zaibprops-code/Pechkas`).
 Every rule below is something the code actually does, not a plan, unless it
 says "open" or "not built"._
@@ -255,8 +255,12 @@ office no longer presses Approve.**
 5. **Three good jobs plus verified identity approve the trade.**
    - **Verified identity** means a CNIC check against NADRA's records,
      done by an outside service.
-   - **There is no such service yet** (D37.2), so **today nobody can leave
-     first-job limits.**
+   - **The owner decided (A119, 26 November 2026) that it comes before
+     the first job**: once the service is switched on, nobody takes any
+     job until verified. Pechkas' side is built (the database rule, the
+     server function, his screen, the legal pages); **the company is not
+     chosen yet** (D37.2), so the service is off and today nobody can
+     leave first-job limits.
 6. **Pauses happen by rule:**
    - one safety report pauses the trade at once;
    - so does a second "It works: no".
@@ -395,6 +399,15 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   "Still looking?" and "No offer yet", offers dropping in, short choose
   cards, him coming on the map; his list shows Google's minutes for each
   job (paid requests, kept down by a setting). Built.
+- **A118, the welcome screen (26 November 2026):** two-line headlines,
+  *Your price, your choice.* / *Verified technicians.* / *Pay when it's
+  done.*; phone first, then "or continue with" Google and Email. Built.
+  "Verified" is true only once the identity check (A119) is switched on,
+  which is a step before the public launch.
+- **A119, the identity check (26 November 2026):** CNIC against NADRA's
+  records plus a live face match, by an outside company, before a
+  technician's first job; Pechkas keeps only the result and the company's
+  reference. Built on Pechkas' side; the company is still to be chosen.
 
 ## 7. Still open: what the owner has to decide
 
@@ -448,11 +461,13 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   should be where the first technicians live and work.
 - **D22:** Sign in with Apple before the iPhone version, or phone and email
   only on iPhone?
-- **D37.2, the identity service.** A company authorised to check CNICs
-  against NADRA, with a liveness photo and face match, a written price, and
-  terms saying Pechkas receives only "matched or not". **It is the most
-  urgent thing outside the app, because nobody leaves first-job limits
-  without it.**
+- **D37.2, which identity company.** The kind of check is decided (A119)
+  and built. Still to choose: a company authorised to check CNICs against
+  NADRA, with a liveness photo and face match, a written price, and terms
+  saying Pechkas receives only "matched or not". **It is the most urgent
+  thing outside the app: nobody leaves first-job limits without it, and
+  the welcome screen's "Verified technicians" needs it switched on before
+  the public launch.** Steps: "The identity check" in `docs/OWNER.md`.
 - **D37.3, the Urdu quiz text:** a native speaker must check it before the
   rules quiz is switched on.
 - **D37.4, the safety quizzes:** a qualified electrician, gas fitter or AC
@@ -530,8 +545,12 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
      privacy page.
 
    **Every legal choice is visibly marked `[DECIDE WITH A LAWYER]`.**
-2. **The identity service (D37.2).** Without it every technician stays on
-   first-job limits for good.
+2. **The identity service (D37.2, A119).** Choose the company, then follow
+   "The identity check" in `docs/OWNER.md`: the server function, its
+   secrets, the database change, a test on your own phone, and **switch it
+   on before the public launch** — the welcome screen says "Verified
+   technicians", and without it every technician stays on first-job
+   limits for good.
 3. **Real sign-in:** connect Twilio (A107) and Resend (A108) in Supabase,
    following `docs/OWNER.md`, and see a real code arrive on all four
    networks and at an outside email address.

@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "2d2a21f";
+export const LEGAL_FROM = "dbc2991";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -219,17 +219,24 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Once an identity-checking service is in use: that you used it, whether your identity matched, the date and the service's own reference. "
+              "t": "Your identity check, once Pechkas has switched it on: an identity company, "
+            },
+            {
+              "t": "[NAME OF THE IDENTITY COMPANY]",
+              "ph": true
+            },
+            {
+              "t": ", checks your CNIC against NADRA's records and matches a live photo of your face to your card, on its own page, which the app opens. That company keeps the picture of your card and your photo, under its own terms. Pechkas keeps only that you used it, when you opened it (at most three times a day, because each check costs Pechkas money), whether your identity matched, the date and the company's own reference. "
             },
             {
               "t": "We never record a CNIC number or keep a copy of a CNIC",
               "b": true
             },
             {
-              "t": ", and the service does not give us one. "
+              "t": ", and the company does not give us one. "
             },
             {
-              "t": "[DECIDE WITH A LAWYER: checking identity against NADRA's records through another company, the consent it needs, and what that company keeps.]",
+              "t": "[DECIDE WITH A LAWYER: checking identity against NADRA's records through another company, the consent it needs, what that company keeps and for how long, and whether it keeps it outside Pakistan.]",
               "mark": true
             },
             {
@@ -1272,7 +1279,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
-              "t": "Each offer shows the technician's photo and what Pechkas knows about him: that his mobile number was checked by SMS, and, once an identity service is in use, whether it verified his identity. Pechkas does not say his identity was checked unless that service checked it."
+              "t": "Each offer shows the technician's photo and what Pechkas knows about him: that his mobile number was checked by SMS, and, once an identity service is in use, whether it verified his identity. Once that service is in use, every technician is verified by it before his first job. Pechkas does not say his identity was checked unless that service checked it."
             }
           ],
           [
@@ -2312,7 +2319,28 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": " Pechkas does not check identity documents yet. When an identity-checking service is available, you will be asked to use it in the app. It tells Pechkas only whether your identity matched, and its own reference. "
+              "t": " From the day Pechkas switches its identity check on, you verify your identity in the app before your first job: tap "
+            },
+            {
+              "t": "Verify my identity",
+              "b": true
+            },
+            {
+              "t": " on Your first jobs. An identity company, "
+            },
+            {
+              "t": "[NAME OF THE IDENTITY COMPANY]",
+              "ph": true
+            },
+            {
+              "t": ", checks your CNIC against NADRA's records and matches a live photo of your face to your card, on its own page. It tells Pechkas only whether your identity matched, and its own reference. "
+            },
+            {
+              "t": "Until it has, you can take no job at all.",
+              "b": true
+            },
+            {
+              "t": " You can open the check three times a day. "
             },
             {
               "t": "Pechkas never records your CNIC number or keeps a copy of your CNIC.",
@@ -2395,7 +2423,7 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
               "b": true
             },
             {
-              "t": ", by the app, with nobody deciding. Until an identity service can verify you, you stay on the first-job limits however many good jobs you do."
+              "t": ", by the app, with nobody deciding. Until Pechkas switches its identity check on, you stay on the first-job limits however many good jobs you do; once it is on, you can take no job until you are verified."
             }
           ],
           [

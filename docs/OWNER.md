@@ -1276,8 +1276,8 @@ number*: one big box with the Pakistan flag and **+92** already in it, and
 Every page now has two lines in big letters, the second in colour, and
 one short line under it: *Your price, your choice.*, *Verified
 technicians.*, *Pay when it's done.* **"Verified" is only true once the
-identity service is switched on** (Admin → Settings, after the steps in
-"The identity check" below). Until then, do not send any update to store
+identity service is switched on** (office panel → First jobs, after the
+steps in "The identity check" below). Until then, do not send any update to store
 users (`apps/mobile/release.json`) and do not open the app to the public.
 
 **The welcome screen's buttons (25 November 2026, no database step).**
@@ -3057,6 +3057,90 @@ admin panel and the website update by themselves.
    15 suits you better.
 
 ---
+
+## The identity check (before a technician's first job)
+
+**What is built (26 November 2026, A119).** Once you switch it on, no
+technician can take any job until an identity company has checked his
+CNIC against NADRA's records and matched a live photo of his face to his
+card. He does it from the app: **Your first jobs → Verify my identity**.
+The company's own page opens on his phone; the picture of his card and his
+face go to that company, never to Pechkas. Pechkas is told only "verified"
+or "failed" and the company's reference. Until you switch it on, nothing
+changes. The welcome screen already says "Verified technicians", so
+**switching it on is a step before the app goes to the public.**
+
+### A. Choose the company (you, by email)
+
+Ask each company you are considering, in writing:
+1. Can you check a Pakistani CNIC against **NADRA's records** (not only
+   that the card looks genuine)? Through which NADRA service?
+2. Do you take a **live photo of the face** and match it to the card?
+3. Can the check run on **your own web page**, opened by a link from our
+   app (so we need no app library)?
+4. Do you send the result to **our web address** when it is decided, with
+   a **signature** we can check?
+5. Will you confirm in writing that **you keep the card picture and the
+   photo, and send Pechkas only the result and your reference** — never
+   the CNIC number or a copy of the card?
+6. Your **price per check**, any monthly fee, and where the data is kept.
+7. What you need from us: a registered business (NTN or SECP), a contract.
+
+### B. Tell Claude the company
+
+Say its name and send the link to its developer documentation. Claude
+writes the one small part that speaks to that company (in
+`supabase/functions/identity/index.ts`) and its tests. Nothing else in the
+app changes.
+
+### C. Put the server function in Supabase (once)
+
+1. Supabase → your project → **Edge Functions** → **Deploy a new function**
+   → **Via Editor**.
+2. Name it exactly `identity`. Delete the example code, paste the whole of
+   `supabase/functions/identity/index.ts` from the repository, and press
+   **Deploy**.
+3. Open the function's **Details** (or Settings) and switch **Verify JWT**
+   (sometimes "Enforce JWT verification") **off**. The company's answer
+   carries no Pechkas sign-in; the function checks the technician's sign-in
+   itself, through the database.
+
+### D. The company's keys (never in this chat)
+
+Supabase → **Edge Functions** → **Secrets** → add three:
+- `IDENTITY_PROVIDER` — the short name Claude gives you in step B.
+- `IDENTITY_API_KEY` — the key from the company's dashboard.
+- `IDENTITY_WEBHOOK_SECRET` — the secret the company signs its answers with.
+
+### E. Tell the company where to send answers
+
+In the company's dashboard, the "webhook" or "callback" address is:
+`https://YOUR-PROJECT.supabase.co/functions/v1/identity/result`
+(your project's address is in Supabase → Project Settings → API).
+
+### F. Run the database change
+
+Run `supabase/migrations/20261207000000_identity_before_first_job.sql` in
+the SQL editor (see "Run a database change"), after the earlier ones.
+
+### G. Try it, then switch it on
+
+1. Office panel → **First jobs** → **Identity service**: type the company's
+   name, press **Switch it on**. From this moment every technician who is
+   not verified can take no job — before launch that is only test accounts.
+2. On your phone, as a test technician: ☰ → My account → **Your first
+   jobs** → **Verify my identity**. Finish the company's page with your own
+   CNIC. Within a few minutes the step should say "Verified on …" and the
+   app tells you.
+3. If it does not: switch it off again in the same place and tell Claude
+   what the screen said.
+
+### H. Before the public
+
+- Write the company's name where the privacy page and the technician
+  agreement say **[NAME OF THE IDENTITY COMPANY]**.
+- The lawyer's questions in D37.6 (checking identity through NADRA via
+  another company, consent, what the company keeps and where).
 
 ## Putting the app on Google Play
 

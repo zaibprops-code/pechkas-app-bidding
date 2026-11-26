@@ -1021,6 +1021,9 @@ const s = StyleSheet.create({
 
 type FirstJobsBrief = {
   trial_jobs_needed: number;
+  /** A119: once the identity service is on, an unverified technician can take no job at all. */
+  identity_service?: boolean;
+  identity_ok?: boolean;
   /** A104: the limit on his work on a first job; null while Pechkas has not set it. */
   price_cap_paisa?: number | null;
   trades: { trade: string; name: string; status: string; level: string; good: number; opens_with: string | null }[];
@@ -1039,7 +1042,9 @@ function FirstJobsBanner({ first, w }: { first: FirstJobsBrief; w: ProWords }) {
   const title = paused
     ? w.fjBannerPaused
     : blocked
-      ? w.fjBannerSteps
+      ? first.identity_service && !first.identity_ok
+        ? w.fjBannerIdentity
+        : w.fjBannerSteps
       : fill(w.fjBanner, { n: Math.min(trial!.good, first.trial_jobs_needed), of: first.trial_jobs_needed, trade: trial!.name });
   return (
     <Press onPress={() => router.push('/pro/first-jobs')} accessibilityRole="button" style={paused ? s.blocked : s.firstCard}>

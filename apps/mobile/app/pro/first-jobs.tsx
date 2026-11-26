@@ -12,6 +12,7 @@ import { detailOf, takePhoto, upload } from '../../src/post/media';
 import { useAccount } from '../../src/account';
 import { useLists } from '../../src/lists';
 import { ask, supabase } from '../../src/supabase';
+import { openIdentityCheck } from '../../src/identity';
 import { done, type Message } from '../../src/message';
 import { noAnswer, type NoAnswer } from '../../src/net';
 import { fill, useProWords, type ProWords } from '../../src/words';
@@ -112,9 +113,9 @@ export default function FirstJobs() {
 
   async function identity() {
     setBusy('identity');
-    const r = await ask('identity_start');
+    const r = await openIdentityCheck();
     setBusy(null);
-    setNotice(r.ok ? done(w.idStarted) : r.why);
+    setNotice(r.problem ?? done(w.idStarted));
     await load();
   }
 
@@ -140,8 +141,8 @@ export default function FirstJobs() {
               ) : null}
             </Step>
             <Step done={data.identity.kind === 'verified'} label={w.stepIdentity} value={identityLine(data, w)} last>
-              {data.identity_service && data.identity.kind !== 'verified' && !data.identity_pending ? (
-                <Button kind="outline" label={w.idStart} onPress={identity} busy={busy === 'identity'} />
+              {data.identity_service && data.identity.kind !== 'verified' ? (
+                <Button kind="outline" label={data.identity_pending ? w.idContinue : w.idStart} onPress={identity} busy={busy === 'identity'} />
               ) : null}
             </Step>
             {data.status === 'applied' && data.missing ? <Text style={s.small}>{w.personWaiting}</Text> : null}
@@ -152,7 +153,7 @@ export default function FirstJobs() {
               <Tick text={w.limitsTrial} />
               <Tick text={data.price_cap_paisa ? `${w.limitsBasic} The limit is ${rupees(data.price_cap_paisa)}.` : w.limitsBasic} />
               <Tick text={w.limitsCheck} />
-              {!data.identity_ok ? <Tick text={w.limitsIdentity} /> : null}
+              {!data.identity_ok ? <Tick text={data.identity_service ? w.limitsIdentityOn : w.limitsIdentity} /> : null}
               <Tick text={w.limitsRisky} />
             </Panel>
           ) : null}

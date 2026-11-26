@@ -394,9 +394,22 @@ heading('Identity: a service plugged in later, never a card number');
 {
   ok('nothing to start while the service is off', (await me(IMRAN, `SELECT public.identity_start()`)).value?.ok === false);
   ok('the clerk cannot switch it on', (await me(CLERK, `SELECT public.admin_identity_service(true, 'Example ID')`)).value?.ok === false);
+  const before = await level(IMRAN, 'ac');
   ok('the owner can', (await me(OWNER, `SELECT public.admin_identity_service(true, 'Example ID')`)).value?.ok === true);
+  ok('A119: once it is on, an unverified technician can take no job at all', before === 'trial' && (await level(IMRAN, 'ac')) === 'none');
   const s = (await me(IMRAN, `SELECT public.identity_start()`)).value;
   ok('he starts a check', s?.ok === true && typeof s?.check_id === 'string');
+  ok('opening it again finds the same check', (await me(IMRAN, `SELECT public.identity_start()`)).value?.check_id === s.check_id);
+  await me(IMRAN, `SELECT public.identity_start()`);
+  const fourth = (await me(IMRAN, `SELECT public.identity_start()`)).value;
+  ok('a fourth opening in a day is refused, because each can cost a paid check', fourth?.ok === false && fourth?.field === 'tries', JSON.stringify(fourth));
+  ok('and the refusal does not undo the count', Number((await setup(`SELECT count(*) AS n FROM public.identity_opens WHERE pro_id = $1`, [IMRAN])).rows[0].n) === 3);
+  denied('he cannot write the session himself', await as('authenticated', IMRAN, `SELECT public.identity_session($1, 'sess-1')`, [s.check_id]));
+  const fakeS = ['61101', '1234567', '1'].join('-');
+  ok('a card number is never taken as the session', (await call('service_role', null, `SELECT public.identity_session($1, $2)`, [s.check_id, fakeS])).value?.field === 'session');
+  ok('the server function remembers the company session', (await call('service_role', null, `SELECT public.identity_session($1, 'sess-EXAMPLE-1')`, [s.check_id])).value?.ok === true);
+  ok('and finds the check again from it', (await call('service_role', null, `SELECT public.identity_check_of('sess-EXAMPLE-1')`)).value === s.check_id);
+  denied('nobody signed in can look a session up', await as('authenticated', IMRAN, `SELECT public.identity_check_of('sess-EXAMPLE-1')`));
   denied('he cannot write his own result', await as('authenticated', IMRAN, `SELECT public.identity_result($1, 'verified', 'REF-1')`, [s.check_id]));
   const fake = ['61101', '1234567', '1'].join('-');
   const bad = await call('service_role', null, `SELECT public.identity_result($1, 'verified', $2)`, [s.check_id, fake]);
@@ -410,9 +423,12 @@ heading('Identity: a service plugged in later, never a card number');
   ok('staff-seen identity still stands for Bilal: the owner has set no deadline', (await level(BILAL, 'ac')) === 'full');
   await setting('identity_legacy_days', 7);
   await setup(`UPDATE public.identity_service SET live_since = now() - interval '10 days'`);
-  ok('past the deadline after the service went live, Bilal drops to trial limits by rule', (await level(BILAL, 'ac')) === 'trial');
+  ok('past the deadline after the service went live, Bilal can take no job until he is verified (A119)', (await level(BILAL, 'ac')) === 'none');
   await setup(`UPDATE public.identity_service SET live_since = now()`);
-  ok('within it, not', (await level(BILAL, 'ac')) === 'full');
+  ok('within it, his staff-seen identity still counts', (await level(BILAL, 'ac')) === 'full');
+  // The rest of this file was written for a service that is off.
+  ok('switched off again', (await me(OWNER, `SELECT public.admin_identity_service(false)`)).value?.ok === true);
+  ok('his verified identity stands with it off', (await level(IMRAN, 'ac')) === 'basic');
 }
 
 // =============================================================================

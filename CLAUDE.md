@@ -1065,8 +1065,27 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (granted to `service_role` only, refuses a CNIC-shaped reference),
   `admin_identity_service()` (owner). `identity_ok()` is the one rule;
   `identity_line()` is what may be said, and **nothing says "identity
-  checked" unless kind is `verified`**. No server function talks to a
-  service yet: building it is the job when the owner has one (D37.2).
+  checked" unless kind is `verified`**. **A119 (the owner, 26 November
+  2026): the check is CNIC against NADRA's records plus a live face match,
+  by an outside company, and comes before the first job** — once the
+  service is on, `trade_level()` gives `none` to anybody whose
+  `identity_ok()` is false (`identity_needed()`); off, nothing changes.
+  Opening the check is `identity_start()`, three times a day at most
+  (`identity_opens`, recorded before the refusal). **The only thing that
+  talks to the company is the Edge Function `supabase/functions/identity/
+  index.ts`** (one file, pasted into Supabase's editor, Verify JWT off):
+  `/start` asks the database as the technician, then the company for a
+  session (`identity_session()` remembers it, service role only), and the
+  app opens the company's page (`openIdentityCheck()` in `src/identity.ts`,
+  back to `pechkas://identity-done`); `/result` checks the company's
+  signature before reading anything and passes only verified / failed and
+  the company's reference to `identity_result()` (or finds the check
+  through `identity_check_of()`). It never logs. The company's key and
+  signing secret are Supabase secrets (`IDENTITY_PROVIDER`,
+  `IDENTITY_API_KEY`, `IDENTITY_WEBHOOK_SECRET`). Each company is one entry
+  in `PROVIDERS`, written from its own documentation once the owner has
+  chosen it (D37.2); `example` exists only for `identity.test.ts`
+  (`npm run test:functions`).
 - **A trial job counts only through `trial_review()`**: all four answers
   yes, before and after photos, no claim, no payment case, its
   `commission:<job>` posting paid by final money (`fee_paid_final()`, A5:

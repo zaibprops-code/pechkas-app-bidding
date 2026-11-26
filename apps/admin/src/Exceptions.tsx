@@ -537,8 +537,8 @@ export function FirstJobsSetup() {
             <h2>Identity service</h2>
             <p>
               {d.identity.on
-                ? `On: ${d.identity.service}, since ${d.identity.live_since ? when(d.identity.live_since) : '—'}.`
-                : 'Off. Technicians stay on first-job limits, and the app never says "identity verified".'}
+                ? `On: ${d.identity.service}, since ${d.identity.live_since ? when(d.identity.live_since) : '—'}. Nobody takes any job until his identity is verified (A119).`
+                : 'Off. Technicians stay on first-job limits, and the app never says "identity verified". The welcome screen says "Verified technicians": switch this on before the app goes to the public.'}
               {d.identity.deadline ? ` Identity seen by staff stops counting after ${d.identity.deadline}.` : ''}
             </p>
             {d.is_owner ? (
@@ -554,7 +554,10 @@ export function FirstJobsSetup() {
                 </button>
               </div>
             ) : null}
-            <p className="muted">Switch it on only once the service is connected: the button in the app starts a check with it.</p>
+            <p className="muted">
+              Switch it on only once the company is connected (its key in Supabase's secrets, the identity server function deployed, a test check
+              passed on your own phone). From that moment every technician who is not verified can take no job until he is.
+            </p>
           </section>
 
           <section className="card">

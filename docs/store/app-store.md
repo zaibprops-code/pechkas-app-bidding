@@ -68,7 +68,7 @@ it, and this label gains User ID and the profile picture link, as on Play.
 | Identifiers → **User ID** | The account's own ID inside Pechkas |
 | Identifiers → **Device ID** | The notification address of the phone, only if notifications are allowed; a random number for this installation, sent to Expo when the app checks for a new version |
 | Diagnostics → **Crash Data** | Only the error message when a new version of the app fails to start, sent to Expo so that version is not offered again |
-| Other Data → **Other Data Types** | A technician's trades, years in the trade, sectors, quiz results and first-job record, and, once an identity-checking service is in use, its result (never a CNIC number) |
+| Other Data → **Other Data Types** | A technician's trades, years in the trade, sectors, quiz results and first-job record, and, once the identity check is switched on, when he opened it and its result (never a CNIC number or card picture: the identity company's own page collects those and tells Pechkas only whether they matched) |
 
 The **price record of finished jobs** (kind of job, sector, day, prices) is
 kept with no name, number, address, account or technician, so it is not

@@ -434,13 +434,15 @@ Each one happens in real life; today the office handles it by hand.
 - **Still open:**
   - **D37.1 The numbers — decided 18 November 2026 (A102, A104).** The
     price limit is Rs 5,000 on the work, not parts (A104, built).
-  - **D37.2 The identity service.** A company authorised to check CNICs
+  - **D37.2 The identity service.** *The kind of check and when it comes
+    were decided 26 November 2026 (A119), and everything on Pechkas' side is
+    built.* Still open: **which company** — one authorised to check CNICs
     against NADRA's records, with a liveness photo and face match; a written
     price; written terms that it keeps the card image and Pechkas receives
     only matched or not and its reference; probably a registered business
     (NTN or SECP) first. Its key goes into Supabase's secrets, never the chat
-    or this repository. Until then nobody leaves first-job limits.
-    **You, by email, + lawyer.**
+    or this repository. The steps are "The identity check" in
+    `docs/OWNER.md`. **You, by email, + lawyer.**
   - **D37.3 The Urdu.** Every quiz question is a draft; a native speaker
     checks it before the rules quiz is switched on. **You check.**
   - **D37.4 The safety quizzes.** Drafted for AC, Electrician, Plumber, Solar
@@ -668,6 +670,7 @@ What the app and the website do today. Reopen any item by its number.
 | A116 | **He counts as late 15 minutes after Google's time** at the moment she chose him. **Jobs run 7am to 10pm.** Built (Part 2c, 25 November 2026): a technician names no time in his offer; when she chooses him, the job shows the time he is due by — her choice plus his Google minutes, or 60 minutes when Google has none (D40) — and he is late 15 minutes after it. A job is for today until 9pm, then for the next morning from 7am; a job nobody took closes at 10pm. Jobs from older copies with a two-hour window keep the old rules. |
 | A117 | **The screens exactly as the approved mocks** (the owner, 25 November 2026). Built: waiting is a full map with the technicians near her as dots and a sheet with the countdown, raising her price and the automatic choice; "Still looking?", "No offer yet", the cancel sheet with one-tap reasons; an offer drops in from the top; Choose a technician is short cards; on his way and at the door are a map with a sheet. **The owner chose to show online technicians near a waiting customer on her map** (rounded to about 100 m, no name, photo or number) and **Google's minutes on every job in a technician's list** (each a paid request after the free 10,000 a month; asked again only when he moves 300 m or every 10 minutes, five at most at a time). The privacy page, technician agreement and store answers say so. |
 | A118 | **The welcome screen's words and ways in** (the owner, 25–26 November 2026). Every page has a two-line headline with the second line in colour and one short line under it: *Your price, your choice.* / *Verified technicians.* / *Pay when it's done.* The drawings sit at the same height on all three. **Continue with phone** is the one big button; under a thin "or continue with" line, **Google** and **Email** are two white cards (the email mark a plain dark-grey envelope, not Pechkas' colours). **"Verified" is the owner's word, and it is only true once the identity service (A119) is switched on**: switching it on is a step before the app goes to the public, and no update goes to store users before then. Built. |
+| A119 | **The identity check is the strongest kind, and comes before a technician's first job** (the owner, 26 November 2026, deciding the kind of check in D37.2). An outside identity company checks his CNIC against NADRA's records and matches a live photo of his face to his card, on its own page opened from the app; it keeps the card picture, and Pechkas keeps only verified or failed, the date and the company's reference (A25, A88 unchanged). **Once the owner switches the service on, nobody takes any job until verified** (identity seen by staff before D37 still counts until its deadline). He may open the check three times a day, because each can cost Pechkas money. Built: the database rule, the server function that talks to the company, his screen and the legal pages. **Still open (D37.2): which company** — one with NADRA access, a written price and written data terms; then its one small connection is written. |
 
 ### Trust and safety
 
