@@ -1272,6 +1272,14 @@ Privacy Policy. **Continue with phone** opens *Join with your mobile
 number*: one big box with the Pakistan flag and **+92** already in it, and
 **Next** at the bottom.
 
+**The welcome screen's words (26 November 2026, no database step).**
+Every page now has two lines in big letters, the second in colour, and
+one short line under it: *Your price, your choice.*, *Verified
+technicians.*, *Pay when it's done.* **"Verified" is only true once the
+identity service is switched on** (Admin → Settings, after the steps in
+"The identity check" below). Until then, do not send any update to store
+users (`apps/mobile/release.json`) and do not open the app to the public.
+
 **The welcome screen's buttons (25 November 2026, no database step).**
 **Continue with phone** is the one big button. Under it a thin line says
 *or continue with*, then **Google** and **Email** as two white cards side

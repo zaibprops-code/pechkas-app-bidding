@@ -2037,23 +2037,31 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (24 November 2026, "2B"): three pages to swipe, each full screen in one
   brand colour — yellow, green, ink — with a soft light behind its drawing
   (`glow` and `GLOW_STOPS` in `packages/shared/src/tokens.ts`, drawn with
-  react-native-svg, no new native library); a big headline ("Your
-  price.", "Checked technicians.", "Pay when it's done."), one short line
+  react-native-svg, no new native library); a two-line headline,
+  the second line in the page's accent colour (green on yellow, yellow on
+  green and ink — the owner's design "A": "Your price, / your choice.",
+  "Verified / technicians.", "Pay when / it's done."), one short line
   and one `WelcomeArt` drawing (a price tag and screwdriver, a badge on a
   lanyard, a ticked job slip on banknotes — objects, never people, never a
   face); the name over the top; **every page's words take the tallest
   page's height** (measured), so the drawings sit level and the same size
-  on all three — "Your price." is one line and once sat higher; at the foot
+  on all three — when "Your price." was one line, its drawing sat higher; at the foot
   small dots, **Continue with phone** in the page's main colour (always the
   big button), a thin **"or continue with"** line so nobody reads the
   buttons as steps (the owner's question), then **Google** and **Email** as
-  two white cards side by side (Google only when it is on; Email alone full
+  two white cards side by side, each mark on the same grey circle — Google's
+  G and `MailMark`, a plain dark-grey envelope outline, not Pechkas' colours
+  (the owner's choice) — (Google only when it is on; Email alone full
   width otherwise; their screen-reader names stay "Continue with …"), and
   the terms line. Less on each page on purpose: people swipe past welcome pages. The
   words and buttons take the current page's colours when it settles —
   colours snap. The headline shrinks with the width so "technicians." never
-  breaks at 320. Every page says only what is true today: no numbers, no
-  ratings, and the pages never turn by themselves. **The sign-in screens — number, email, code,
+  breaks at 320. Every page says only what is true: no numbers, no
+  ratings, and the pages never turn by themselves. **"Verified" is the
+  owner's word (A118) and is true only once the identity service is on and
+  checks every technician before his first job (A119)**: switching it on
+  is a step before the app goes to the public, and no update goes to store
+  users before then. **The sign-in screens — number, email, code,
   customer or technician, and name — share `AuthScreen`**
   (`src/components/AuthScreen.tsx`, the owner's choice of 24 November 2026,
   design "C"): a white page, which meets the phone's light keyboard with no

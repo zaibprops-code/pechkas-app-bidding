@@ -14,7 +14,7 @@ import { WelcomeArt, type WelcomeArtName } from '../src/components/WelcomeArt';
 import { useAccount } from '../src/account';
 import { openLegal } from '../src/legal';
 import { googleReady, signInWithGoogle } from '../src/supabase';
-import { DuoIcon } from '../src/components/DuoIcon';
+import { MailMark } from '../src/components/MailMark';
 import { colour, font, glow, GLOW_STOPS, shadow, TAP } from '../src/theme';
 
 /**
@@ -22,7 +22,7 @@ import { colour, font, glow, GLOW_STOPS, shadow, TAP } from '../src/theme';
  * the owner's request (24 November 2026, design "2B"): three pages to
  * swipe, each in one of the brand's own colours — yellow, green, ink — with
  * a soft light behind its drawing (`glow` in the shared tokens). A big
- * headline ("Your price." on one line, the others on two), one short line, one drawing; the ways in at the foot.
+ * headline of two lines, one short line, one drawing; the ways in at the foot.
  * Less on each page on purpose: people swipe past welcome pages, so each
  * says one thing and the button is always there.
  *
@@ -48,8 +48,8 @@ import { colour, font, glow, GLOW_STOPS, shadow, TAP } from '../src/theme';
  * Every page keeps its drawing in the same place: the headline and the line
  * under it take the height of the tallest page's (measured, so a phone where
  * one line wraps keeps them level too), and the drawing fills what is left.
- * "Your price." is one line and the others two; without this, its drawing
- * sat higher than the other two.
+ * Once "Your price." was one line and the others two, and its drawing sat
+ * higher than the other two.
  */
 const GOOGLE_HERE = Platform.OS !== 'ios';
 
@@ -58,17 +58,26 @@ const HIT = { top: 13, bottom: 13, left: 6, right: 6 };
 
 type Tone = keyof typeof glow;
 
-const PAGES: { art: WelcomeArtName; head: [string] | [string, string]; accent?: boolean; line: string; tone: Tone }[] = [
-  { art: 'price', head: ['Your price.'], line: 'Technicians make offers. You choose.', tone: 'yellow' },
-  { art: 'checked', head: ['Checked', 'technicians.'], line: 'His photo is confirmed at your door.', tone: 'green' },
-  { art: 'cash', head: ['Pay when', 'it’s done.'], accent: true, line: 'Cash, JazzCash or Easypaisa. Nothing in advance.', tone: 'ink' },
+/**
+ * Every page is the same shape (the owner's choice, 26 November 2026, "A"):
+ * a headline of two lines, the second in the page's accent colour, and one
+ * short line under it. "Verified technicians." is the owner's word: it is
+ * true only once the identity service is switched on and checks every
+ * technician before his first job, and switching it on is on his list of
+ * steps before the app goes to the public (docs/OWNER.md).
+ */
+const PAGES: { art: WelcomeArtName; head: [string, string]; line: string; tone: Tone }[] = [
+  { art: 'price', head: ['Your price,', 'your choice.'], line: 'Name it. Technicians make offers.', tone: 'yellow' },
+  { art: 'checked', head: ['Verified', 'technicians.'], line: 'His photo is confirmed at your door.', tone: 'green' },
+  { art: 'cash', head: ['Pay when', 'it’s done.'], line: 'Cash, JazzCash or Easypaisa.', tone: 'ink' },
 ];
 
 /** What sits on each colour. Every pair was checked at 4.5:1 or more on the darker half of its glow. */
-const ON: Record<Tone, { base: string; fg: string; muted: string; dotOff: string; dotOn: string; main: [string, string]; bar: 'dark' | 'light' }> = {
+const ON: Record<Tone, { base: string; fg: string; accent: string; muted: string; dotOff: string; dotOn: string; main: [string, string]; bar: 'dark' | 'light' }> = {
   yellow: {
     base: colour.yellow,
     fg: colour.ink,
+    accent: colour.green,
     muted: 'rgba(20,23,26,0.82)',
     dotOff: 'rgba(20,23,26,0.22)',
     dotOn: colour.ink,
@@ -78,6 +87,7 @@ const ON: Record<Tone, { base: string; fg: string; muted: string; dotOff: string
   green: {
     base: colour.green,
     fg: colour.white,
+    accent: colour.yellow,
     muted: 'rgba(255,255,255,0.86)',
     dotOff: 'rgba(255,255,255,0.25)',
     dotOn: colour.yellow,
@@ -87,6 +97,7 @@ const ON: Record<Tone, { base: string; fg: string; muted: string; dotOff: string
   ink: {
     base: colour.ink,
     fg: colour.white,
+    accent: colour.yellow,
     muted: 'rgba(255,255,255,0.86)',
     dotOff: 'rgba(255,255,255,0.25)',
     dotOn: colour.yellow,
@@ -233,9 +244,8 @@ export default function Start() {
                 >
                 <Text style={[s.head, { color: t.fg, fontSize: headSize, lineHeight: Math.round(headSize * 1.04), letterSpacing: -headSize * 0.04 }]}>
                   {p.head[0]}
-                  {/* "Your price." fits on one line (shorter than "technicians.", which always does). */}
-                  {p.head[1] ? '\n' : null}
-                  {p.head[1] ? <Text style={p.accent ? { color: colour.yellow } : null}>{p.head[1]}</Text> : null}
+                  {'\n'}
+                  <Text style={{ color: t.accent }}>{p.head[1]}</Text>
                 </Text>
                 <Text style={[s.line, { color: t.muted }]}>{p.line}</Text>
                 </View>
@@ -283,7 +293,7 @@ export default function Start() {
         </View>
         <View style={s.cards}>
           {google ? <SideCard label="Google" full="Continue with Google" tile={<GoogleG size={18} />} tileBg={colour.canvas} onPress={withGoogle} busy={googleBusy} /> : null}
-          <SideCard label="Email" full="Continue with email" tile={<DuoIcon name="mail" size={20} />} tileBg={colour.softYellow} onPress={() => go('email')} />
+          <SideCard label="Email" full="Continue with email" tile={<MailMark size={20} />} tileBg={colour.canvas} onPress={() => go('email')} />
         </View>
         <View style={s.legal}>
           <Text style={[s.small, { color: on.muted }]}>By continuing you agree to the</Text>
