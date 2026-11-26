@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Animated, Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { AccessibilityInfo, Animated, Image, type ImageSourcePropType, Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,7 +10,6 @@ import { Icon } from '../src/components/Icon';
 import { Press } from '../src/components/Press';
 import { ScrewSpinner } from '../src/components/ScrewSpinner';
 import { ThisCopy } from '../src/components/ThisCopy';
-import { WelcomeArt, type WelcomeArtName } from '../src/components/WelcomeArt';
 import { useAccount } from '../src/account';
 import { openLegal } from '../src/legal';
 import { googleReady, signInWithGoogle } from '../src/supabase';
@@ -21,8 +20,16 @@ import { colour, font, glow, GLOW_STOPS, shadow, TAP } from '../src/theme';
  * The first screen after installing, and after signing out. Redesigned at
  * the owner's request (24 November 2026, design "2B"): three pages to
  * swipe, each in one of the brand's own colours — yellow, green, ink — with
- * a soft light behind its drawing (`glow` in the shared tokens). A big
- * headline of two lines, one short line, one drawing; the ways in at the foot.
+ * a soft light behind its picture (`glow` in the shared tokens). A big
+ * headline of two lines, one short line, one picture; the ways in at the foot.
+ *
+ * The pictures (the owner's choice, 26 November 2026, A120) act out their
+ * headline: a customer holding her phone with her price on it, a technician
+ * in a Pechkas cap with his card and toolbox and a verified tick, a customer
+ * paying beside the fixed AC. Drawn people in the app's colours on the
+ * yellow screw-head circle, made with Figma's image tool and cut out so they
+ * stand on the page's own colour (assets/welcome/*.png, 720 px). Never a
+ * photo, never a real person.
  * Less on each page on purpose: people swipe past welcome pages, so each
  * says one thing and the button is always there.
  *
@@ -66,10 +73,10 @@ type Tone = keyof typeof glow;
  * technician before his first job, and switching it on is on his list of
  * steps before the app goes to the public (docs/OWNER.md).
  */
-const PAGES: { art: WelcomeArtName; head: [string, string]; line: string; tone: Tone }[] = [
-  { art: 'price', head: ['Your price,', 'your choice.'], line: 'Name it. Technicians make offers.', tone: 'yellow' },
-  { art: 'checked', head: ['Verified', 'technicians.'], line: 'His photo is confirmed at your door.', tone: 'green' },
-  { art: 'cash', head: ['Pay when', 'it’s done.'], line: 'Cash, JazzCash or Easypaisa.', tone: 'ink' },
+const PAGES: { key: string; art: ImageSourcePropType; head: [string, string]; line: string; tone: Tone }[] = [
+  { key: 'price', art: require('../assets/welcome/price.png'), head: ['Your price,', 'your choice.'], line: 'Name it. Technicians make offers.', tone: 'yellow' },
+  { key: 'verified', art: require('../assets/welcome/verified.png'), head: ['Verified', 'technicians.'], line: 'His photo is confirmed at your door.', tone: 'green' },
+  { key: 'paid', art: require('../assets/welcome/paid.png'), head: ['Pay when', 'it’s done.'], line: 'Cash, JazzCash or Easypaisa.', tone: 'ink' },
 ];
 
 /** What sits on each colour. Every pair was checked at 4.5:1 or more on the darker half of its glow. */
@@ -231,7 +238,7 @@ export default function Start() {
           const art = artBox[i];
           const artSize = art ? Math.max(0, Math.min(art.w, art.h, 300)) : 0;
           return (
-            <View key={p.art} style={{ width: box.w, height: box.h }} accessible accessibilityLabel={`${p.head.join(' ')} ${p.line} Page ${i + 1} of ${PAGES.length}.`}>
+            <View key={p.key} style={{ width: box.w, height: box.h }} accessible accessibilityLabel={`${p.head.join(' ')} ${p.line} Page ${i + 1} of ${PAGES.length}.`}>
               <Glow tone={p.tone} id={`welcome-glow-${i}`} width={box.w} height={box.h} />
               <View style={[s.page, { paddingTop: headTop, paddingBottom: footH + 4 }]}>
                 <View
@@ -253,7 +260,7 @@ export default function Start() {
                   const { width: w, height: h } = e.nativeEvent.layout;
                   setArtBox((was) => (was[i]?.w === w && was[i]?.h === h ? was : { ...was, [i]: { w, h } }));
                 }}>
-                  {artSize > 40 ? <WelcomeArt name={p.art} size={artSize} /> : null}
+                  {artSize > 40 ? <Image source={p.art} style={{ width: artSize, height: artSize }} resizeMode="contain" accessible={false} /> : null}
                 </View>
               </View>
             </View>
@@ -281,7 +288,7 @@ export default function Start() {
         {/* Where you are among the pages. Not buttons: swiping is the way. */}
         <View style={s.dots} accessible={false}>
           {PAGES.map((p, i) => (
-            <View key={p.art} style={[s.dot, { backgroundColor: i === page ? on.dotOn : on.dotOff }, i === page && s.dotOn]} />
+            <View key={p.key} style={[s.dot, { backgroundColor: i === page ? on.dotOn : on.dotOff }, i === page && s.dotOn]} />
           ))}
         </View>
         <WelcomeButton label="Continue with phone" icon="phone" onPress={() => go('phone')} bg={on.main[0]} fg={on.main[1]} />

@@ -263,7 +263,8 @@ heading('Jobs run 7am to 10pm');
     await setup(`UPDATE public.settings SET value = 7 WHERE key = 'day_opens_hour'`);
   }
   const p = await post();
-  await setup(`UPDATE public.jobs SET when_date = when_date - 1 WHERE id = $1`, [p.id]);
+  // Yesterday on Pakistan's clock, not "a day before its own day": after 9pm a new job is for tomorrow, and the day before that is today, still open.
+  await setup(`UPDATE public.jobs SET when_date = (now() AT TIME ZONE 'Asia/Karachi')::date - 1 WHERE id = $1`, [p.id]);
   await setup(`SELECT public.close_unclaimed()`);
   ok('a job nobody took on an earlier day is closed', (await jobRow(p.id)).status === 'cancelled');
 }

@@ -2060,9 +2060,13 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the second line in the page's accent colour (green on yellow, yellow on
   green and ink — the owner's design "A": "Your price, / your choice.",
   "Verified / technicians.", "Pay when / it's done."), one short line
-  and one `WelcomeArt` drawing (a price tag and screwdriver, a badge on a
-  lanyard, a ticked job slip on banknotes — objects, never people, never a
-  face); the name over the top; **every page's words take the tallest
+  and one picture that acts out the headline (A120, the owner's choice
+  after many rounds of drawn symbols: a customer holding her phone with her
+  price on it; a technician in a Pechkas cap with his card, toolbox and a
+  verified tick; a customer paying beside the fixed AC) — drawn people in
+  the app's colours on the yellow screw-head circle, made with Figma's
+  image tool and cut out so they stand on the page's own colour
+  (`assets/welcome/*.png`), never a photo or a real person; the name over the top; **every page's words take the tallest
   page's height** (measured), so the drawings sit level and the same size
   on all three — when "Your price." was one line, its drawing sat higher; at the foot
   small dots, **Continue with phone** in the page's main colour (always the

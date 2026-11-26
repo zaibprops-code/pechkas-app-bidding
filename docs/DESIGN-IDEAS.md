@@ -50,6 +50,12 @@ Everything comes from **one system**, used on every screen:
 
 ## Proposed rules for Pechkas (for the owner to approve one by one)
 
+**Decided 26 November 2026 (A120):** P1, P2, P3 and P4 for the welcome
+pages — drawn people in one style on the yellow screw-head circle, each
+acting out its headline, made with Figma's image tool and cut out onto
+the page colour (rule in `docs/DESIGN.md` §5). The rest of the app
+(Home's kinds of work, empty states, P5–P8) is still a proposal.
+
 **P1. One illustration system for the whole app.** Black outline, white
 fill, **Pechkas yellow** as the one colour, green only for ticks and
 "verified". The welcome pages, Home's kinds of work, the empty states and

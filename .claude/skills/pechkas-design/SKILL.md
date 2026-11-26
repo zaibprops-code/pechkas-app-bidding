@@ -97,6 +97,16 @@ a screen; use the token.
   status discs.
 - **Drawings (`Art.tsx`)** for trades: objects, never people, over a yellow
   sweep, on a `cream` tile. `artFor(trade)` picks one.
+- **Pictures with people (the owner's decision, 26 November 2026, A120)**:
+  drawn people are allowed where a picture acts out its words — never a
+  photograph, never a real person. They follow one system: black outline,
+  white, Pechkas yellow, green only for ticks, local dress (a dupatta, a
+  kameez, a Pechkas cap and shirt), the yellow screw-head circle behind
+  each person, cut out so it stands on the screen's own colour (no frame,
+  no box). The words and the picture must never say different things. The
+  welcome pages are the first (`assets/welcome/`); they were made with
+  Figma's image tool, so each new one is checked closely (hands, faces,
+  the drawn phone screens) before it goes in.
 - No emoji. No stock photographs of strangers.
 - The logo is `Mark` (`src/components/Mark.tsx`); its shapes come from the
   website and nobody draws it by hand.

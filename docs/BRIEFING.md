@@ -408,6 +408,9 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   records plus a live face match, by an outside company, before a
   technician's first job; Pechkas keeps only the result and the company's
   reference. Built on Pechkas' side; the company is still to be chosen.
+- **A120, drawn people in pictures (26 November 2026):** the welcome pages
+  show drawn people acting out each headline, in Pechkas colours on the
+  yellow screw-head circle; never a photo or a real person. Built.
 
 ## 7. Still open: what the owner has to decide
 

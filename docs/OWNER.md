@@ -1272,6 +1272,13 @@ Privacy Policy. **Continue with phone** opens *Join with your mobile
 number*: one big box with the Pakistan flag and **+92** already in it, and
 **Next** at the bottom.
 
+**The welcome pictures (26 November 2026, no database step).** The three
+welcome pages now show drawn people acting out each headline: a customer
+holding her phone with her price, a technician in a Pechkas cap with a
+verified tick, a customer paying beside the fixed AC. They were made with
+Figma's image tool in your Figma file "Pechkas welcome illustrations"; to
+change one, tell Claude what to change and it makes a new one there.
+
 **The welcome screen's words (26 November 2026, no database step).**
 Every page now has two lines in big letters, the second in colour, and
 one short line under it: *Your price, your choice.*, *Verified
