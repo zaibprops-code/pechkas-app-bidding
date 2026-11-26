@@ -33,6 +33,22 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'ac-shifting': require('../../assets/work/ac-shifting.png'),
   'ac-stand': require('../../assets/work/ac-stand.png'),
   'ac-stabiliser': require('../../assets/work/ac-stabiliser.png'),
+  'el-electrician': require('../../assets/work/el-electrician.png'),
+  'el-fans': require('../../assets/work/el-fans.png'),
+  'el-switches': require('../../assets/work/el-switches.png'),
+  'el-power': require('../../assets/work/el-power.png'),
+  'el-ceilingfan': require('../../assets/work/el-ceilingfan.png'),
+  'el-exhaust': require('../../assets/work/el-exhaust.png'),
+  'el-chandelier': require('../../assets/work/el-chandelier.png'),
+  'el-switch': require('../../assets/work/el-switch.png'),
+  'el-newsocket': require('../../assets/work/el-newsocket.png'),
+  'el-doorbell': require('../../assets/work/el-doorbell.png'),
+  'el-breaker': require('../../assets/work/el-breaker.png'),
+  'el-tracing': require('../../assets/work/el-tracing.png'),
+  'el-rewiring': require('../../assets/work/el-rewiring.png'),
+  'el-ups': require('../../assets/work/el-ups.png'),
+  'el-changeover': require('../../assets/work/el-changeover.png'),
+  'el-motorswitch': require('../../assets/work/el-motorswitch.png'),
 };
 
 /** The picture for a trade (its own page) or a job (its own, else its group's), if there is one. */
