@@ -263,7 +263,9 @@ async function route(req) {
     const t = await req.text();
     return t ? JSON.parse(t) : {};
   };
-  if (p === '/auth/v1/settings') return reply(200, { external: { google: false, email: true, phone: true } });
+  // Google stays off in the demo (it would open Google's real page). Screenshots for the owner
+  // switch it on with window.__pechkasGoogleOn, so he sees the welcome screen as it will be.
+  if (p === '/auth/v1/settings') return reply(200, { external: { google: globalThis.__pechkasGoogleOn === true, email: true, phone: true } });
   if (p === '/auth/v1/otp') return reply(200, {});
   if (p === '/auth/v1/verify') {
     const b = await body();
