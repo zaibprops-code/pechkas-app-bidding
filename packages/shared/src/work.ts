@@ -85,8 +85,9 @@ export const WORK_ALSO: Record<string, { trade: string; job: string }[]> = {
  * apps/mobile/assets/work and are named there (`WorkArt.tsx`). A job with no
  * picture of its own shows its group's, and a group with none its drawing.
  * `jobs.test.mjs` fails if a name here is not a real job, so renaming a job
- * cannot quietly lose its picture. Plumbing, AC, electrician, UPS, solar, appliances and CCTV first; the other trades follow
- * one by one, and until every trade has one, home and the list of kinds of
+ * cannot quietly lose its picture. Every trade but carpentry has them;
+ * carpentry and plumbing's toilet, geyser, motor and drain jobs follow,
+ * and until every trade has one, home and the list of kinds of
  * work keep the drawings so the two styles never sit side by side there.
  */
 export const JOB_PICTURES: Record<string, Record<string, string>> = {
@@ -142,6 +143,26 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Setting it up on your phone': 'cctv-camphone',
     'Camera or recorder not working': 'cctv-camfault',
   },
+  wifi: {
+    'Setting up a new router': 'wifi-router',
+    'Getting the signal to a room it does not reach': 'wifi-extend',
+    'Running a network cable point': 'wifi-cable',
+    'Office or shop network': 'wifi-office',
+    'Internet keeps dropping': 'wifi-dropping',
+  },
+  painting: {
+    'Single room repaint': 'paint-room',
+    'Touch-up and patch work': 'paint-touchup',
+    'Damp or seepage patch treatment': 'paint-damp',
+    'Full flat or house repaint': 'paint-house',
+  },
+  computers: {
+    'A slow machine, cleaned up': 'pc-slow',
+    'Windows reinstall': 'pc-windows',
+    'Virus or pop-up trouble': 'pc-virus',
+    'Will not start, or a hardware fault': 'pc-nostart',
+    'Screen, keyboard or battery replacement': 'pc-parts',
+  },
 };
 export const ART_PICTURES: Record<string, string> = {
   plumber: 'plumber-leak',
@@ -161,6 +182,9 @@ export const ART_PICTURES: Record<string, string> = {
   solar: 'solar-solar',
   appliances: 'app-appliances',
   cctv: 'cctv-cctv',
+  wifi: 'wifi-wifi',
+  painting: 'paint-painting',
+  computers: 'pc-computers',
 };
 
 /** The picture for a job (its own, else its group's), or for a drawing's key; undefined when there is none yet. */

@@ -412,8 +412,8 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   show drawn people acting out each headline, in Pechkas colours on the
   yellow screw-head circle; never a photo or a real person. Built.
 - **A121, pictures of the work (26 November 2026):** jobs shown as a
-  picture of the problem, with the name beside it. Plumbing, AC,
-  electrician, UPS, solar, appliances and CCTV built; the other trades one at a time.
+  picture of the problem, with the name beside it. Every trade but
+  carpentry built; carpentry next.
 
 ## 7. Still open: what the owner has to decide
 

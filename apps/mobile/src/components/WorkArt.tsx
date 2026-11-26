@@ -68,6 +68,23 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'cctv-camaim': require('../../assets/work/cctv-camaim.png'),
   'cctv-camphone': require('../../assets/work/cctv-camphone.png'),
   'cctv-camfault': require('../../assets/work/cctv-camfault.png'),
+  'wifi-wifi': require('../../assets/work/wifi-wifi.png'),
+  'wifi-router': require('../../assets/work/wifi-router.png'),
+  'wifi-extend': require('../../assets/work/wifi-extend.png'),
+  'wifi-cable': require('../../assets/work/wifi-cable.png'),
+  'wifi-office': require('../../assets/work/wifi-office.png'),
+  'wifi-dropping': require('../../assets/work/wifi-dropping.png'),
+  'paint-painting': require('../../assets/work/paint-painting.png'),
+  'paint-room': require('../../assets/work/paint-room.png'),
+  'paint-touchup': require('../../assets/work/paint-touchup.png'),
+  'paint-damp': require('../../assets/work/paint-damp.png'),
+  'paint-house': require('../../assets/work/paint-house.png'),
+  'pc-computers': require('../../assets/work/pc-computers.png'),
+  'pc-slow': require('../../assets/work/pc-slow.png'),
+  'pc-windows': require('../../assets/work/pc-windows.png'),
+  'pc-virus': require('../../assets/work/pc-virus.png'),
+  'pc-nostart': require('../../assets/work/pc-nostart.png'),
+  'pc-parts': require('../../assets/work/pc-parts.png'),
 };
 
 /** The picture for a trade (its own page) or a job (its own, else its group's), if there is one. */
