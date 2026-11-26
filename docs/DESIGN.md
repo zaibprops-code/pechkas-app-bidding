@@ -113,7 +113,7 @@ a screen; use the token.
   picture where `JOB_PICTURES` / `ART_PICTURES` (packages/shared work.ts)
   name one, else the line drawing. A job list shows pictures only when
   every job in it has its own — the same picture four times says nothing.
-  Plumbing, AC, electrician, UPS and solar are first; the other trades follow one by one, and home and the
+  Plumbing, AC, electrician, UPS, solar, appliances and CCTV are first; the other trades follow one by one, and home and the
   list of kinds of work keep the line drawings until every trade has a
   picture, so the two styles never sit side by side there. A picture is
   drawn larger than a line drawing, and every new one is checked by eye.

@@ -413,7 +413,7 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   yellow screw-head circle; never a photo or a real person. Built.
 - **A121, pictures of the work (26 November 2026):** jobs shown as a
   picture of the problem, with the name beside it. Plumbing, AC,
-  electrician, UPS and solar built; the other trades one at a time.
+  electrician, UPS, solar, appliances and CCTV built; the other trades one at a time.
 
 ## 7. Still open: what the owner has to decide
 

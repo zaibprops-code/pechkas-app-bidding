@@ -56,6 +56,18 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'solar-check': require('../../assets/work/solar-check.png'),
   'solar-service': require('../../assets/work/solar-service.png'),
   'solar-fault': require('../../assets/work/solar-fault.png'),
+  'app-appliances': require('../../assets/work/app-appliances.png'),
+  'app-wmservice': require('../../assets/work/app-wmservice.png'),
+  'app-install': require('../../assets/work/app-install.png'),
+  'app-wmrepair': require('../../assets/work/app-wmrepair.png'),
+  'app-fridge': require('../../assets/work/app-fridge.png'),
+  'app-microwave': require('../../assets/work/app-microwave.png'),
+  'cctv-cctv': require('../../assets/work/cctv-cctv.png'),
+  'cctv-camfit': require('../../assets/work/cctv-camfit.png'),
+  'cctv-camset': require('../../assets/work/cctv-camset.png'),
+  'cctv-camaim': require('../../assets/work/cctv-camaim.png'),
+  'cctv-camphone': require('../../assets/work/cctv-camphone.png'),
+  'cctv-camfault': require('../../assets/work/cctv-camfault.png'),
 };
 
 /** The picture for a trade (its own page) or a job (its own, else its group's), if there is one. */
