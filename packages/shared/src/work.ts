@@ -85,9 +85,8 @@ export const WORK_ALSO: Record<string, { trade: string; job: string }[]> = {
  * apps/mobile/assets/work and are named there (`WorkArt.tsx`). A job with no
  * picture of its own shows its group's, and a group with none its drawing.
  * `jobs.test.mjs` fails if a name here is not a real job, so renaming a job
- * cannot quietly lose its picture. Every trade has them; plumbing's
- * toilet, geyser, motor and drain jobs still show their group's, and until
- * those are done too, home and the list of kinds of
+ * cannot quietly lose its picture. Every job has one now; until home
+ * moves to pictures too, home and the list of kinds of
  * work keep the drawings so the two styles never sit side by side there.
  */
 export const JOB_PICTURES: Record<string, Record<string, string>> = {
@@ -96,6 +95,17 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Wash basin or kitchen sink fitting': 'plumber-sink',
     'Shower, mixer or bathroom fittings': 'plumber-shower',
     'Water filter fitting': 'plumber-filter',
+    'Flush tank repair': 'plumber-flushtank',
+    'Flush tank float valve replacement': 'plumber-float',
+    'Commode or toilet fitting': 'plumber-commode',
+    'Geyser installation': 'plumber-geyserfit',
+    'Geyser service and descaling': 'plumber-descale',
+    'Geyser repair': 'plumber-geyserrepair',
+    'Water motor or pump fitting': 'plumber-motorfit',
+    'Water motor repair': 'plumber-motorrepair',
+    'Blocked drain clearing': 'plumber-blocked',
+    'Main sewerage line blockage': 'plumber-sewer',
+    'Hidden pipe leak': 'plumber-hiddenleak',
   },
   ac: {
     'General service (indoor and outdoor unit)': 'ac-general',
