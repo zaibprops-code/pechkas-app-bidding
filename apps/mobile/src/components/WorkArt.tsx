@@ -61,12 +61,12 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'el-changeover': require('../../assets/work/el-changeover.png'),
   'el-motorswitch': require('../../assets/work/el-motorswitch.png'),
   'ups-ups': require('../../assets/work/ups-ups.webp'),
-  'solar-solar': require('../../assets/work/solar-solar.png'),
-  'solar-clean5': require('../../assets/work/solar-clean5.png'),
-  'solar-clean10': require('../../assets/work/solar-clean10.png'),
-  'solar-check': require('../../assets/work/solar-check.png'),
-  'solar-service': require('../../assets/work/solar-service.png'),
-  'solar-fault': require('../../assets/work/solar-fault.png'),
+  'solar-solar': require('../../assets/work/solar-solar.webp'),
+  'solar-clean5': require('../../assets/work/solar-clean5.webp'),
+  'solar-clean10': require('../../assets/work/solar-clean10.webp'),
+  'solar-check': require('../../assets/work/solar-check.webp'),
+  'solar-service': require('../../assets/work/solar-service.webp'),
+  'solar-fault': require('../../assets/work/solar-fault.webp'),
   'app-appliances': require('../../assets/work/app-appliances.png'),
   'app-wmservice': require('../../assets/work/app-wmservice.png'),
   'app-install': require('../../assets/work/app-install.png'),
@@ -123,6 +123,7 @@ const TOPS: Record<string, ImageSourcePropType> = {
   cctv: require('../../assets/work/cctv-top.jpg'),
   wifi: require('../../assets/work/wifi-top.jpg'),
   ups: require('../../assets/work/ups-top.jpg'),
+  solar: require('../../assets/work/solar-top.jpg'),
 };
 
 /** The wide picture for the top of a trade's page, if it has one. */
