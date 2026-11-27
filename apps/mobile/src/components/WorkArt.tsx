@@ -57,10 +57,10 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'el-breaker': require('../../assets/work/el-breaker.png'),
   'el-tracing': require('../../assets/work/el-tracing.png'),
   'el-rewiring': require('../../assets/work/el-rewiring.png'),
-  'el-ups': require('../../assets/work/el-ups.png'),
+  'el-ups': require('../../assets/work/el-ups.webp'),
   'el-changeover': require('../../assets/work/el-changeover.png'),
   'el-motorswitch': require('../../assets/work/el-motorswitch.png'),
-  'ups-ups': require('../../assets/work/ups-ups.png'),
+  'ups-ups': require('../../assets/work/ups-ups.webp'),
   'solar-solar': require('../../assets/work/solar-solar.png'),
   'solar-clean5': require('../../assets/work/solar-clean5.png'),
   'solar-clean10': require('../../assets/work/solar-clean10.png'),
@@ -122,6 +122,7 @@ const TOPS: Record<string, ImageSourcePropType> = {
   ac: require('../../assets/work/ac-top.jpg'),
   cctv: require('../../assets/work/cctv-top.jpg'),
   wifi: require('../../assets/work/wifi-top.jpg'),
+  ups: require('../../assets/work/ups-top.jpg'),
 };
 
 /** The wide picture for the top of a trade's page, if it has one. */
