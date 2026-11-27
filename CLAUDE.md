@@ -2007,7 +2007,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   trade by trade (A123)**: AC, CCTV, Wi-Fi, UPS, Solar, Plumber and Painting are done — soft 3D objects on the same yellow
   circle, WebP, made one at a time and moved onto the circle by
   `scripts/oncircle.py` — and their pages open with a wide 3D picture filling
-  the yellow top (`topOf()`, `YellowTop picture`). Every other place a job shows — My jobs,
+  the yellow top (`topOf()`, `YellowTop picture`). **How a trade is made, mocked, built and
+  published, and where it stands, is `docs/PICTURES.md`.** Every other place a job shows — My jobs,
   the job's screen, a finished or cancelled job, Past, notifications, the
   delete-account blocker and the technician's offer sheet — uses
   `TradeTile job={title}` or `WorkArt` + `pictureOf(trade, title)` (a job's
