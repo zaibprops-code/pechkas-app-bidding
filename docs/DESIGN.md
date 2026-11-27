@@ -121,7 +121,8 @@ a screen; use the token.
   `scripts/cutout.py`, never at a fixed colour level: that left a green or
   olive rim round all of them once. Look at each on yellow, white and dark.
   Everywhere a job or a kind of work is shown — My jobs, the job's screen,
-  a finished or cancelled job, Past, notifications, the technician's list —
+  a finished or cancelled job, Past, notifications, the technician's offer
+  sheet, his job card and his finished rows —
   it is `TradeTile job={title}` or `WorkArt` with `pictureOf(trade, title)`;
   `npm run design:check` fails if a screen draws `<TradeArt>` itself.
 - **3D pictures, trade by trade (the owner's decision, 27 November 2026,

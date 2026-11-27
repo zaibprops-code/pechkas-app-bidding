@@ -7,6 +7,7 @@ import { commission, pkClock, rupees, showMobile, technicianKeeps } from '@pechk
 import { Button } from '../components/ui';
 import { Press } from '../components/Press';
 import { Stars } from '../components/Stars';
+import { TradeTile } from '../customer/bits';
 import { toOffice } from '../office';
 import { RemoteMedia, useSignedUrls, type StoredMedia } from '../post/RemoteMedia';
 import { takePhoto, takeVideo, upload } from '../post/media';
@@ -245,7 +246,10 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
         </View>
         <Text style={s.when}>{j.stage === 'working' || j.stage === 'checking' || j.stage === 'disputed' ? w.working : when}</Text>
       </View>
-      <Text style={s.title}>{j.title}</Text>
+      <View style={s.titleRow}>
+        <TradeTile trade={j.trade} job={j.title} size={52} />
+        <Text style={[s.title, { flex: 1 }]}>{j.title}</Text>
+      </View>
       {j.due_at && j.late_from && (j.stage === 'chosen' || j.stage === 'on_way') ? (
         <Text style={s.dueLine}>{fill(j.due_by_google ? w.dueBy : w.dueByRule, { due: pkClock(j.due_at), late: pkClock(j.late_from) })}</Text>
       ) : null}
@@ -836,6 +840,7 @@ export function Finished({ items, w, tradeName, onChanged }: { items: FinishedJo
       <Text style={s.section}>{w.finishedToday}</Text>
       {items.map((f) => (
         <View key={f.id} style={s.done}>
+          <TradeTile trade={f.trade} job={f.title} size={40} />
           <View style={{ flex: 1, gap: 2 }}>
             <Text style={s.doneTitle}>
               {tradeName(f.trade)} · {f.ref} · {f.sector}
@@ -976,6 +981,7 @@ const s = StyleSheet.create({
   badgeText: { fontFamily: font.bodySemi, fontSize: 12, color: colour.yellow },
   when: { fontFamily: font.bodySemi, fontSize: 13, color: colour.ink },
   title: { fontFamily: font.displayBold, fontSize: 19, lineHeight: 24, color: colour.ink },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   addr: { fontFamily: font.bodySemi, fontSize: 16, color: colour.ink },
   addrSub: { fontFamily: font.body, fontSize: 14, color: colour.inkSoft },
   money: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },

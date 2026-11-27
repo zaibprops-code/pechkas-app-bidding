@@ -2010,7 +2010,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   the yellow top (`topOf()`, `YellowTop picture`). **How a trade is made, mocked, built and
   published, and where it stands, is `docs/PICTURES.md`.** Every other place a job shows — My jobs,
   the job's screen, a finished or cancelled job, Past, notifications, the
-  delete-account blocker and the technician's offer sheet — uses
+  delete-account blocker, the technician's offer sheet, his job card and
+  his finished-today rows — uses
   `TradeTile job={title}` or `WorkArt` + `pictureOf(trade, title)` (a job's
   `title` is its job's name); `design:check` fails on a screen drawing
   `<TradeArt>` itself. `jobs.test.mjs` fails if a pictured job is
