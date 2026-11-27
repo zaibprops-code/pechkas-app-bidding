@@ -124,6 +124,22 @@ a screen; use the token.
   a finished or cancelled job, Past, notifications, the technician's list —
   it is `TradeTile job={title}` or `WorkArt` with `pictureOf(trade, title)`;
   `npm run design:check` fails if a screen draws `<TradeArt>` itself.
+- **3D pictures, trade by trade (the owner's decision, 27 November 2026,
+  A123)**: the pictures of the work move from flat drawings to soft 3D
+  objects — realistic light from the upper left, soft shadows, real chrome
+  and ceramic — still on the bright yellow screw-head circle, still objects
+  only. AC is the first; the other trades keep their drawings until each
+  is done, and a trade is never half one and half the other. Each picture
+  is made on its own in Figma's image tool at 1024 × 1024 on a flat pale
+  yellow (#FFF1C7) backdrop (never a sheet of several: a sheet's pictures
+  are too small and came out rough), then `scripts/oncircle.py` lifts the
+  object off the backdrop, keeps its shadow and puts the yellow circle
+  behind it. They are WebP (about 35 KB each; PNG was five times larger),
+  at most 420 px. A trade's own page may open with a wide 3D picture
+  filling its yellow top (`topOf()` in `WorkArt.tsx`, `YellowTop picture`):
+  the object on the right, the name on the left, its backdrop the same
+  yellow. Look at every new one on white and on the cream boxes, at 390
+  and 320 wide, before it goes in.
 - No emoji. No stock photographs of strangers.
 - The logo is `Mark` (`src/components/Mark.tsx`); its shapes come from the
   website and nobody draws it by hand.

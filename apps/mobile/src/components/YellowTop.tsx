@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
@@ -15,12 +15,14 @@ import { colour, font, glow, GLOW_STOPS, TAP } from '../theme';
  * clock. Search, a kind of work and Post a job open with it. `back` draws
  * the round back button in its top corner; `after` sits beside it.
  */
-export function YellowTop({ back = true, after, children, light = 0.72 }: { back?: boolean; after?: ReactNode; children?: ReactNode; light?: number }) {
+export function YellowTop({ back = true, after, children, light = 0.72, picture }: { back?: boolean; after?: ReactNode; children?: ReactNode; light?: number; picture?: ImageSourcePropType }) {
   const insets = useSafeAreaInsets();
   const [size, setSize] = useState({ w: 0, h: 0 });
   return (
     <View style={[s.top, { paddingTop: insets.top + 6 }]} onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
       {size.w > 0 ? <Glow width={size.w} height={size.h} at={light} /> : null}
+      {/* A trade's wide 3D picture (A123) fills the top over the glow; its own backdrop is the same yellow. */}
+      {picture && size.w > 0 ? <Image source={picture} style={[s.picture, { width: size.w, height: size.h }]} resizeMode="cover" accessible={false} /> : null}
       {back || after ? (
         <View style={s.bar}>
           {back ? (
@@ -72,6 +74,7 @@ export function PricePill({ paisa }: { paisa: number | null }) {
 const s = StyleSheet.create({
   top: { paddingHorizontal: 16, paddingBottom: 18, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, overflow: 'hidden', backgroundColor: colour.yellow },
   bar: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: TAP },
+  picture: { position: 'absolute', left: 0, top: 0 },
   pill: { flexShrink: 0, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: colour.softYellow },
   pillQuiet: { backgroundColor: colour.canvas },
   pillText: { fontFamily: font.display, fontSize: 13.5, color: colour.ink, fontVariant: ['tabular-nums'] },

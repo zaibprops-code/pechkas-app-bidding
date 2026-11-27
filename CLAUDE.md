@@ -2003,7 +2003,11 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   carry the picture too, search results and the top of Post a job);
   home (the tiles and the job card on top) and the search's list of
   kinds of work use them too, since every trade and job has one; home's
-  yellow top has no picture at all (A122). Every other place a job shows — My jobs,
+  yellow top has no picture at all (A122). **The pictures are becoming 3D,
+  trade by trade (A123)**: AC is done — soft 3D objects on the same yellow
+  circle, WebP, made one at a time and moved onto the circle by
+  `scripts/oncircle.py` — and its page opens with a wide 3D picture filling
+  the yellow top (`topOf()`, `YellowTop picture`). Every other place a job shows — My jobs,
   the job's screen, a finished or cancelled job, Past, notifications, the
   delete-account blocker and the technician's offer sheet — uses
   `TradeTile job={title}` or `WorkArt` + `pictureOf(trade, title)` (a job's

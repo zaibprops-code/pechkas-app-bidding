@@ -1,6 +1,6 @@
 # Pechkas: a complete briefing for an adviser
 
-_Written 16 November 2026, updated 26 November 2026, from the two repositories as they stand today
+_Written 16 November 2026, updated 27 November 2026, from the two repositories as they stand today
 (app `zaibprops-code/pechkas-app-bidding`, website `zaibprops-code/Pechkas`).
 Every rule below is something the code actually does, not a plan, unless it
 says "open" or "not built"._
@@ -416,6 +416,9 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   jobs and home built.
 - **A122, home's top (26 November 2026):** no picture beside "What needs
   fixing?", which is one big line, as professional apps do. Built.
+- **A123, 3D pictures (27 November 2026):** the pictures of the work become
+  soft 3D objects on the same yellow circle, trade by trade. AC built
+  first; the other trades and the sign-in pictures follow one at a time.
 
 ## 7. Still open: what the owner has to decide
 

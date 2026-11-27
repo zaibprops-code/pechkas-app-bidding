@@ -32,18 +32,18 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'plumber-blocked': require('../../assets/work/plumber-blocked.png'),
   'plumber-sewer': require('../../assets/work/plumber-sewer.png'),
   'plumber-hiddenleak': require('../../assets/work/plumber-hiddenleak.png'),
-  'ac-ac': require('../../assets/work/ac-ac.png'),
-  'ac-service': require('../../assets/work/ac-service.png'),
-  'ac-fitting': require('../../assets/work/ac-fitting.png'),
-  'ac-general': require('../../assets/work/ac-general.png'),
-  'ac-gas': require('../../assets/work/ac-gas.png'),
-  'ac-leak': require('../../assets/work/ac-leak.png'),
-  'ac-pcb': require('../../assets/work/ac-pcb.png'),
-  'ac-install': require('../../assets/work/ac-install.png'),
-  'ac-uninstall': require('../../assets/work/ac-uninstall.png'),
-  'ac-shifting': require('../../assets/work/ac-shifting.png'),
-  'ac-stand': require('../../assets/work/ac-stand.png'),
-  'ac-stabiliser': require('../../assets/work/ac-stabiliser.png'),
+  'ac-ac': require('../../assets/work/ac-ac.webp'),
+  'ac-service': require('../../assets/work/ac-service.webp'),
+  'ac-fitting': require('../../assets/work/ac-fitting.webp'),
+  'ac-general': require('../../assets/work/ac-general.webp'),
+  'ac-gas': require('../../assets/work/ac-gas.webp'),
+  'ac-leak': require('../../assets/work/ac-leak.webp'),
+  'ac-pcb': require('../../assets/work/ac-pcb.webp'),
+  'ac-install': require('../../assets/work/ac-install.webp'),
+  'ac-uninstall': require('../../assets/work/ac-uninstall.webp'),
+  'ac-shifting': require('../../assets/work/ac-shifting.webp'),
+  'ac-stand': require('../../assets/work/ac-stand.webp'),
+  'ac-stabiliser': require('../../assets/work/ac-stabiliser.webp'),
   'el-electrician': require('../../assets/work/el-electrician.png'),
   'el-fans': require('../../assets/work/el-fans.png'),
   'el-switches': require('../../assets/work/el-switches.png'),
@@ -112,6 +112,20 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'carp-shelffit': require('../../assets/work/carp-shelffit.png'),
   'carp-curtain': require('../../assets/work/carp-curtain.png'),
 };
+
+/**
+ * A trade's own page can open with a wide 3D picture filling its yellow top
+ * (A123): the object on the right, the trade's name on the left. Only a trade
+ * that has one is listed; the others keep their picture beside the name.
+ */
+const TOPS: Record<string, ImageSourcePropType> = {
+  ac: require('../../assets/work/ac-top.jpg'),
+};
+
+/** The wide picture for the top of a trade's page, if it has one. */
+export function topOf(trade: string): ImageSourcePropType | undefined {
+  return TOPS[trade];
+}
 
 /** The picture for a trade (its own page) or a job (its own, else its group's), if there is one. */
 export function pictureOf(trade: string, job?: string): ImageSourcePropType | undefined {

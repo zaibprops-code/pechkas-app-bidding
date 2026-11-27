@@ -10,7 +10,7 @@ import { Rise, useRises } from '../../src/components/Rise';
 import { ScrewSpinner } from '../../src/components/ScrewSpinner';
 import { Sheet } from '../../src/components/Sheet';
 import { TradeArt } from '../../src/components/TradeArt';
-import { pictureOf, pictureOfArt, WorkArt } from '../../src/components/WorkArt';
+import { pictureOf, pictureOfArt, topOf, WorkArt } from '../../src/components/WorkArt';
 import { SystemBars } from '../../src/components/ui';
 import { PricePill, YellowTop } from '../../src/components/YellowTop';
 import { useLists, type Lists } from '../../src/lists';
@@ -39,6 +39,7 @@ export default function Work() {
   const lists = useLists();
   const { width } = useWindowDimensions();
   const narrow = width < 360;
+  const top = topOf(trade);
   const [open, setOpen] = useState<Group | null>(null);
   // Pictures in the list only when every job in it has one of its own: the same picture four times says nothing.
   const pictured = !!open && open.jobs.every((j) => (JOB_PICTURES[j.trade] ?? {})[j.name]);
@@ -62,15 +63,15 @@ export default function Work() {
     <View style={s.screen}>
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 28 }}>
-        <YellowTop>
-          <View style={s.hero}>
+        <YellowTop picture={top}>
+          <View style={[s.hero, top ? (narrow ? s.heroTopNarrow : s.heroTop) : null]}>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={[s.title, narrow && s.titleNarrow]} accessibilityRole="header">
                 {lists ? tradeName(trade) : ''}
               </Text>
               <Text style={s.ask}>What is the problem?</Text>
             </View>
-            <WorkArt art={trade} size={narrow ? 84 : 108} picture={narrow ? 118 : 148} />
+            {top ? null : <WorkArt art={trade} size={narrow ? 84 : 108} picture={narrow ? 118 : 148} />}
           </View>
         </YellowTop>
 
@@ -238,6 +239,9 @@ function SomethingElse({ tile = false, onPress }: { tile?: boolean; onPress: () 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colour.canvas },
   hero: { flexDirection: 'row', alignItems: 'flex-end', paddingLeft: 8, marginTop: -2 },
+  // With a wide 3D picture the top is as tall as it was with the picture beside the name.
+  heroTop: { minHeight: 170 },
+  heroTopNarrow: { minHeight: 150 },
   title: { fontFamily: font.display, fontSize: 32, lineHeight: 36, letterSpacing: -0.9, color: colour.ink },
   titleNarrow: { fontSize: 26, lineHeight: 30 },
   ask: { fontFamily: font.bodySemi, fontSize: 16, color: colour.onYellow, marginTop: 2 },
