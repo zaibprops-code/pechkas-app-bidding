@@ -73,12 +73,12 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'app-wmrepair': require('../../assets/work/app-wmrepair.png'),
   'app-fridge': require('../../assets/work/app-fridge.png'),
   'app-microwave': require('../../assets/work/app-microwave.png'),
-  'cctv-cctv': require('../../assets/work/cctv-cctv.png'),
-  'cctv-camfit': require('../../assets/work/cctv-camfit.png'),
-  'cctv-camset': require('../../assets/work/cctv-camset.png'),
-  'cctv-camaim': require('../../assets/work/cctv-camaim.png'),
-  'cctv-camphone': require('../../assets/work/cctv-camphone.png'),
-  'cctv-camfault': require('../../assets/work/cctv-camfault.png'),
+  'cctv-cctv': require('../../assets/work/cctv-cctv.webp'),
+  'cctv-camfit': require('../../assets/work/cctv-camfit.webp'),
+  'cctv-camset': require('../../assets/work/cctv-camset.webp'),
+  'cctv-camaim': require('../../assets/work/cctv-camaim.webp'),
+  'cctv-camphone': require('../../assets/work/cctv-camphone.webp'),
+  'cctv-camfault': require('../../assets/work/cctv-camfault.webp'),
   'wifi-wifi': require('../../assets/work/wifi-wifi.png'),
   'wifi-router': require('../../assets/work/wifi-router.png'),
   'wifi-extend': require('../../assets/work/wifi-extend.png'),
@@ -120,6 +120,7 @@ const PICTURES: Record<string, ImageSourcePropType> = {
  */
 const TOPS: Record<string, ImageSourcePropType> = {
   ac: require('../../assets/work/ac-top.jpg'),
+  cctv: require('../../assets/work/cctv-top.jpg'),
 };
 
 /** The wide picture for the top of a trade's page, if it has one. */

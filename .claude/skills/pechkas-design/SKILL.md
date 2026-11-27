@@ -133,8 +133,12 @@ a screen; use the token.
   A123)**: the pictures of the work move from flat drawings to soft 3D
   objects — realistic light from the upper left, soft shadows, real chrome
   and ceramic — still on the bright yellow screw-head circle, still objects
-  only. AC is the first; the other trades keep their drawings until each
-  is done, and a trade is never half one and half the other. Each picture
+  only. AC and CCTV are done; the other trades keep their drawings until
+  each is done, and a trade is never half one and half the other. Ask for
+  real product-photo realism (real materials, accurate proportions), and
+  check what a picture shows is Pakistani where it shows a place (a CCTV
+  view of an Islamabad house, not a European one); nothing yellow on the
+  object itself, or it vanishes into the circle. Each picture
   is made on its own in Figma's image tool at 1024 × 1024 on a flat pale
   yellow (#FFF1C7) backdrop (never a sheet of several: a sheet's pictures
   are too small and came out rough), then `scripts/oncircle.py` lifts the
@@ -143,7 +147,8 @@ a screen; use the token.
   at most 420 px. A trade's own page may open with a wide 3D picture
   filling its yellow top (`topOf()` in `WorkArt.tsx`, `YellowTop picture`):
   the object on the right, the name on the left, its backdrop the same
-  yellow. Look at every new one on white and on the cream boxes, at 390
+  yellow; widen its plain yellow on the right if the object sits near the
+  edge, because a 320-wide phone crops the sides. Look at every new one on white and on the cream boxes, at 390
   and 320 wide, before it goes in.
 - No emoji. No stock photographs of strangers.
 - The logo is `Mark` (`src/components/Mark.tsx`); its shapes come from the
