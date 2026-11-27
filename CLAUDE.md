@@ -534,9 +534,16 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (+200, +500, +1,000), "Usual price", "N raises left", **Raise my
   price** (`raise_price()`); the automatic choice. "Still looking?" at the
   first countdown's end and "No offer yet. You don't have to wait here."
-  at the second, each once (`Ask`); `CancelSheet` with one-tap reasons
-  (fixed_myself, someone_else, other + "It took too long" / "Price too
-  high"). An offer drops in from the top (`OfferBanner`, See).
+  at the second, each once (`Ask`); `CancelSheet` (the owner's design, 27
+  November 2026): the job's picture and name under "Cancel this job?",
+  "Tell us why" over one card of five text rows with a round selector and
+  no icons (fixed_myself, someone_else, other + "It took too long" /
+  "Price too high", and "Something else", which opens a box for her own
+  words, sent as the reason: 200 letters, no CNIC, as `cancel_job()`
+  checks), a red **Confirm** and a soft **Keep looking**; "cancel" is said
+  once, and no "Nothing is charged" line (the owner's no). On a phone under
+  720 tall the rows and gaps shrink so both buttons stay in view. Choose.tsx
+  uses the same sheet. An offer drops in from the top (`OfferBanner`, See).
 - **Choose a technician** (`Choose.tsx`, `/job/<id>?view=choose`): short
   cards, nearest first, the price and minutes big, his initial, name,
   rating or New, jobs, trade and years, **No thanks** / **Choose Bilal**

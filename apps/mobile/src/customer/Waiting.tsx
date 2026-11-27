@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import { rupees } from '@pechkas/shared';
 import { MapBox, type Point } from '../components/Map';
 import { ScrewDot } from '../components/MapMarks';
 import { DuoIcon } from '../components/DuoIcon';
+import { TradeTile } from './bits';
 import { Icon } from '../components/Icon';
 import { Press } from '../components/Press';
 import { Sheet } from '../components/Sheet';
@@ -479,23 +480,28 @@ function Ask({ icon, title, text, main, mainInk = false, onMain, second, onSecon
 
 const WHY: { label: string; code: string; words?: string }[] = [
   { label: 'I fixed it myself', code: 'fixed_myself' },
-  { label: 'Found someone else', code: 'someone_else' },
-  { label: 'It took too long', code: 'other', words: 'It took too long' },
-  { label: 'Price too high', code: 'other', words: 'Price too high' },
+  { label: 'I found someone else', code: 'someone_else' },
+  { label: 'It is taking too long', code: 'other', words: 'It took too long' },
+  { label: 'The price is too high', code: 'other', words: 'Price too high' },
   { label: 'Something else', code: 'other' },
 ];
 
 /** Cancelling a job nobody has been chosen for: why, in one tap. Nothing is charged. */
 export function CancelSheet({ job, onClose, onDone }: { job: Job; onClose: () => void; onDone: () => void }) {
   const toast = useToast();
+  // A short phone (320 x 640) must still show both buttons without scrolling.
+  const short = useWindowDimensions().height < 720;
   const [why, setWhy] = useState<number | null>(null);
+  // "Something else" opens a box for her own words (the database keeps up to 200 letters).
+  const [own, setOwn] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   async function cancel() {
     setBusy(true);
     setMsg(null);
     const w = why === null ? null : WHY[why];
-    const r = await ask('cancel_job', { p_job: job.id, p_reason: w?.words ?? null, p_code: w?.code ?? null });
+    const words = w && !w.words && w.code === 'other' ? own.trim() || null : w?.words ?? null;
+    const r = await ask('cancel_job', { p_job: job.id, p_reason: words, p_code: w?.code ?? null });
     setBusy(false);
     if (!r.ok) return setMsg(r.why);
     toast.show(done('Nothing was charged.', 'Your job is cancelled'));
@@ -504,21 +510,43 @@ export function CancelSheet({ job, onClose, onDone }: { job: Job; onClose: () =>
   }
   return (
     <Sheet bare onClose={onClose}>
-      <View style={{ gap: 12, paddingBottom: 6 }}>
-        <Text style={s.askTitle}>Cancel this job?</Text>
-        <View style={s.subRow}>
-          <DuoIcon name="wallet" size={18} />
-          <Text style={s.askText}>Nothing is charged. Why are you cancelling?</Text>
+      <View style={{ gap: short ? 12 : 16, paddingBottom: 6 }}>
+        <View style={s.cxHead}>
+          <TradeTile trade={job.trade} job={job.title} size={short ? 48 : 56} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={s.cxTitle}>Cancel this job?</Text>
+            <Text style={s.cxJob} numberOfLines={2}>{short ? job.title : `${job.title} · ${job.ref}`}</Text>
+          </View>
         </View>
-        <View style={s.whys}>
-          {WHY.map((w, i) => (
-            <Press key={w.label} onPress={() => setWhy(why === i ? null : i)} accessibilityRole="radio" accessibilityState={{ selected: why === i }} sink={0.95} style={[s.why, why === i && s.whyOn]}>
-              <Text style={[s.whyText, why === i && { color: colour.white }]}>{w.label}</Text>
-            </Press>
-          ))}
+        <View style={{ gap: short ? 6 : 8 }}>
+          <Text style={s.cxLabel}>Tell us why</Text>
+          <View style={s.cxList} accessibilityRole="radiogroup">
+            {WHY.map((w, i) => (
+              <Press key={w.label} onPress={() => setWhy(why === i ? null : i)} accessibilityRole="radio" accessibilityState={{ selected: why === i }} accessibilityLabel={w.label} sink={0.98} style={[s.cxRow, short && { minHeight: 46 }, i > 0 && s.cxRule, why === i && s.cxRowOn]}>
+                <Text style={s.cxRowText}>{w.label}</Text>
+                <View style={[s.cxRadio, why === i && s.cxRadioOn]}>{why === i ? <View style={s.cxDot} /> : null}</View>
+              </Press>
+            ))}
+            {why !== null && WHY[why].code === 'other' && !WHY[why].words ? (
+              <View style={s.cxOwnWrap}>
+                <TextInput
+                  value={own}
+                  onChangeText={setOwn}
+                  placeholder="What happened? (optional)"
+                  placeholderTextColor={colour.steel}
+                  maxLength={200}
+                  multiline
+                  accessibilityLabel="What happened? (optional)"
+                  style={[s.cxOwn, short && { minHeight: 46, paddingVertical: 8 }]}
+                />
+              </View>
+            ) : null}
+          </View>
         </View>
-        <Button kind="danger" label="Yes, cancel the job" onPress={cancel} busy={busy} />
-        <Button kind="outline" label="Keep looking" onPress={onClose} />
+        <View style={{ gap: short ? 8 : 10 }}>
+          <Button kind="danger" label="Confirm" onPress={cancel} busy={busy} />
+          <Button kind="soft" label="Keep looking" onPress={onClose} />
+        </View>
         <Notice text={msg} inline />
       </View>
     </Sheet>
@@ -526,6 +554,20 @@ export function CancelSheet({ job, onClose, onDone }: { job: Job; onClose: () =>
 }
 
 const s = StyleSheet.create({
+  cxHead: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  cxTitle: { fontFamily: font.display, fontSize: 21, lineHeight: 26, color: colour.ink },
+  cxJob: { fontFamily: font.body, fontSize: 14, lineHeight: 19, color: colour.steel },
+  cxLabel: { fontFamily: font.bodySemi, fontSize: 14, color: colour.steel },
+  cxList: { borderRadius: 18, borderWidth: 1, borderColor: colour.rule, overflow: 'hidden', backgroundColor: colour.white },
+  cxRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 54, paddingHorizontal: 16 },
+  cxRule: { borderTopWidth: 1, borderTopColor: colour.rule },
+  cxRowOn: { backgroundColor: colour.softYellow },
+  cxRowText: { flex: 1, fontFamily: font.bodySemi, fontSize: 15, color: colour.ink },
+  cxRadio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colour.rule, alignItems: 'center', justifyContent: 'center' },
+  cxRadioOn: { borderColor: colour.ink },
+  cxDot: { width: 11, height: 11, borderRadius: 6, backgroundColor: colour.ink },
+  cxOwnWrap: { paddingHorizontal: 12, paddingBottom: 12, backgroundColor: colour.softYellow },
+  cxOwn: { minHeight: 64, paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: colour.rule, backgroundColor: colour.white, fontFamily: font.body, fontSize: 15, lineHeight: 20, color: colour.ink, textAlignVertical: 'top' },
   centre: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
   chip: { position: 'absolute', alignSelf: 'center', bottom: 16, flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 34, paddingHorizontal: 14, borderRadius: 17, backgroundColor: colour.white, boxShadow: '0px 2px 8px rgba(20, 23, 26, 0.14)' },
   chipText: { fontFamily: font.display, fontSize: 13, color: colour.ink },
