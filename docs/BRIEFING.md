@@ -418,7 +418,7 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   fixing?", which is one big line, as professional apps do. Built.
 - **A123, 3D pictures (27 November 2026):** the pictures of the work become
   soft 3D objects on the same yellow circle, trade by trade. AC,
-  CCTV, Wi-Fi, UPS, Solar, Plumber and Painting built; the other trades and the sign-in pictures follow one at a time.
+  CCTV, Wi-Fi, UPS, Solar, Plumber, Painting and Home appliances built; the other trades and the sign-in pictures follow one at a time.
 
 ## 7. Still open: what the owner has to decide
 

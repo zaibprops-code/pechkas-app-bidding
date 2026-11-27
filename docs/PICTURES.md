@@ -9,8 +9,7 @@ decision is A123 in `docs/DECISIONS.md`.
 
 | Trade | State |
 | --- | --- |
-| AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting | Built: 3D pictures and a 3D top of the page |
-| Home appliances | **In progress.** 5 of 7 pictures are in the repository but **not used yet**: `app-appliances`, `app-wmservice`, `app-install`, `app-wmrepair` (.webp) and the page top `app-top.jpg`. Still to make: `app-fridge` and `app-microwave` (prompts below). The owner has seen the mock with the five. |
+| AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances | Built: 3D pictures and a 3D top of the page |
 | Electrician, Computers, Carpentry | Still drawings |
 
 Electrician's "UPS or inverter connection" (`el-ups`) is already 3D (UPS's one
@@ -71,13 +70,15 @@ house). Ask for blank gauge faces and no display digits. Look at every result:
 remake it if it has text, numbers, a logo, something yellow on the object, or
 the object touches the edge.
 
-**Home appliances' two missing pictures** (exact wording, square):
+**Home appliances' last two pictures** (built; kept as examples, square;
+without "no yellow hose" the gauge set came with one, three times out of three):
 
 - `app-fridge`: a white two-door refrigerator with the freezer on top,
   slightly turned, its lower door open showing clean glass shelves and a
   little frost on the back wall inside; standing beside it on the floor a
   refrigeration technician's manifold gauge set with one blue and one red
-  gauge (blank faces, no numbers) and coiled hoses, and a small dark teal
+  gauge (blank faces, no numbers) and coiled hoses in blue and red only, no
+  yellow hose, and a small dark teal
   green (#0B5148) toolbox. (Also: no food.)
 - `app-microwave`: a stainless steel and black microwave oven, slightly
   turned, with its outer metal cover lifted off and set beside it, showing
@@ -143,19 +144,18 @@ yourself before sending them: at 320 nothing may be cut or overlap.
    python3 -c "from PIL import Image; Image.open('<out>/app-fridge.png').convert('RGBA').save('apps/mobile/assets/work/app-fridge.webp','WEBP',quality=84,method=6)"
    git rm apps/mobile/assets/work/app-fridge.png
    ```
-   (Home appliances: four .webp and the top are already there; add the
-   fridge and microwave, then `git rm` all six `app-*.png`.)
 2. `apps/mobile/src/components/WorkArt.tsx`: change each of the trade's
    `require('../../assets/work/<name>.png')` lines to `.webp`, and add the
-   trade's line to `TOPS` (after `painting:`).
+   trade's line to `TOPS` (after the last one, `appliances:`).
 3. The docs, each naming the trade with the others:
-   - `CLAUDE.md`: "AC, CCTV, Wi-Fi, UPS, Solar, Plumber and Painting are done"
+   - `CLAUDE.md`: "AC, CCTV, Wi-Fi, UPS, Solar, Plumber,
+     Painting and Home appliances are done"
    - `docs/DESIGN.md` **and** `.claude/skills/pechkas-design/SKILL.md`
      (identical; `design:check` fails otherwise): the same list
    - `docs/DECISIONS.md`, row A123: add "and <Trade> (<date>, <n> pictures
      and the top)" before "; the other trades follow one by one"
    - `docs/BRIEFING.md`: the A123 line, "AC, CCTV, Wi-Fi, UPS, Solar,
-     Plumber and Painting built;"
+     Plumber, Painting and Home appliances built;"
    - this file's table
    - anything new you learned about making the pictures goes in DESIGN.md
      and SKILL.md (both).
@@ -193,7 +193,7 @@ to another account cannot change them: then say so and stop here.
   shots in `files`.
 - **The decision map**, https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4:
   read it, then in its HTML change the A123 row's list ("AC, CCTV, Wi-Fi, UPS,
-  Solar, Plumber and Painting built") and the foot's "Updated <date>: 3D
+  Solar, Plumber, Painting and Home appliances built") and the foot's "Updated <date>: 3D
   pictures of the work, …" line; check its `<script>` still parses
   (`new Function(code)` in node). Copy the built demo site to `<map>/demo`,
   run `python3 scripts/demo/map-patch.py <map>/demo/index.html`, and publish

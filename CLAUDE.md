@@ -2004,7 +2004,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   home (the tiles and the job card on top) and the search's list of
   kinds of work use them too, since every trade and job has one; home's
   yellow top has no picture at all (A122). **The pictures are becoming 3D,
-  trade by trade (A123)**: AC, CCTV, Wi-Fi, UPS, Solar, Plumber and Painting are done — soft 3D objects on the same yellow
+  trade by trade (A123)**: AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting and Home appliances are done — soft 3D objects on the same yellow
   circle, WebP, made one at a time and moved onto the circle by
   `scripts/oncircle.py` — and their pages open with a wide 3D picture filling
   the yellow top (`topOf()`, `YellowTop picture`). **How a trade is made, mocked, built and

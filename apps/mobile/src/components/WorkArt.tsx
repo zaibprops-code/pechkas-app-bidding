@@ -67,12 +67,12 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'solar-check': require('../../assets/work/solar-check.webp'),
   'solar-service': require('../../assets/work/solar-service.webp'),
   'solar-fault': require('../../assets/work/solar-fault.webp'),
-  'app-appliances': require('../../assets/work/app-appliances.png'),
-  'app-wmservice': require('../../assets/work/app-wmservice.png'),
-  'app-install': require('../../assets/work/app-install.png'),
-  'app-wmrepair': require('../../assets/work/app-wmrepair.png'),
-  'app-fridge': require('../../assets/work/app-fridge.png'),
-  'app-microwave': require('../../assets/work/app-microwave.png'),
+  'app-appliances': require('../../assets/work/app-appliances.webp'),
+  'app-wmservice': require('../../assets/work/app-wmservice.webp'),
+  'app-install': require('../../assets/work/app-install.webp'),
+  'app-wmrepair': require('../../assets/work/app-wmrepair.webp'),
+  'app-fridge': require('../../assets/work/app-fridge.webp'),
+  'app-microwave': require('../../assets/work/app-microwave.webp'),
   'cctv-cctv': require('../../assets/work/cctv-cctv.webp'),
   'cctv-camfit': require('../../assets/work/cctv-camfit.webp'),
   'cctv-camset': require('../../assets/work/cctv-camset.webp'),
@@ -126,6 +126,7 @@ const TOPS: Record<string, ImageSourcePropType> = {
   solar: require('../../assets/work/solar-top.jpg'),
   plumber: require('../../assets/work/plumber-top.jpg'),
   painting: require('../../assets/work/paint-top.jpg'),
+  appliances: require('../../assets/work/app-top.jpg'),
 };
 
 /** The wide picture for the top of a trade's page, if it has one. */
