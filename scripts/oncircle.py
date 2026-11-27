@@ -25,6 +25,9 @@ def convert(src, dst, circle=0.92, out=420):
     s = (a @ B) / (B @ B)                          # how much of the backdrop colour each pixel is
     r = np.linalg.norm(a - s[..., None] * B, axis=-1)  # what is left: the object's own colour
     obj = np.clip((r - 7) / 16, 0, 1)
+    # A shadow only darkens the backdrop a little. Anything much darker (a black battery, a
+    # recorder box, a lens) is the object itself, or it would come out see-through.
+    obj = np.maximum(obj, np.clip((0.62 - s) / 0.12, 0, 1))
     # Fill tiny holes and soften the edge by a pixel.
     m = Image.fromarray((obj * 255).astype('uint8')).filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.7))
     obj = np.asarray(m).astype(float) / 255
