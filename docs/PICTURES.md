@@ -9,11 +9,11 @@ decision is A123 in `docs/DECISIONS.md`.
 
 | Trade | State |
 | --- | --- |
-| AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers, Carpentry | Built: 3D pictures and a 3D top of the page |
-| Electrician | Still drawings (next, and the last) |
+| Every trade: AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers, Carpentry, Electrician | Built: 3D pictures and a 3D top of the page (Electrician last, 27 November 2026) |
 
-Electrician's "UPS or inverter connection" (`el-ups`) is already 3D (UPS's one
-job, the owner's choice): leave it.
+No flat picture of the work is left. A new trade or job follows the same
+steps below before it ships. The sign-in pictures in 3D wait for the owner's
+word (A123).
 
 ## The order of work for each trade
 
@@ -156,17 +156,14 @@ yourself before sending them: at 320 nothing may be cut or overlap.
    ```
 2. `apps/mobile/src/components/WorkArt.tsx`: change each of the trade's
    `require('../../assets/work/<name>.png')` lines to `.webp`, and add the
-   trade's line to `TOPS` (after the last one, `carpentry:`).
-3. The docs, each naming the trade with the others:
-   - `CLAUDE.md`: "AC, CCTV, Wi-Fi, UPS, Solar, Plumber,
-     Painting, Home appliances, Computers and Carpentry are done"
-   - `docs/DESIGN.md` **and** `.claude/skills/pechkas-design/SKILL.md`
-     (identical; `design:check` fails otherwise): the same list
-   - `docs/DECISIONS.md`, row A123: add "and <Trade> (<date>, <n> pictures
-     and the top)" before "; the other trades follow one by one"
-   - `docs/BRIEFING.md`: the A123 line, "AC, CCTV, Wi-Fi, UPS, Solar,
-     Plumber, Painting, Home appliances, Computers and Carpentry built;"
-   - this file's table
+   trade's line to `TOPS` (after the last one, `electrician:`); a new job's
+   picture goes in `PICTURES` and `JOB_PICTURES` (shared `work.ts`).
+3. The docs: every trade is now 3D, so a new trade or job is added where
+   these name the work — `CLAUDE.md` ("The pictures are 3D, every
+   trade"), `docs/DESIGN.md` **and** `.claude/skills/pechkas-design/SKILL.md`
+   (identical; `design:check` fails otherwise), `docs/DECISIONS.md` row A123
+   ("and <Trade or job> (<date>, <n> pictures)"), `docs/BRIEFING.md`'s A123
+   line, and this file's table.
    - anything new you learned about making the pictures goes in DESIGN.md
      and SKILL.md (both).
 4. `node scripts/briefing-pdf.mjs` (rebuilds `docs/Pechkas-briefing.pdf`).
@@ -202,8 +199,8 @@ to another account cannot change them: then say so and stop here.
   published `index.html` first (`action: read`), then publish it with those
   shots in `files`.
 - **The decision map**, https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4:
-  read it, then in its HTML change the A123 row's list ("AC, CCTV, Wi-Fi, UPS,
-  Solar, Plumber, Painting, Home appliances, Computers and Carpentry built") and the foot's "Updated <date>: 3D
+  read it, then in its HTML change the A123 row (it now says every trade is
+  built) and the foot's "Updated <date>: 3D
   pictures of the work, …" line; check its `<script>` still parses
   (`new Function(code)` in node). Copy the built demo site to `<map>/demo`,
   run `python3 scripts/demo/map-patch.py <map>/demo/index.html`, and publish

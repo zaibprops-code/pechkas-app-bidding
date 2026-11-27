@@ -417,8 +417,8 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 - **A122, home's top (26 November 2026):** no picture beside "What needs
   fixing?", which is one big line, as professional apps do. Built.
 - **A123, 3D pictures (27 November 2026):** the pictures of the work become
-  soft 3D objects on the same yellow circle, trade by trade. AC,
-  CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers and Carpentry built; the other trades and the sign-in pictures follow one at a time.
+  soft 3D objects on the same yellow circle, trade by trade. Every trade
+  built (Electrician last, 27 November 2026); the sign-in pictures in 3D wait for your word.
 
 ## 7. Still open: what the owner has to decide
 

@@ -128,10 +128,9 @@ a screen; use the token.
   A123)**: the pictures of the work move from flat drawings to soft 3D
   objects — realistic light from the upper left, soft shadows, real chrome
   and ceramic — still on the bright yellow screw-head circle, still objects
-  only. AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers and Carpentry are done; the other trades keep their
-  drawings until each is done, and a trade is never half one and half the
-  other — except Electrician's "UPS or inverter connection", which is UPS's
-  one job and went 3D with it (the owner's choice) until Electrician is done.
+  only. Every trade is done (the last, Electrician, on 27 November 2026);
+  a new trade or job gets its 3D picture the same way before it ships, so
+  no trade is ever half drawings and half 3D.
   `scripts/oncircle.py` counts anything much darker than a shadow as the
   object (a black battery once came out see-through); check every picture on
   a bright pink background, where any see-through part shows. A yellowish
