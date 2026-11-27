@@ -79,12 +79,12 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'cctv-camaim': require('../../assets/work/cctv-camaim.webp'),
   'cctv-camphone': require('../../assets/work/cctv-camphone.webp'),
   'cctv-camfault': require('../../assets/work/cctv-camfault.webp'),
-  'wifi-wifi': require('../../assets/work/wifi-wifi.png'),
-  'wifi-router': require('../../assets/work/wifi-router.png'),
-  'wifi-extend': require('../../assets/work/wifi-extend.png'),
-  'wifi-cable': require('../../assets/work/wifi-cable.png'),
-  'wifi-office': require('../../assets/work/wifi-office.png'),
-  'wifi-dropping': require('../../assets/work/wifi-dropping.png'),
+  'wifi-wifi': require('../../assets/work/wifi-wifi.webp'),
+  'wifi-router': require('../../assets/work/wifi-router.webp'),
+  'wifi-extend': require('../../assets/work/wifi-extend.webp'),
+  'wifi-cable': require('../../assets/work/wifi-cable.webp'),
+  'wifi-office': require('../../assets/work/wifi-office.webp'),
+  'wifi-dropping': require('../../assets/work/wifi-dropping.webp'),
   'paint-painting': require('../../assets/work/paint-painting.png'),
   'paint-room': require('../../assets/work/paint-room.png'),
   'paint-touchup': require('../../assets/work/paint-touchup.png'),
@@ -121,6 +121,7 @@ const PICTURES: Record<string, ImageSourcePropType> = {
 const TOPS: Record<string, ImageSourcePropType> = {
   ac: require('../../assets/work/ac-top.jpg'),
   cctv: require('../../assets/work/cctv-top.jpg'),
+  wifi: require('../../assets/work/wifi-top.jpg'),
 };
 
 /** The wide picture for the top of a trade's page, if it has one. */
