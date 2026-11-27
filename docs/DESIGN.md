@@ -128,7 +128,7 @@ a screen; use the token.
   A123)**: the pictures of the work move from flat drawings to soft 3D
   objects — realistic light from the upper left, soft shadows, real chrome
   and ceramic — still on the bright yellow screw-head circle, still objects
-  only. AC, CCTV, Wi-Fi, UPS and Solar are done; the other trades keep their
+  only. AC, CCTV, Wi-Fi, UPS, Solar and Plumber are done; the other trades keep their
   drawings until each is done, and a trade is never half one and half the
   other — except Electrician's "UPS or inverter connection", which is UPS's
   one job and went 3D with it (the owner's choice) until Electrician is done.
