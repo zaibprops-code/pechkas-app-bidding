@@ -90,12 +90,12 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'paint-touchup': require('../../assets/work/paint-touchup.webp'),
   'paint-damp': require('../../assets/work/paint-damp.webp'),
   'paint-house': require('../../assets/work/paint-house.webp'),
-  'pc-computers': require('../../assets/work/pc-computers.png'),
-  'pc-slow': require('../../assets/work/pc-slow.png'),
-  'pc-windows': require('../../assets/work/pc-windows.png'),
-  'pc-virus': require('../../assets/work/pc-virus.png'),
-  'pc-nostart': require('../../assets/work/pc-nostart.png'),
-  'pc-parts': require('../../assets/work/pc-parts.png'),
+  'pc-computers': require('../../assets/work/pc-computers.webp'),
+  'pc-slow': require('../../assets/work/pc-slow.webp'),
+  'pc-windows': require('../../assets/work/pc-windows.webp'),
+  'pc-virus': require('../../assets/work/pc-virus.webp'),
+  'pc-nostart': require('../../assets/work/pc-nostart.webp'),
+  'pc-parts': require('../../assets/work/pc-parts.webp'),
   'carp-carpentry': require('../../assets/work/carp-carpentry.png'),
   'carp-door': require('../../assets/work/carp-door.png'),
   'carp-cupboard': require('../../assets/work/carp-cupboard.png'),
@@ -127,6 +127,7 @@ const TOPS: Record<string, ImageSourcePropType> = {
   plumber: require('../../assets/work/plumber-top.jpg'),
   painting: require('../../assets/work/paint-top.jpg'),
   appliances: require('../../assets/work/app-top.jpg'),
+  computers: require('../../assets/work/pc-top.jpg'),
 };
 
 /** The wide picture for the top of a trade's page, if it has one. */

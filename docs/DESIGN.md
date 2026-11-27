@@ -128,7 +128,7 @@ a screen; use the token.
   A123)**: the pictures of the work move from flat drawings to soft 3D
   objects — realistic light from the upper left, soft shadows, real chrome
   and ceramic — still on the bright yellow screw-head circle, still objects
-  only. AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting and Home appliances are done; the other trades keep their
+  only. AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances and Computers are done; the other trades keep their
   drawings until each is done, and a trade is never half one and half the
   other — except Electrician's "UPS or inverter connection", which is UPS's
   one job and went 3D with it (the owner's choice) until Electrician is done.
@@ -141,7 +141,9 @@ a screen; use the token.
   A boxy object (a room corner, a house) hides the circle: give it
   `--circle 1.3`. A gauge set comes with a yellow hose unless the prompt
   says "hoses in blue and red only, no yellow hose" ("nothing yellow"
-  alone did not stop it, three times). Ask for
+  alone did not stop it, three times). A dark object's pale grey top
+  (a computer tower) passes for a shadow and shows through: ask for
+  "every surface deep matte black", seen at eye level. Ask for
   real product-photo realism (real materials, accurate proportions), and
   check what a picture shows is Pakistani where it shows a place (a CCTV
   view of an Islamabad house, not a European one); nothing yellow on the

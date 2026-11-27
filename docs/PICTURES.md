@@ -9,8 +9,8 @@ decision is A123 in `docs/DECISIONS.md`.
 
 | Trade | State |
 | --- | --- |
-| AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances | Built: 3D pictures and a 3D top of the page |
-| Electrician, Computers, Carpentry | Still drawings |
+| AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers | Built: 3D pictures and a 3D top of the page |
+| Carpentry, Electrician | Still drawings (Carpentry next) |
 
 Electrician's "UPS or inverter connection" (`el-ups`) is already 3D (UPS's one
 job, the owner's choice): leave it.
@@ -111,6 +111,10 @@ python3 scripts/retop.py <folder>/app-top.png <out>/app-top.jpg 0.86 0.47 0.47
   Check the page at 320 wide: nothing cut at the right edge, nothing under
   the title. If the source picture itself cuts an object at its edge, make
   the top again (retop cannot add what is not there).
+- retop reads the backdrop from the source's left 40%. If the image tool
+  returns a narrower top (1536 x 1024) with the object reaching into that
+  part, first widen it on the left with a mirrored strip of its own
+  backdrop (Computers: 512 px, then `0.68 0.454 0.484`).
 
 ## 2. The mock
 
@@ -146,16 +150,16 @@ yourself before sending them: at 320 nothing may be cut or overlap.
    ```
 2. `apps/mobile/src/components/WorkArt.tsx`: change each of the trade's
    `require('../../assets/work/<name>.png')` lines to `.webp`, and add the
-   trade's line to `TOPS` (after the last one, `appliances:`).
+   trade's line to `TOPS` (after the last one, `computers:`).
 3. The docs, each naming the trade with the others:
    - `CLAUDE.md`: "AC, CCTV, Wi-Fi, UPS, Solar, Plumber,
-     Painting and Home appliances are done"
+     Painting, Home appliances and Computers are done"
    - `docs/DESIGN.md` **and** `.claude/skills/pechkas-design/SKILL.md`
      (identical; `design:check` fails otherwise): the same list
    - `docs/DECISIONS.md`, row A123: add "and <Trade> (<date>, <n> pictures
      and the top)" before "; the other trades follow one by one"
    - `docs/BRIEFING.md`: the A123 line, "AC, CCTV, Wi-Fi, UPS, Solar,
-     Plumber, Painting and Home appliances built;"
+     Plumber, Painting, Home appliances and Computers built;"
    - this file's table
    - anything new you learned about making the pictures goes in DESIGN.md
      and SKILL.md (both).
@@ -193,7 +197,7 @@ to another account cannot change them: then say so and stop here.
   shots in `files`.
 - **The decision map**, https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4:
   read it, then in its HTML change the A123 row's list ("AC, CCTV, Wi-Fi, UPS,
-  Solar, Plumber, Painting and Home appliances built") and the foot's "Updated <date>: 3D
+  Solar, Plumber, Painting, Home appliances and Computers built") and the foot's "Updated <date>: 3D
   pictures of the work, …" line; check its `<script>` still parses
   (`new Function(code)` in node). Copy the built demo site to `<map>/demo`,
   run `python3 scripts/demo/map-patch.py <map>/demo/index.html`, and publish
