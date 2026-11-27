@@ -9,8 +9,8 @@ decision is A123 in `docs/DECISIONS.md`.
 
 | Trade | State |
 | --- | --- |
-| AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers | Built: 3D pictures and a 3D top of the page |
-| Carpentry, Electrician | Still drawings (Carpentry next) |
+| AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers, Carpentry | Built: 3D pictures and a 3D top of the page |
+| Electrician | Still drawings (next, and the last) |
 
 Electrician's "UPS or inverter connection" (`el-ups`) is already 3D (UPS's one
 job, the owner's choice): leave it.
@@ -106,7 +106,13 @@ python3 scripts/retop.py <folder>/app-top.png <out>/app-top.jpg 0.86 0.47 0.47
   smooth soft pale sky blue (#DCE8F5)" backdrop. A grey or white part passes
   for a shadow on blue, so those stay on yellow.
 - A boxy object (a room corner, a house, a wall unit) hides the circle: cut
-  it with `--circle 1.2` to `1.3` so the circle shows round it.
+  it with `--circle 1.2` to `1.3` so the circle shows round it. But the
+  circle is drawn inside the 1024 source: on a tall or large object a big
+  circle runs off it and shows flat edges. Doors keep the default; a wall
+  piece filling most of the square takes 1.0 to 1.2.
+- The mock of a trade with groups: pass a group's title instead of a job
+  (`trade-mock.mjs carpentry "Doors and windows"`), and the third screen
+  shows that group's sheet with its job pictures.
 - The top: `retop.py source out SCALE CX CY` shrinks the object and moves it.
   Check the page at 320 wide: nothing cut at the right edge, nothing under
   the title. If the source picture itself cuts an object at its edge, make
@@ -150,16 +156,16 @@ yourself before sending them: at 320 nothing may be cut or overlap.
    ```
 2. `apps/mobile/src/components/WorkArt.tsx`: change each of the trade's
    `require('../../assets/work/<name>.png')` lines to `.webp`, and add the
-   trade's line to `TOPS` (after the last one, `computers:`).
+   trade's line to `TOPS` (after the last one, `carpentry:`).
 3. The docs, each naming the trade with the others:
    - `CLAUDE.md`: "AC, CCTV, Wi-Fi, UPS, Solar, Plumber,
-     Painting, Home appliances and Computers are done"
+     Painting, Home appliances, Computers and Carpentry are done"
    - `docs/DESIGN.md` **and** `.claude/skills/pechkas-design/SKILL.md`
      (identical; `design:check` fails otherwise): the same list
    - `docs/DECISIONS.md`, row A123: add "and <Trade> (<date>, <n> pictures
      and the top)" before "; the other trades follow one by one"
    - `docs/BRIEFING.md`: the A123 line, "AC, CCTV, Wi-Fi, UPS, Solar,
-     Plumber, Painting, Home appliances and Computers built;"
+     Plumber, Painting, Home appliances, Computers and Carpentry built;"
    - this file's table
    - anything new you learned about making the pictures goes in DESIGN.md
      and SKILL.md (both).
@@ -197,7 +203,7 @@ to another account cannot change them: then say so and stop here.
   shots in `files`.
 - **The decision map**, https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4:
   read it, then in its HTML change the A123 row's list ("AC, CCTV, Wi-Fi, UPS,
-  Solar, Plumber, Painting, Home appliances and Computers built") and the foot's "Updated <date>: 3D
+  Solar, Plumber, Painting, Home appliances, Computers and Carpentry built") and the foot's "Updated <date>: 3D
   pictures of the work, …" line; check its `<script>` still parses
   (`new Function(code)` in node). Copy the built demo site to `<map>/demo`,
   run `python3 scripts/demo/map-patch.py <map>/demo/index.html`, and publish
