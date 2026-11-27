@@ -12,6 +12,13 @@ Output: no background, the yellow circle, the object, and the shadow falling on 
 
 Use: python3 scripts/oncircle.py OUT_DIR picture.png [picture.png ...]
 (writes OUT_DIR/<same name>, at most 420 px). Pillow and numpy.
+The backdrop may be any plain pale colour: an object with yellowish or beige
+parts (a damp stain, an old faded wall) is drawn on pale blue (#DCE8F5)
+instead, or those parts come out see-through; grey and white parts need the
+yellow one, where they cannot pass for a shadow.
+Put --circle 1.3 (or another size) before a boxy object (a house, a room
+corner) whose corners would otherwise hide the circle; the default is 0.92 of
+the object's longest side.
 Check every picture by eye on white and on the cream boxes before it goes in.
 """
 import sys, numpy as np
@@ -50,7 +57,12 @@ def convert(src, dst, circle=0.92, out=420):
     img = img.crop(img.getbbox()); img.thumbnail((out, out), Image.LANCZOS)
     img.save(dst, optimize=True)
 if __name__ == '__main__':
-    for src in sys.argv[2:]:
-        import os
-        os.makedirs(sys.argv[1], exist_ok=True)
-        convert(src, os.path.join(sys.argv[1], os.path.basename(src)))
+    import os
+    os.makedirs(sys.argv[1], exist_ok=True)
+    circle, args = 0.92, sys.argv[2:]
+    while args:
+        src = args.pop(0)
+        if src == '--circle':
+            circle = float(args.pop(0))
+        else:
+            convert(src, os.path.join(sys.argv[1], os.path.basename(src)), circle=circle)
