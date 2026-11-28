@@ -1,6 +1,6 @@
 # Pechkas: a complete briefing for an adviser
 
-_Written 16 November 2026, updated 27 November 2026, from the two repositories as they stand today
+_Written 16 November 2026, updated 28 November 2026, from the two repositories as they stand today
 (app `zaibprops-code/pechkas-app-bidding`, website `zaibprops-code/Pechkas`).
 Every rule below is something the code actually does, not a plan, unless it
 says "open" or "not built"._
@@ -466,6 +466,13 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 
 ### Business choices (owner, before launch)
 
+- **D41, reviews and ratings (added 28 November 2026):** the owner's
+  master list of 65 rules in 11 parts: customer ratings, what each side
+  sees, fixed compliments, written reviews, the technician's reply,
+  reporting, automatic filters, the profile, the office, fraud and the
+  law. Decided one rule at a time, in order, starting with 1.1; nothing is
+  built until each is decided. The list, with what the app does today, is
+  in `docs/DECISIONS.md` and on the decision map.
 - **D16:** keep the lowest offer at Rs 1,000 and the highest at 2× her
   price?
 - **D17:** are F-11, E-11 and G-13 the right sectors to start in? They

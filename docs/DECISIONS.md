@@ -229,6 +229,222 @@ others depend on its answer.
 #### D19. Technicians who forget to go offline — decided 22 November 2026 (A106)
 - Decided: nothing switches automatically. See A106.
 
+### Before launch: reviews and ratings (you, one rule at a time)
+
+#### D41. Reviews and ratings: the rules
+- **The question:** How should customers rate technicians, and what should
+  other customers see? The owner's master list (28 November 2026) has 65
+  rules in 11 parts. We go through them in order, one at a time, and keep,
+  change or remove each. **Nothing is built until each rule is decided.**
+- **Why it matters:** a customer is letting a stranger into her home, so
+  what other customers say about him matters more than on a ride app.
+  Reviews must also be fair to him, keep her safe, run without the office
+  reading each one (the standing rule), and be safe under Pakistani law.
+- **Today:** stars (1 to 5) and optional words (up to 300 letters, no phone
+  or CNIC numbers) after a finished job, within 14 days, hidden until both
+  have rated or 48 hours after the job finished, never her name. His profile
+  shows his average once he has 3 ratings, and his last five reviews. No
+  compliments, replies or reporting.
+- **Help from outside:** a native speaker for a list of rude words in Urdu
+  and Roman Urdu (7.5, 7.7); the lawyer for the policies (11.4, with D1).
+- **Who decides:** You. Start with 1.1.
+- **The rules** (each with what the app does today):
+
+  **1. Customer rating rules**
+
+  - **1.1 Completed jobs only.** A customer can rate a technician only after
+    an eligible job is completed. *Today:* She can rate a finished job
+    (since the work check, that means she said it works or 24 hours
+    passed) and also a job that stopped with a visit fee only, within 14
+    days. To decide: should visit-fee-only jobs be rated?
+  - **1.2 One rating per job.** A customer cannot submit multiple ratings
+    for the same job. *Today:* Built: a second rating is refused.
+  - **1.3 Star rating.** The customer can give the technician a rating from
+    1 to 5 stars. *Today:* Built: 1 to 5 stars.
+  - **1.4 Written review optional.** The customer can write a comment, but
+    does not have to. *Today:* Built: up to 300 letters.
+  - **1.5 Fixed compliments.** The customer can select predefined
+    compliments, such as Polite, On time and Clean work. *Today:* Not
+    built.
+  - **1.6 No forced reviews.** A customer can submit stars without writing
+    anything. *Today:* Built: stars alone are enough.
+  - **1.7 No customer identity shown.** The technician and the public cannot
+    see the customer’s name on a review. *Today:* Built: never her name,
+    to him or to other customers.
+
+  **2. Rating visibility rules**
+
+  - **2.1 Hidden ratings.** Neither party can see the other’s rating before
+    submitting their own. *Today:* Built: hidden until both have rated.
+  - **2.2 Two-day deadline.** If both have not rated, the submitted rating
+    becomes visible after 48 hours. *Today:* Built: but the 48 hours count
+    from when the job finished, not from when she rated.
+  - **2.3 Technician privacy.** The technician never sees the customer’s
+    individual star rating. Only the office can access it. *Today:*
+    Different today: once revealed, he sees each review’s stars and words
+    with its date in “Your rating” (never her name). His rating of her is
+    seen by the office only.
+  - **2.4 Public average.** The technician’s profile shows his average
+    customer rating. *Today:* Built: shown once he has 3 ratings; “New”
+    until then (an office setting).
+  - **2.5 Correct rating count.** Show the number of actual ratings, not the
+    number of completed jobs. *Today:* Built: the profile counts ratings.
+  - **2.6 Separate job count.** Show completed jobs separately from ratings
+    received. *Today:* Built: jobs done is its own number.
+
+  **3. Fixed compliments rules**
+
+  - **3.1 Predefined options.** Customers select compliments instead of
+    typing. Suggested: Arrived on time, Polite and respectful, Clean work,
+    Fixed the problem first time, Fair price. *Today:* Not built.
+  - **3.2 Multiple selections.** Customers can select more than one
+    compliment. *Today:* Not built.
+  - **3.3 Public compliment counts.** The profile shows how many customers
+    selected each compliment. *Today:* Not built.
+  - **3.4 No invented compliments.** Only compliments actually selected by
+    customers are counted. *Today:* Not built. Already the app’s rule for
+    every number: nothing is invented.
+
+  **4. Written review rules**
+
+  - **4.1 Public reviews.** Written reviews can appear on the technician’s
+    public profile. *Today:* Built: his last five reviews, to a customer
+    he has offered for.
+  - **4.2 Five-review threshold.** Individual reviews stay hidden until he
+    has five eligible written reviews. *Today:* Not built: reviews show
+    from the first one.
+  - **4.3 Anonymous reviews.** Never show the customer’s name, phone number
+    or identity. *Today:* Built: never her name or number.
+  - **4.4 Month only.** Show the month and year, not the exact date or job
+    date. *Today:* Built: month only for customers. He sees the date (see
+    2.3).
+  - **4.5 Newest review.** The profile shows the newest eligible public
+    review. *Today:* In the quick-glance profile mock, waiting for your
+    yes.
+  - **4.6 See all reviews.** Customers can open a separate page with all
+    eligible public reviews. *Today:* Not built: the last five only.
+  - **4.7 Natural language.** Allow English, Urdu and Roman Urdu. *Today:*
+    Built: she can type any words. The app itself speaks English.
+  - **4.8 Optional comments.** Customers are not forced to write a review.
+    *Today:* Built: the same as 1.4 and 1.6.
+
+  **5. Technician reply rules**
+
+  - **5.1 Public reply.** Technicians can respond to customer reviews.
+    *Today:* Not built.
+  - **5.2 Five-review threshold.** Replies open only after the same five-
+    review threshold. *Today:* Not built.
+  - **5.3 One reply per review.** A technician gets one public reply to each
+    review. *Today:* Not built.
+  - **5.4 No personal information.** Replies cannot contain her phone
+    number, address or identifying details. *Today:* Not built.
+  - **5.5 Reply visibility.** Replies appear under their reviews. *Today:*
+    Not built.
+
+  **6. Reporting and complaints rules**
+
+  - **6.1 Technician reporting.** Technicians can report unfair or abusive
+    reviews. *Today:* Not built. Today he can only write to the office in
+    general.
+  - **6.2 Customer reporting.** Customers can report inappropriate
+    technician replies. *Today:* Not built.
+  - **6.3 Office investigation.** The office receives reported cases and
+    looks into them. *Today:* Not built. The office’s Problems page is
+    where it would go.
+  - **6.4 Written decision.** The office records its decision inside
+    Pechkas. *Today:* The way the office already answers everything: in
+    writing, in the app.
+  - **6.5 No automatic removal.** A reported review stays visible until the
+    office decides, unless the automatic privacy filter hides it. *Today:*
+    Not built.
+  - **6.6 Reporting reasons.** People choose a reason when they report.
+    *Today:* Not built.
+
+  **7. Automatic content protection rules**
+
+  - **7.1 Block phone numbers.** No phone numbers in reviews and replies.
+    *Today:* Built: Pakistani mobile numbers are refused. Landlines and
+    numbers broken up with words are not caught.
+  - **7.2 Block CNIC numbers.** No CNIC numbers. *Today:* Built: refused.
+  - **7.3 Block addresses.** Detect house numbers, street addresses and
+    other location details. *Today:* Not built. Hard to do reliably:
+    “House 12, Street 4” must be caught, “fixed 12 lights” must not.
+  - **7.4 Block external links.** No links. *Today:* Not built.
+  - **7.5 Inappropriate language.** Detect abusive language where possible.
+    *Today:* Not built. A list of rude words needs a native speaker for
+    Urdu and Roman Urdu.
+  - **7.6 Privacy filter.** Automatically hide content with detected
+    personal information. *Today:* Different today: such words are refused
+    when she sends them, so she changes them and nothing needs hiding
+    later. To decide: refuse at sending, or save and hide.
+  - **7.7 Roman Urdu support.** Filters handle common Roman Urdu spellings,
+    not just English words. *Today:* Not built.
+
+  **8. Technician profile rules**
+
+  - **8.1 Average rating.** Show his average star rating. *Today:* Built:
+    see 2.4.
+  - **8.2 Rating count.** Show how many customers actually rated him.
+    *Today:* Built:
+  - **8.3 Completed jobs.** Show completed jobs separately. *Today:* Built:
+  - **8.4 Trade experience.** Show his years in his trade. *Today:* Built:
+    the years he wrote on his application.
+  - **8.5 Pechkas membership.** Show when he joined Pechkas, separately.
+    *Today:* Built (“On Pechkas since”), but left out of the quick-glance
+    mock.
+  - **8.6 Compliment summary.** Show the most often selected compliments.
+    *Today:* Not built (needs section 3).
+  - **8.7 Latest review.** Show the newest eligible public review. *Today:*
+    In the quick-glance mock (see 4.5).
+  - **8.8 All reviews.** A way to the full list of eligible public reviews.
+    *Today:* Not built (see 4.6).
+
+  **9. Office and administration rules**
+
+  - **9.1 No routine approval.** The office does not approve every review.
+    *Today:* Built: nobody approves reviews.
+  - **9.2 Report-based involvement.** The office looks only at reported
+    content. *Today:* Not built (needs section 6).
+  - **9.3 Restricted rating access.** Only authorised office staff can see
+    individual ratings. *Today:* Built: nobody reads ratings directly; the
+    app’s own functions decide who sees what, and every office function
+    checks the staff member again.
+  - **9.4 Decision records.** Every moderation decision is recorded.
+    *Today:* Not built for reviews. The app records every other office
+    decision this way.
+  - **9.5 Review history.** Keep the original reviews, replies, reports and
+    decisions. *Today:* Not built. A review cannot be edited today, so the
+    original is the only version.
+
+  **10. Eligibility and anti-fraud rules**
+
+  - **10.1 Genuine Pechkas job.** Feedback must belong to a real Pechkas
+    job. *Today:* Built:
+  - **10.2 Customer confirmation.** The work is confirmed by her, or passes
+    the 24-hour check. *Today:* Built for finished jobs. A visit-fee-only
+    job can be rated too (see 1.1).
+  - **10.3 Commission charged.** Pechkas must have charged its commission.
+    *Today:* Different today: not required. This rule would also stop
+    ratings on visit-fee-only jobs and free guarantee repairs, which carry
+    no commission. To decide: commission recorded, or paid by him?
+  - **10.4 No duplicate reviews.** One review per eligible job. *Today:*
+    Built: see 1.2.
+  - **10.5 No manual fake ratings.** Ratings come only from the customer
+    account the job belongs to. *Today:* Built:
+
+  **11. Legal and policy rules**
+
+  - **11.1 Review policy.** The terms say reviews are customers’ own
+    opinions and experiences. *Today:* Not written. The privacy page
+    already says review words can be shown to other customers.
+  - **11.2 Moderation policy.** Explain when Pechkas can hide or remove
+    content. *Today:* Not written.
+  - **11.3 User reporting policy.** Explain how customers and technicians
+    report content. *Today:* Not written.
+  - **11.4 Legal review.** A Pakistani lawyer reviews the policies before
+    public written reviews launch. *Today:* Open, for the same lawyer
+    meeting as D1.
+
 ### Before launch: signing in (you, then setup steps)
 
 #### D20. Who sends the sign-in codes by SMS — decided 22 November 2026 (A107)
