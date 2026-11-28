@@ -26,7 +26,7 @@ export const WORK_THINGS: Record<string, string> = {
   cctv: 'Cameras, recorder, phone view',
   wifi: 'Router, weak signal, cables',
   carpentry: 'Doors, locks, cupboards',
-  painting: 'Rooms, touch-ups, damp patches',
+  painting: 'Rooms, texture, polish, gates',
   computers: 'Slow, virus, Windows, repairs',
   tank: 'Roof tank cleaning',
   cleaning: 'Sofa, carpet, bathroom, kitchen',
@@ -199,6 +199,9 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Touch-up and patch work': 'Cracks and holes filled, and marks painted over',
     'Damp or seepage patch treatment': 'A damp or seepage patch scraped back and sealed',
     'Full flat or house repaint': 'A whole flat or house painted again',
+    'Feature wall texture (one wall)': 'One wall given a textured plaster finish',
+    'Door or furniture polish': 'A wooden door, table or bed polished again',
+    'Gate or grill painting': 'A metal gate or window grills scraped and repainted',
   },
   computers: {
     'A slow machine, cleaned up': 'A slow computer cleared of clutter and checked',
@@ -353,6 +356,9 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Touch-up and patch work': 'paint-touchup',
     'Damp or seepage patch treatment': 'paint-damp',
     'Full flat or house repaint': 'paint-house',
+    'Feature wall texture (one wall)': 'paint-texture',
+    'Door or furniture polish': 'paint-polish',
+    'Gate or grill painting': 'paint-grill',
   },
   computers: {
     'A slow machine, cleaned up': 'pc-slow',

@@ -450,6 +450,9 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   repair; Home appliances now opens as three groups. No gas stove.
 - **A129, Cleaning (28 November 2026):** Sofa and carpet cleaning is now
   just Cleaning, with bathroom and kitchen deep cleaning (one room each).
+- **A130, three more painting jobs (28 November 2026):** a feature wall
+  texture, a door or furniture polish, a gate or grill painted. No
+  exterior painting, no roof waterproofing.
 
 ## 7. Still open: what the owner has to decide
 

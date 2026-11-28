@@ -2045,7 +2045,10 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   **A129** renamed Sofa and carpet cleaning to **Cleaning** and added
   bathroom and kitchen deep cleaning, one room each, in two groups
   (Furniture and carpets, Rooms). Whole-house, office and building-site
-  cleaning stay out. **The pictures are 3D,
+  cleaning stay out.
+  **A130** added a feature wall texture, a door or furniture polish and a
+  gate or grill painted to Painting; exterior painting and roof
+  waterproofing stay out. **The pictures are 3D,
   every trade (A123, built trade by trade, the last on 27 November 2026)** — soft 3D objects on the same yellow
   circle, WebP, made one at a time and moved onto the circle by
   `scripts/oncircle.py` — and their pages open with a wide 3D picture filling

@@ -148,6 +148,9 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'app-stove': require('../../assets/work/app-stove.webp'),
   'clean-bathroom': require('../../assets/work/clean-bathroom.webp'),
   'clean-kitchen': require('../../assets/work/clean-kitchen.webp'),
+  'paint-texture': require('../../assets/work/paint-texture.webp'),
+  'paint-polish': require('../../assets/work/paint-polish.webp'),
+  'paint-grill': require('../../assets/work/paint-grill.webp'),
 };
 
 /**

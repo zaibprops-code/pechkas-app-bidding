@@ -3253,6 +3253,16 @@ its 3D picture. Its page has two groups: Furniture and carpets, and Rooms.
    editor, after `…_more_jobs_four`. It is safe to run twice.
 2. Open the app twice: home now says **Cleaning**.
 
+## Three more painting jobs (A130)
+
+Feature wall texture (one wall), door or furniture polish, and gate or
+grill painting, each with its 3D picture.
+
+1. Run `supabase/migrations/20261213000000_painting_more.sql` in the SQL
+   editor, after `…_cleaning_rooms`. It is safe to run twice.
+2. Open the app twice, then Painting: seven jobs.
+3. Prices are blank ("After a look") until you give them.
+
 ## Putting the app on Google Play
 
 No migration this time. Do these in order; each says which screen and which
