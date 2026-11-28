@@ -3191,8 +3191,8 @@ on purpose.
    application like any other kind of work. Until somebody is approved for
    it, a customer who posts a tank job gets no offers, so sign up two or
    three before you tell people about it.
-5. The new jobs show a drawing or their group's picture until their 3D
-   pictures are made (they come later, A123's steps).
+5. Every new job has its 3D picture, and Water tank has its own picture
+   and page top.
 
 ## Putting the app on Google Play
 

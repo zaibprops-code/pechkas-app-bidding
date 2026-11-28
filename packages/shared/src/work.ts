@@ -45,7 +45,7 @@ export const WORK_GROUPS: Record<string, WorkGroup[]> = {
   ],
   electrician: [
     { title: 'Fans and lights', art: 'fan', jobs: ['Ceiling fan installation', 'Exhaust fan fitting', 'Light or chandelier fitting'] },
-    { title: 'TV', jobs: ['TV wall mounting'] },
+    { title: 'TV', art: 'tv', jobs: ['TV wall mounting'] },
     { title: 'Switches and sockets', art: 'socket', jobs: ['Switch or socket replacement', 'New socket or light point', 'Doorbell or intercom fitting'] },
     { title: 'Power and wiring', art: 'breaker', jobs: ['DB or breaker fault', 'Wiring fault tracing', 'Rewiring a room or a house', 'UPS or inverter connection', 'Generator or solar changeover switch', 'Water motor automatic switch'] },
   ],
@@ -227,6 +227,9 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Blocked drain clearing': 'plumber-blocked',
     'Main sewerage line blockage': 'plumber-sewer',
     'Hidden pipe leak': 'plumber-hiddenleak',
+    'Water purifier (RO) filter change': 'plumber-ro',
+    'Silicone sealing (bath, basin or sink)': 'plumber-silicone',
+    'Bathroom accessory fitting': 'plumber-accessory',
   },
   ac: {
     'General service (indoor and outdoor unit)': 'ac-general',
@@ -252,6 +255,7 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'UPS or inverter connection': 'el-ups',
     'Generator or solar changeover switch': 'el-changeover',
     'Water motor automatic switch': 'el-motorswitch',
+    'TV wall mounting': 'el-tv',
   },
   solar: {
     'Panel cleaning (up to 5kW)': 'solar-clean5',
@@ -266,6 +270,7 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Washing machine repair': 'app-wmrepair',
     'Fridge or freezer repair': 'app-fridge',
     'Microwave or electric oven repair': 'app-microwave',
+    'Water dispenser repair': 'app-dispenser',
   },
   cctv: {
     'Fitting a camera': 'cctv-camfit',
@@ -306,6 +311,11 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Furniture repair': 'carp-furniture',
     'Shelf or wall bracket fitting': 'carp-shelffit',
     'Curtain rod or blind fitting': 'carp-curtain',
+    'Mirror, picture or frame hanging': 'carp-mirror',
+    'Mosquito mesh (jaali) for a window or door': 'carp-mesh',
+  },
+  tank: {
+    'Overhead water tank cleaning': 'tank-clean',
   },
 };
 export const ART_PICTURES: Record<string, string> = {
@@ -333,6 +343,8 @@ export const ART_PICTURES: Record<string, string> = {
   door: 'carp-door',
   cupboard: 'carp-cupboard',
   shelf: 'carp-shelf',
+  tv: 'el-tv',
+  tank: 'tank-tank',
 };
 
 /** The picture for a job (its own, else its group's), or for a drawing's key; undefined when there is none yet. */

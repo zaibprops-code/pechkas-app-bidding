@@ -430,8 +430,8 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   (Plumber), TV wall mounting (Electrician), mirror or picture hanging and
   mosquito mesh (Carpentry), water dispenser repair (Home appliances), and a
   new kind of work, Water tank, with overhead tank cleaning. Underground tanks
-  stay out (safety). Prices blank ("After a look") until the owner gives them;
-  pictures later. Built.
+  stay out (safety). Prices blank ("After a look") until the owner gives them.
+  Their 3D pictures, and Water tank's page top, built the same day.
 
 ## 7. Still open: what the owner has to decide
 

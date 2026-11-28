@@ -10,11 +10,10 @@ decision is A123 in `docs/DECISIONS.md`.
 | Trade | State |
 | --- | --- |
 | Every trade: AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers, Carpentry, Electrician | Built: 3D pictures and a 3D top of the page (Electrician last, 27 November 2026) |
-| **Still to make (A125, the owner: pictures later)** | Plumber: water purifier (RO) filter change, silicone sealing, bathroom accessory fitting. Electrician: TV wall mounting, and the "TV" group's picture. Carpentry: mirror, picture or frame hanging; mosquito mesh (jaali). Home appliances: water dispenser repair. **Water tank** (a new trade): its own picture, its job (overhead water tank cleaning: a plastic or cement tank on a flat roof) and a wide top for its page |
+| A125's eight new jobs and **Water tank** | Built 28 November 2026: water purifier filters, silicone sealing, bathroom accessories (Plumber); TV wall mounting and its "TV" group (Electrician); mirror or picture hanging, mosquito mesh (Carpentry); water dispenser (Home appliances); Water tank's own picture, its cleaning job and its page top. The four flat, boxy ones (mirror, TV, mesh, bathroom tiles) were cut with `--circle 1.06`, the mesh at 0.96; at 1.22 the circle ran off the source and showed flat sides |
 
-The A125 jobs show their group's or trade's picture, or a drawing, until
-theirs are made; each new picture goes in `JOB_PICTURES` / `ART_PICTURES`
-(and the TV group gets `art`). The sign-in pictures in 3D wait for the
+No flat picture of the work is left. A new trade or job follows the same
+steps below before it ships. The sign-in pictures in 3D wait for the
 owner's word (A123).
 
 ## The order of work for each trade

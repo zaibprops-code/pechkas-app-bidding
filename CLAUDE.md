@@ -2019,11 +2019,11 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   carry the picture too, search results and the top of Post a job);
   home (the tiles and the job card on top) and the search's list of
   kinds of work use them too; home's yellow top has no picture at all
-  (A122). **The eight jobs added by A125 and Water tank's page have no
-  picture yet**: a job shows its group's picture, else its trade's, and
-  Water tank shows its drawing (`tank` in `TradeArt.tsx` and `Art.tsx`)
-  until theirs are made. TV wall mounting is its own group, "TV", so it
-  never borrows the fans picture. **Water tank** (A125) is overhead tanks
+  (A122). **The eight jobs added by A125 have their 3D pictures too**
+  (made the same day), and Water tank has its own picture and page top;
+  its drawing (`tank` in `TradeArt.tsx` and `Art.tsx`) stays as the
+  fallback. TV wall mounting is its own group, "TV" (art `tv`), so it
+  never shares the fans picture. **Water tank** (A125) is overhead tanks
   only; underground tanks stay out (bad air inside one), and every A125
   price is NULL ("After a look") until the owner gives one. **The pictures are 3D,
   every trade (A123, built trade by trade, the last on 27 November 2026)** — soft 3D objects on the same yellow

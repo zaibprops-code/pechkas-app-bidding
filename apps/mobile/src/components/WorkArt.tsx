@@ -32,6 +32,9 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'plumber-blocked': require('../../assets/work/plumber-blocked.webp'),
   'plumber-sewer': require('../../assets/work/plumber-sewer.webp'),
   'plumber-hiddenleak': require('../../assets/work/plumber-hiddenleak.webp'),
+  'plumber-ro': require('../../assets/work/plumber-ro.webp'),
+  'plumber-silicone': require('../../assets/work/plumber-silicone.webp'),
+  'plumber-accessory': require('../../assets/work/plumber-accessory.webp'),
   'ac-ac': require('../../assets/work/ac-ac.webp'),
   'ac-service': require('../../assets/work/ac-service.webp'),
   'ac-fitting': require('../../assets/work/ac-fitting.webp'),
@@ -60,6 +63,7 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'el-ups': require('../../assets/work/el-ups.webp'),
   'el-changeover': require('../../assets/work/el-changeover.webp'),
   'el-motorswitch': require('../../assets/work/el-motorswitch.webp'),
+  'el-tv': require('../../assets/work/el-tv.webp'),
   'ups-ups': require('../../assets/work/ups-ups.webp'),
   'solar-solar': require('../../assets/work/solar-solar.webp'),
   'solar-clean5': require('../../assets/work/solar-clean5.webp'),
@@ -73,6 +77,7 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'app-wmrepair': require('../../assets/work/app-wmrepair.webp'),
   'app-fridge': require('../../assets/work/app-fridge.webp'),
   'app-microwave': require('../../assets/work/app-microwave.webp'),
+  'app-dispenser': require('../../assets/work/app-dispenser.webp'),
   'cctv-cctv': require('../../assets/work/cctv-cctv.webp'),
   'cctv-camfit': require('../../assets/work/cctv-camfit.webp'),
   'cctv-camset': require('../../assets/work/cctv-camset.webp'),
@@ -111,6 +116,10 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'carp-furniture': require('../../assets/work/carp-furniture.webp'),
   'carp-shelffit': require('../../assets/work/carp-shelffit.webp'),
   'carp-curtain': require('../../assets/work/carp-curtain.webp'),
+  'carp-mirror': require('../../assets/work/carp-mirror.webp'),
+  'carp-mesh': require('../../assets/work/carp-mesh.webp'),
+  'tank-tank': require('../../assets/work/tank-tank.webp'),
+  'tank-clean': require('../../assets/work/tank-clean.webp'),
 };
 
 /**
@@ -130,6 +139,7 @@ const TOPS: Record<string, ImageSourcePropType> = {
   computers: require('../../assets/work/pc-top.jpg'),
   carpentry: require('../../assets/work/carp-top.jpg'),
   electrician: require('../../assets/work/el-top.jpg'),
+  tank: require('../../assets/work/tank-top.jpg'),
 };
 
 /** The wide picture for the top of a trade's page, if it has one. */
