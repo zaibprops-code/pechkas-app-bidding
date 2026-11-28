@@ -2067,7 +2067,11 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   "Something else" included: a brand-new trade whose every job is risky
   could never be started by anybody (first jobs are basic ones, and risky
   work needs another welder to check him); its safety rules are D43.
-  They are drawings until their 3D pictures are made, one trade at a time.
+  They are drawings until their 3D pictures are made, one trade at a time;
+  **Masonry and tiles has its 3D pictures** (its nine jobs, its own picture,
+  its three groups' pictures from their jobs, and its page top); Garden's
+  eight jobs and three groups have theirs, its own picture and page top
+  still to make (Figma's credits ran out).
   **Helper (A135, migration `…_helper_jobs`) is bought by time, not by a
   result**: `trades.by_time`, `jobs.work_hours` (2, 4 or 8). Post a job's
   price step asks "How long do you need him?" (`WORK_HOURS`,

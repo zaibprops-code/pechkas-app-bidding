@@ -157,6 +157,24 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'wifi-device': require('../../assets/work/wifi-device.webp'),
   'pc-overheat': require('../../assets/work/pc-overheat.webp'),
   'pc-hinge': require('../../assets/work/pc-hinge.webp'),
+  'mason-floortile': require('../../assets/work/mason-floortile.webp'),
+  'mason-walltile': require('../../assets/work/mason-walltile.webp'),
+  'mason-loosetile': require('../../assets/work/mason-loosetile.webp'),
+  'mason-grout': require('../../assets/work/mason-grout.webp'),
+  'mason-plaster': require('../../assets/work/mason-plaster.webp'),
+  'mason-hole': require('../../assets/work/mason-hole.webp'),
+  'mason-brick': require('../../assets/work/mason-brick.webp'),
+  'mason-step': require('../../assets/work/mason-step.webp'),
+  'mason-counter': require('../../assets/work/mason-counter.webp'),
+  'mason-mason': require('../../assets/work/mason-mason.webp'),
+  'garden-grass': require('../../assets/work/garden-grass.webp'),
+  'garden-weeding': require('../../assets/work/garden-weeding.webp'),
+  'garden-newgrass': require('../../assets/work/garden-newgrass.webp'),
+  'garden-hedge': require('../../assets/work/garden-hedge.webp'),
+  'garden-tree': require('../../assets/work/garden-tree.webp'),
+  'garden-repot': require('../../assets/work/garden-repot.webp'),
+  'garden-planting': require('../../assets/work/garden-planting.webp'),
+  'garden-bed': require('../../assets/work/garden-bed.webp'),
 };
 
 /**
@@ -178,6 +196,7 @@ const TOPS: Record<string, ImageSourcePropType> = {
   electrician: require('../../assets/work/el-top.jpg'),
   tank: require('../../assets/work/tank-top.jpg'),
   cleaning: require('../../assets/work/cleaning-top.jpg'),
+  mason: require('../../assets/work/mason-top.jpg'),
 };
 
 /** The wide picture for the top of a trade's page, if it has one. */
