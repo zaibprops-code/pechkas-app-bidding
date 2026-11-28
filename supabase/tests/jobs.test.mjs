@@ -392,4 +392,18 @@ heading('Two more Computers jobs (A133)');
   ok('a search for hinge finds the laptop hinge', findJobs('hinge', [{ trade: 'computers', name: 'Broken laptop hinge' }, { trade: 'carpentry', name: 'Door hinge repair or replacement' }], (t) => t).some((j) => j.trade === 'computers'));
 }
 
+heading('Masonry and tiles, Garden and Welding (A134)');
+{
+  const { rows: t } = await setup(`SELECT slug, name, something_else_risky FROM public.trades WHERE slug IN ('mason', 'garden', 'welding') ORDER BY sort`);
+  ok('the three kinds of work are there, in that order', t.map((r) => r.name).join('|') === 'Masonry and tiles|Garden|Welding', t);
+  ok('none of their Something else is risky yet (D43)', t.every((r) => r.something_else_risky === false), t);
+  const { rows } = await setup(`SELECT trade, name, list_paisa, guarantee, risky FROM public.job_types WHERE trade IN ('mason', 'garden', 'welding')`);
+  ok('22 jobs: 9 masonry, 8 garden, 5 welding', rows.length === 22 && rows.filter((r) => r.trade === 'mason').length === 9 && rows.filter((r) => r.trade === 'garden').length === 8, rows.length);
+  ok('no price and nothing risky', rows.every((r) => r.list_paisa === null && r.risky === false), rows);
+  ok('garden jobs are services, masonry and welding 30 days', rows.every((r) => r.guarantee === (r.trade === 'garden' ? 'service' : 'repair')), rows);
+  const { rows: out } = await setup(`SELECT name FROM public.job_types WHERE name ILIKE '%structural%' OR name ILIKE '%pesticide%' OR name ILIKE '%tree cutting%' OR name ILIKE '%new gate%' OR name ILIKE '%rubble%'`);
+  ok('no structural work, pesticides, tree felling, new gates or rubble', out.length === 0, out);
+  ok('Welding\'s gates also offer the gate painting', (WORK_GROUPS.welding ?? []).some((g) => (g.also ?? []).some((a) => a.trade === 'painting' && a.job === 'Gate or grill painting')));
+}
+
 report();

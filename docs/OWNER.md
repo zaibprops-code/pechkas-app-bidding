@@ -3293,6 +3293,17 @@ picture.
    editor, after `…_wifi_device`. It is safe to run twice.
 2. Prices are blank ("After a look") until you give them.
 
+## Masonry and tiles, Garden and Welding (A134)
+
+Three new kinds of work, 22 jobs, shown with drawings until their 3D
+pictures are made.
+
+1. Run `supabase/migrations/20261217000000_mason_garden_welding.sql` in
+   the SQL editor, after `…_computer_more`. It is safe to run twice.
+2. Open the app twice: home ends with Masonry and tiles, Garden and
+   Welding.
+3. Prices are blank ("After a look") until you give them.
+
 ## Putting the app on Google Play
 
 No migration this time. Do these in order; each says which screen and which

@@ -10,6 +10,7 @@ decision is A123 in `docs/DECISIONS.md`.
 | Trade | State |
 | --- | --- |
 | Every trade: AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers, Carpentry, Electrician | Built: 3D pictures and a 3D top of the page (Electrician last, 27 November 2026) |
+| A134's Masonry and tiles, Garden and Welding | To do: 22 jobs, their groups and the three page tops, one trade at a time. Drawings (`mason`, `garden`, `welding` in TradeArt.tsx and Art.tsx) until then |
 | A133's two Computers jobs | Built 28 November 2026: a laptop with its bottom panel off, a dusty fan, brush and cooling paste; a laptop with a snapped hinge, a new hinge and a screwdriver; both `--circle 1.06`. The first hinge picture did not show the break, and a close-up ran off the edges: the third, the whole laptop with the new hinge in front, is in |
 | A132's Wi-Fi device job | Built 28 November 2026: a printer and a router with a green tick between them, default circle |
 | A131's three CCTV and door security jobs | Built 28 November 2026: a dome camera with a cloth and a tick, a door phone (gate unit and screen) and a smart lock on a piece of door; the last two cut with `--circle 1.06` |

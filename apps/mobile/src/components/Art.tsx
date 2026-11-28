@@ -11,12 +11,13 @@ import { colour } from '../theme';
  * words, so each one is hidden from screen readers.
  */
 
-export type ArtName = 'ac' | 'electrician' | 'plumber' | 'cctv' | 'wifi' | 'ups' | 'solar' | 'appliances' | 'carpentry' | 'painting' | 'computers' | 'tank' | 'cleaning' | 'more';
+export type ArtName = 'ac' | 'electrician' | 'plumber' | 'cctv' | 'wifi' | 'ups' | 'solar' | 'appliances' | 'carpentry' | 'painting' | 'computers' | 'tank' | 'cleaning' | 'mason' | 'garden' | 'welding' | 'more';
 
 /** The drawing for a trade's slug, when it has one. Post a job and My jobs both use it. */
 const BY_TRADE: Record<string, ArtName> = {
   ac: 'ac', electrician: 'electrician', plumber: 'plumber', ups: 'ups', cctv: 'cctv', wifi: 'wifi',
   solar: 'solar', appliances: 'appliances', carpentry: 'carpentry', painting: 'painting', computers: 'computers', tank: 'tank', cleaning: 'cleaning',
+  mason: 'mason', garden: 'garden', welding: 'welding',
 };
 export const artFor = (trade: string): ArtName | undefined => BY_TRADE[trade];
 
@@ -156,6 +157,40 @@ export function Art({ name, width = 120, height = 90 }: { name: ArtName; width?:
           <Rect x={62} y={40} width={30} height={16} rx={5} fill={WHITE} />
           <Rect x={24} y={62} width={6} height={12} rx={2} fill={INK} />
           <Rect x={90} y={62} width={6} height={12} rx={2} fill={INK} />
+        </G>
+      )}
+      {name === 'mason' && (
+        <G>
+          {/* Bricks and a trowel. */}
+          <Rect x={20} y={44} width={38} height={14} rx={2} fill={SHADE} />
+          <Rect x={60} y={44} width={38} height={14} rx={2} fill={WHITE} />
+          <Rect x={20} y={60} width={18} height={14} rx={2} fill={WHITE} />
+          <Rect x={40} y={60} width={38} height={14} rx={2} fill={SHADE} />
+          <Rect x={80} y={60} width={18} height={14} rx={2} fill={WHITE} />
+          <Path d="M44 36l20-24 20 24z" fill={WHITE} />
+          <Rect x={61} y={4} width={6} height={10} rx={2} fill={colour.green} />
+        </G>
+      )}
+      {name === 'garden' && (
+        <G>
+          {/* A plant in a pot. */}
+          <Path d="M60 52V22" stroke={colour.green} strokeWidth={4} strokeLinecap="round" />
+          <Path d="M60 38c-16 0-24-9-24-22 15 0 24 9 24 22z" fill={colour.green} />
+          <Path d="M60 32c13 0 21-8 21-19-13 0-21 8-21 19z" fill={WHITE} />
+          <Path d="M38 52h44l-6 28H44z" fill={SHADE} />
+          <Rect x={34} y={48} width={52} height={8} rx={3} fill={WHITE} />
+        </G>
+      )}
+      {name === 'welding' && (
+        <G>
+          {/* A gate grill and a weld's spark. */}
+          <Rect x={20} y={12} width={52} height={66} rx={3} fill={WHITE} />
+          <Rect x={31} y={12} width={5} height={66} fill={INK} />
+          <Rect x={44} y={12} width={5} height={66} fill={INK} />
+          <Rect x={57} y={12} width={5} height={66} fill={INK} />
+          <Rect x={20} y={12} width={52} height={5} fill={INK} />
+          <Rect x={20} y={73} width={52} height={5} fill={INK} />
+          <Path d="M92 22l3 9 9 3-9 3-3 9-3-9-9-3 9-3z" fill={WHITE} />
         </G>
       )}
       {name === 'tank' && (

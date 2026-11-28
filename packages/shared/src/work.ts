@@ -30,6 +30,9 @@ export const WORK_THINGS: Record<string, string> = {
   computers: 'Slow, virus, Windows, repairs',
   tank: 'Roof tank cleaning',
   cleaning: 'Sofa, carpet, bathroom, kitchen',
+  mason: 'Tiles, plaster, small cement work',
+  garden: 'Grass, hedges, plants',
+  welding: 'Gates, grills, railings',
 };
 
 /**
@@ -71,6 +74,20 @@ export const WORK_GROUPS: Record<string, WorkGroup[]> = {
   cleaning: [
     { title: 'Furniture and carpets', art: 'furnish', jobs: ['Sofa cleaning', 'Carpet or rug cleaning', 'Mattress cleaning'] },
     { title: 'Rooms', art: 'rooms', jobs: ['Bathroom deep cleaning', 'Kitchen deep cleaning'] },
+  ],
+  mason: [
+    { title: 'Tiles', jobs: ['Broken floor tile replaced', 'Broken wall tile replaced', 'Loose or hollow tile fixed', 'Tile gaps re-filled (grout)'] },
+    { title: 'Walls and plaster', jobs: ['Fallen or broken plaster repaired', 'Hole in a wall closed (after a pipe or wire)', 'Small brick wall repair'] },
+    { title: 'Floors and steps', jobs: ['Broken step or floor patch repaired', 'Marble or granite counter chip repaired'] },
+  ],
+  garden: [
+    { title: 'Lawn', jobs: ['Grass cutting', 'Weeding and lawn clean-up', 'New grass laid (a small lawn)'] },
+    { title: 'Hedges and trees', jobs: ['Hedge or bush trimming', 'Small tree pruned from the ground'] },
+    { title: 'Plants and pots', jobs: ['Plants potted or re-potted', 'New plants planted', 'Flower bed or kitchen garden prepared'] },
+  ],
+  welding: [
+    { title: 'Gates and grills', jobs: ['Gate hinge or latch welded', 'Window grill repaired', 'Railing or stair rail repaired'], also: [{ trade: 'painting', job: 'Gate or grill painting' }] },
+    { title: 'Other metal', jobs: ['Broken metal furniture welded (chair, bed frame)', 'Water tank stand repaired (on the ground)'] },
   ],
   carpentry: [
     { title: 'Doors and windows', art: 'door', jobs: ['Door lock or handle fitting', 'Door hinge repair or replacement', 'Door adjustment (sticking or not closing)', 'Hanging a new door', 'Window repair (handle, hinge or sliding)', 'Mosquito mesh (jaali) for a window or door'], also: [{ trade: 'cctv', job: 'Smart door lock fitting' }] },
@@ -250,6 +267,34 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Mattress cleaning': 'A mattress cleaned of dust and stains',
     'Bathroom deep cleaning': 'One bathroom: tiles, fittings, toilet and hard-water marks',
     'Kitchen deep cleaning': 'One kitchen: tiles, counters, cabinet fronts and grease',
+  },
+  mason: {
+    'Broken floor tile replaced': 'A cracked or broken floor tile taken out and a new one laid',
+    'Broken wall tile replaced': 'A cracked or broken wall tile changed',
+    'Loose or hollow tile fixed': 'A tile that moves or sounds hollow, set firm again',
+    'Tile gaps re-filled (grout)': 'Old or dirty grout between tiles replaced',
+    'Fallen or broken plaster repaired': 'A patch of plaster that has fallen or cracked off, redone',
+    'Hole in a wall closed (after a pipe or wire)': 'A hole left by a pipe or wire filled and plastered',
+    'Small brick wall repair': 'A few loose or broken bricks in a low wall set again',
+    'Broken step or floor patch repaired': 'A broken step edge or patch of floor made good in cement',
+    'Marble or granite counter chip repaired': 'A chip or crack in a kitchen or bathroom counter filled',
+  },
+  garden: {
+    'Grass cutting': 'The lawn mowed and its edges trimmed',
+    'Weeding and lawn clean-up': 'Weeds pulled and the lawn cleared of leaves and rubbish',
+    'New grass laid (a small lawn)': 'The ground prepared and new grass laid on a small lawn',
+    'Hedge or bush trimming': 'Hedges and bushes cut back into shape',
+    'Small tree pruned from the ground': 'Low branches of a small tree cut back, without climbing',
+    'Plants potted or re-potted': 'Plants moved into new pots with fresh soil',
+    'New plants planted': 'New plants put in the ground or in pots',
+    'Flower bed or kitchen garden prepared': 'A bed dug, fed and made ready for planting',
+  },
+  welding: {
+    'Gate hinge or latch welded': 'A broken gate hinge or latch welded back',
+    'Window grill repaired': 'A broken or loose window grill welded',
+    'Railing or stair rail repaired': 'A broken or loose railing welded firm',
+    'Broken metal furniture welded (chair, bed frame)': 'A cracked metal chair, table or bed frame welded',
+    'Water tank stand repaired (on the ground)': 'A rusted or broken tank stand at ground level welded',
   },
 };
 

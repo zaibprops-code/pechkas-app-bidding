@@ -2058,7 +2058,16 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   internet, and Internet keeps dropping now says slow too. **A133** added a
   laptop or computer overheating and a broken laptop hinge to Computers;
   software installation, data recovery, workshop repairs and office IT
-  support stay out. **The pictures are 3D,
+  support stay out.
+  **A134** added three kinds of work for the men at Mazdoor Chowk:
+  **Masonry and tiles** (9 repairs; no new walls, roofs or structural
+  cracks), **Garden** (8 services; no tree climbing or felling, no
+  pesticides) and **Welding** (5 repairs, the gates also offering Gate or
+  grill painting). On the owner's word nothing in Welding is risky yet,
+  "Something else" included: a brand-new trade whose every job is risky
+  could never be started by anybody (first jobs are basic ones, and risky
+  work needs another welder to check him); its safety rules are D43.
+  They are drawings until their 3D pictures are made, one trade at a time. **The pictures are 3D,
   every trade (A123, built trade by trade, the last on 27 November 2026)** — soft 3D objects on the same yellow
   circle, WebP, made one at a time and moved onto the circle by
   `scripts/oncircle.py` — and their pages open with a wide 3D picture filling

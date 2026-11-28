@@ -17,7 +17,7 @@ decide there can be built straight away in the repositories.
 
 - **A home-repair business in Islamabad.** The trades are AC, electrician,
   plumber, CCTV and door security, Wi-Fi and internet, UPS and inverter, solar, home
-  appliances, carpentry, painting, computers, water tank cleaning (A125) and cleaning (A126, A129). Brand lines: "Har pech ka
+  appliances, carpentry, painting, computers, water tank cleaning (A125), cleaning (A126, A129), masonry and tiles, garden and welding (A134). Brand lines: "Har pech ka
   hal" and "Khara kaam, khara daam".
 - **The owner is one person, Muhammad Zohaib Khan.** He is not a developer.
   He tests on an Android 9 phone and has no Mac. Claude writes all the code.
@@ -461,6 +461,12 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   connecting; Internet keeps dropping covers slow internet too.
 - **A133, Computers (28 November 2026):** laptop or computer overheating,
   and a broken laptop hinge. No software installation or data recovery.
+- **A134, three new kinds of work (28 November 2026):** Masonry and tiles,
+  Garden and Welding, for the skilled men at Mazdoor Chowk; 22 jobs,
+  drawings until their 3D pictures. Welding is not risky yet (D43).
+- **A135, Helper jobs (28 November 2026):** priced by time (2 hours, half
+  a day, a full day), one man per job, "Did he do the work?" with no
+  guarantee. To be built.
 
 ## 7. Still open: what the owner has to decide
 
@@ -515,6 +521,10 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   law. Decided one rule at a time, in order, starting with 1.1; nothing is
   built until each is decided. The list, with what the app does today, is
   in `docs/DECISIONS.md` and on the decision map.
+- **D42, Helper jobs:** who pays if he breaks something, and his injury
+  (for the lawyer, with D3).
+- **D43, Welding safety rules:** which welding jobs need extra rules, and
+  how the first welders are checked.
 - **D16:** keep the lowest offer at Rs 1,000 and the highest at 2× her
   price?
 - **D17:** are F-11, E-11 and G-13 the right sectors to start in? They

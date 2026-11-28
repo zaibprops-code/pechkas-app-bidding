@@ -105,6 +105,37 @@ const DRAWINGS: Record<string, () => ReactNode> = {
       <Path d="M40 8l6 6M46 6l3 3M36 10l2 2" fill="none" {...L} />
     </>
   ),
+  mason: () => (
+    <>
+      {/* Bricks and a trowel. */}
+      <Rect x={8} y={36} width={23} height={9} rx={1.5} fill={W} {...L} />
+      <Rect x={33} y={36} width={23} height={9} rx={1.5} fill={Y} {...L} />
+      <Rect x={8} y={47} width={11} height={9} rx={1.5} fill={Y} {...L} />
+      <Rect x={21} y={47} width={23} height={9} rx={1.5} fill={W} {...L} />
+      <Rect x={46} y={47} width={10} height={9} rx={1.5} fill={W} {...L} />
+      <Path d="M18 28l14-18 14 18z" fill={W} {...L} />
+      <Path d="M32 10V5M28 5h8" fill="none" {...L} />
+    </>
+  ),
+  garden: () => (
+    <>
+      {/* A plant in a pot. */}
+      <Path d="M32 34V16" fill="none" {...L} />
+      <Path d="M32 26c-10 0-16-6-16-14 10 0 16 6 16 14z" fill={W} {...L} />
+      <Path d="M32 22c8 0 14-5 14-12-8 0-14 5-14 12z" fill={Y} {...L} />
+      <Path d="M18 34h28l-4 22H22z" fill={Y} {...L} />
+      <Path d="M16 34h32" {...L} />
+    </>
+  ),
+  welding: () => (
+    <>
+      {/* A gate grill and a weld's spark. */}
+      <Rect x={8} y={14} width={34} height={42} rx={2} fill={W} {...L} />
+      <Path d="M16.5 14v42M25 14v42M33.5 14v42" {...L} />
+      <Path d="M50 18l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill={Y} {...L} />
+      <Path d="M44 40l8 8" {...L} />
+    </>
+  ),
   tank: () => (
     <>
       {/* A water tank on its stand, on a roof. */}
