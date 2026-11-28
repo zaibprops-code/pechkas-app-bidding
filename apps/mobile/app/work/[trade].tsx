@@ -45,7 +45,7 @@ export default function Work() {
   const also = (WORK_ALSO[trade] ?? [])
     .map((a) => lists?.job_types.find((j) => j.trade === a.trade && j.name === a.job))
     .filter((j): j is Job => Boolean(j));
-  const groups = WORK_GROUPS[trade] ? sections(jobs, trade) : null;
+  const groups = WORK_GROUPS[trade] ? sections(jobs, trade, lists?.job_types) : null;
   const count = (groups ? groups.length : jobs.length + also.length) + 1;
   const rises = useRises(lists ? count : 0, lists ? trade : null, 55);
   const post = (t: string, type?: number) => router.push({ pathname: '/post', params: type ? { trade: t, type: String(type) } : { trade: t } });

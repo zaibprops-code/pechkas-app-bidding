@@ -3263,6 +3263,18 @@ grill painting, each with its 3D picture.
 2. Open the app twice, then Painting: seven jobs.
 3. Prices are blank ("After a look") until you give them.
 
+## CCTV and door security (A131)
+
+CCTV is now called **CCTV and door security**, with three new jobs, each
+with its 3D picture: CCTV check-up and cleaning, video door phone fitting
+and smart door lock fitting. The smart lock also shows under Carpentry →
+Doors and windows.
+
+1. Run `supabase/migrations/20261214000000_cctv_door.sql` in the SQL
+   editor, after `…_painting_more`. It is safe to run twice.
+2. Open the app twice: home now says **CCTV and door security**.
+3. Prices are blank ("After a look") until you give them.
+
 ## Putting the app on Google Play
 
 No migration this time. Do these in order; each says which screen and which

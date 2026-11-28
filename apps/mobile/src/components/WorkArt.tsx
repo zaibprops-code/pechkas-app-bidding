@@ -151,6 +151,9 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'paint-texture': require('../../assets/work/paint-texture.webp'),
   'paint-polish': require('../../assets/work/paint-polish.webp'),
   'paint-grill': require('../../assets/work/paint-grill.webp'),
+  'cctv-checkup': require('../../assets/work/cctv-checkup.webp'),
+  'cctv-doorphone': require('../../assets/work/cctv-doorphone.webp'),
+  'cctv-smartlock': require('../../assets/work/cctv-smartlock.webp'),
 };
 
 /**

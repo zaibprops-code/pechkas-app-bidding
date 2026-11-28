@@ -16,7 +16,7 @@ decide there can be built straight away in the repositories.
 ## 1. What Pechkas is
 
 - **A home-repair business in Islamabad.** The trades are AC, electrician,
-  plumber, CCTV, Wi-Fi and internet, UPS and inverter, solar, home
+  plumber, CCTV and door security, Wi-Fi and internet, UPS and inverter, solar, home
   appliances, carpentry, painting, computers, water tank cleaning (A125) and cleaning (A126, A129). Brand lines: "Har pech ka
   hal" and "Khara kaam, khara daam".
 - **The owner is one person, Muhammad Zohaib Khan.** He is not a developer.
@@ -453,6 +453,10 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 - **A130, three more painting jobs (28 November 2026):** a feature wall
   texture, a door or furniture polish, a gate or grill painted. No
   exterior painting, no roof waterproofing.
+- **A131, CCTV and door security (28 November 2026):** CCTV is renamed,
+  with a CCTV check-up and cleaning, a video door phone and a smart door
+  lock (also under Carpentry's doors). No access control, no smart home
+  automation.
 
 ## 7. Still open: what the owner has to decide
 

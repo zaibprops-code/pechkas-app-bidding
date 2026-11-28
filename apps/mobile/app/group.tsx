@@ -31,9 +31,10 @@ export default function GroupPage() {
   const insets = useSafeAreaInsets();
   const lists = useLists();
   const narrow = useWindowDimensions().width < 360;
-  const g = lists ? sections(lists.job_types.filter((j) => j.trade === trade), trade)[Number(group)] : null;
+  const g = lists ? sections(lists.job_types.filter((j) => j.trade === trade), trade, lists.job_types)[Number(group)] : null;
   const pictured = !!g && g.jobs.every((j) => (JOB_PICTURES[j.trade] ?? {})[j.name]);
   const rises = useRises(g ? g.jobs.length + 1 : 0, g ? `${trade}-${group}` : null, 55);
+  const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
   const post = (t: string, type?: number) => router.push({ pathname: '/post', params: type ? { trade: t, type: String(type) } : { trade: t } });
 
   return (
@@ -64,7 +65,7 @@ export default function GroupPage() {
           <View style={s.list}>
             {g.jobs.map((j, i) => (
               <Rise key={j.id} v={rises[i]}>
-                <WideJobCard job={j} narrow={narrow} onPress={() => post(j.trade, j.id)} />
+                <WideJobCard job={j} by={j.trade === trade ? undefined : tradeName(j.trade)} narrow={narrow} onPress={() => post(j.trade, j.id)} />
               </Rise>
             ))}
             <Rise v={rises[g.jobs.length]}>

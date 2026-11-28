@@ -7,9 +7,10 @@ export type Group = { title: string; art: string; jobs: Job[] };
 /**
  * The trade's groups, in order, each with its jobs; jobs no group names
  * become one more group, "More jobs", so a job added by migration shows the
- * day it is added.
+ * day it is added. `all` is every job of every trade, for a group's `also`
+ * (another trade's job shown in this group).
  */
-export function sections(jobs: Job[], trade: string): Group[] {
+export function sections(jobs: Job[], trade: string, all: Job[] = jobs): Group[] {
   const used = new Set<number>();
   const out: Group[] = [];
   for (const g of WORK_GROUPS[trade] ?? []) {
@@ -19,6 +20,10 @@ export function sections(jobs: Job[], trade: string): Group[] {
       used.add(j.id);
       return [j];
     });
+    for (const a of g.also ?? []) {
+      const j = all.find((x) => x.trade === a.trade && x.name === a.job);
+      if (j) mine.push(j);
+    }
     if (mine.length) out.push({ title: g.title, art: g.art ?? trade, jobs: mine });
   }
   const rest = jobs.filter((j) => !used.has(j.id));

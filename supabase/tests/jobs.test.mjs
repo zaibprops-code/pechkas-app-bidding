@@ -230,7 +230,7 @@ heading('How the app shows the work matches the work there is');
   const { rows: trades } = await setup(`SELECT slug FROM public.trades`);
   const real = new Set(types.map((t) => `${t.trade}|${t.name}`));
   const named = Object.entries(WORK_GROUPS).flatMap(([trade, groups]) => groups.flatMap((g) => g.jobs.map((job) => ({ trade, job }))));
-  const also = Object.values(WORK_ALSO).flat();
+  const also = [...Object.values(WORK_ALSO).flat(), ...Object.values(WORK_GROUPS).flat().flatMap((g) => g.also ?? [])];
   const missing = [...named, ...also].filter((x) => !real.has(`${x.trade}|${x.job}`));
   ok('every job named in the groups is a real job of its trade', missing.length === 0, missing);
   const grouped = new Set(named.map((x) => `${x.trade}|${x.job}`));
@@ -362,6 +362,18 @@ heading('Three more Painting jobs (A130)');
   ok('all three are there, once each, 30 days, no price, not risky', rows.length === 3 && rows.every((r) => r.list_paisa === null && r.guarantee === 'repair' && r.risky === false), rows);
   const { rows: out } = await setup(`SELECT 1 FROM public.job_types WHERE name ILIKE '%exterior%' OR name ILIKE '%outside wall%' OR name ILIKE '%waterproof%' OR name ILIKE '%roof%'`);
   ok('no exterior painting and no roof waterproofing', out.length === 0);
+}
+
+heading('CCTV and door security: three jobs and the new name (A131)');
+{
+  const { rows: t } = await setup(`SELECT name FROM public.trades WHERE slug = 'cctv'`);
+  ok('the kind of work is called CCTV and door security', t[0]?.name === 'CCTV and door security');
+  const { rows } = await setup(`SELECT name, list_paisa, guarantee, risky FROM public.job_types WHERE trade = 'cctv' AND name IN ('CCTV check-up and cleaning', 'Video door phone fitting', 'Smart door lock fitting')`);
+  ok('all three are there, once each, with no price and not risky', rows.length === 3 && rows.every((r) => r.list_paisa === null && r.risky === false), rows);
+  ok('the check-up is a service, the fittings 30 days', rows.every((r) => r.guarantee === (r.name === 'CCTV check-up and cleaning' ? 'service' : 'repair')), rows);
+  const { rows: out } = await setup(`SELECT 1 FROM public.job_types WHERE name ILIKE '%access control%' OR name ILIKE '%automation%'`);
+  ok('no access control and no smart home automation', out.length === 0);
+  ok('Carpentry\'s doors also offer the smart lock', (WORK_GROUPS.carpentry ?? []).some((g) => (g.also ?? []).some((a) => a.trade === 'cctv' && a.job === 'Smart door lock fitting')));
 }
 
 report();

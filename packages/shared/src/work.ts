@@ -23,7 +23,7 @@ export const WORK_THINGS: Record<string, string> = {
   ups: 'UPS or inverter trouble',
   solar: 'Panel cleaning, inverter faults',
   appliances: 'Fridge, washing machine, microwave',
-  cctv: 'Cameras, recorder, phone view',
+  cctv: 'Cameras, door phones, smart locks',
   wifi: 'Router, weak signal, cables',
   carpentry: 'Doors, locks, cupboards',
   painting: 'Rooms, texture, polish, gates',
@@ -32,8 +32,14 @@ export const WORK_THINGS: Record<string, string> = {
   cleaning: 'Sofa, carpet, bathroom, kitchen',
 };
 
-/** `art` names the group's drawing (TradeArt in the app); a group without one shows its trade's. */
-export type WorkGroup = { title: string; art?: string; jobs: string[] };
+/**
+ * `art` names the group's drawing (TradeArt in the app); a group without one
+ * shows its trade's. `also` adds another trade's job to the group, shown with
+ * that trade's name and posted as that trade (the same as WORK_ALSO on a page
+ * without groups): a smart lock is CCTV and door security's job, and a
+ * customer may look for it under Carpentry's doors.
+ */
+export type WorkGroup = { title: string; art?: string; jobs: string[]; also?: { trade: string; job: string }[] };
 
 /**
  * The groups on a long list. A trade with five jobs or fewer needs none: its
@@ -67,7 +73,7 @@ export const WORK_GROUPS: Record<string, WorkGroup[]> = {
     { title: 'Rooms', art: 'rooms', jobs: ['Bathroom deep cleaning', 'Kitchen deep cleaning'] },
   ],
   carpentry: [
-    { title: 'Doors and windows', art: 'door', jobs: ['Door lock or handle fitting', 'Door hinge repair or replacement', 'Door adjustment (sticking or not closing)', 'Hanging a new door', 'Window repair (handle, hinge or sliding)', 'Mosquito mesh (jaali) for a window or door'] },
+    { title: 'Doors and windows', art: 'door', jobs: ['Door lock or handle fitting', 'Door hinge repair or replacement', 'Door adjustment (sticking or not closing)', 'Hanging a new door', 'Window repair (handle, hinge or sliding)', 'Mosquito mesh (jaali) for a window or door'], also: [{ trade: 'cctv', job: 'Smart door lock fitting' }] },
     { title: 'Cupboards and furniture', art: 'cupboard', jobs: ['Cupboard or wardrobe repair', 'Kitchen cabinet fitting', 'Drawer or channel repair', 'Flat-pack furniture assembly', 'Furniture repair'] },
     { title: 'On the wall', art: 'shelf', jobs: ['Shelf or wall bracket fitting', 'Curtain rod or blind fitting', 'Mirror, picture or frame hanging'] },
   ],
@@ -184,8 +190,11 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Fitting a camera': 'One camera put up and connected',
     'Fitting a set of four, with the recorder': 'Four cameras and the recorder put in',
     'Moving or re-aiming a camera': 'A camera moved, or turned to see the right place',
-    'Setting it up on your phone': 'Your cameras set up to watch on your phone',
+    'Setting it up on your phone': 'Your cameras on your phone, and the default passwords changed',
     'Camera or recorder not working': 'No picture, a dead camera or a recorder fault',
+    'CCTV check-up and cleaning': 'Lenses cleaned, every camera checked, recording and phone view tested',
+    'Video door phone fitting': 'A camera doorbell at the gate and a screen inside',
+    'Smart door lock fitting': 'A fingerprint or PIN lock fitted to a door',
   },
   wifi: {
     'Setting up a new router': 'A new router connected and its Wi-Fi set up',
@@ -343,6 +352,9 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Moving or re-aiming a camera': 'cctv-camaim',
     'Setting it up on your phone': 'cctv-camphone',
     'Camera or recorder not working': 'cctv-camfault',
+    'CCTV check-up and cleaning': 'cctv-checkup',
+    'Video door phone fitting': 'cctv-doorphone',
+    'Smart door lock fitting': 'cctv-smartlock',
   },
   wifi: {
     'Setting up a new router': 'wifi-router',
