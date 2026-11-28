@@ -1965,8 +1965,17 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   page: its big drawing and "What is the problem?"; a trade with groups
   shows them as **picture tiles** (Taps and sinks, Toilet, Geyser…, each
   with its own drawing — `art` in `WORK_GROUPS`, drawn in `TradeArt.tsx`),
-  and a tap slides that group's jobs up in a `Sheet`; a short trade shows
-  its jobs as cards; **Something else** is the black tile with a yellow
+  and a tap opens **that group's own page** (`app/group.tsx`, A124: the
+  owner's choice of design B, 28 November 2026 — the sheet it replaced
+  showed each picture at thumbnail size): the yellow top with the back
+  button, the group's name, "Tap the one that looks like yours" and its
+  picture, then **one wide card per job** (`WideJobCard` in
+  `components/JobCards.tsx`: the picture large on the left, the name, one
+  short line from `JOB_LINES` in `packages/shared/src/work.ts`, the usual
+  price). A trade without groups lists its jobs as the same wide cards, so
+  every kind of work reads the same. The short lines say only what the job
+  covers — never a price, a time or a promise (`jobs.test.mjs` checks every
+  job has one and none does); **Something else** is the black tile with a yellow
   microphone. **Search** (`app/find.tsx`): "What do you see?", and before
   typing ten words to tap (`WORK_SUGGESTIONS`; `jobs.test.mjs` checks each
   finds a job); results are cards with the job's drawing, its trade and

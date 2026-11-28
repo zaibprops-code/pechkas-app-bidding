@@ -1,6 +1,6 @@
 # Pechkas: a complete briefing for an adviser
 
-_Written 16 November 2026, updated 27 November 2026, from the two repositories as they stand today
+_Written 16 November 2026, updated 28 November 2026, from the two repositories as they stand today
 (app `zaibprops-code/pechkas-app-bidding`, website `zaibprops-code/Pechkas`).
 Every rule below is something the code actually does, not a plan, unless it
 says "open" or "not built"._
@@ -419,6 +419,11 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
 - **A123, 3D pictures (27 November 2026):** the pictures of the work become
   soft 3D objects on the same yellow circle, trade by trade. AC,
   CCTV, Wi-Fi, UPS, Solar, Plumber and Painting built; the other trades and the sign-in pictures follow one at a time.
+- **A124, jobs on their own pages (28 November 2026):** a group of jobs
+  (Plumber's Taps, sinks and showers…) opens as its own page instead of a
+  sheet from the bottom, one wide card per job: a big picture, the name, a
+  short line of what it covers and the usual price. Every trade lists its
+  jobs this way. Built; the 76 short lines are for the owner to read.
 
 ## 7. Still open: what the owner has to decide
 

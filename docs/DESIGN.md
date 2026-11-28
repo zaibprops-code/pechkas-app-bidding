@@ -124,6 +124,15 @@ a screen; use the token.
   a finished or cancelled job, Past, notifications, the technician's list —
   it is `TradeTile job={title}` or `WorkArt` with `pictureOf(trade, title)`;
   `npm run design:check` fails if a screen draws `<TradeArt>` itself.
+- **A group of jobs is its own page, never a sheet (A124, 28 November
+  2026)**: a sheet from the bottom showed each picture at thumbnail size and
+  people could not tell the jobs apart. `app/group.tsx` opens from the
+  group's tile with a back button; jobs everywhere (a group's page, a trade
+  without groups) are `WideJobCard`s — the picture large on the left (118,
+  96 under 360 wide), the name, one short line (`JOB_LINES`, what the job
+  covers in her words, never a price, a time or a promise) and the usual
+  price. A new job needs its line in `JOB_LINES` the same day, or
+  `jobs.test.mjs` fails.
 - **3D pictures, trade by trade (the owner's decision, 27 November 2026,
   A123)**: the pictures of the work move from flat drawings to soft 3D
   objects — realistic light from the upper left, soft shadows, real chrome

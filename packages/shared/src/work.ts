@@ -79,6 +79,115 @@ export const WORK_ALSO: Record<string, { trade: string; job: string }[]> = {
 };
 
 /**
+ * One short line under each job's name on its card (the owner's choice of
+ * design B, 28 November 2026): what the job covers, as she would see it at
+ * home, so two pictures that look alike can still be told apart. Plain
+ * words only — never a price, a time or a promise. `jobs.test.mjs` fails if
+ * a real job has no line or a line names no real job.
+ */
+export const JOB_LINES: Record<string, Record<string, string>> = {
+  plumber: {
+    'Leaking tap repair or replacement': 'A dripping, loose or broken tap, fixed or changed',
+    'Wash basin or kitchen sink fitting': 'A basin or kitchen sink put in, with its pipes',
+    'Shower, mixer or bathroom fittings': 'Showers, mixers and other bathroom fittings, put in or fixed',
+    'Water filter fitting': 'A water filter fitted under the sink or on the wall',
+    'Flush tank repair': 'A flush that keeps running, leaks or will not flush',
+    'Flush tank float valve replacement': 'The valve that stops the tank filling, changed',
+    'Commode or toilet fitting': 'A commode or toilet put in, or refitted',
+    'Geyser installation': 'A new geyser put in and joined to the water pipes',
+    'Geyser service and descaling': 'Scale cleaned out of the geyser, and the geyser checked',
+    'Geyser repair': 'A geyser that will not heat, leaks or keeps stopping',
+    'Water motor or pump fitting': 'A water motor or pump put in for the tank',
+    'Water motor repair': 'A motor that hums, will not start or does not lift water',
+    'Blocked drain clearing': 'A sink, shower or floor drain that will not empty',
+    'Main sewerage line blockage': 'The main line out of the house blocked or backing up',
+    'Hidden pipe leak': 'A leak inside a wall or under a floor, found and fixed',
+  },
+  ac: {
+    'General service (indoor and outdoor unit)': 'Indoor and outdoor units cleaned and checked',
+    'Gas top-up': 'Gas filled when the AC runs but cools poorly',
+    'Water leaking from indoor unit': 'Water dripping from the indoor unit, stopped',
+    'PCB or electrical fault diagnosis': 'An AC that will not start or shows a fault, checked',
+    'Split AC installation': 'A split AC put up, piped and connected',
+    'Split AC uninstallation': 'A split AC taken down safely',
+    'Dismantle and refit (shifting house)': 'Taken down at the old house and put up at the new one',
+    'Outdoor unit stand or bracket': 'A stand or wall bracket for the outdoor unit',
+    'Stabiliser fitting': 'A voltage stabiliser fitted for the AC',
+  },
+  electrician: {
+    'Ceiling fan installation': 'A ceiling fan hung and connected',
+    'Exhaust fan fitting': 'An exhaust fan fitted in a kitchen or bathroom',
+    'Light or chandelier fitting': 'Lights or a chandelier put up and connected',
+    'Switch or socket replacement': 'A broken, loose or burnt switch or socket changed',
+    'New socket or light point': 'A new socket or light point where you need one',
+    'Doorbell or intercom fitting': 'A doorbell or intercom put in',
+    'DB or breaker fault': 'A breaker that keeps tripping, or a fault in the board',
+    'Wiring fault tracing': 'Power gone in part of the house, and the fault found',
+    'Rewiring a room or a house': 'Old or unsafe wiring replaced',
+    'UPS or inverter connection': 'A UPS or inverter wired into the house',
+    'Generator or solar changeover switch': 'A switch between the mains and a generator or solar',
+    'Water motor automatic switch': 'A switch that starts and stops the water motor by itself',
+  },
+  solar: {
+    'Panel cleaning (up to 5kW)': 'Dust and dirt washed off a system of up to 5kW',
+    'Panel cleaning (5kW to 10kW)': 'Dust and dirt washed off a system of 5 to 10kW',
+    'System check and written report': 'Panels, inverter and wiring checked, with a written report',
+    'Full maintenance service': 'The whole system cleaned and checked',
+    'Inverter or wiring fault': 'An inverter showing a fault, or no power coming through',
+  },
+  appliances: {
+    'Washing machine service and clean': 'Drum, filter and pipes cleaned, and the machine checked',
+    'Appliance installation or fitting': 'A washing machine, oven or other appliance put in and connected',
+    'Washing machine repair': 'A machine that will not start, spin or drain',
+    'Fridge or freezer repair': 'A fridge or freezer that will not cool or keeps stopping',
+    'Microwave or electric oven repair': 'A microwave or oven that will not heat or start',
+  },
+  cctv: {
+    'Fitting a camera': 'One camera put up and connected',
+    'Fitting a set of four, with the recorder': 'Four cameras and the recorder put in',
+    'Moving or re-aiming a camera': 'A camera moved, or turned to see the right place',
+    'Setting it up on your phone': 'Your cameras set up to watch on your phone',
+    'Camera or recorder not working': 'No picture, a dead camera or a recorder fault',
+  },
+  wifi: {
+    'Setting up a new router': 'A new router connected and its Wi-Fi set up',
+    'Getting the signal to a room it does not reach': 'Wi-Fi brought to a room where it is weak or missing',
+    'Running a network cable point': 'A network cable run to where you need it',
+    'Office or shop network': 'Wi-Fi and cables for an office or shop',
+    'Internet keeps dropping': 'Wi-Fi or internet that keeps cutting out, checked',
+  },
+  painting: {
+    'Single room repaint': 'One room painted again',
+    'Touch-up and patch work': 'Cracks and holes filled, and marks painted over',
+    'Damp or seepage patch treatment': 'A damp or seepage patch scraped back and sealed',
+    'Full flat or house repaint': 'A whole flat or house painted again',
+  },
+  computers: {
+    'A slow machine, cleaned up': 'A slow computer cleared of clutter and checked',
+    'Windows reinstall': 'Windows put on again, fresh',
+    'Virus or pop-up trouble': 'Viruses and pop-ups removed',
+    'Will not start, or a hardware fault': 'A computer that will not start, or has a faulty part',
+    'Screen, keyboard or battery replacement': 'A laptop screen, keyboard or battery changed',
+  },
+  carpentry: {
+    'Door lock or handle fitting': 'A lock or handle fitted or changed',
+    'Door hinge repair or replacement': 'A loose or broken hinge fixed or changed',
+    'Door adjustment (sticking or not closing)': 'A door that sticks, drags or will not close, adjusted',
+    'Hanging a new door': 'A new door hung in its frame',
+    'Window repair (handle, hinge or sliding)': 'A window handle, hinge or sliding track fixed',
+    'Cupboard or wardrobe repair': 'Doors, shelves or hinges of a cupboard or wardrobe fixed',
+    'Drawer or channel repair': 'A drawer that sticks or falls out, and its runners fixed',
+    'Flat-pack furniture assembly': 'Furniture that came in a box, put together',
+    'Furniture repair': 'A broken chair, table or bed fixed',
+    'Shelf or wall bracket fitting': 'Shelves or brackets put up on a wall',
+    'Curtain rod or blind fitting': 'Curtain rods or blinds put up',
+  },
+};
+
+/** A job's short line, if it has one. */
+export const jobLine = (trade: string, job: string): string | undefined => JOB_LINES[trade]?.[job];
+
+/**
  * Pictures (the owner's decision A121): the jobs that have a picture of their
  * own, by name, and the drawings (`art` keys, above) that have a picture in
  * place of the line drawing. The pictures themselves are in

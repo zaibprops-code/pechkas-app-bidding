@@ -6,7 +6,7 @@
  * technician, and as staff who have been switched off.
  */
 import { as, denied, heading, migrate, nothing, ok, report, setup } from './harness.mjs';
-import { findJobs, JOB_PICTURES, WORK_ALSO, WORK_GROUPS, WORK_SUGGESTIONS, WORK_THINGS } from '../../packages/shared/src/work.ts';
+import { findJobs, JOB_LINES, JOB_PICTURES, WORK_ALSO, WORK_GROUPS, WORK_SUGGESTIONS, WORK_THINGS } from '../../packages/shared/src/work.ts';
 
 await migrate();
 
@@ -241,6 +241,13 @@ heading('How the app shows the work matches the work there is');
   const pictured = Object.entries(JOB_PICTURES).flatMap(([trade, jobs]) => Object.keys(jobs).map((job) => ({ trade, job })));
   const lost = pictured.filter((x) => !real.has(`${x.trade}|${x.job}`));
   ok('every job with a picture is a real job of its trade', pictured.length > 0 && lost.length === 0, lost);
+  const lined = Object.entries(JOB_LINES).flatMap(([trade, jobs]) => Object.keys(jobs).map((job) => ({ trade, job })));
+  const strayLine = lined.filter((x) => !real.has(`${x.trade}|${x.job}`));
+  ok('every short line belongs to a real job of its trade', lined.length > 0 && strayLine.length === 0, strayLine);
+  const unlined = [...real].filter((k) => { const [trade, job] = k.split('|'); return !JOB_LINES[trade]?.[job]; });
+  ok('every job has its short line for its card', unlined.length === 0, unlined);
+  const promising = lined.filter((x) => /\bRs\.?\s*\d|\d+\s*(minutes?|mins?|hours?|days?)\b|guarantee|same day|\bfree\b/i.test(JOB_LINES[x.trade][x.job]));
+  ok('no short line names a price, a time or a promise', promising.length === 0, promising);
   const noLine = trades.filter((t) => !WORK_THINGS[t.slug]);
   ok('every kind of work says what it covers on home', noLine.length === 0, noLine);
   const { rows: names } = await setup(`SELECT slug, name FROM public.trades`);
