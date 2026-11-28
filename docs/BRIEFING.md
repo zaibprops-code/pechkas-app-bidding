@@ -457,6 +457,10 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   with a CCTV check-up and cleaning, a video door phone and a smart door
   lock (also under Carpentry's doors). No access control, no smart home
   automation.
+- **A132, Wi-Fi (28 November 2026):** a printer, TV or other device not
+  connecting; Internet keeps dropping covers slow internet too.
+- **A133, Computers (28 November 2026):** laptop or computer overheating,
+  and a broken laptop hinge. No software installation or data recovery.
 
 ## 7. Still open: what the owner has to decide
 

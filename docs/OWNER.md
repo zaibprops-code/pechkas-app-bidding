@@ -3275,6 +3275,24 @@ Doors and windows.
 2. Open the app twice: home now says **CCTV and door security**.
 3. Prices are blank ("After a look") until you give them.
 
+## A device not connecting to Wi-Fi (A132)
+
+One new Wi-Fi job with its 3D picture: printer, TV or other device not
+connecting.
+
+1. Run `supabase/migrations/20261215000000_wifi_device.sql` in the SQL
+   editor, after `…_cctv_door`. It is safe to run twice.
+2. Prices are blank ("After a look") until you give them.
+
+## Two more computer jobs (A133)
+
+Laptop or computer overheating, and broken laptop hinge, each with its 3D
+picture.
+
+1. Run `supabase/migrations/20261216000000_computer_more.sql` in the SQL
+   editor, after `…_wifi_device`. It is safe to run twice.
+2. Prices are blank ("After a look") until you give them.
+
 ## Putting the app on Google Play
 
 No migration this time. Do these in order; each says which screen and which

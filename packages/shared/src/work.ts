@@ -201,7 +201,8 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Getting the signal to a room it does not reach': 'Wi-Fi brought to a room where it is weak or missing',
     'Running a network cable point': 'A network cable run to where you need it',
     'Office or shop network': 'Wi-Fi and cables for an office or shop',
-    'Internet keeps dropping': 'Wi-Fi or internet that keeps cutting out, checked',
+    'Internet keeps dropping': 'Wi-Fi or internet that keeps cutting out or is slow, checked',
+    'Printer, TV or other device not connecting': 'A printer, smart TV or other device brought onto your Wi-Fi',
   },
   painting: {
     'Single room repaint': 'One room painted again',
@@ -218,6 +219,8 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Virus or pop-up trouble': 'Viruses and pop-ups removed',
     'Will not start, or a hardware fault': 'A computer that will not start, or has a faulty part',
     'Screen, keyboard or battery replacement': 'A laptop screen, keyboard or battery changed',
+    'Laptop or computer overheating': 'Dust cleaned out, fan and cooling paste seen to, so it stops cutting out',
+    'Broken laptop hinge': 'A broken hinge changed, so the screen holds again',
   },
   carpentry: {
     'Door lock or handle fitting': 'A lock or handle fitted or changed',
@@ -362,6 +365,7 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Running a network cable point': 'wifi-cable',
     'Office or shop network': 'wifi-office',
     'Internet keeps dropping': 'wifi-dropping',
+    'Printer, TV or other device not connecting': 'wifi-device',
   },
   painting: {
     'Single room repaint': 'paint-room',
@@ -378,6 +382,8 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Virus or pop-up trouble': 'pc-virus',
     'Will not start, or a hardware fault': 'pc-nostart',
     'Screen, keyboard or battery replacement': 'pc-parts',
+    'Laptop or computer overheating': 'pc-overheat',
+    'Broken laptop hinge': 'pc-hinge',
   },
   carpentry: {
     'Door lock or handle fitting': 'carp-lock',

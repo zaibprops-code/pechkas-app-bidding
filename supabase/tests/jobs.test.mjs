@@ -376,4 +376,20 @@ heading('CCTV and door security: three jobs and the new name (A131)');
   ok('Carpentry\'s doors also offer the smart lock', (WORK_GROUPS.carpentry ?? []).some((g) => (g.also ?? []).some((a) => a.trade === 'cctv' && a.job === 'Smart door lock fitting')));
 }
 
+heading('Wi-Fi: a device not connecting (A132)');
+{
+  const { rows } = await setup(`SELECT list_paisa, guarantee, risky FROM public.job_types WHERE trade = 'wifi' AND name = 'Printer, TV or other device not connecting'`);
+  ok('it is there once, 30 days, with no price and not risky', rows.length === 1 && rows[0].list_paisa === null && rows[0].guarantee === 'repair' && rows[0].risky === false, rows);
+  ok('Internet keeps dropping says slow too', /slow/.test(JOB_LINES.wifi?.['Internet keeps dropping'] ?? ''));
+}
+
+heading('Two more Computers jobs (A133)');
+{
+  const { rows } = await setup(`SELECT list_paisa, guarantee, risky FROM public.job_types WHERE trade = 'computers' AND name IN ('Laptop or computer overheating', 'Broken laptop hinge')`);
+  ok('both are there, once each, 30 days, with no price and not risky', rows.length === 2 && rows.every((r) => r.list_paisa === null && r.guarantee === 'repair' && r.risky === false), rows);
+  const { rows: out } = await setup(`SELECT 1 FROM public.job_types WHERE trade = 'computers' AND (name ILIKE '%data recovery%' OR name ILIKE '%software%' OR name ILIKE '%office IT%')`);
+  ok('no data recovery, software installation or office IT support', out.length === 0);
+  ok('a search for hinge finds the laptop hinge', findJobs('hinge', [{ trade: 'computers', name: 'Broken laptop hinge' }, { trade: 'carpentry', name: 'Door hinge repair or replacement' }], (t) => t).some((j) => j.trade === 'computers'));
+}
+
 report();

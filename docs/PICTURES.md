@@ -10,6 +10,8 @@ decision is A123 in `docs/DECISIONS.md`.
 | Trade | State |
 | --- | --- |
 | Every trade: AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers, Carpentry, Electrician | Built: 3D pictures and a 3D top of the page (Electrician last, 27 November 2026) |
+| A133's two Computers jobs | Built 28 November 2026: a laptop with its bottom panel off, a dusty fan, brush and cooling paste; a laptop with a snapped hinge, a new hinge and a screwdriver; both `--circle 1.06`. The first hinge picture did not show the break, and a close-up ran off the edges: the third, the whole laptop with the new hinge in front, is in |
+| A132's Wi-Fi device job | Built 28 November 2026: a printer and a router with a green tick between them, default circle |
 | A131's three CCTV and door security jobs | Built 28 November 2026: a dome camera with a cloth and a tick, a door phone (gate unit and screen) and a smart lock on a piece of door; the last two cut with `--circle 1.06` |
 | A130's three painting jobs | Built 28 November 2026: a wall sample half plain, half textured; a door panel half dull, half polished; a gate half rusty, half painted; all cut with `--circle 1.06`. The texture and the cloth were first warm off-white and came out see-through: remade in pure white with cool grey shading |
 | A129's two cleaning rooms | Built 28 November 2026: a bathroom corner and a kitchen piece, each half clean and half dirty, cut with `--circle 1.06`. Made first on the pale blue backdrop, they came out see-through (white and grey pass for shadow on blue): remade on the pale yellow, with grey dirt instead of brownish. The two Cleaning groups use the sofa's and the bathroom's pictures |

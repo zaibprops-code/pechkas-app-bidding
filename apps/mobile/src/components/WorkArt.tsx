@@ -154,6 +154,9 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'cctv-checkup': require('../../assets/work/cctv-checkup.webp'),
   'cctv-doorphone': require('../../assets/work/cctv-doorphone.webp'),
   'cctv-smartlock': require('../../assets/work/cctv-smartlock.webp'),
+  'wifi-device': require('../../assets/work/wifi-device.webp'),
+  'pc-overheat': require('../../assets/work/pc-overheat.webp'),
+  'pc-hinge': require('../../assets/work/pc-hinge.webp'),
 };
 
 /**

@@ -2053,7 +2053,12 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   check-up and cleaning (a service), a video door phone and a smart door
   lock; the lock also shows in Carpentry's Doors and windows, through the
   group's `also` (another trade's job, posted as that trade). Access
-  control and smart home automation stay out. **The pictures are 3D,
+  control and smart home automation stay out.
+  **A132** added a printer, TV or other device not connecting to Wi-Fi and
+  internet, and Internet keeps dropping now says slow too. **A133** added a
+  laptop or computer overheating and a broken laptop hinge to Computers;
+  software installation, data recovery, workshop repairs and office IT
+  support stay out. **The pictures are 3D,
   every trade (A123, built trade by trade, the last on 27 November 2026)** — soft 3D objects on the same yellow
   circle, WebP, made one at a time and moved onto the circle by
   `scripts/oncircle.py` — and their pages open with a wide 3D picture filling
