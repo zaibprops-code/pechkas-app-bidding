@@ -41,7 +41,7 @@ export type WorkGroup = { title: string; art?: string; jobs: string[] };
  */
 export const WORK_GROUPS: Record<string, WorkGroup[]> = {
   ac: [
-    { title: 'Service and repair', art: 'ac-service', jobs: ['General service (indoor and outdoor unit)', 'Gas top-up', 'Water leaking from indoor unit', 'PCB or electrical fault diagnosis', 'AC chemical wash', 'Window AC service'] },
+    { title: 'Service and repair', art: 'ac-service', jobs: ['AC not cooling', 'Noisy or shaking AC', 'General service (indoor and outdoor unit)', 'Gas top-up', 'Water leaking from indoor unit', 'PCB or electrical fault diagnosis', 'AC chemical wash', 'Window AC service'] },
     { title: 'Fitting and moving', art: 'ac-fitting', jobs: ['Split AC installation', 'Split AC uninstallation', 'Dismantle and refit (shifting house)', 'Outdoor unit stand or bracket', 'Stabiliser fitting'] },
   ],
   electrician: [
@@ -51,10 +51,10 @@ export const WORK_GROUPS: Record<string, WorkGroup[]> = {
     { title: 'Power and wiring', art: 'breaker', jobs: ['DB or breaker fault', 'New DB or breaker board', 'Earthing', 'Wiring fault tracing', 'Rewiring a room or a house', 'UPS or inverter connection', 'Generator or solar changeover switch', 'Water motor automatic switch'] },
   ],
   plumber: [
-    { title: 'Taps, sinks and showers', art: 'taps', jobs: ['Leaking tap repair or replacement', 'Wash basin or kitchen sink fitting', 'Shower, mixer or bathroom fittings', 'Silicone sealing (bath, basin or sink)', 'Bathroom accessory fitting', 'Water filter fitting', 'Water purifier (RO) filter change'] },
+    { title: 'Taps, sinks and showers', art: 'taps', jobs: ['Leaking tap repair or replacement', 'Wash basin or kitchen sink fitting', 'Shower, mixer or bathroom fittings', 'Silicone sealing (bath, basin or sink)', 'Bathroom accessory fitting', 'Low water pressure in taps or shower', 'Water filter fitting', 'Water purifier (RO) filter change'] },
     { title: 'Toilet', art: 'toilet', jobs: ['Flush tank repair', 'Flush tank float valve replacement', 'Commode or toilet fitting'] },
     { title: 'Geyser', art: 'geyser', jobs: ['Geyser installation', 'Instant electric geyser fitting', 'Geyser service and descaling', 'Geyser repair'] },
-    { title: 'Water motor', art: 'motor', jobs: ['Water motor or pump fitting', 'Water motor repair'] },
+    { title: 'Water motor and tank', art: 'motor', jobs: ['Water motor or pump fitting', 'Water motor repair', 'Water tank installation'] },
     { title: 'Pipes, drains and leaks', art: 'drain', jobs: ['Burst or leaking pipe repair', 'Hidden pipe leak', 'New water pipe line', 'Blocked drain clearing', 'Main sewerage line blockage'] },
   ],
   carpentry: [
@@ -79,6 +79,7 @@ export const WORK_SUGGESTIONS = ['Geyser', 'Ceiling fan', 'AC service', 'Leaking
  */
 export const WORK_ALSO: Record<string, { trade: string; job: string }[]> = {
   ups: [{ trade: 'electrician', job: 'UPS or inverter connection' }],
+  tank: [{ trade: 'plumber', job: 'Water tank installation' }],
 };
 
 /**
@@ -111,6 +112,8 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Burst or leaking pipe repair': 'A pipe you can see that has burst or drips, fixed',
     'New water pipe line': 'A short new water pipe run inside the house',
     'Instant electric geyser fitting': 'A small electric water heater put in at a tap',
+    'Water tank installation': 'A new tank put up on the roof and joined to the pipes',
+    'Low water pressure in taps or shower': 'Weak flow at the taps or shower, found and fixed',
   },
   ac: {
     'General service (indoor and outdoor unit)': 'Indoor and outdoor units cleaned and checked',
@@ -124,6 +127,8 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Stabiliser fitting': 'A voltage stabiliser fitted for the AC',
     'AC chemical wash': 'A deep clean of the coils with a cleaning solution',
     'Window AC service': 'A window AC cleaned and checked',
+    'AC not cooling': 'The fault found and fixed, whether gas, a part or dirt',
+    'Noisy or shaking AC': 'A rattle, hum or shake found and fixed',
   },
   electrician: {
     'Ceiling fan installation': 'A ceiling fan hung and connected',
@@ -149,6 +154,9 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'System check and written report': 'Panels, inverter and wiring checked, with a written report',
     'Full maintenance service': 'The whole system cleaned and checked',
     'Inverter or wiring fault': 'An inverter showing a fault, or no power coming through',
+    'Solar inverter installation or replacement': 'A new or replacement solar inverter fitted and set up',
+    'Solar battery replacement': 'Old solar batteries taken out and new ones connected',
+    'Solar producing less power': 'A sudden drop in output, the cause found and fixed',
   },
   appliances: {
     'Washing machine service and clean': 'Drum, filter and pipes cleaned, and the machine checked',
@@ -252,6 +260,8 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Burst or leaking pipe repair': 'plumber-pipe',
     'New water pipe line': 'plumber-newpipe',
     'Instant electric geyser fitting': 'plumber-instant',
+    'Water tank installation': 'plumber-tankfit',
+    'Low water pressure in taps or shower': 'plumber-pressure',
   },
   ac: {
     'General service (indoor and outdoor unit)': 'ac-general',
@@ -265,6 +275,8 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Stabiliser fitting': 'ac-stabiliser',
     'AC chemical wash': 'ac-wash',
     'Window AC service': 'ac-window',
+    'AC not cooling': 'ac-notcooling',
+    'Noisy or shaking AC': 'ac-noisy',
   },
   electrician: {
     'Ceiling fan installation': 'el-ceilingfan',
@@ -290,6 +302,9 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'System check and written report': 'solar-check',
     'Full maintenance service': 'solar-service',
     'Inverter or wiring fault': 'solar-fault',
+    'Solar inverter installation or replacement': 'solar-inverter',
+    'Solar battery replacement': 'solar-battery',
+    'Solar producing less power': 'solar-lowpower',
   },
   appliances: {
     'Washing machine service and clean': 'app-wmservice',

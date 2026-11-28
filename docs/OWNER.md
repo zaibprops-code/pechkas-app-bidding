@@ -3216,6 +3216,21 @@ carpet or rug, and mattress.
 5. Sign up two or three cleaners before you tell people about the new kind
    of work, or the first customers will get no offers.
 
+## Two plumbing jobs, two AC problems and three Solar jobs (A127)
+
+Water tank installation (it shows on both the Plumber and the Water tank
+pages), low water pressure in taps or shower, AC not cooling (risky) and
+a noisy or shaking AC, and for Solar: inverter installation or replacement,
+battery replacement and producing less power (all three risky), each with
+its 3D picture.
+
+1. Run `supabase/migrations/20261210000000_more_jobs_three.sql` in the SQL
+   editor, after `…_more_jobs_two`. It is safe to run twice.
+2. Open the app twice. Plumber → Taps, sinks and showers now has low water
+   pressure; Plumber → Water motor and tank has the tank installation;
+   AC → Service and repair starts with the two AC problems.
+3. Prices are blank ("After a look") until you give them.
+
 ## Putting the app on Google Play
 
 No migration this time. Do these in order; each says which screen and which

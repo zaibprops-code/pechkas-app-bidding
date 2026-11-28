@@ -320,4 +320,19 @@ heading('The second list and Sofa and carpet cleaning (A126): blank prices, guar
   ok('no whole-house deep cleaning (a team\'s work, left out)', deep.length === 0);
 }
 
+heading('Two more plumbing jobs (A127): blank prices, 30 days, not risky, the tank job on the Water tank page too');
+{
+  const { rows } = await setup(`SELECT name, list_paisa, guarantee, risky FROM public.job_types WHERE trade = 'plumber' AND name IN ('Water tank installation', 'Low water pressure in taps or shower')`);
+  ok('both are there, once each', rows.length === 2, rows.map((r) => r.name));
+  ok('no price, a 30-day guarantee, not risky', rows.every((r) => r.list_paisa === null && r.guarantee === 'repair' && r.risky === false), rows);
+  ok('the Water tank page offers the plumber\'s tank installation', (WORK_ALSO.tank ?? []).some((x) => x.trade === 'plumber' && x.job === 'Water tank installation'));
+  const { rows: ac } = await setup(`SELECT name, list_paisa, guarantee, risky FROM public.job_types WHERE trade = 'ac' AND name IN ('AC not cooling', 'Noisy or shaking AC') ORDER BY name`);
+  ok('both AC problems are there, once each, with no price and 30 days', ac.length === 2 && ac.every((r) => r.list_paisa === null && r.guarantee === 'repair'), ac);
+  ok('AC not cooling is risky (gas or electrics), a noisy AC is not', ac.find((r) => r.name === 'AC not cooling')?.risky === true && ac.find((r) => r.name === 'Noisy or shaking AC')?.risky === false, ac);
+  const { rows: so } = await setup(`SELECT name, list_paisa, guarantee, risky FROM public.job_types WHERE trade = 'solar' AND name IN ('Solar inverter installation or replacement', 'Solar battery replacement', 'Solar producing less power')`);
+  ok('the three Solar jobs are there, no price, 30 days, all risky', so.length === 3 && so.every((r) => r.list_paisa === null && r.guarantee === 'repair' && r.risky === true), so);
+  const { rows: inst } = await setup(`SELECT 1 FROM public.job_types WHERE trade = 'solar' AND name ILIKE '%panel installation%'`);
+  ok('no solar panel installation (days of work and net metering, left out)', inst.length === 0);
+}
+
 report();

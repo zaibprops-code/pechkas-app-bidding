@@ -440,6 +440,11 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   new kind of work, Sofa and carpet cleaning (sofa, carpet or rug,
   mattress). Whole-house deep cleaning stays out (a team's work). Prices
   blank until the owner gives them; 3D pictures built the same day.
+- **A127, two plumbing jobs, two AC problems and three Solar jobs (28 November 2026):**
+  water tank installation (also on the Water tank page), low water
+  pressure, AC not cooling, a noisy or shaking AC, a solar inverter, solar
+  batteries and solar producing less power. Prices blank; 3D
+  pictures built the same day.
 
 ## 7. Still open: what the owner has to decide
 

@@ -2031,7 +2031,13 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   mattress; its drawing is `cleaning` in `TradeArt.tsx` and `Art.tsx`);
   UPS and inverter now has a job of its own (battery replacement), and
   Plumber's "Drains and leaks" group is "Pipes, drains and leaks". Whole-
-  house, office and kitchen deep cleaning stay out: a team's work. **The pictures are 3D,
+  house, office and kitchen deep cleaning stay out: a team's work.
+  **A127** added two plumbing jobs, water tank installation (also offered
+  on the Water tank page through `WORK_ALSO`) and low water pressure;
+  Plumber's "Water motor" group is "Water motor and tank"; and two AC
+  problems named as she sees them, AC not cooling (risky) and a noisy or
+  shaking AC, at the top of AC's "Service and repair"; and three Solar jobs
+  (inverter fitted or replaced, solar batteries, output dropped), all risky. **The pictures are 3D,
   every trade (A123, built trade by trade, the last on 27 November 2026)** — soft 3D objects on the same yellow
   circle, WebP, made one at a time and moved onto the circle by
   `scripts/oncircle.py` — and their pages open with a wide 3D picture filling

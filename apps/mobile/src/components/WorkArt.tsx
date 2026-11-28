@@ -135,6 +135,13 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'clean-carpet': require('../../assets/work/clean-carpet.webp'),
   'clean-mattress': require('../../assets/work/clean-mattress.webp'),
   'clean-cleaning': require('../../assets/work/clean-cleaning.webp'),
+  'plumber-tankfit': require('../../assets/work/plumber-tankfit.webp'),
+  'plumber-pressure': require('../../assets/work/plumber-pressure.webp'),
+  'ac-notcooling': require('../../assets/work/ac-notcooling.webp'),
+  'ac-noisy': require('../../assets/work/ac-noisy.webp'),
+  'solar-inverter': require('../../assets/work/solar-inverter.webp'),
+  'solar-battery': require('../../assets/work/solar-battery.webp'),
+  'solar-lowpower': require('../../assets/work/solar-lowpower.webp'),
 };
 
 /**
