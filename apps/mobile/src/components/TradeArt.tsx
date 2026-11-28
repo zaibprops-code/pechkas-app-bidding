@@ -136,6 +136,15 @@ const DRAWINGS: Record<string, () => ReactNode> = {
       <Path d="M44 40l8 8" {...L} />
     </>
   ),
+  helper: () => (
+    <>
+      {/* Boxes on a hand trolley. */}
+      <Rect x={22} y={32} width={26} height={18} rx={2} fill={Y} {...L} />
+      <Rect x={26} y={14} width={19} height={18} rx={2} fill={W} {...L} />
+      <Path d="M12 8h5v42h33" fill="none" {...L} />
+      <Circle cx={19} cy={54} r={4.5} fill={W} {...L} />
+    </>
+  ),
   tank: () => (
     <>
       {/* A water tank on its stand, on a roof. */}

@@ -2067,7 +2067,24 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   "Something else" included: a brand-new trade whose every job is risky
   could never be started by anybody (first jobs are basic ones, and risky
   work needs another welder to check him); its safety rules are D43.
-  They are drawings until their 3D pictures are made, one trade at a time. **The pictures are 3D,
+  They are drawings until their 3D pictures are made, one trade at a time.
+  **Helper (A135, migration `…_helper_jobs`) is bought by time, not by a
+  result**: `trades.by_time`, `jobs.work_hours` (2, 4 or 8). Post a job's
+  price step asks "How long do you need him?" (`WORK_HOURS`,
+  `hoursShort()`, `hoursText()` in `work.ts`) and posts through
+  `post_timed_job()`, which checks the hours and hands them to the
+  `jobs_hours` trigger through a transaction-local setting before calling
+  `post_job()` (never rewritten); the trigger refuses a timed job with no
+  hours, so an older copy calling `post_job()` cannot make one. One man
+  per job. It ends with **Did he do the work?** (`CheckCard` when
+  `work_hours` is set: **Yes, it is done**, the reasons without "Still not
+  working") and has **no guarantee** (`guarantee_days_of()` is 0 for a
+  trade `by_time`, `PastJob` shows none; never a third value in
+  `job_types.guarantee`: an older migration run again recreates that rule). The hours are on her job
+  card, his list and his job (`whenText()`), and in `my_jobs`, `pro_feed`,
+  `pro_my_jobs` (copied with only `work_hours` added). Who pays for
+  something broken, and his injury, are the lawyer's (D42.4, D42.5; the
+  terms carry the marker). `APP_EDITION` is 10. Tests: `helper.test.mjs`. **The pictures are 3D,
   every trade (A123, built trade by trade, the last on 27 November 2026)** — soft 3D objects on the same yellow
   circle, WebP, made one at a time and moved onto the circle by
   `scripts/oncircle.py` — and their pages open with a wide 3D picture filling

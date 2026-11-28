@@ -51,6 +51,8 @@ export type CheckFields = {
   photos: { stage: string; path: string }[];
   pro: { first_name: string } | null;
   check_due?: string | null;
+  /** How long, for a helper's job (A135): checked with "Did he do the work?". */
+  work_hours?: number | null;
   not_finished?: number;
   checks?: Check[];
   disputed?: boolean;
@@ -111,6 +113,8 @@ export function CheckCard({ job, onChanged }: { job: CheckFields; onChanged: () 
   const { session } = useAccount();
   const toast = useToast();
   const name = job.pro?.first_name ?? 'The technician';
+  // A helper is bought by time (A135): nothing to test, so she is asked whether it was done.
+  const timed = Boolean(job.work_hours);
   const [sheet, setSheet] = useState(false);
   const [reason, setReason] = useState<string | null>(null);
   const [note, setNote] = useState('');
@@ -154,7 +158,7 @@ export function CheckCard({ job, onChanged }: { job: CheckFields; onChanged: () 
   }
 
   return (
-    <Panel tone="money" icon="jobs" title="Is it working?" hint={`${name} says the work is finished. Check it before you pay.`}>
+    <Panel tone="money" icon="jobs" title={timed ? 'Did he do the work?' : 'Is it working?'} hint={`${name} says the work is finished. Check it before you pay.`}>
       <View style={s.payRow}>
         <Text style={s.payLabel}>{job.paid_by_pechkas ? 'Paid by Pechkas' : `You pay ${name}`}</Text>
         <Text style={s.payFigure}>{job.paid_by_pechkas ? 'Nothing to pay' : rupees(job.collect_paisa)}</Text>
@@ -162,13 +166,13 @@ export function CheckCard({ job, onChanged }: { job: CheckFields; onChanged: () 
       <FinishShots photos={job.photos} />
       {asking ? <TrialQuestions name={name} value={answers} onChange={setAnswers} /> : null}
       {job.check_due ? <Text style={s.small}>If you do nothing, it counts as finished on {when(job.check_due)}.</Text> : null}
-      <Button kind="green" icon="arrowRight" label="Yes, it works" busy={busy && !sheet} onPress={yes} />
+      <Button kind="green" icon="arrowRight" label={timed ? 'Yes, it is done' : 'Yes, it works'} busy={busy && !sheet} onPress={yes} />
       <Button kind="outline" label="Not finished yet" onPress={() => { setMsg(null); setSheet(true); }} />
       {!sheet ? <Notice text={msg} /> : null}
 
       {sheet ? (
         <Sheet title="What is not finished?" onClose={() => setSheet(false)}>
-          {REASONS.map((r) => (
+          {REASONS.filter((r) => !(timed && r.key === 'not_working')).map((r) => (
             <SheetOption key={r.key} label={r.label} on={reason === r.key} onPress={() => setReason(r.key)} />
           ))}
           <View style={{ gap: 12, paddingTop: 8 }}>

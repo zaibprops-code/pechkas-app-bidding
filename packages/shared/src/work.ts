@@ -33,6 +33,7 @@ export const WORK_THINGS: Record<string, string> = {
   mason: 'Tiles, plaster, small cement work',
   garden: 'Grass, hedges, plants',
   welding: 'Gates, grills, railings',
+  helper: 'Lifting, moving, carrying',
 };
 
 /**
@@ -88,6 +89,10 @@ export const WORK_GROUPS: Record<string, WorkGroup[]> = {
   welding: [
     { title: 'Gates and grills', jobs: ['Gate hinge or latch welded', 'Window grill repaired', 'Railing or stair rail repaired'], also: [{ trade: 'painting', job: 'Gate or grill painting' }] },
     { title: 'Other metal', jobs: ['Broken metal furniture welded (chair, bed frame)', 'Water tank stand repaired (on the ground)'] },
+  ],
+  helper: [
+    { title: 'Moving things', jobs: ['Furniture moved within the house', 'Things carried up or down stairs', 'Loading or unloading a vehicle'] },
+    { title: 'Clearing', jobs: ['Storeroom or roof cleared (carried down to the street)'] },
   ],
   carpentry: [
     { title: 'Doors and windows', art: 'door', jobs: ['Door lock or handle fitting', 'Door hinge repair or replacement', 'Door adjustment (sticking or not closing)', 'Hanging a new door', 'Window repair (handle, hinge or sliding)', 'Mosquito mesh (jaali) for a window or door'], also: [{ trade: 'cctv', job: 'Smart door lock fitting' }] },
@@ -295,6 +300,12 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Railing or stair rail repaired': 'A broken or loose railing welded firm',
     'Broken metal furniture welded (chair, bed frame)': 'A cracked metal chair, table or bed frame welded',
     'Water tank stand repaired (on the ground)': 'A rusted or broken tank stand at ground level welded',
+  },
+  helper: {
+    'Furniture moved within the house': 'Beds, sofas or cupboards moved from room to room',
+    'Things carried up or down stairs': 'Heavy things carried between floors',
+    'Loading or unloading a vehicle': 'Things carried to or from a pick-up or truck at your gate',
+    'Storeroom or roof cleared (carried down to the street)': 'Old things carried out and left at the street for you',
   },
 };
 
@@ -528,4 +539,22 @@ export function findJobs<J extends { trade: string; name: string }>(query: strin
   const byName = jobs.filter((j) => typed.every((w) => starts(j.name, w)));
   if (byName.length) return byName;
   return jobs.filter((j) => typed.every((w) => starts(j.name, w) || starts(tradeName(j.trade), w) || starts(WORK_THINGS[j.trade] ?? '', w)));
+}
+
+/**
+ * Helper jobs are bought by time (A135): the customer chooses how long and
+ * names her price for that time. The database keeps the same three choices
+ * (jobs.work_hours, 2, 4 or 8).
+ */
+export const WORK_HOURS = [2, 4, 8] as const;
+export type WorkHours = (typeof WORK_HOURS)[number];
+
+/** The choice on Post a job's price step. */
+export function hoursShort(h: number): string {
+  return h === 2 ? '2 hours' : h === 4 ? 'Half a day' : h === 8 ? 'Full day' : `${h} hours`;
+}
+
+/** How long a timed job is, wherever the job is shown. */
+export function hoursText(h: number): string {
+  return h === 2 ? '2 hours' : h === 4 ? 'Half a day (4 hours)' : h === 8 ? 'A full day (8 hours)' : `${h} hours`;
 }

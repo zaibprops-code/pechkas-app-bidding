@@ -4,7 +4,8 @@ import { supabase } from './supabase';
 
 /** What public.app_lists() returns. Public: the website prints all of it. */
 export type Lists = {
-  trades: { slug: string; name: string }[];
+  /** by_time: bought by time, not by a result (Helper, A135). */
+  trades: { slug: string; name: string; by_time?: boolean }[];
   sectors: string[];
   live_sectors: string[];
   /** Every place in Islamabad, Bahria Town and DHA among them (fast_posting). Absent from an older database. */

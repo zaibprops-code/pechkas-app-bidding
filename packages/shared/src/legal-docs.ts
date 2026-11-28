@@ -3,7 +3,7 @@
 import type { LegalDoc, LegalSlug } from './legal.ts';
 
 /** The website commit these were copied from. */
-export const LEGAL_FROM = "dbc2991";
+export const LEGAL_FROM = "0cbd3f2";
 
 export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
   "privacy": {
@@ -1255,6 +1255,18 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           ],
           [
             {
+              "t": "A "
+            },
+            {
+              "t": "helper",
+              "b": true
+            },
+            {
+              "t": " (lifting, moving, carrying) is booked by time: you also choose how long, 2 hours, half a day or a full day, and your price is for that time. One helper is one job; if you need two, post two jobs."
+            }
+          ],
+          [
+            {
               "t": "Jobs can be posted anywhere in Islamabad, Bahria Town and DHA included, and nowhere else for now, because nobody could honestly be promised anywhere else."
             }
           ],
@@ -1906,6 +1918,39 @@ export const LEGAL_DOCS: Record<LegalSlug, LegalDoc> = {
           },
           {
             "t": ": cleaning, servicing, a gas top-up, descaling, clearing a drain, a virus clean-up or a check-up. A service is the shorter one because it wears off by itself."
+          }
+        ]
+      },
+      {
+        "k": "p",
+        "c": [
+          {
+            "t": "A "
+          },
+          {
+            "t": "helper's job has no guarantee",
+            "b": true
+          },
+          {
+            "t": ": it is time, not a repair, so there is nothing to fail again. You check it in the same way, with "
+          },
+          {
+            "t": "Yes, it is done",
+            "b": true
+          },
+          {
+            "t": " or "
+          },
+          {
+            "t": "Not finished yet",
+            "b": true
+          },
+          {
+            "t": ". "
+          },
+          {
+            "t": "[DECIDE WITH A LAWYER: who pays when a helper breaks or damages something he is moving, and what Pechkas says about a helper hurt while lifting.]",
+            "mark": true
           }
         ]
       },

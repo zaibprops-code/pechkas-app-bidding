@@ -17,7 +17,7 @@ decide there can be built straight away in the repositories.
 
 - **A home-repair business in Islamabad.** The trades are AC, electrician,
   plumber, CCTV and door security, Wi-Fi and internet, UPS and inverter, solar, home
-  appliances, carpentry, painting, computers, water tank cleaning (A125), cleaning (A126, A129), masonry and tiles, garden and welding (A134). Brand lines: "Har pech ka
+  appliances, carpentry, painting, computers, water tank cleaning (A125), cleaning (A126, A129), masonry and tiles, garden and welding (A134), and a helper booked by time (A135). Brand lines: "Har pech ka
   hal" and "Khara kaam, khara daam".
 - **The owner is one person, Muhammad Zohaib Khan.** He is not a developer.
   He tests on an Android 9 phone and has no Mac. Claude writes all the code.
@@ -466,7 +466,7 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   drawings until their 3D pictures. Welding is not risky yet (D43).
 - **A135, Helper jobs (28 November 2026):** priced by time (2 hours, half
   a day, a full day), one man per job, "Did he do the work?" with no
-  guarantee. To be built.
+  guarantee. Built the same day: Helper, four jobs, drawings until pictures.
 
 ## 7. Still open: what the owner has to decide
 

@@ -33,6 +33,8 @@ export type Draft = {
   parts: 'pro_buys' | 'customer_has' | null;
   gateNote: string;
   offer: number | null;
+  /** How long, for a job bought by time (Helper, A135): 2, 4 or 8 hours. */
+  hours?: 2 | 4 | 8 | null;
   /**
    * "Ask Bilal again", tapped on a finished job. The database remembers the
    * request, for an hour; this is only so the form can say so, and offer to

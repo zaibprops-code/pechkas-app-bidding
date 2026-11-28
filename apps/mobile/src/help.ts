@@ -126,6 +126,10 @@ export const CUSTOMER_HELP: HelpTopic[] = [
         a: 'Check it before you pay. Your job shows **Yes, it works** and **Not finished yet**. If it is not finished, choose why; he is told and puts it right.',
       },
       {
+        q: 'How does a helper\'s job end?',
+        a: 'A helper is booked by time, so your job asks **Did he do the work?** instead. Tap **Yes, it is done**, or **Not finished yet** and choose why. A helper\'s job has no guarantee: there is nothing to fail again.',
+      },
+      {
         q: 'What if it is not finished?',
         a: 'Tap **Not finished yet** and choose why; add a note or a photo if it helps. He is told and puts it right. If you say so a second time, the Pechkas office looks at both sides’ photos and decides.',
       },

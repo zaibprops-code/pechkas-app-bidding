@@ -84,6 +84,8 @@ export type ActiveJob = {
   photos: { stage: string; path: string }[];
   /** He says finished, she checks (checks_and_guarantee). */
   check_due?: string | null;
+  /** How long, for a helper's job (A135); she is asked "Did he do the work?". */
+  work_hours?: number | null;
   not_finished?: number;
   last_check?: { round: number; reason: string; note: string | null; photo: string | null; pro_reply: string | null; can_reply: boolean } | null;
   dispute_outcome?: 'done' | 'stopped' | 'return' | null;
@@ -469,7 +471,7 @@ export function Chosen({ j, w, trade, when, userId, commissionBps, firstCap = nu
         <View style={s.step}>
           <Text style={s.waiting}>{fill(w.checkingTitle, { name: j.customer_first_name })}</Text>
           <Text style={s.note}>
-            {fill(w.checkingNote, {
+            {fill(j.work_hours ? w.checkingNoteDone : w.checkingNote, {
               name: j.customer_first_name,
               time: j.check_due ? new Date(j.check_due).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Karachi' }) : '',
             })}

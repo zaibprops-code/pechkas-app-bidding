@@ -360,7 +360,7 @@ heading('Three more Painting jobs (A130)');
 {
   const { rows } = await setup(`SELECT name, list_paisa, guarantee, risky FROM public.job_types WHERE trade = 'painting' AND name IN ('Feature wall texture (one wall)', 'Door or furniture polish', 'Gate or grill painting')`);
   ok('all three are there, once each, 30 days, no price, not risky', rows.length === 3 && rows.every((r) => r.list_paisa === null && r.guarantee === 'repair' && r.risky === false), rows);
-  const { rows: out } = await setup(`SELECT 1 FROM public.job_types WHERE name ILIKE '%exterior%' OR name ILIKE '%outside wall%' OR name ILIKE '%waterproof%' OR name ILIKE '%roof%'`);
+  const { rows: out } = await setup(`SELECT 1 FROM public.job_types WHERE trade <> 'helper' AND (name ILIKE '%exterior%' OR name ILIKE '%outside wall%' OR name ILIKE '%waterproof%' OR name ILIKE '%roof%')`);
   ok('no exterior painting and no roof waterproofing', out.length === 0);
 }
 

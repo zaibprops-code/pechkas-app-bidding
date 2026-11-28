@@ -4,6 +4,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { dayLabel, rupees, sectorIn, showMobile, technicianKeeps, whenLabel, windowLabel, type WhenFields } from '@pechkas/shared';
+import { hoursText } from '@pechkas/shared/src/work';
 import { TradeTile } from '../customer/bits';
 import { MenuButton } from '../components/Menu';
 import { Mark } from '../components/Mark';
@@ -57,6 +58,8 @@ type FeedJob = {
   when_from?: number | null;
   sector: string;
   power: 'on' | 'off' | null;
+  /** How long, for a helper's job (A135). */
+  work_hours?: number | null;
   parts: 'pro_buys' | 'customer_has' | null;
   customer_first_name: string;
   media: StoredMedia[];
@@ -657,8 +660,8 @@ function asSoonAsPossible(j: Pick<FeedJob, 'when_kind' | 'when_part' | 'when_dat
 }
 
 /** When the job is wanted, in the same words the customer sees: "Sat 1 Nov, 10am–12pm". */
-function whenText(j: WhenFields, _w?: ProWords) {
-  return whenLabel(j);
+function whenText(j: WhenFields & { work_hours?: number | null }, _w?: ProWords) {
+  return [whenLabel(j), j.work_hours ? hoursText(j.work_hours) : null].filter(Boolean).join(' · ');
 }
 
 function Facts({ j, w }: { j: { power: FeedJob['power']; parts: FeedJob['parts'] }; w: ProWords }) {

@@ -12,7 +12,7 @@ import { useAccount } from '../src/account';
 import { useLists } from '../src/lists';
 import { pictureOf, WorkArt } from '../src/components/WorkArt';
 import { YellowTop } from '../src/components/YellowTop';
-import { workArt } from '@pechkas/shared/src/work';
+import { hoursShort, hoursText, workArt, WORK_HOURS } from '@pechkas/shared/src/work';
 import { usePriceRanges } from '../src/prices';
 import { PriceRangeCard } from '../src/components/PriceRange';
 import { ask, supabase } from '../src/supabase';
@@ -51,14 +51,14 @@ const NEEDS_POWER = new Set(['ac', 'electrician', 'ups', 'solar', 'appliances', 
 const STEP_OF: Record<string, 1 | 2 | 3> = {
   trade: 1, job_type: 1, media: 1, description: 1, power: 1, parts: 1,
   sector: 2, street: 2, house: 2, landmark: 2, gate_note: 2, location: 2,
-  when: 3, offer: 3,
+  when: 3, offer: 3, hours: 3,
 };
 // Which refusals a change to each part of the form answers.
 const ANSWERS: Partial<Record<keyof Draft, string[]>> = {
   trade: ['trade', 'job_type'], jobType: ['job_type'],
   media: ['media'], description: ['media', 'description'],
   sector: ['sector'], lat: ['location', 'sector'], street: ['street'], house: ['house'], landmark: ['landmark'], gateNote: ['gate_note'],
-  power: ['power'], parts: ['parts'], offer: ['offer'],
+  power: ['power'], parts: ['parts'], offer: ['offer'], hours: ['hours'],
 };
 // The database keeps an "ask again" for an hour (job_preferred()); so does the form.
 const ASK_LASTS = 60 * 60 * 1000;
@@ -335,6 +335,8 @@ export default function Post() {
       if (!d.house.trim()) early.house = 'Write the house or flat number.';
       if (!d.street.trim()) early.street = 'Write the street.';
     }
+    const timed = !!lists?.trades.find((t) => t.slug === d.trade)?.by_time;
+    if (timed && !d.hours) early.hours = 'Choose how long you need him for.';
     if (Object.keys(early).length) return refuse(early, 'Something is missing. It is marked in red.');
 
     // As soon as possible: today until 9pm, tomorrow after that (jobs run 7am to 10pm, A116).
@@ -359,7 +361,9 @@ export default function Post() {
     }
 
     setProgress('Posting…');
-    const r = await ask<{ id: string; ref: string }>('post_job', {
+    // A helper is bought by time (A135): the same post, with how long.
+    const r = await ask<{ id: string; ref: string }>(timed ? 'post_timed_job' : 'post_job', {
+      ...(timed ? { p_hours: d.hours } : {}),
       p_trade: d.trade,
       p_job_type: d.jobType,
       p_description: d.description,
@@ -400,6 +404,8 @@ export default function Post() {
   }
 
   const tradeName = (slug: string) => lists?.trades.find((t) => t.slug === slug)?.name ?? slug;
+  // A helper is bought by time (A135): the price step asks how long first.
+  const byTime = !!lists?.trades.find((t) => t.slug === d?.trade)?.by_time;
   const back = () => (d.step > 1 ? go((d.step - 1) as 1 | 2) : router.canGoBack() ? router.back() : router.replace('/'));
   const next = (to: 2 | 3) => {
     if (backToPrice) {
@@ -561,7 +567,20 @@ export default function Post() {
     return (
       <>
         <Screen key="step3" top={top} footer={<Button kind="ink" label={progress ?? `Post job · ${rupees(offer)}`} icon={progress ? undefined : 'arrowRight'} onPress={post} busy={busy && !progress} disabled={busy} />}>
-          <Heading title="Your price" sub="Technicians accept it or offer theirs. You choose." />
+          <Heading title="Your price" sub={byTime ? 'For the time you choose. Technicians accept it or offer theirs.' : 'Technicians accept it or offer theirs. You choose.'} />
+          {byTime ? (
+            <View style={{ gap: 8 }}>
+              <Text style={s.hoursAsk}>How long do you need him?</Text>
+              <View style={s.hoursRow}>
+                {WORK_HOURS.map((h) => (
+                  <Press key={h} onPress={() => update({ hours: h })} sink={0.97} accessibilityRole="button" accessibilityState={{ selected: d.hours === h }} accessibilityLabel={hoursText(h)} style={[s.hoursChip, d.hours === h && s.hoursOn]}>
+                    <Text style={[s.hoursText, d.hours === h && s.hoursTextOn]} numberOfLines={1}>{hoursShort(h)}</Text>
+                  </Press>
+                ))}
+              </View>
+              {errors.hours ? <Text style={s.error}>{errors.hours}</Text> : null}
+            </View>
+          ) : null}
           <View style={s.stepper}>
             <Press
               onPress={atFloor ? undefined : () => update({ offer: Math.max(floor, offer - PRICE_STEP_PAISA) })}
@@ -887,6 +906,12 @@ const s = StyleSheet.create({
   sub: { fontFamily: font.body, fontSize: 15, lineHeight: 21, color: colour.steel },
   hint: { fontFamily: font.body, fontSize: 13, lineHeight: 18, color: colour.steel },
   error: { fontFamily: font.bodySemi, fontSize: 13.5, lineHeight: 19, color: colour.brick },
+  hoursAsk: { fontFamily: font.display, fontSize: 16, color: colour.ink },
+  hoursRow: { flexDirection: 'row', gap: 8 },
+  hoursChip: { flex: 1, minHeight: 48, borderRadius: 16, backgroundColor: colour.white, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
+  hoursOn: { backgroundColor: colour.ink },
+  hoursText: { fontFamily: font.bodySemi, fontSize: 14, color: colour.ink, textAlign: 'center' },
+  hoursTextOn: { color: colour.white },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tiles: { flexDirection: 'row', gap: 10 },
   bigTile: { flex: 1, minHeight: 118, alignItems: 'center', justifyContent: 'center', gap: 4, borderRadius: 24, backgroundColor: colour.white, boxShadow: '0px 2px 10px rgba(20, 23, 26, 0.05)' },

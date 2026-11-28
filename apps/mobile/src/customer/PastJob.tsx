@@ -3,6 +3,7 @@ import { JobReports } from '../components/Reports';
 import { Image, Linking, Share, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
 import { dayLabel, pkClock, rupees } from '@pechkas/shared';
+import { hoursText } from '@pechkas/shared/src/work';
 import { DuoIcon, type DuoName } from '../components/DuoIcon';
 import { Icon } from '../components/Icon';
 import { Press } from '../components/Press';
@@ -227,7 +228,8 @@ function receiptText(job: Job, trade: string, name: string | null, story: Story 
   }
   const change = story?.changes.find((c) => c.status === 'approved');
   if (change) lines.push(`Price agreed ${rupees(change.from_paisa)}, changed to ${rupees(change.price_paisa)} with ${change.by === 'office' ? 'Pechkas’' : 'the customer’s'} OK`);
-  if (job.status === 'done' && job.guarantee_until) lines.push(`Guaranteed until ${fullDay(job.guarantee_until)}`);
+  if (job.work_hours) lines.push(`Time: ${hoursText(job.work_hours)}`);
+  if (job.status === 'done' && job.guarantee_until && job.guarantee_days !== 0) lines.push(`Guaranteed until ${fullDay(job.guarantee_until)}`);
   lines.push('pechkas.net');
   return lines.join('\n');
 }
@@ -267,7 +269,8 @@ export function PastJob({ job, trade, onChanged }: { job: Job; trade: string; on
   const endedAt = over ? job.finished_at : (story?.cancel?.at ?? job.created_at);
   const photos = job.photos.filter((p) => p.stage !== 'change');
   const urls = useSignedUrls(photos.map((p) => ({ kind: p.stage === 'video' ? 'video' : 'photo', path: p.path, seconds: null })));
-  const guarantee = job.status === 'done' && job.guarantee_until ? job.guarantee_until : null;
+  // A helper's job has no guarantee (A135): guarantee_days is 0.
+  const guarantee = job.status === 'done' && job.guarantee_until && job.guarantee_days !== 0 ? job.guarantee_until : null;
   const covered = guarantee ? new Date(guarantee) > new Date() : false;
   const claim = job.claim ?? null;
   const claimOpen = claim && !['fixed', 'not_covered'].includes(claim.status);

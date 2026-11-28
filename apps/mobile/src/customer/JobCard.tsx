@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Linking, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { router } from 'expo-router';
 import { dayLabel, pkClock, pkNow, rupees, whenLabel, windowLabel } from '@pechkas/shared';
+import { hoursText } from '@pechkas/shared/src/work';
 import { ScrewSpinner } from '../components/ScrewSpinner';
 import { Button, Field, Notice } from '../components/ui';
 import { DuoIcon, type DuoName } from '../components/DuoIcon';
@@ -37,6 +38,8 @@ export type Job = JobNow & Omit<CancelFields, 'id' | 'ref' | 'status' | 'stage' 
   ref: string;
   trade: string;
   title: string;
+  /** How long, for a helper's job (A135). */
+  work_hours?: number | null;
   /** What she wrote when she posted it. */
   description?: string | null;
   offered_paisa: number;
@@ -252,7 +255,7 @@ export function JobCard({ job, trade, tick, onChanged, onOpen, coming = false }:
           )}
         </View>
         <View style={s.facts}>
-          <Fact icon="clock" text={dueText(job) ?? whenLabel(job)} />
+          <Fact icon="clock" text={[dueText(job) ?? whenLabel(job), job.work_hours ? hoursText(job.work_hours) : null].filter(Boolean).join(' · ')} />
           <Fact icon="pin" text={`${job.house}, ${job.street}, ${job.sector}`} />
           {files ? <Fact icon="camera" text={files} /> : null}
         </View>

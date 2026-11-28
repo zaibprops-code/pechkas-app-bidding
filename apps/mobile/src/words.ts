@@ -330,6 +330,7 @@ const PRO = {
   adviceNote: 'Advice they can keep, such as how often to clean the filters. They read it on the job’s page. No phone numbers.',
   checkingTitle: 'Waiting for {name} to check the work',
   checkingNote: '{name} is asked to tap Yes, it works, or Not finished yet. If nobody answers, it counts as finished on {time}.',
+  checkingNoteDone: '{name} is asked to tap Yes, it is done, or Not finished yet. If nobody answers, it counts as finished on {time}.',
   checkingCollect: 'Collect {price} once {name} is happy with it.',
   checkingPaid: 'Pechkas pays you {price} for this repair. Collect nothing from the customer.',
   saidNotFinished: '{name} says: {reason}',

@@ -3304,6 +3304,21 @@ pictures are made.
    Welding.
 3. Prices are blank ("After a look") until you give them.
 
+## Helper, booked by time (A135)
+
+A new kind of work, **Helper** (lifting, moving, carrying). The customer
+chooses 2 hours, half a day or a full day and names her price for that
+time; at the end she is asked "Did he do the work?"; there is no
+guarantee.
+
+1. Run `supabase/migrations/20261218000000_helper_jobs.sql` in the SQL
+   editor, after `…_mason_garden_welding`. It is safe to run twice.
+2. This changes how a job is posted, so the app's edition is now 10.
+   Update your test phone; do not raise the office's "min edition"
+   until edition 10 is in the stores.
+3. Try it: Home → Helper → Moving things → a job → on the price step
+   choose how long, then post.
+
 ## Putting the app on Google Play
 
 No migration this time. Do these in order; each says which screen and which

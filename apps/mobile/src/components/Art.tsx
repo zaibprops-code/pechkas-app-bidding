@@ -11,13 +11,13 @@ import { colour } from '../theme';
  * words, so each one is hidden from screen readers.
  */
 
-export type ArtName = 'ac' | 'electrician' | 'plumber' | 'cctv' | 'wifi' | 'ups' | 'solar' | 'appliances' | 'carpentry' | 'painting' | 'computers' | 'tank' | 'cleaning' | 'mason' | 'garden' | 'welding' | 'more';
+export type ArtName = 'ac' | 'electrician' | 'plumber' | 'cctv' | 'wifi' | 'ups' | 'solar' | 'appliances' | 'carpentry' | 'painting' | 'computers' | 'tank' | 'cleaning' | 'mason' | 'garden' | 'welding' | 'helper' | 'more';
 
 /** The drawing for a trade's slug, when it has one. Post a job and My jobs both use it. */
 const BY_TRADE: Record<string, ArtName> = {
   ac: 'ac', electrician: 'electrician', plumber: 'plumber', ups: 'ups', cctv: 'cctv', wifi: 'wifi',
   solar: 'solar', appliances: 'appliances', carpentry: 'carpentry', painting: 'painting', computers: 'computers', tank: 'tank', cleaning: 'cleaning',
-  mason: 'mason', garden: 'garden', welding: 'welding',
+  mason: 'mason', garden: 'garden', welding: 'welding', helper: 'helper',
 };
 export const artFor = (trade: string): ArtName | undefined => BY_TRADE[trade];
 
@@ -191,6 +191,15 @@ export function Art({ name, width = 120, height = 90 }: { name: ArtName; width?:
           <Rect x={20} y={12} width={52} height={5} fill={INK} />
           <Rect x={20} y={73} width={52} height={5} fill={INK} />
           <Path d="M92 22l3 9 9 3-9 3-3 9-3-9-9-3 9-3z" fill={WHITE} />
+        </G>
+      )}
+      {name === 'helper' && (
+        <G>
+          {/* Boxes on a hand trolley. */}
+          <Rect x={46} y={42} width={42} height={28} rx={3} fill={SHADE} />
+          <Rect x={52} y={16} width={30} height={26} rx={3} fill={WHITE} />
+          <Path d="M30 8h7v62h56" stroke={INK} strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          <Circle cx={40} cy={76} r={7} fill={INK} />
         </G>
       )}
       {name === 'tank' && (
