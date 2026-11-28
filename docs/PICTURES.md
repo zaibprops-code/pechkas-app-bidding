@@ -9,12 +9,11 @@ decision is A123 in `docs/DECISIONS.md`.
 
 | Trade | State |
 | --- | --- |
-| AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting | Built: 3D pictures and a 3D top of the page |
-| Home appliances | **In progress.** 5 of 7 pictures are in the repository but **not used yet**: `app-appliances`, `app-wmservice`, `app-install`, `app-wmrepair` (.webp) and the page top `app-top.jpg`. Still to make: `app-fridge` and `app-microwave` (prompts below). The owner has seen the mock with the five. |
-| Electrician, Computers, Carpentry | Still drawings |
+| Every trade: AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers, Carpentry, Electrician | Built: 3D pictures and a 3D top of the page (Electrician last, 27 November 2026) |
 
-Electrician's "UPS or inverter connection" (`el-ups`) is already 3D (UPS's one
-job, the owner's choice): leave it.
+No flat picture of the work is left. A new trade or job follows the same
+steps below before it ships. The sign-in pictures in 3D wait for the owner's
+word (A123).
 
 ## The order of work for each trade
 
@@ -71,13 +70,15 @@ house). Ask for blank gauge faces and no display digits. Look at every result:
 remake it if it has text, numbers, a logo, something yellow on the object, or
 the object touches the edge.
 
-**Home appliances' two missing pictures** (exact wording, square):
+**Home appliances' last two pictures** (built; kept as examples, square;
+without "no yellow hose" the gauge set came with one, three times out of three):
 
 - `app-fridge`: a white two-door refrigerator with the freezer on top,
   slightly turned, its lower door open showing clean glass shelves and a
   little frost on the back wall inside; standing beside it on the floor a
   refrigeration technician's manifold gauge set with one blue and one red
-  gauge (blank faces, no numbers) and coiled hoses, and a small dark teal
+  gauge (blank faces, no numbers) and coiled hoses in blue and red only, no
+  yellow hose, and a small dark teal
   green (#0B5148) toolbox. (Also: no food.)
 - `app-microwave`: a stainless steel and black microwave oven, slightly
   turned, with its outer metal cover lifted off and set beside it, showing
@@ -105,11 +106,21 @@ python3 scripts/retop.py <folder>/app-top.png <out>/app-top.jpg 0.86 0.47 0.47
   smooth soft pale sky blue (#DCE8F5)" backdrop. A grey or white part passes
   for a shadow on blue, so those stay on yellow.
 - A boxy object (a room corner, a house, a wall unit) hides the circle: cut
-  it with `--circle 1.2` to `1.3` so the circle shows round it.
+  it with `--circle 1.2` to `1.3` so the circle shows round it. But the
+  circle is drawn inside the 1024 source: on a tall or large object a big
+  circle runs off it and shows flat edges. Doors keep the default; a wall
+  piece filling most of the square takes 1.0 to 1.2.
+- The mock of a trade with groups: pass a group's title instead of a job
+  (`trade-mock.mjs carpentry "Doors and windows"`), and the third screen
+  shows that group's sheet with its job pictures.
 - The top: `retop.py source out SCALE CX CY` shrinks the object and moves it.
   Check the page at 320 wide: nothing cut at the right edge, nothing under
   the title. If the source picture itself cuts an object at its edge, make
   the top again (retop cannot add what is not there).
+- retop reads the backdrop from the source's left 40%. If the image tool
+  returns a narrower top (1536 x 1024) with the object reaching into that
+  part, first widen it on the left with a mirrored strip of its own
+  backdrop (Computers: 512 px, then `0.68 0.454 0.484`).
 
 ## 2. The mock
 
@@ -143,20 +154,16 @@ yourself before sending them: at 320 nothing may be cut or overlap.
    python3 -c "from PIL import Image; Image.open('<out>/app-fridge.png').convert('RGBA').save('apps/mobile/assets/work/app-fridge.webp','WEBP',quality=84,method=6)"
    git rm apps/mobile/assets/work/app-fridge.png
    ```
-   (Home appliances: four .webp and the top are already there; add the
-   fridge and microwave, then `git rm` all six `app-*.png`.)
 2. `apps/mobile/src/components/WorkArt.tsx`: change each of the trade's
    `require('../../assets/work/<name>.png')` lines to `.webp`, and add the
-   trade's line to `TOPS` (after `painting:`).
-3. The docs, each naming the trade with the others:
-   - `CLAUDE.md`: "AC, CCTV, Wi-Fi, UPS, Solar, Plumber and Painting are done"
-   - `docs/DESIGN.md` **and** `.claude/skills/pechkas-design/SKILL.md`
-     (identical; `design:check` fails otherwise): the same list
-   - `docs/DECISIONS.md`, row A123: add "and <Trade> (<date>, <n> pictures
-     and the top)" before "; the other trades follow one by one"
-   - `docs/BRIEFING.md`: the A123 line, "AC, CCTV, Wi-Fi, UPS, Solar,
-     Plumber and Painting built;"
-   - this file's table
+   trade's line to `TOPS` (after the last one, `electrician:`); a new job's
+   picture goes in `PICTURES` and `JOB_PICTURES` (shared `work.ts`).
+3. The docs: every trade is now 3D, so a new trade or job is added where
+   these name the work — `CLAUDE.md` ("The pictures are 3D, every
+   trade"), `docs/DESIGN.md` **and** `.claude/skills/pechkas-design/SKILL.md`
+   (identical; `design:check` fails otherwise), `docs/DECISIONS.md` row A123
+   ("and <Trade or job> (<date>, <n> pictures)"), `docs/BRIEFING.md`'s A123
+   line, and this file's table.
    - anything new you learned about making the pictures goes in DESIGN.md
      and SKILL.md (both).
 4. `node scripts/briefing-pdf.mjs` (rebuilds `docs/Pechkas-briefing.pdf`).
@@ -192,8 +199,8 @@ to another account cannot change them: then say so and stop here.
   published `index.html` first (`action: read`), then publish it with those
   shots in `files`.
 - **The decision map**, https://claude.ai/artifact/YBZXKEJ1QUo39BNK4k8Ha4:
-  read it, then in its HTML change the A123 row's list ("AC, CCTV, Wi-Fi, UPS,
-  Solar, Plumber and Painting built") and the foot's "Updated <date>: 3D
+  read it, then in its HTML change the A123 row (it now says every trade is
+  built) and the foot's "Updated <date>: 3D
   pictures of the work, …" line; check its `<script>` still parses
   (`new Function(code)` in node). Copy the built demo site to `<map>/demo`,
   run `python3 scripts/demo/map-patch.py <map>/demo/index.html`, and publish

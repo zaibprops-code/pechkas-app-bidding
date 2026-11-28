@@ -534,9 +534,16 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   (+200, +500, +1,000), "Usual price", "N raises left", **Raise my
   price** (`raise_price()`); the automatic choice. "Still looking?" at the
   first countdown's end and "No offer yet. You don't have to wait here."
-  at the second, each once (`Ask`); `CancelSheet` with one-tap reasons
-  (fixed_myself, someone_else, other + "It took too long" / "Price too
-  high"). An offer drops in from the top (`OfferBanner`, See).
+  at the second, each once (`Ask`); `CancelSheet` (the owner's design, 27
+  November 2026): the job's picture and name under "Cancel this job?",
+  "Tell us why" over one card of five text rows with a round selector and
+  no icons (fixed_myself, someone_else, other + "It took too long" /
+  "Price too high", and "Something else", which opens a box for her own
+  words, sent as the reason: 200 letters, no CNIC, as `cancel_job()`
+  checks), a red **Confirm** and a soft **Keep looking**; "cancel" is said
+  once, and no "Nothing is charged" line (the owner's no). On a phone under
+  720 tall the rows and gaps shrink so both buttons stay in view. Choose.tsx
+  uses the same sheet. An offer drops in from the top (`OfferBanner`, See).
 - **Choose a technician** (`Choose.tsx`, `/job/<id>?view=choose`): short
   cards, nearest first, the price and minutes big, his initial, name,
   rating or New, jobs, trade and years, **No thanks** / **Choose Bilal**
@@ -2012,14 +2019,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   carry the picture too, search results and the top of Post a job);
   home (the tiles and the job card on top) and the search's list of
   kinds of work use them too, since every trade and job has one; home's
-  yellow top has no picture at all (A122). **The pictures are becoming 3D,
-  trade by trade (A123)**: AC, CCTV, Wi-Fi, UPS, Solar, Plumber and Painting are done — soft 3D objects on the same yellow
+  yellow top has no picture at all (A122). **The pictures are 3D,
+  every trade (A123, built trade by trade, the last on 27 November 2026)** — soft 3D objects on the same yellow
   circle, WebP, made one at a time and moved onto the circle by
   `scripts/oncircle.py` — and their pages open with a wide 3D picture filling
   the yellow top (`topOf()`, `YellowTop picture`). **How a trade is made, mocked, built and
   published, and where it stands, is `docs/PICTURES.md`.** Every other place a job shows — My jobs,
   the job's screen, a finished or cancelled job, Past, notifications, the
-  delete-account blocker and the technician's offer sheet — uses
+  delete-account blocker, the technician's offer sheet, his job card and
+  his finished-today rows — uses
   `TradeTile job={title}` or `WorkArt` + `pictureOf(trade, title)` (a job's
   `title` is its job's name); `design:check` fails on a screen drawing
   `<TradeArt>` itself. `jobs.test.mjs` fails if a pictured job is
