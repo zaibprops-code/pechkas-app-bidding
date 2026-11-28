@@ -87,12 +87,12 @@ export const WORK_GROUPS: Record<string, WorkGroup[]> = {
     { title: 'Plants and pots', art: 'gplants', jobs: ['Plants potted or re-potted', 'New plants planted', 'Flower bed or kitchen garden prepared'] },
   ],
   welding: [
-    { title: 'Gates and grills', jobs: ['Gate hinge or latch welded', 'Window grill repaired', 'Railing or stair rail repaired'], also: [{ trade: 'painting', job: 'Gate or grill painting' }] },
-    { title: 'Other metal', jobs: ['Broken metal furniture welded (chair, bed frame)', 'Water tank stand repaired (on the ground)'] },
+    { title: 'Gates and grills', art: 'wgates', jobs: ['Gate hinge or latch welded', 'Window grill repaired', 'Railing or stair rail repaired'], also: [{ trade: 'painting', job: 'Gate or grill painting' }] },
+    { title: 'Other metal', art: 'wmetal', jobs: ['Broken metal furniture welded (chair, bed frame)', 'Water tank stand repaired (on the ground)'] },
   ],
   helper: [
-    { title: 'Moving things', jobs: ['Furniture moved within the house', 'Things carried up or down stairs', 'Loading or unloading a vehicle'] },
-    { title: 'Clearing', jobs: ['Storeroom or roof cleared (carried down to the street)'] },
+    { title: 'Moving things', art: 'hmoving', jobs: ['Furniture moved within the house', 'Things carried up or down stairs', 'Loading or unloading a vehicle'] },
+    { title: 'Clearing', art: 'hclearing', jobs: ['Storeroom or roof cleared (carried down to the street)'] },
   ],
   carpentry: [
     { title: 'Doors and windows', art: 'door', jobs: ['Door lock or handle fitting', 'Door hinge repair or replacement', 'Door adjustment (sticking or not closing)', 'Hanging a new door', 'Window repair (handle, hinge or sliding)', 'Mosquito mesh (jaali) for a window or door'], also: [{ trade: 'cctv', job: 'Smart door lock fitting' }] },
@@ -462,6 +462,19 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'New plants planted': 'garden-planting',
     'Flower bed or kitchen garden prepared': 'garden-bed',
   },
+  welding: {
+    'Gate hinge or latch welded': 'weld-gate',
+    'Window grill repaired': 'weld-grill',
+    'Railing or stair rail repaired': 'weld-railing',
+    'Broken metal furniture welded (chair, bed frame)': 'weld-furniture',
+    'Water tank stand repaired (on the ground)': 'weld-tankstand',
+  },
+  helper: {
+    'Furniture moved within the house': 'helper-furniture',
+    'Things carried up or down stairs': 'helper-stairs',
+    'Loading or unloading a vehicle': 'helper-vehicle',
+    'Storeroom or roof cleared (carried down to the street)': 'helper-clear',
+  },
   carpentry: {
     'Door lock or handle fitting': 'carp-lock',
     'Door hinge repair or replacement': 'carp-hinge',
@@ -531,6 +544,13 @@ export const ART_PICTURES: Record<string, string> = {
   glawn: 'garden-grass',
   ghedges: 'garden-hedge',
   gplants: 'garden-repot',
+  garden: 'garden-garden',
+  welding: 'weld-welding',
+  wgates: 'weld-gate',
+  wmetal: 'weld-furniture',
+  helper: 'helper-helper',
+  hmoving: 'helper-furniture',
+  hclearing: 'helper-clear',
   cleaning: 'clean-cleaning',
 };
 

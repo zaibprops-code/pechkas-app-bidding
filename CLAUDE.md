@@ -2067,11 +2067,8 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   "Something else" included: a brand-new trade whose every job is risky
   could never be started by anybody (first jobs are basic ones, and risky
   work needs another welder to check him); its safety rules are D43.
-  They are drawings until their 3D pictures are made, one trade at a time;
-  **Masonry and tiles has its 3D pictures** (its nine jobs, its own picture,
-  its three groups' pictures from their jobs, and its page top); Garden's
-  eight jobs and three groups have theirs, its own picture and page top
-  still to make (Figma's credits ran out).
+  Their 3D pictures, and Helper's, were all built on 28 November 2026;
+  each of their groups uses one of its jobs' pictures (the `art` keys).
   **Helper (A135, migration `…_helper_jobs`) is bought by time, not by a
   result**: `trades.by_time`, `jobs.work_hours` (2, 4 or 8). Post a job's
   price step asks "How long do you need him?" (`WORK_HOURS`,
@@ -2089,7 +2086,7 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   `pro_my_jobs` (copied with only `work_hours` added). Who pays for
   something broken, and his injury, are the lawyer's (D42.4, D42.5; the
   terms carry the marker). `APP_EDITION` is 10. Tests: `helper.test.mjs`. **The pictures are 3D,
-  every trade (A123, built trade by trade, the last on 27 November 2026)** — soft 3D objects on the same yellow
+  every trade (A123, built trade by trade; Masonry and tiles, Garden, Welding and Helper last, on 28 November 2026)** — soft 3D objects on the same yellow
   circle, WebP, made one at a time and moved onto the circle by
   `scripts/oncircle.py` — and their pages open with a wide 3D picture filling
   the yellow top (`topOf()`, `YellowTop picture`). **How a trade is made, mocked, built and

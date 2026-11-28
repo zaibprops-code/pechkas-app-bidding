@@ -246,7 +246,9 @@ heading('Day moves when no window is left');
   await setup(`UPDATE public.jobs SET when_date = (now() AT TIME ZONE 'Asia/Karachi')::date - 1 WHERE id = $1`, [past.id]);
   await me(BILAL, WITHDRAW, [past.id, 'vehicle', null]);
   const today = await pkToday();
-  const expect = (await pkHour()) >= 19
+  // The database's own rule (A116): from the last posting hour (9pm), tomorrow.
+  const lastPost = Number((await setup(`SELECT public.last_post_hour() AS h`)).rows[0].h);
+  const expect = (await pkHour()) >= lastPost
     ? (await setup(`SELECT ((now() AT TIME ZONE 'Asia/Karachi')::date + 1)::text AS d`)).rows[0].d : today;
   const j = await job(past.id);
   ok('a day already gone moves to the first day with a window left', String(j.when_date.toISOString?.() ?? j.when_date).slice(0, 10) === expect

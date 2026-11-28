@@ -9,11 +9,11 @@ decision is A123 in `docs/DECISIONS.md`.
 
 | Trade | State |
 | --- | --- |
-| Every trade: AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers, Carpentry, Electrician | Built: 3D pictures and a 3D top of the page (Electrician last, 27 November 2026) |
-| A135's Helper | To do: four jobs, two groups and the page top. Drawing (`helper`) until then |
+| Every trade: AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers, Carpentry, Electrician, Water tank, Cleaning, Masonry and tiles, Garden, Welding, Helper | Built: 3D pictures and a 3D top of the page (Electrician last, 27 November 2026) |
+| A135's Helper | Built 28 November 2026: a hand truck with two boxes (its own picture, made on the pale blue: brown cardboard is beige), a wardrobe on moving dollies, a hand truck on wooden stairs (pale blue), the back of a pickup being loaded, a pile carried out of a storeroom; the groups use the wardrobe and the pile; the top a hand truck, a dolly and a strap (widened by 512 px, then `0.9 0.27 0.5`) |
 | A134's Masonry and tiles | Built 28 November 2026: nine jobs, the trade's own picture (bricks, tiles, a cement bucket, a trowel) and its page top; the three groups use their jobs' pictures (floor tile, plaster, step). The flat panels and walls cut with `--circle 1.06`; the counter was made again smaller, the first ran off the edges; the top came 1536 wide and was widened by 512 px first |
-| A134's Garden | Eight jobs built 28 November 2026 (lawn, weeding, new turf, hedge, a small tree, re-potting, planting, a raised bed; the lawn, hedge and bed cut with `--circle 1.06`); the groups use the grass, hedge and re-potting pictures. **Still to make: the trade's own picture and its page top** (Figma's credits ran out; the drawing stands in) |
-| A134's Welding | To do: 5 jobs, the groups and the page top. Drawings (`mason`, `garden`, `welding` in TradeArt.tsx and Art.tsx) until then |
+| A134's Garden | Eight jobs built 28 November 2026 (lawn, weeding, new turf, hedge, a small tree, re-potting, planting, a raised bed; the lawn, hedge and bed cut with `--circle 1.06`); the groups use the grass, hedge and re-potting pictures. Its own picture (a pot, shears and a trowel on a lawn square) and its page top the same day, by a second session once the credits were back |
+| A134's Welding | Built 28 November 2026: a helmet, an electrode holder and a welded tube; a small gate's welded hinge (the first ran off the edges), a grill panel (`--circle 1.06`), a railing on base plates (on stone steps, their light grey front cut out see-through), a green metal chair, a tank stand; the groups use the gate and the chair; the top widened by 512 px, then `0.8 0.38 0.52` |
 | A133's two Computers jobs | Built 28 November 2026: a laptop with its bottom panel off, a dusty fan, brush and cooling paste; a laptop with a snapped hinge, a new hinge and a screwdriver; both `--circle 1.06`. The first hinge picture did not show the break, and a close-up ran off the edges: the third, the whole laptop with the new hinge in front, is in |
 | A132's Wi-Fi device job | Built 28 November 2026: a printer and a router with a green tick between them, default circle |
 | A131's three CCTV and door security jobs | Built 28 November 2026: a dome camera with a cloth and a tick, a door phone (gate unit and screen) and a smart lock on a piece of door; the last two cut with `--circle 1.06` |
@@ -24,7 +24,7 @@ decision is A123 in `docs/DECISIONS.md`.
 | A126's fourteen new jobs and **Sofa and carpet cleaning** | Built 28 November 2026: pipe repair, new pipe line, electric geyser; AC chemical wash, window AC; ceiling fan repair, earthing, new breaker board; UPS battery; clothes dryer; kitchen cabinet; sofa, carpet and mattress cleaning, the trade's own picture and its page top. The mattress (white) was made on the pale blue backdrop; the new pipe line, breaker board and cabinet were cut with `--circle 1.06` |
 | A125's eight new jobs and **Water tank** | Built 28 November 2026: water purifier filters, silicone sealing, bathroom accessories (Plumber); TV wall mounting and its "TV" group (Electrician); mirror or picture hanging, mosquito mesh (Carpentry); water dispenser (Home appliances); Water tank's own picture, its cleaning job and its page top. The four flat, boxy ones (mirror, TV, mesh, bathroom tiles) were cut with `--circle 1.06`, the mesh at 0.96; at 1.22 the circle ran off the source and showed flat sides |
 
-No flat picture of the work is left. A new trade or job follows the same
+No flat picture of the work is left: every kind of work is 3D. A new trade or job follows the same
 steps below before it ships. The sign-in pictures in 3D wait for the
 owner's word (A123).
 

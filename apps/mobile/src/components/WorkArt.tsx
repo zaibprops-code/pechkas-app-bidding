@@ -175,6 +175,18 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'garden-repot': require('../../assets/work/garden-repot.webp'),
   'garden-planting': require('../../assets/work/garden-planting.webp'),
   'garden-bed': require('../../assets/work/garden-bed.webp'),
+  'weld-welding': require('../../assets/work/weld-welding.webp'),
+  'weld-gate': require('../../assets/work/weld-gate.webp'),
+  'weld-grill': require('../../assets/work/weld-grill.webp'),
+  'weld-railing': require('../../assets/work/weld-railing.webp'),
+  'weld-furniture': require('../../assets/work/weld-furniture.webp'),
+  'weld-tankstand': require('../../assets/work/weld-tankstand.webp'),
+  'garden-garden': require('../../assets/work/garden-garden.webp'),
+  'helper-helper': require('../../assets/work/helper-helper.webp'),
+  'helper-furniture': require('../../assets/work/helper-furniture.webp'),
+  'helper-stairs': require('../../assets/work/helper-stairs.webp'),
+  'helper-vehicle': require('../../assets/work/helper-vehicle.webp'),
+  'helper-clear': require('../../assets/work/helper-clear.webp'),
 };
 
 /**
@@ -197,6 +209,9 @@ const TOPS: Record<string, ImageSourcePropType> = {
   tank: require('../../assets/work/tank-top.jpg'),
   cleaning: require('../../assets/work/cleaning-top.jpg'),
   mason: require('../../assets/work/mason-top.jpg'),
+  garden: require('../../assets/work/garden-top.jpg'),
+  welding: require('../../assets/work/weld-top.jpg'),
+  helper: require('../../assets/work/helper-top.jpg'),
 };
 
 /** The wide picture for the top of a trade's page, if it has one. */

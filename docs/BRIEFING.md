@@ -418,7 +418,7 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   fixing?", which is one big line, as professional apps do. Built.
 - **A123, 3D pictures (27 November 2026):** the pictures of the work become
   soft 3D objects on the same yellow circle, trade by trade. Every trade
-  built (Electrician last, 27 November 2026); the sign-in pictures in 3D wait for your word.
+  built (Masonry and tiles, Garden, Welding and Helper last, 28 November 2026); the sign-in pictures in 3D wait for your word.
 - **A124, jobs on their own pages (28 November 2026):** a group of jobs
   (Plumber's Taps, sinks and showers…) opens as its own page instead of a
   sheet from the bottom, one wide card per job: a big picture, the name, a

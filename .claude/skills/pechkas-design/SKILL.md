@@ -143,7 +143,8 @@ a screen; use the token.
   A123)**: the pictures of the work move from flat drawings to soft 3D
   objects — realistic light from the upper left, soft shadows, real chrome
   and ceramic — still on the bright yellow screw-head circle, still objects
-  only. Every trade is done (the last, Electrician, on 27 November 2026);
+  only. Every trade is done (Masonry and tiles, Garden, Welding and
+  Helper last, on 28 November 2026);
   a new trade or job gets its 3D picture the same way before it ships, so
   no trade is ever half drawings and half 3D.
   `scripts/oncircle.py` counts anything much darker than a shadow as the
@@ -152,6 +153,10 @@ a screen; use the token.
   or beige part (a damp stain, an old faded wall) passes for the pale
   yellow backdrop, so draw that picture on pale blue (#DCE8F5) instead; a
   grey or white part passes for a shadow on blue, so those stay on yellow.
+  A light grey face in shade (the front of a stone step) passes for a
+  shadow even on yellow: leave the steps out, or ask for medium grey
+  concrete. Shrinking a picture inside its backdrop does not make room
+  round a wide object: `oncircle.py` crops to the object first.
   A boxy object (a room corner, a house) hides the circle: give it
   `--circle 1.3`. A gauge set comes with a yellow hose unless the prompt
   says "hoses in blue and red only, no yellow hose" ("nothing yellow"
