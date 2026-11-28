@@ -11,12 +11,12 @@ import { colour } from '../theme';
  * words, so each one is hidden from screen readers.
  */
 
-export type ArtName = 'ac' | 'electrician' | 'plumber' | 'cctv' | 'wifi' | 'ups' | 'solar' | 'appliances' | 'carpentry' | 'painting' | 'computers' | 'more';
+export type ArtName = 'ac' | 'electrician' | 'plumber' | 'cctv' | 'wifi' | 'ups' | 'solar' | 'appliances' | 'carpentry' | 'painting' | 'computers' | 'tank' | 'more';
 
 /** The drawing for a trade's slug, when it has one. Post a job and My jobs both use it. */
 const BY_TRADE: Record<string, ArtName> = {
   ac: 'ac', electrician: 'electrician', plumber: 'plumber', ups: 'ups', cctv: 'cctv', wifi: 'wifi',
-  solar: 'solar', appliances: 'appliances', carpentry: 'carpentry', painting: 'painting', computers: 'computers',
+  solar: 'solar', appliances: 'appliances', carpentry: 'carpentry', painting: 'painting', computers: 'computers', tank: 'tank',
 };
 export const artFor = (trade: string): ArtName | undefined => BY_TRADE[trade];
 
@@ -145,6 +145,19 @@ export function Art({ name, width = 120, height = 90 }: { name: ArtName; width?:
           <Rect x={41} y={36} width={36} height={4} rx={2} fill={SHADE} />
           <Path d="M20 60 H102 L96 70 H26 Z" fill={SHADE} />
           <Rect x={52} y={60} width={18} height={3} rx={1.5} fill={INK} />
+        </G>
+      )}
+      {name === 'tank' && (
+        <G>
+          {/* A water tank on its stand. */}
+          <Rect x={42} y={6} width={30} height={9} rx={4} fill={colour.green} />
+          <Rect x={30} y={16} width={58} height={46} rx={12} fill={SHADE} />
+          <Rect x={28} y={13} width={58} height={46} rx={12} fill={WHITE} />
+          <Rect x={28} y={29} width={58} height={4} rx={2} fill={SHADE} />
+          <Rect x={28} y={43} width={58} height={4} rx={2} fill={SHADE} />
+          <Rect x={38} y={59} width={6} height={18} rx={2} fill={INK} />
+          <Rect x={70} y={59} width={6} height={18} rx={2} fill={INK} />
+          <Rect x={32} y={75} width={50} height={5} rx={2.5} fill={INK} />
         </G>
       )}
       {name === 'more' && (

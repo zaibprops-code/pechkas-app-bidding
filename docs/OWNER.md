@@ -3168,6 +3168,32 @@ the SQL editor (see "Run a database change"), after the earlier ones.
 - The lawyer's questions in D37.6 (checking identity through NADRA via
   another company, consent, what the company keeps and where).
 
+## More jobs, and Water tank (A125)
+
+Eight new jobs: water purifier (RO) filter change, silicone sealing, and
+bathroom accessory fitting (Plumber); TV wall mounting (Electrician, in a
+small group of its own called "TV"); mirror, picture or frame hanging, and
+mosquito mesh (jaali) (Carpentry); water dispenser repair (Home
+appliances, risky like the fridge); and a new kind of work, **Water tank**,
+with one job: overhead water tank cleaning. Underground tanks are left out
+on purpose.
+
+1. Run `supabase/migrations/20261208000000_more_jobs.sql` in the SQL editor
+   (see "Run a database change"), after the earlier ones. It is safe to run
+   twice.
+2. On your phone, open the app twice so the update arrives. Home now ends
+   with **Water tank**; Plumber → Taps, sinks and showers has three more jobs.
+3. **Prices are blank on purpose**, so each new job says "After a look" and
+   the lowest offer is the ordinary Rs 1,000. When you have a usual price for
+   any of them, tell Claude the job and the figure: it is one small database
+   change.
+4. **Technicians:** a technician who wants Water tank work chooses it on his
+   application like any other kind of work. Until somebody is approved for
+   it, a customer who posts a tank job gets no offers, so sign up two or
+   three before you tell people about it.
+5. The new jobs show a drawing or their group's picture until their 3D
+   pictures are made (they come later, A123's steps).
+
 ## Putting the app on Google Play
 
 No migration this time. Do these in order; each says which screen and which

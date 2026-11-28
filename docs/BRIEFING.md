@@ -17,7 +17,7 @@ decide there can be built straight away in the repositories.
 
 - **A home-repair business in Islamabad.** The trades are AC, electrician,
   plumber, CCTV, Wi-Fi and internet, UPS and inverter, solar, home
-  appliances, carpentry, painting and computers. Brand lines: "Har pech ka
+  appliances, carpentry, painting, computers and water tank cleaning (A125). Brand lines: "Har pech ka
   hal" and "Khara kaam, khara daam".
 - **The owner is one person, Muhammad Zohaib Khan.** He is not a developer.
   He tests on an Android 9 phone and has no Mac. Claude writes all the code.
@@ -424,6 +424,14 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   sheet from the bottom, one wide card per job: a big picture, the name, a
   short line of what it covers and the usual price. Every trade lists its
   jobs this way. Built; the 76 short lines are for the owner to read.
+- **A125, more jobs and Water tank (28 November 2026):** eight jobs added
+  after research into what other Pakistani home-service apps offer: water
+  purifier filter change, silicone sealing and bathroom accessory fitting
+  (Plumber), TV wall mounting (Electrician), mirror or picture hanging and
+  mosquito mesh (Carpentry), water dispenser repair (Home appliances), and a
+  new kind of work, Water tank, with overhead tank cleaning. Underground tanks
+  stay out (safety). Prices blank ("After a look") until the owner gives them;
+  pictures later. Built.
 
 ## 7. Still open: what the owner has to decide
 

@@ -256,4 +256,34 @@ heading('How the app shows the work matches the work there is');
   ok('every word Search suggests finds a job', empty.length === 0, empty);
 }
 
+heading('More jobs and Water tank (A125): blank prices, the right guarantee, the dispenser risky');
+{
+  const ADDED = [
+    ['plumber', 'Water purifier (RO) filter change', 'service', false],
+    ['plumber', 'Silicone sealing (bath, basin or sink)', 'repair', false],
+    ['plumber', 'Bathroom accessory fitting', 'repair', false],
+    ['electrician', 'TV wall mounting', 'repair', false],
+    ['carpentry', 'Mirror, picture or frame hanging', 'repair', false],
+    ['carpentry', 'Mosquito mesh (jaali) for a window or door', 'repair', false],
+    ['appliances', 'Water dispenser repair', 'repair', true],
+    ['tank', 'Overhead water tank cleaning', 'service', false],
+  ];
+  const { rows: tank } = await setup(`SELECT name FROM public.trades WHERE slug = 'tank'`);
+  ok('Water tank is a kind of work', tank[0]?.name === 'Water tank');
+  const { rows } = await setup(
+    `SELECT trade, name, list_paisa, guarantee, risky, public.price_floor(id) AS floor FROM public.job_types
+     WHERE (trade, name) IN (${ADDED.map((_, i) => `($${2 * i + 1}, $${2 * i + 2})`).join(', ')})`,
+    ADDED.flatMap(([t, n]) => [t, n]));
+  ok('all eight new jobs are there, once each', rows.length === ADDED.length, rows.map((r) => r.name));
+  const wrong = ADDED.filter(([t, n, g, r]) => {
+    const row = rows.find((x) => x.trade === t && x.name === n);
+    return !row || row.list_paisa !== null || row.guarantee !== g || row.risky !== r;
+  });
+  ok('no price was invented, and each has its guarantee and risk', wrong.length === 0, wrong);
+  const { rows: min } = await setup(`SELECT public.setting('min_offer_paisa') AS v`);
+  ok('with no usual price, the lowest offer is the ordinary lowest offer', rows.every((r) => Number(r.floor) === Number(min[0].v)), rows.map((r) => r.floor));
+  const { rows: under } = await setup(`SELECT 1 FROM public.job_types WHERE name ILIKE '%underground%'`);
+  ok('no underground tank cleaning (the owner kept it out)', under.length === 0);
+}
+
 report();

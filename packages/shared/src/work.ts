@@ -28,6 +28,7 @@ export const WORK_THINGS: Record<string, string> = {
   carpentry: 'Doors, locks, cupboards',
   painting: 'Rooms, touch-ups, damp patches',
   computers: 'Slow, virus, Windows, repairs',
+  tank: 'Roof tank cleaning',
 };
 
 /** `art` names the group's drawing (TradeArt in the app); a group without one shows its trade's. */
@@ -44,20 +45,21 @@ export const WORK_GROUPS: Record<string, WorkGroup[]> = {
   ],
   electrician: [
     { title: 'Fans and lights', art: 'fan', jobs: ['Ceiling fan installation', 'Exhaust fan fitting', 'Light or chandelier fitting'] },
+    { title: 'TV', jobs: ['TV wall mounting'] },
     { title: 'Switches and sockets', art: 'socket', jobs: ['Switch or socket replacement', 'New socket or light point', 'Doorbell or intercom fitting'] },
     { title: 'Power and wiring', art: 'breaker', jobs: ['DB or breaker fault', 'Wiring fault tracing', 'Rewiring a room or a house', 'UPS or inverter connection', 'Generator or solar changeover switch', 'Water motor automatic switch'] },
   ],
   plumber: [
-    { title: 'Taps, sinks and showers', art: 'taps', jobs: ['Leaking tap repair or replacement', 'Wash basin or kitchen sink fitting', 'Shower, mixer or bathroom fittings', 'Water filter fitting'] },
+    { title: 'Taps, sinks and showers', art: 'taps', jobs: ['Leaking tap repair or replacement', 'Wash basin or kitchen sink fitting', 'Shower, mixer or bathroom fittings', 'Silicone sealing (bath, basin or sink)', 'Bathroom accessory fitting', 'Water filter fitting', 'Water purifier (RO) filter change'] },
     { title: 'Toilet', art: 'toilet', jobs: ['Flush tank repair', 'Flush tank float valve replacement', 'Commode or toilet fitting'] },
     { title: 'Geyser', art: 'geyser', jobs: ['Geyser installation', 'Geyser service and descaling', 'Geyser repair'] },
     { title: 'Water motor', art: 'motor', jobs: ['Water motor or pump fitting', 'Water motor repair'] },
     { title: 'Drains and leaks', art: 'drain', jobs: ['Blocked drain clearing', 'Main sewerage line blockage', 'Hidden pipe leak'] },
   ],
   carpentry: [
-    { title: 'Doors and windows', art: 'door', jobs: ['Door lock or handle fitting', 'Door hinge repair or replacement', 'Door adjustment (sticking or not closing)', 'Hanging a new door', 'Window repair (handle, hinge or sliding)'] },
+    { title: 'Doors and windows', art: 'door', jobs: ['Door lock or handle fitting', 'Door hinge repair or replacement', 'Door adjustment (sticking or not closing)', 'Hanging a new door', 'Window repair (handle, hinge or sliding)', 'Mosquito mesh (jaali) for a window or door'] },
     { title: 'Cupboards and furniture', art: 'cupboard', jobs: ['Cupboard or wardrobe repair', 'Drawer or channel repair', 'Flat-pack furniture assembly', 'Furniture repair'] },
-    { title: 'On the wall', art: 'shelf', jobs: ['Shelf or wall bracket fitting', 'Curtain rod or blind fitting'] },
+    { title: 'On the wall', art: 'shelf', jobs: ['Shelf or wall bracket fitting', 'Curtain rod or blind fitting', 'Mirror, picture or frame hanging'] },
   ],
 };
 
@@ -102,6 +104,9 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Blocked drain clearing': 'A sink, shower or floor drain that will not empty',
     'Main sewerage line blockage': 'The main line out of the house blocked or backing up',
     'Hidden pipe leak': 'A leak inside a wall or under a floor, found and fixed',
+    'Water purifier (RO) filter change': 'New filters or membrane for your water purifier',
+    'Silicone sealing (bath, basin or sink)': 'Old or black sealing removed and done again',
+    'Bathroom accessory fitting': 'A towel rail, soap dish, holder or shelf put up',
   },
   ac: {
     'General service (indoor and outdoor unit)': 'Indoor and outdoor units cleaned and checked',
@@ -127,6 +132,7 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'UPS or inverter connection': 'A UPS or inverter wired into the house',
     'Generator or solar changeover switch': 'A switch between the mains and a generator or solar',
     'Water motor automatic switch': 'A switch that starts and stops the water motor by itself',
+    'TV wall mounting': 'A TV put up on the wall on a bracket',
   },
   solar: {
     'Panel cleaning (up to 5kW)': 'Dust and dirt washed off a system of up to 5kW',
@@ -141,6 +147,7 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Washing machine repair': 'A machine that will not start, spin or drain',
     'Fridge or freezer repair': 'A fridge or freezer that will not cool or keeps stopping',
     'Microwave or electric oven repair': 'A microwave or oven that will not heat or start',
+    'Water dispenser repair': 'A dispenser that will not cool, will not heat or leaks',
   },
   cctv: {
     'Fitting a camera': 'One camera put up and connected',
@@ -181,6 +188,11 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Furniture repair': 'A broken chair, table or bed fixed',
     'Shelf or wall bracket fitting': 'Shelves or brackets put up on a wall',
     'Curtain rod or blind fitting': 'Curtain rods or blinds put up',
+    'Mirror, picture or frame hanging': 'Hung straight and firm on the wall',
+    'Mosquito mesh (jaali) for a window or door': 'A new mesh fitted, or a torn one replaced',
+  },
+  tank: {
+    'Overhead water tank cleaning': 'A plastic or cement tank on the roof, emptied, scrubbed and rinsed',
   },
 };
 

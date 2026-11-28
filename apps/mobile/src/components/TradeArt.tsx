@@ -96,6 +96,16 @@ const DRAWINGS: Record<string, () => ReactNode> = {
       <Rect x={29} y={37} width={8} height={20} rx={3} fill={W} {...L} />
     </>
   ),
+  tank: () => (
+    <>
+      {/* A water tank on its stand, on a roof. */}
+      <Rect x={24} y={7} width={16} height={6} rx={2} fill={Y} {...L} />
+      <Rect x={13} y={13} width={38} height={33} rx={7} fill={W} {...L} />
+      <Path d="M14.5 34h35v5a5.5 5.5 0 0 1-5.5 5.5h-24a5.5 5.5 0 0 1-5.5-5.5z" fill={Y} />
+      <Path d="M13 24h38M13 34h38" {...L} />
+      <Path d="M20 46v10M44 46v10M15 56h34" fill="none" {...L} />
+    </>
+  ),
   computers: () => (
     <>
       <Rect x={8} y={9} width={48} height={33} rx={4} fill={W} {...L} />

@@ -5,15 +5,17 @@ and published. Any session can pick this up from here. The rules for how the
 pictures look are in `docs/DESIGN.md` ("3D pictures, trade by trade"); the
 decision is A123 in `docs/DECISIONS.md`.
 
-## Where it stands (27 November 2026)
+## Where it stands (28 November 2026)
 
 | Trade | State |
 | --- | --- |
 | Every trade: AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers, Carpentry, Electrician | Built: 3D pictures and a 3D top of the page (Electrician last, 27 November 2026) |
+| **Still to make (A125, the owner: pictures later)** | Plumber: water purifier (RO) filter change, silicone sealing, bathroom accessory fitting. Electrician: TV wall mounting, and the "TV" group's picture. Carpentry: mirror, picture or frame hanging; mosquito mesh (jaali). Home appliances: water dispenser repair. **Water tank** (a new trade): its own picture, its job (overhead water tank cleaning: a plastic or cement tank on a flat roof) and a wide top for its page |
 
-No flat picture of the work is left. A new trade or job follows the same
-steps below before it ships. The sign-in pictures in 3D wait for the owner's
-word (A123).
+The A125 jobs show their group's or trade's picture, or a drawing, until
+theirs are made; each new picture goes in `JOB_PICTURES` / `ART_PICTURES`
+(and the TV group gets `art`). The sign-in pictures in 3D wait for the
+owner's word (A123).
 
 ## The order of work for each trade
 
