@@ -11,12 +11,12 @@ import { colour } from '../theme';
  * words, so each one is hidden from screen readers.
  */
 
-export type ArtName = 'ac' | 'electrician' | 'plumber' | 'cctv' | 'wifi' | 'ups' | 'solar' | 'appliances' | 'carpentry' | 'painting' | 'computers' | 'tank' | 'more';
+export type ArtName = 'ac' | 'electrician' | 'plumber' | 'cctv' | 'wifi' | 'ups' | 'solar' | 'appliances' | 'carpentry' | 'painting' | 'computers' | 'tank' | 'cleaning' | 'more';
 
 /** The drawing for a trade's slug, when it has one. Post a job and My jobs both use it. */
 const BY_TRADE: Record<string, ArtName> = {
   ac: 'ac', electrician: 'electrician', plumber: 'plumber', ups: 'ups', cctv: 'cctv', wifi: 'wifi',
-  solar: 'solar', appliances: 'appliances', carpentry: 'carpentry', painting: 'painting', computers: 'computers', tank: 'tank',
+  solar: 'solar', appliances: 'appliances', carpentry: 'carpentry', painting: 'painting', computers: 'computers', tank: 'tank', cleaning: 'cleaning',
 };
 export const artFor = (trade: string): ArtName | undefined => BY_TRADE[trade];
 
@@ -145,6 +145,17 @@ export function Art({ name, width = 120, height = 90 }: { name: ArtName; width?:
           <Rect x={41} y={36} width={36} height={4} rx={2} fill={SHADE} />
           <Path d="M20 60 H102 L96 70 H26 Z" fill={SHADE} />
           <Rect x={52} y={60} width={18} height={3} rx={1.5} fill={INK} />
+        </G>
+      )}
+      {name === 'cleaning' && (
+        <G>
+          {/* A sofa. */}
+          <Rect x={22} y={20} width={76} height={26} rx={10} fill={WHITE} />
+          <Rect x={18} y={38} width={84} height={24} rx={9} fill={SHADE} />
+          <Rect x={28} y={40} width={30} height={16} rx={5} fill={WHITE} />
+          <Rect x={62} y={40} width={30} height={16} rx={5} fill={WHITE} />
+          <Rect x={24} y={62} width={6} height={12} rx={2} fill={INK} />
+          <Rect x={90} y={62} width={6} height={12} rx={2} fill={INK} />
         </G>
       )}
       {name === 'tank' && (

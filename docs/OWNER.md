@@ -3194,6 +3194,28 @@ on purpose.
 5. Every new job has its 3D picture, and Water tank has its own picture
    and page top.
 
+## More jobs, second list, and Sofa and carpet cleaning (A126)
+
+Fourteen new jobs, each with its 3D picture: burst or leaking pipe repair,
+new water pipe line and instant electric geyser fitting (Plumber); AC
+chemical wash and window AC service (AC); ceiling fan repair, earthing and
+a new DB or breaker board (Electrician); UPS battery replacement (UPS and
+inverter); clothes dryer repair (Home appliances); kitchen cabinet fitting
+(Carpentry); and a new kind of work, **Sofa and carpet cleaning**: sofa,
+carpet or rug, and mattress.
+
+1. Run `supabase/migrations/20261209000000_more_jobs_two.sql` in the SQL
+   editor (see "Run a database change"), after `…_more_jobs`. It is safe to
+   run twice.
+2. Open the app twice so the update arrives. Home now ends with **Sofa and
+   carpet cleaning**.
+3. Prices are blank, as last time ("After a look"). Tell Claude any figure
+   you want, job by job.
+4. The electric geyser, earthing, new board and UPS battery jobs are risky:
+   only a technician cleared for risky work in that trade sees them.
+5. Sign up two or three cleaners before you tell people about the new kind
+   of work, or the first customers will get no offers.
+
 ## Putting the app on Google Play
 
 No migration this time. Do these in order; each says which screen and which

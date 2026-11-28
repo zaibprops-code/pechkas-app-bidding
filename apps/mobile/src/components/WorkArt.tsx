@@ -120,6 +120,21 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'carp-mesh': require('../../assets/work/carp-mesh.webp'),
   'tank-tank': require('../../assets/work/tank-tank.webp'),
   'tank-clean': require('../../assets/work/tank-clean.webp'),
+  'plumber-pipe': require('../../assets/work/plumber-pipe.webp'),
+  'plumber-newpipe': require('../../assets/work/plumber-newpipe.webp'),
+  'plumber-instant': require('../../assets/work/plumber-instant.webp'),
+  'ac-wash': require('../../assets/work/ac-wash.webp'),
+  'ac-window': require('../../assets/work/ac-window.webp'),
+  'el-fanrepair': require('../../assets/work/el-fanrepair.webp'),
+  'el-earthing': require('../../assets/work/el-earthing.webp'),
+  'el-db': require('../../assets/work/el-db.webp'),
+  'ups-battery': require('../../assets/work/ups-battery.webp'),
+  'app-dryer': require('../../assets/work/app-dryer.webp'),
+  'carp-cabinet': require('../../assets/work/carp-cabinet.webp'),
+  'clean-sofa': require('../../assets/work/clean-sofa.webp'),
+  'clean-carpet': require('../../assets/work/clean-carpet.webp'),
+  'clean-mattress': require('../../assets/work/clean-mattress.webp'),
+  'clean-cleaning': require('../../assets/work/clean-cleaning.webp'),
 };
 
 /**
@@ -140,6 +155,7 @@ const TOPS: Record<string, ImageSourcePropType> = {
   carpentry: require('../../assets/work/carp-top.jpg'),
   electrician: require('../../assets/work/el-top.jpg'),
   tank: require('../../assets/work/tank-top.jpg'),
+  cleaning: require('../../assets/work/cleaning-top.jpg'),
 };
 
 /** The wide picture for the top of a trade's page, if it has one. */

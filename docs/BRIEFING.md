@@ -17,7 +17,7 @@ decide there can be built straight away in the repositories.
 
 - **A home-repair business in Islamabad.** The trades are AC, electrician,
   plumber, CCTV, Wi-Fi and internet, UPS and inverter, solar, home
-  appliances, carpentry, painting, computers and water tank cleaning (A125). Brand lines: "Har pech ka
+  appliances, carpentry, painting, computers, water tank cleaning (A125) and sofa and carpet cleaning (A126). Brand lines: "Har pech ka
   hal" and "Khara kaam, khara daam".
 - **The owner is one person, Muhammad Zohaib Khan.** He is not a developer.
   He tests on an Android 9 phone and has no Mac. Claude writes all the code.
@@ -432,6 +432,14 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   new kind of work, Water tank, with overhead tank cleaning. Underground tanks
   stay out (safety). Prices blank ("After a look") until the owner gives them.
   Their 3D pictures, and Water tank's page top, built the same day.
+- **A126, the second list (28 November 2026):** fourteen more jobs after
+  going through another local company's list: pipe repair, a new pipe line
+  and an electric geyser (Plumber); AC chemical wash and window AC service;
+  ceiling fan repair, earthing and a new breaker board (Electrician); UPS
+  battery replacement; clothes dryer repair; kitchen cabinet fitting; and a
+  new kind of work, Sofa and carpet cleaning (sofa, carpet or rug,
+  mattress). Whole-house deep cleaning stays out (a team's work). Prices
+  blank until the owner gives them; 3D pictures built the same day.
 
 ## 7. Still open: what the owner has to decide
 

@@ -286,4 +286,38 @@ heading('More jobs and Water tank (A125): blank prices, the right guarantee, the
   ok('no underground tank cleaning (the owner kept it out)', under.length === 0);
 }
 
+heading('The second list and Sofa and carpet cleaning (A126): blank prices, guarantees, risk');
+{
+  const ADDED = [
+    ['plumber', 'Burst or leaking pipe repair', 'repair', false],
+    ['plumber', 'New water pipe line', 'repair', false],
+    ['plumber', 'Instant electric geyser fitting', 'repair', true],
+    ['ac', 'AC chemical wash', 'service', false],
+    ['ac', 'Window AC service', 'service', false],
+    ['electrician', 'Ceiling fan repair', 'repair', false],
+    ['electrician', 'Earthing', 'repair', true],
+    ['electrician', 'New DB or breaker board', 'repair', true],
+    ['ups', 'UPS battery replacement', 'repair', true],
+    ['appliances', 'Clothes dryer repair', 'repair', false],
+    ['carpentry', 'Kitchen cabinet fitting', 'repair', false],
+    ['cleaning', 'Sofa cleaning', 'service', false],
+    ['cleaning', 'Carpet or rug cleaning', 'service', false],
+    ['cleaning', 'Mattress cleaning', 'service', false],
+  ];
+  const { rows: cl } = await setup(`SELECT name FROM public.trades WHERE slug = 'cleaning'`);
+  ok('Sofa and carpet cleaning is a kind of work', cl[0]?.name === 'Sofa and carpet cleaning');
+  const { rows } = await setup(
+    `SELECT trade, name, list_paisa, guarantee, risky FROM public.job_types
+     WHERE (trade, name) IN (${ADDED.map((_, i) => `($${2 * i + 1}, $${2 * i + 2})`).join(', ')})`,
+    ADDED.flatMap(([t, n]) => [t, n]));
+  ok('all fourteen new jobs are there, once each', rows.length === ADDED.length, rows.map((r) => r.name));
+  const wrong = ADDED.filter(([t, n, g, r]) => {
+    const row = rows.find((x) => x.trade === t && x.name === n);
+    return !row || row.list_paisa !== null || row.guarantee !== g || row.risky !== r;
+  });
+  ok('no price was invented, and each has its guarantee and risk', wrong.length === 0, wrong);
+  const { rows: deep } = await setup(`SELECT 1 FROM public.job_types WHERE trade = 'cleaning' AND name ILIKE '%deep%'`);
+  ok('no whole-house deep cleaning (a team\'s work, left out)', deep.length === 0);
+}
+
 report();

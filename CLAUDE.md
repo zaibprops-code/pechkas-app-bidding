@@ -2025,7 +2025,13 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   fallback. TV wall mounting is its own group, "TV" (art `tv`), so it
   never shares the fans picture. **Water tank** (A125) is overhead tanks
   only; underground tanks stay out (bad air inside one), and every A125
-  price is NULL ("After a look") until the owner gives one. **The pictures are 3D,
+  price is NULL ("After a look") until the owner gives one. **A126** added
+  fourteen more jobs the same way, with their 3D pictures, and a new kind
+  of work, **Sofa and carpet cleaning** (`cleaning`: sofa, carpet or rug,
+  mattress; its drawing is `cleaning` in `TradeArt.tsx` and `Art.tsx`);
+  UPS and inverter now has a job of its own (battery replacement), and
+  Plumber's "Drains and leaks" group is "Pipes, drains and leaks". Whole-
+  house, office and kitchen deep cleaning stay out: a team's work. **The pictures are 3D,
   every trade (A123, built trade by trade, the last on 27 November 2026)** — soft 3D objects on the same yellow
   circle, WebP, made one at a time and moved onto the circle by
   `scripts/oncircle.py` — and their pages open with a wide 3D picture filling

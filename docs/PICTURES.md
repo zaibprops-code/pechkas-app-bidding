@@ -10,6 +10,7 @@ decision is A123 in `docs/DECISIONS.md`.
 | Trade | State |
 | --- | --- |
 | Every trade: AC, CCTV, Wi-Fi, UPS, Solar, Plumber, Painting, Home appliances, Computers, Carpentry, Electrician | Built: 3D pictures and a 3D top of the page (Electrician last, 27 November 2026) |
+| A126's fourteen new jobs and **Sofa and carpet cleaning** | Built 28 November 2026: pipe repair, new pipe line, electric geyser; AC chemical wash, window AC; ceiling fan repair, earthing, new breaker board; UPS battery; clothes dryer; kitchen cabinet; sofa, carpet and mattress cleaning, the trade's own picture and its page top. The mattress (white) was made on the pale blue backdrop; the new pipe line, breaker board and cabinet were cut with `--circle 1.06` |
 | A125's eight new jobs and **Water tank** | Built 28 November 2026: water purifier filters, silicone sealing, bathroom accessories (Plumber); TV wall mounting and its "TV" group (Electrician); mirror or picture hanging, mosquito mesh (Carpentry); water dispenser (Home appliances); Water tank's own picture, its cleaning job and its page top. The four flat, boxy ones (mirror, TV, mesh, bathroom tiles) were cut with `--circle 1.06`, the mesh at 0.96; at 1.22 the circle ran off the source and showed flat sides |
 
 No flat picture of the work is left. A new trade or job follows the same
