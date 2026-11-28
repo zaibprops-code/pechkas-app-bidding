@@ -17,7 +17,7 @@ decide there can be built straight away in the repositories.
 
 - **A home-repair business in Islamabad.** The trades are AC, electrician,
   plumber, CCTV, Wi-Fi and internet, UPS and inverter, solar, home
-  appliances, carpentry, painting, computers, water tank cleaning (A125) and sofa and carpet cleaning (A126). Brand lines: "Har pech ka
+  appliances, carpentry, painting, computers, water tank cleaning (A125) and cleaning (A126, A129). Brand lines: "Har pech ka
   hal" and "Khara kaam, khara daam".
 - **The owner is one person, Muhammad Zohaib Khan.** He is not a developer.
   He tests on an Android 9 phone and has no Mac. Claude writes all the code.
@@ -445,6 +445,11 @@ The full wording is in `docs/DECISIONS.md`, Part 2.
   pressure, AC not cooling, a noisy or shaking AC, a solar inverter, solar
   batteries and solar producing less power. Prices blank; 3D
   pictures built the same day.
+- **A128, four more appliance jobs (28 November 2026):** dishwasher repair,
+  kitchen hood (chimney) cleaning and installation, electric stove or hob
+  repair; Home appliances now opens as three groups. No gas stove.
+- **A129, Cleaning (28 November 2026):** Sofa and carpet cleaning is now
+  just Cleaning, with bathroom and kitchen deep cleaning (one room each).
 
 ## 7. Still open: what the owner has to decide
 

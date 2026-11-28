@@ -142,6 +142,12 @@ const PICTURES: Record<string, ImageSourcePropType> = {
   'solar-inverter': require('../../assets/work/solar-inverter.webp'),
   'solar-battery': require('../../assets/work/solar-battery.webp'),
   'solar-lowpower': require('../../assets/work/solar-lowpower.webp'),
+  'app-dishwasher': require('../../assets/work/app-dishwasher.webp'),
+  'app-hoodclean': require('../../assets/work/app-hoodclean.webp'),
+  'app-hoodfit': require('../../assets/work/app-hoodfit.webp'),
+  'app-stove': require('../../assets/work/app-stove.webp'),
+  'clean-bathroom': require('../../assets/work/clean-bathroom.webp'),
+  'clean-kitchen': require('../../assets/work/clean-kitchen.webp'),
 };
 
 /**

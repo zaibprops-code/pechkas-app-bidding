@@ -2037,7 +2037,15 @@ cd apps/mobile && EXPO_OFFLINE=1 npx expo export --platform android
   Plumber's "Water motor" group is "Water motor and tank"; and two AC
   problems named as she sees them, AC not cooling (risky) and a noisy or
   shaking AC, at the top of AC's "Service and repair"; and three Solar jobs
-  (inverter fitted or replaced, solar batteries, output dropped), all risky. **The pictures are 3D,
+  (inverter fitted or replaced, solar batteries, output dropped), all risky.
+  **A128** added a dishwasher, kitchen hood (chimney) cleaning and fitting
+  and an electric or induction stove to Home appliances, and split its page
+  into three groups (Washing machines and dryers, Fridges and water
+  dispensers, Kitchen), each group's picture one of its jobs'. No gas stove.
+  **A129** renamed Sofa and carpet cleaning to **Cleaning** and added
+  bathroom and kitchen deep cleaning, one room each, in two groups
+  (Furniture and carpets, Rooms). Whole-house, office and building-site
+  cleaning stay out. **The pictures are 3D,
   every trade (A123, built trade by trade, the last on 27 November 2026)** — soft 3D objects on the same yellow
   circle, WebP, made one at a time and moved onto the circle by
   `scripts/oncircle.py` — and their pages open with a wide 3D picture filling

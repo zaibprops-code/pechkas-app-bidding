@@ -305,7 +305,7 @@ heading('The second list and Sofa and carpet cleaning (A126): blank prices, guar
     ['cleaning', 'Mattress cleaning', 'service', false],
   ];
   const { rows: cl } = await setup(`SELECT name FROM public.trades WHERE slug = 'cleaning'`);
-  ok('Sofa and carpet cleaning is a kind of work', cl[0]?.name === 'Sofa and carpet cleaning');
+  ok('Sofa and carpet cleaning is a kind of work (called Cleaning since A129)', ['Sofa and carpet cleaning', 'Cleaning'].includes(cl[0]?.name));
   const { rows } = await setup(
     `SELECT trade, name, list_paisa, guarantee, risky FROM public.job_types
      WHERE (trade, name) IN (${ADDED.map((_, i) => `($${2 * i + 1}, $${2 * i + 2})`).join(', ')})`,
@@ -316,7 +316,8 @@ heading('The second list and Sofa and carpet cleaning (A126): blank prices, guar
     return !row || row.list_paisa !== null || row.guarantee !== g || row.risky !== r;
   });
   ok('no price was invented, and each has its guarantee and risk', wrong.length === 0, wrong);
-  const { rows: deep } = await setup(`SELECT 1 FROM public.job_types WHERE trade = 'cleaning' AND name ILIKE '%deep%'`);
+  // One room is a job (A129); a whole house is a team's work and stays out.
+  const { rows: deep } = await setup(`SELECT 1 FROM public.job_types WHERE trade = 'cleaning' AND name ILIKE '%deep%' AND name NOT ILIKE 'bathroom %' AND name NOT ILIKE 'kitchen %'`);
   ok('no whole-house deep cleaning (a team\'s work, left out)', deep.length === 0);
 }
 
@@ -333,6 +334,26 @@ heading('Two more plumbing jobs (A127): blank prices, 30 days, not risky, the ta
   ok('the three Solar jobs are there, no price, 30 days, all risky', so.length === 3 && so.every((r) => r.list_paisa === null && r.guarantee === 'repair' && r.risky === true), so);
   const { rows: inst } = await setup(`SELECT 1 FROM public.job_types WHERE trade = 'solar' AND name ILIKE '%panel installation%'`);
   ok('no solar panel installation (days of work and net metering, left out)', inst.length === 0);
+}
+
+heading('Four more Home appliances jobs (A128), and its page in three groups');
+{
+  const { rows } = await setup(`SELECT name, list_paisa, guarantee, risky FROM public.job_types WHERE trade = 'appliances' AND name IN ('Dishwasher repair', 'Kitchen hood (chimney) cleaning', 'Kitchen hood (chimney) installation', 'Electric stove or hob repair')`);
+  ok('all four are there, once each, with no price and not risky', rows.length === 4 && rows.every((r) => r.list_paisa === null && r.risky === false), rows);
+  ok('hood cleaning is a service, the rest 30 days', rows.every((r) => r.guarantee === (r.name === 'Kitchen hood (chimney) cleaning' ? 'service' : 'repair')), rows);
+  const { rows: gas } = await setup(`SELECT 1 FROM public.job_types WHERE name ILIKE '%gas stove%' OR name ILIKE '%gas cooker%'`);
+  ok('no gas stove or cooker (Pechkas does no gas work)', gas.length === 0);
+  ok('Home appliances is in three groups', (WORK_GROUPS.appliances ?? []).length === 3);
+}
+
+heading('Cleaning: two room jobs and the new name (A129)');
+{
+  const { rows: t } = await setup(`SELECT name FROM public.trades WHERE slug = 'cleaning'`);
+  ok('the kind of work is called Cleaning', t[0]?.name === 'Cleaning');
+  const { rows } = await setup(`SELECT name, list_paisa, guarantee, risky FROM public.job_types WHERE trade = 'cleaning' AND name IN ('Bathroom deep cleaning', 'Kitchen deep cleaning')`);
+  ok('both room jobs are there, services, no price, not risky', rows.length === 2 && rows.every((r) => r.list_paisa === null && r.guarantee === 'service' && r.risky === false), rows);
+  const { rows: whole } = await setup(`SELECT 1 FROM public.job_types WHERE trade = 'cleaning' AND (name ILIKE '%house%' OR name ILIKE '%office%' OR name ILIKE '%construction%')`);
+  ok('no whole-house, office or building-site cleaning', whole.length === 0);
 }
 
 report();

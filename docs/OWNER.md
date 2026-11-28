@@ -3231,6 +3231,28 @@ its 3D picture.
    AC → Service and repair starts with the two AC problems.
 3. Prices are blank ("After a look") until you give them.
 
+## Four more appliance jobs, and the appliances page in groups (A128)
+
+Dishwasher repair, kitchen hood (chimney) cleaning and installation, and
+electric stove or hob repair, each with its 3D picture. Home appliances now
+opens as three groups: Washing machines and dryers, Fridges and water
+dispensers, Kitchen.
+
+1. Run `supabase/migrations/20261211000000_more_jobs_four.sql` in the SQL
+   editor, after `…_more_jobs_three`. It is safe to run twice.
+2. Open the app twice, then Home appliances: three group tiles.
+3. Prices are blank ("After a look") until you give them.
+
+## Cleaning: bathroom and kitchen, and the new name (A129)
+
+Sofa and carpet cleaning is now called **Cleaning**, with two new jobs,
+bathroom deep cleaning and kitchen deep cleaning (one room each), each with
+its 3D picture. Its page has two groups: Furniture and carpets, and Rooms.
+
+1. Run `supabase/migrations/20261212000000_cleaning_rooms.sql` in the SQL
+   editor, after `…_more_jobs_four`. It is safe to run twice.
+2. Open the app twice: home now says **Cleaning**.
+
 ## Putting the app on Google Play
 
 No migration this time. Do these in order; each says which screen and which

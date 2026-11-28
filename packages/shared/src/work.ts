@@ -29,7 +29,7 @@ export const WORK_THINGS: Record<string, string> = {
   painting: 'Rooms, touch-ups, damp patches',
   computers: 'Slow, virus, Windows, repairs',
   tank: 'Roof tank cleaning',
-  cleaning: 'Sofa, carpet, mattress',
+  cleaning: 'Sofa, carpet, bathroom, kitchen',
 };
 
 /** `art` names the group's drawing (TradeArt in the app); a group without one shows its trade's. */
@@ -56,6 +56,15 @@ export const WORK_GROUPS: Record<string, WorkGroup[]> = {
     { title: 'Geyser', art: 'geyser', jobs: ['Geyser installation', 'Instant electric geyser fitting', 'Geyser service and descaling', 'Geyser repair'] },
     { title: 'Water motor and tank', art: 'motor', jobs: ['Water motor or pump fitting', 'Water motor repair', 'Water tank installation'] },
     { title: 'Pipes, drains and leaks', art: 'drain', jobs: ['Burst or leaking pipe repair', 'Hidden pipe leak', 'New water pipe line', 'Blocked drain clearing', 'Main sewerage line blockage'] },
+  ],
+  appliances: [
+    { title: 'Washing machines and dryers', art: 'washers', jobs: ['Washing machine repair', 'Washing machine service and clean', 'Clothes dryer repair', 'Appliance installation or fitting'] },
+    { title: 'Fridges and water dispensers', art: 'cold', jobs: ['Fridge or freezer repair', 'Water dispenser repair'] },
+    { title: 'Kitchen', art: 'kitchen', jobs: ['Microwave or electric oven repair', 'Electric stove or hob repair', 'Dishwasher repair', 'Kitchen hood (chimney) cleaning', 'Kitchen hood (chimney) installation'] },
+  ],
+  cleaning: [
+    { title: 'Furniture and carpets', art: 'furnish', jobs: ['Sofa cleaning', 'Carpet or rug cleaning', 'Mattress cleaning'] },
+    { title: 'Rooms', art: 'rooms', jobs: ['Bathroom deep cleaning', 'Kitchen deep cleaning'] },
   ],
   carpentry: [
     { title: 'Doors and windows', art: 'door', jobs: ['Door lock or handle fitting', 'Door hinge repair or replacement', 'Door adjustment (sticking or not closing)', 'Hanging a new door', 'Window repair (handle, hinge or sliding)', 'Mosquito mesh (jaali) for a window or door'] },
@@ -166,6 +175,10 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Microwave or electric oven repair': 'A microwave or oven that will not heat or start',
     'Water dispenser repair': 'A dispenser that will not cool, will not heat or leaks',
     'Clothes dryer repair': 'A dryer that will not turn, heat or dry',
+    'Dishwasher repair': 'A dishwasher that will not start, drain or clean',
+    'Kitchen hood (chimney) cleaning': 'Grease cleaned from the hood and its filters',
+    'Kitchen hood (chimney) installation': 'A new hood put up, connected and its duct fitted',
+    'Electric stove or hob repair': 'An electric or induction cooktop that will not heat',
   },
   cctv: {
     'Fitting a camera': 'One camera put up and connected',
@@ -220,6 +233,8 @@ export const JOB_LINES: Record<string, Record<string, string>> = {
     'Sofa cleaning': 'Seats and cushions washed with a machine',
     'Carpet or rug cleaning': 'A carpet or rug washed and dried on the spot',
     'Mattress cleaning': 'A mattress cleaned of dust and stains',
+    'Bathroom deep cleaning': 'One bathroom: tiles, fittings, toilet and hard-water marks',
+    'Kitchen deep cleaning': 'One kitchen: tiles, counters, cabinet fronts and grease',
   },
 };
 
@@ -314,6 +329,10 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Microwave or electric oven repair': 'app-microwave',
     'Water dispenser repair': 'app-dispenser',
     'Clothes dryer repair': 'app-dryer',
+    'Dishwasher repair': 'app-dishwasher',
+    'Kitchen hood (chimney) cleaning': 'app-hoodclean',
+    'Kitchen hood (chimney) installation': 'app-hoodfit',
+    'Electric stove or hob repair': 'app-stove',
   },
   cctv: {
     'Fitting a camera': 'cctv-camfit',
@@ -368,6 +387,8 @@ export const JOB_PICTURES: Record<string, Record<string, string>> = {
     'Sofa cleaning': 'clean-sofa',
     'Carpet or rug cleaning': 'clean-carpet',
     'Mattress cleaning': 'clean-mattress',
+    'Bathroom deep cleaning': 'clean-bathroom',
+    'Kitchen deep cleaning': 'clean-kitchen',
   },
 };
 export const ART_PICTURES: Record<string, string> = {
@@ -397,6 +418,11 @@ export const ART_PICTURES: Record<string, string> = {
   shelf: 'carp-shelf',
   tv: 'el-tv',
   tank: 'tank-tank',
+  washers: 'app-wmrepair',
+  cold: 'app-fridge',
+  kitchen: 'app-microwave',
+  furnish: 'clean-sofa',
+  rooms: 'clean-bathroom',
   cleaning: 'clean-cleaning',
 };
 
